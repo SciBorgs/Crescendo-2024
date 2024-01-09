@@ -61,6 +61,10 @@ public class Robot extends CommandRobot implements Logged, Fallible {
    */
   private void configureSubsystemDefaults() {}
 
+  public void configureClimberDefefalts() {
+    
+  }
+
   /** Configures trigger -> command bindings */
   private void configureBindings() {
     autonomous().whileTrue(new ProxyCommand(autos::get));
