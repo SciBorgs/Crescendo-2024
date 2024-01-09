@@ -7,13 +7,11 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
-  public Climber() {}
-
-  double ffOutput;
-  double fbOutput;
+  //need to add measurements for clamping(don't want to overextend the climber)
 
   // motor setup
   CANSparkMax motor = new CANSparkMax(sparkPort, MotorType.kBrushless);
@@ -23,40 +21,37 @@ public class Climber extends SubsystemBase {
   PIDController pid = new PIDController(kP, kI, kD);
   ElevatorFeedforward ff = new ElevatorFeedforward(kS, kG, kV, kA);
 
-  public void setDesiredSetpoint(double setpoint) {
+  public void setMotorSpeed(double speed){
+    motor.set(speed);
+  }
+
+//   public void stopExtending() {
     
+//   }
+
+  public void retract() {
+    moveToSetpoint(0);
   }
 
-  public void setGoal(double goal) {
-    
-  }
-
-  public void stopExtending() {
-    motor.set(0.0);
-  }
-
-  public void retract() {}
-
-  public void fullyExtend() {}
+//   public void fullyExtend() {
+//     moveToSetpoint();
+//   }
 
   // run when first scheduled
   public void climberInit() {
     // sets position to be 0 (remember to keep climber retracted at first)
     encoder.setPosition(0.0);
-
-    ffOutput = ff.calculate(encoder.getVelocity());
-    fbOutput = pid.calculate(encoder.getPosition(), goal)
   }
 
-  
-  public void getHeight(){
-
+  public Command moveToSetpoint(double setpoint){
+    return run(() -> setMotorSpeed(ff.calculate(encoder.getVelocity()) + pid.calculate(encoder.getPosition(), setpoint)));
   }
+    
 
-  @Override
-  public void periodic() {
-    pid.calculate(encoder.getPosition());
-  }
+//   @Override
+//   public void periodic() {
+    
+//   }
 
   @Override
   public void simulationPeriodic() {}

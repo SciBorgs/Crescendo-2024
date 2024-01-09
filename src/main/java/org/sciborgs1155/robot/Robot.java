@@ -11,6 +11,7 @@ import monologue.Monologue.LogBoth;
 import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.Fallible;
 import org.sciborgs1155.lib.SparkUtils;
+import org.sciborgs1155.robot.Climber.Climber;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.Autos;
 
@@ -27,7 +28,7 @@ public class Robot extends CommandRobot implements Logged, Fallible {
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
   // SUBSYSTEMS
-
+  Climber climber;
   // COMMANDS
   @LogBoth Autos autos = new Autos();
 

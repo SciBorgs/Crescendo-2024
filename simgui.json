@@ -1,0 +1,8 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Robot/autos": "String Chooser"
+    }
+  }
+}
