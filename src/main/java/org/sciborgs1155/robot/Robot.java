@@ -61,9 +61,7 @@ public class Robot extends CommandRobot implements Logged, Fallible {
    */
   private void configureSubsystemDefaults() {}
 
-  public void configureClimberDefefalts() {
-    
-  }
+  public void configureClimberDefefalts() {}
 
   /** Configures trigger -> command bindings */
   private void configureBindings() {

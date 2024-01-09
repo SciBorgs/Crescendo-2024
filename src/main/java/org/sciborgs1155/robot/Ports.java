@@ -6,7 +6,7 @@ public final class Ports {
     public static final int DRIVER = 1;
   }
 
-  public static final class ClimberPorts{
+  public static final class ClimberPorts {
     public static final int sparkPort = -1;
 
     public static final int kP = -1;
