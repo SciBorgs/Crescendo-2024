@@ -3,37 +3,55 @@ package org.sciborgs1155.robot.Climber;
 import static org.sciborgs1155.robot.Ports.ClimberPorts.*;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
+// import com.revrobotics.CANSparkFlex;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismObject2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
-public class Climber extends SubsystemBase {
+public class Climber extends SubsystemBase{
   //need to add measurements for clamping(don't want to overextend the climber)
 
+  //sim objects
+    //doubles - width, height
+  Mechanism2d mech = new Mechanism2d();
+  //name, length, angle
+  MechanismLigament2d ligament = new MechanismLigament2d();
+  //name
+  MechanismObject2d object = new MechanismObject2d();
+  //"anchor point"
+  MechanismRoot2d root;
+
   // motor setup
-  CANSparkMax motor = new CANSparkMax(sparkPort, MotorType.kBrushless);
-  RelativeEncoder encoder;
+  private final CANSparkMax motor = new CANSparkMax(sparkPort, MotorType.kBrushless);
+  // private final CANSparkFlex 
+  private final RelativeEncoder encoder = motor.getEncoder();
+    
 
   // pid and ff controllers
-  PIDController pid = new PIDController(kP, kI, kD);
-  ElevatorFeedforward ff = new ElevatorFeedforward(kS, kG, kV, kA);
+  private final PIDController pid = new PIDController(kP, kI, kD);
+  private final ElevatorFeedforward ff = new ElevatorFeedforward(kS, kG, kV, kA);
 
   public void setMotorSpeed(double speed){
-    motor.set(speed);
+    motor.set(MathUtil.clamp(speed, -1.0, 1.0));
   }
 
-//   public void stopExtending() {
+//   public Command stopExtending() {
     
 //   }
 
-  public void retract() {
-    moveToSetpoint(0);
-  }
-
-//   public void fullyExtend() {
+//   public Command fullyExtend() {
 //     moveToSetpoint();
 //   }
 
@@ -43,16 +61,18 @@ public class Climber extends SubsystemBase {
     encoder.setPosition(0.0);
   }
 
+  public Command retract(){
+    return moveToSetpoint(0);
+  }
+
   public Command moveToSetpoint(double setpoint){
     return run(() -> setMotorSpeed(ff.calculate(encoder.getVelocity()) + pid.calculate(encoder.getPosition(), setpoint)));
   }
     
-
-//   @Override
-//   public void periodic() {
-    
-//   }
-
+      
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    
+      
+  }
 }
