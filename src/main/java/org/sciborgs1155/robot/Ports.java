@@ -17,5 +17,7 @@ public final class Ports {
     public static final int kV = -1;
     public static final int kA = -1;
     public static final int kG = -1;
+
+    public static final double MAX_EXTENSION = 1;
   }
 }
