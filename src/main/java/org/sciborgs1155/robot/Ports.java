@@ -19,5 +19,7 @@ public final class Ports {
     public static final int kG = -1;
 
     public static final double MAX_EXTENSION = 1;
+    public static final double MAX_VELOCITY = 1;
+    public static final double MAX_ACCELERATION = 1;
   }
 }
