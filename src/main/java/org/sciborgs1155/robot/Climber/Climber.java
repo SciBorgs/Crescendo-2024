@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.Climber;
 
 import static org.sciborgs1155.robot.Ports.ClimberPorts.*;
+import static org.sciborgs1155.robot.Climber.ClimberConstants.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -34,7 +35,6 @@ public class Climber extends SubsystemBase implements Logged, ClimberIO {
   private final RelativeEncoder encoder = motor.getEncoder();
 
   // pid and ff controllers
-  // setup Profiled PID later
   @LogBoth
   private final ProfiledPIDController pid =
       new ProfiledPIDController(
