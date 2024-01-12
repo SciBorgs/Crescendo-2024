@@ -1,7 +1,7 @@
 package org.sciborgs1155.robot.Climber;
 
-import static org.sciborgs1155.robot.Ports.ClimberPorts.*;
 import static org.sciborgs1155.robot.Climber.ClimberConstants.*;
+import static org.sciborgs1155.robot.Ports.ClimberPorts.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;

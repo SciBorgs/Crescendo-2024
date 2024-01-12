@@ -1,7 +1,7 @@
 package org.sciborgs1155.robot.Climber;
 
-import static org.sciborgs1155.robot.Ports.ClimberPorts.*;
 import static org.sciborgs1155.robot.Climber.ClimberConstants.*;
+import static org.sciborgs1155.robot.Ports.ClimberPorts.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -21,7 +21,7 @@ import monologue.Logged;
 import monologue.Monologue.LogBoth;
 
 public class SimClimber extends SubsystemBase implements Logged, ClimberIO {
-  //most of this is copied from climber.java atp, PENDING CHANGES ARE BEING MADE
+  // most of this is copied from climber.java atp, PENDING CHANGES ARE BEING MADE
 
   // need to add measurements for clamping(don't want to overextend the climber)
 
@@ -69,23 +69,24 @@ public class SimClimber extends SubsystemBase implements Logged, ClimberIO {
   public Command moveToGoal(double goal) {
     return run(() ->
             setMotorSpeed(
-                Simff.calculate(encoder.getVelocity()) + Simpid.calculate(encoder.getPosition(), goal)))
+                Simff.calculate(encoder.getVelocity())
+                    + Simpid.calculate(encoder.getPosition(), goal)))
         .withName("moving to setpoint");
   }
 
-
-// sim objects
-    // doubles - width, height
-    private Mechanism2d mech = new Mechanism2d(50, 50);
-    // name, length, angle
-    // private MechanismLigament2d ligament = new MechanismLigament2d();
-    // // name
-    // private MechanismObject2d climber = new MechanismObject2d("climber");
-    // "anchor point"
-    private MechanismRoot2d climberBase = mech.getRoot("climberBase", 25.0, 0.0);
+  // sim objects
+  // doubles - width, height
+  private Mechanism2d mech = new Mechanism2d(50, 50);
+  // name, length, angle
+  // private MechanismLigament2d ligament = new MechanismLigament2d();
+  // // name
+  // private MechanismObject2d climber = new MechanismObject2d("climber");
+  // "anchor point"
+  private MechanismRoot2d climberBase = mech.getRoot("climberBase", 25.0, 0.0);
 
   @Override
-  public void simulationPeriodic(){
-    MechanismObject2d ligament = climberBase.append(new MechanismLigament2d("climber", MININMUM_CLIMBER_LENGTH, 90));
+  public void simulationPeriodic() {
+    MechanismObject2d ligament =
+        climberBase.append(new MechanismLigament2d("climber", MININMUM_CLIMBER_LENGTH, 90));
   }
 }
