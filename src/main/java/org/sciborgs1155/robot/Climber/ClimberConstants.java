@@ -1,4 +1,4 @@
-package org.sciborgs1155.robot.Climber;
+package org.sciborgs1155.robot.climber;
 
 public class ClimberConstants {
   public static final double kP = 0;
@@ -15,4 +15,7 @@ public class ClimberConstants {
   public static final double MAX_ACCELERATION = 1;
 
   public static final double MININMUM_CLIMBER_LENGTH = 1;
+  public static final double HOOK_LENGTH = 1;
+
+  public static final double DISTANCE_PER_PULSE = 1;
 }

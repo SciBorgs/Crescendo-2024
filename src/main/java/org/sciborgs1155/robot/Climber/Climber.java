@@ -1,12 +1,8 @@
-package org.sciborgs1155.robot.Climber;
+package org.sciborgs1155.robot.climber;
 
-import static org.sciborgs1155.robot.Climber.ClimberConstants.*;
 import static org.sciborgs1155.robot.Ports.ClimberPorts.*;
+import static org.sciborgs1155.robot.climber.ClimberConstants.*;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;
-// import com.revrobotics.CANSparkFlex;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -16,7 +12,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import monologue.Logged;
 import monologue.Monologue.LogBoth;
 
-public class Climber extends SubsystemBase implements Logged, ClimberIO {
+public class Climber extends SubsystemBase implements Logged {
+
+  public Climber(ClimberIO realClimber, ClimberIO simClimber) {
+    this.realClimber = realClimber;
+    this.simClimber = simClimber;
+  }
+
   // need to add measurements for clamping(don't want to overextend the climber)
 
   // sim objects
@@ -29,10 +31,14 @@ public class Climber extends SubsystemBase implements Logged, ClimberIO {
   // // "anchor point"
   // MechanismRoot2d root;
 
+  // hardware IOs
+  ClimberIO realClimber;
+  ClimberIO simClimber;
+
   // motor setup
-  private final CANSparkMax motor = new CANSparkMax(sparkPort, MotorType.kBrushless);
-  // private final CANSparkFlex
-  private final RelativeEncoder encoder = motor.getEncoder();
+  // private final CANSparkMax motor = new CANSparkMax(sparkPort, MotorType.kBrushless);
+  // // private final CANSparkFlex
+  // private final RelativeEncoder encoder = motor.getEncoder();
 
   // pid and ff controllers
   @LogBoth
@@ -44,36 +50,32 @@ public class Climber extends SubsystemBase implements Logged, ClimberIO {
 
   // setVoltage or speed?? - DutyCyleEncoders?
   public void setMotorSpeed(double speed) {
-    motor.set(MathUtil.clamp(speed, -1.0, 1.0));
+    realClimber.set(MathUtil.clamp(speed, -1.0, 1.0));
   }
 
   // run when first scheduled
-  @Override
   public void climberInit() {
     // sets position to be 0 (remember to keep climber retracted at first)
-    encoder.setPosition(0.0);
+    realClimber.setPosition(0.0);
   }
 
-  @Override
   public Command stopExtending() {
     return run(() -> setMotorSpeed(0.0));
   }
 
-  @Override
   public Command fullyExtend() {
     return moveToGoal(MAX_EXTENSION);
   }
 
-  @Override
   public Command retract() {
     return moveToGoal(0);
   }
 
-  @Override
   public Command moveToGoal(double goal) {
     return run(() ->
             setMotorSpeed(
-                ff.calculate(encoder.getVelocity()) + pid.calculate(encoder.getPosition(), goal)))
+                ff.calculate(realClimber.getVelocity())
+                    + pid.calculate(realClimber.getPosition(), goal)))
         .withName("moving to setpoint");
   }
 }

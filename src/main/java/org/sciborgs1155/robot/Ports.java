@@ -8,5 +8,8 @@ public final class Ports {
 
   public static final class ClimberPorts {
     public static final int sparkPort = -1;
+
+    public static final int quadPortA = 1;
+    public static final int quadPortB = 2;
   }
 }

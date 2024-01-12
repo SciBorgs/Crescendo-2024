@@ -12,8 +12,8 @@ import monologue.Monologue.LogFile;
 import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.Fallible;
 import org.sciborgs1155.lib.SparkUtils;
-import org.sciborgs1155.robot.Climber.Climber;
 import org.sciborgs1155.robot.Ports.OI;
+import org.sciborgs1155.robot.climber.Climber;
 import org.sciborgs1155.robot.commands.Autos;
 
 /**
