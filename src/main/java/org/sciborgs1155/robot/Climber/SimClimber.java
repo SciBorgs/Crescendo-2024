@@ -21,6 +21,8 @@ import monologue.Logged;
 import monologue.Monologue.LogBoth;
 
 public class SimClimber extends SubsystemBase implements Logged, ClimberIO {
+  //most of this is copied from climber.java atp, PENDING CHANGES ARE BEING MADE
+
   // need to add measurements for clamping(don't want to overextend the climber)
 
   // motor setup
@@ -30,11 +32,11 @@ public class SimClimber extends SubsystemBase implements Logged, ClimberIO {
 
   // pid and ff controllers
   @LogBoth
-  private final ProfiledPIDController pid =
+  private final ProfiledPIDController Simpid =
       new ProfiledPIDController(
           kP, kI, kD, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
 
-  @LogBoth private final ElevatorFeedforward ff = new ElevatorFeedforward(kS, kG, kV, kA);
+  @LogBoth private final ElevatorFeedforward Simff = new ElevatorFeedforward(kS, kG, kV, kA);
 
   // setVoltage or speed?? - DutyCyleEncoders?
   public void setMotorSpeed(double speed) {
@@ -67,24 +69,23 @@ public class SimClimber extends SubsystemBase implements Logged, ClimberIO {
   public Command moveToGoal(double goal) {
     return run(() ->
             setMotorSpeed(
-                ff.calculate(encoder.getVelocity()) + pid.calculate(encoder.getPosition(), goal)))
+                Simff.calculate(encoder.getVelocity()) + Simpid.calculate(encoder.getPosition(), goal)))
         .withName("moving to setpoint");
   }
 
 
 // sim objects
     // doubles - width, height
-    Mechanism2d mech = new Mechanism2d();
+    private Mechanism2d mech = new Mechanism2d(50, 50);
     // name, length, angle
-    MechanismLigament2d ligament = new MechanismLigament2d();
-    // name
-    MechanismObject2d object = new MechanismObject2d("climb");
+    // private MechanismLigament2d ligament = new MechanismLigament2d();
+    // // name
+    // private MechanismObject2d climber = new MechanismObject2d("climber");
     // "anchor point"
-    MechanismRoot2d root;
-
+    private MechanismRoot2d climberBase = mech.getRoot("climberBase", 25.0, 0.0);
 
   @Override
   public void simulationPeriodic(){
-    
+    MechanismObject2d ligament = climberBase.append(new MechanismLigament2d("climber", MININMUM_CLIMBER_LENGTH, 90));
   }
 }
