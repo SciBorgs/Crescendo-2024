@@ -28,4 +28,5 @@ public class ClimberConstants {
   
 
   public static final double DISTANCE_PER_PULSE = 1;
+  public static final double RPM_TO_VOLTAGE_CONVERISION = 1;
 }

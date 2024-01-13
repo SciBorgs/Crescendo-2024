@@ -23,15 +23,12 @@ public class RealClimber implements ClimberIO {
   }
 
   @Override
-  public void set(double speed) {
-    motor.set(speed);
+  public void setVoltage(double voltage) {
+    motor.setVoltage(voltage);
   }
 
   @Override
   public void setPosition(double position) {
     encoder.setPosition(position);
   }
-
-  @Override
-  public void initialize() {}
 }

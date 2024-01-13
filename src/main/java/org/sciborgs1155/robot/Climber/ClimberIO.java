@@ -19,11 +19,7 @@ public interface ClimberIO {
 
   public double getPosition();
 
-  // public void setMotortype(int portID, MotorType motortype);
-
-  public void set(double speed);
-
   public void setPosition(double position);
 
-  public void initialize();
+  public void setVoltage(double voltage);
 }

@@ -3,10 +3,17 @@ package org.sciborgs1155.robot.climber;
 import static org.sciborgs1155.robot.Ports.ClimberPorts.*;
 import static org.sciborgs1155.robot.climber.ClimberConstants.*;
 
+import org.sciborgs1155.robot.Robot;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismObject2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import monologue.Logged;
@@ -14,26 +21,24 @@ import monologue.Monologue.LogBoth;
 
 public class Climber extends SubsystemBase implements Logged {
 
-  public Climber(ClimberIO realClimber, ClimberIO simClimber) {
-    this.realClimber = realClimber;
-    this.simClimber = simClimber;
-  }
+  public Climber() {  }
 
   // need to add measurements for clamping(don't want to overextend the climber)
 
   // sim objects
-  // doubles - width, height
-  // Mechanism2d mech = new Mechanism2d();
-  // // name, length, angle
-  // MechanismLigament2d ligament = new MechanismLigament2d();
-  // // name
-  // MechanismObject2d object = new MechanismObject2d();
-  // // "anchor point"
-  // MechanismRoot2d root;
+
+  private Mechanism2d mech;
+  private MechanismRoot2d root;
+
+  private MechanismLigament2d climberTrunk;
+  private MechanismLigament2d climberHook;
+  private MechanismRoot2d climberBase = mech.getRoot("climberBase", 25.0, 0.0);
+
+  private SmartDashboard dashboard;
+
 
   // hardware IOs
-  ClimberIO realClimber;
-  ClimberIO simClimber;
+  ClimberIO climber = Robot.isReal() ? new RealClimber() : new SimClimber();
 
   // motor setup
   // private final CANSparkMax motor = new CANSparkMax(sparkPort, MotorType.kBrushless);
@@ -48,19 +53,27 @@ public class Climber extends SubsystemBase implements Logged {
 
   @LogBoth private final ElevatorFeedforward ff = new ElevatorFeedforward(kS, kG, kV, kA);
 
-  // setVoltage or speed?? - DutyCyleEncoders?
-  public void setMotorSpeed(double speed) {
-    realClimber.set(MathUtil.clamp(speed, -1.0, 1.0));
-  }
-
-  // run when first scheduled
+   // run when first scheduled
   public void climberInit() {
     // sets position to be 0 (remember to keep climber retracted at first)
-    realClimber.setPosition(0.0);
+    climber.setPosition(0.0);
+
+    mech = new Mechanism2d(50, 50);
+    root = mech.getRoot("climber", 25.0, 0.0);
+
+    climberTrunk = root.append(new MechanismLigament2d("climbTrunk", MININMUM_CLIMBER_LENGTH, 90));
+    climberHook = climberTrunk.append(new MechanismLigament2d("hook", HOOK_LENGTH, 90));
+
+    SmartDashboard.putData("mech2d", mech);
+  }
+
+  // setVoltage or speed?? - DutyCyleEncoders?
+  public void setMotorVoltage(double voltage) {
+    climber.setVoltage(voltage);
   }
 
   public Command stopExtending() {
-    return run(() -> setMotorSpeed(0.0));
+    return run(() -> setMotorVoltage(0.0));
   }
 
   public Command fullyExtend() {
@@ -72,10 +85,17 @@ public class Climber extends SubsystemBase implements Logged {
   }
 
   public Command moveToGoal(double goal) {
+    pid.setGoal(goal);
+
     return run(() ->
-            setMotorSpeed(
-                ff.calculate(realClimber.getVelocity())
-                    + pid.calculate(realClimber.getPosition(), goal)))
-        .withName("moving to setpoint");
+            setMotorVoltage(
+                ff.calculate(climber.getVelocity())
+                    + pid.calculate(climber.getPosition(), goal)))
+        .withName("moving to Goal");
+  }
+
+  @Override
+  public void simulationPeriodic(){
+    climberTrunk.setLength(climber.getPosition());
   }
 }
