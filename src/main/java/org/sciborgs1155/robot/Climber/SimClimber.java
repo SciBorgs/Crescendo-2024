@@ -3,7 +3,10 @@ package org.sciborgs1155.robot.climber;
 import static org.sciborgs1155.robot.Ports.ClimberPorts.*;
 import static org.sciborgs1155.robot.climber.ClimberConstants.*;
 
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -16,8 +19,20 @@ public class SimClimber implements ClimberIO {
   // need to add measurements for clamping(don't want to overextend the climber)
 
   // sim objects
+  DCMotor motor = DCMotor.getNEO(1);
+  // remember to put elevator sim, 
+  private ElevatorSim elevatorSim = 
+    new ElevatorSim(
+      LinearSystemId.createElevatorSystem(motor, CLIMBER_MASS, RADIUS_METERS, G), 
+      motor, 
+        MININMUM_CLIMBER_LENGTH, 
+        MAXIMUM_CLIMBER_LENGTH, 
+true, 
+0.0);
 
-  // remember to put elevator sim
+  // initialize encoder later / soon
+  private final Encoder encoder = new Encoder(quadPortA, quadPortB);
+  private final EncoderSim simEncoder = new EncoderSim(encoder);
 
   private MechanismLigament2d climberTrunk;
   private MechanismLigament2d climberHook;
@@ -26,10 +41,6 @@ public class SimClimber implements ClimberIO {
   private MechanismRoot2d root;
 
   private SmartDashboard dashboard;
-
-  // initialize encoder later / soon
-  private final Encoder encoder = new Encoder(quadPortA, quadPortB);
-  private final EncoderSim simEncoder = new EncoderSim(encoder);
 
   // run when first scheduled
   @Override
