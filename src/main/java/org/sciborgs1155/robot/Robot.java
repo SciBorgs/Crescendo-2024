@@ -2,6 +2,7 @@ package org.sciborgs1155.robot;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import java.util.List;
@@ -61,13 +62,18 @@ public class Robot extends CommandRobot implements Logged, Fallible {
    * Configures subsystem default commands. Default commands are scheduled when no other command is
    * running on a subsystem.
    */
-  private void configureSubsystemDefaults() {}
-
-  public void configureClimberDefefalts() {}
+  private void configureSubsystemDefaults() {
+    climber.setDefaultCommand(Commands.run(climber::stopExtending, climber).withName("holding"));
+  }
 
   /** Configures trigger -> command bindings */
   private void configureBindings() {
     autonomous().whileTrue(new ProxyCommand(autos::get));
+
+    operator.a().whileTrue(climber.fullyExtend());
+    // operator.a().whileTrue(Commands.run(() -> System.out.println("A is true.")));  <- really dumb
+    // "print" command that would most def not work but my brain is tired...
+    operator.b().whileTrue(climber.retract());
   }
 
   @Override
