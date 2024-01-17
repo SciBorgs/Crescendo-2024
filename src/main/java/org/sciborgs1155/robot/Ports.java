@@ -7,7 +7,19 @@ public final class Ports {
   }
 
   public static final class Shooter {
-    public static final int FLYWHEEL = -1;
-    public static final int ROTATE = -1;
+    public static final class Flywheel {
+      public static final int FLYWHEEL = -1;
+      public static final int ROTATE = -1;
+    }
+
+    public static final class Pivot {
+      public static final int PIVOT_SPARK_ONE = -1;
+      public static final int PIVOT_SPARK_TWO = -1;
+      public static final int PIVOT_THROUGHBORE = -1;
+    }
+
+    public static final class Feeder {
+      public static final int FEEDER_SPARK = -1;
+    }
   }
 }
