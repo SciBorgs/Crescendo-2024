@@ -4,6 +4,6 @@ package org.sciborgs1155.robot.shooter.feeder;
 public interface FeederIO {
 
   public void setFeederVoltage(double voltage);
+  // public double getFeederVoltage();
 
-  public double getFeederSpeed();
 }

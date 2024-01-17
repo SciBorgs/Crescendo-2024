@@ -22,6 +22,9 @@ public class ShooterConstants {
 
   public static class Feeder {
     public static final double GEARING = -1;
+
+    public static final double kV = 1;
+    public static final double kA = 1;
   }
 
   public static class Pivot {
