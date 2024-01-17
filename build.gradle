@@ -76,7 +76,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 
     // Monologue
-    implementation 'com.github.shueja:Monologue:v1.0.0-alpha2'
+    implementation 'com.github.shueja:Monologue:v1.0.0-beta4'
 }
 
 test {

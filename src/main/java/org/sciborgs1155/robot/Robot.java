@@ -5,9 +5,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import java.util.List;
+import monologue.Annotations.Log;
 import monologue.Logged;
 import monologue.Monologue;
-import monologue.Monologue.LogBoth;
 import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.Fallible;
 import org.sciborgs1155.lib.SparkUtils;
@@ -29,7 +29,7 @@ public class Robot extends CommandRobot implements Logged, Fallible {
   // SUBSYSTEMS
 
   // COMMANDS
-  @LogBoth Autos autos = new Autos();
+  @Log.NT Autos autos = new Autos();
 
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
@@ -48,8 +48,8 @@ public class Robot extends CommandRobot implements Logged, Fallible {
 
     // Configure logging with DataLogManager and Monologue
     DataLogManager.start();
-    Monologue.setupLogging(this, "/Robot");
-    addPeriodic(Monologue::update, kDefaultPeriod);
+    Monologue.setupMonologue(this, "/Robot", false, true);
+    addPeriodic(Monologue::updateAll, kDefaultPeriod);
 
     // Burn flash of all Spark Max at once with delays
     SparkUtils.safeBurnFlash();
