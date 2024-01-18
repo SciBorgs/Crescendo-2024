@@ -17,7 +17,7 @@ public class SimFeeder implements FeederIO {
   // }
 
   @Override
-  public void setFeederVoltage(double voltage) {
+  public void setVoltage(double voltage) {
     simMotor.setInputVoltage(voltage);
   }
 }

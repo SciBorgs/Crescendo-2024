@@ -20,7 +20,7 @@ public class RealFeeder implements FeederIO {
   // }
 
   @Override
-  public void setFeederVoltage(double speed) {
+  public void setVoltage(double speed) {
     motor.setVoltage(speed);
   }
 }

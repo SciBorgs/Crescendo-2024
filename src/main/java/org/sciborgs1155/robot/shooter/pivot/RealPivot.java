@@ -4,29 +4,32 @@
 
 package org.sciborgs1155.robot.shooter.pivot;
 
-import com.revrobotics.AbsoluteEncoder;
+import static org.sciborgs1155.robot.Ports.Shooter.Pivot.*;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.Pivot.*;
+
 import com.revrobotics.CANSparkFlex;
-import org.sciborgs1155.robot.shooter.pivot.PivotIO;
-import org.sciborgs1155.robot.Ports.Shooter.Pivot;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
 /** Add your docs here. */
-public class RealPivot implements PivotIO{
-    private final CANSparkFlex pivotMotor;
-    public final Encoder pivotMotorEncoder;
+public class RealPivot implements PivotIO {
+  private final CANSparkFlex motor;
+  private final DutyCycleEncoder encoder;
 
-    public RealPivot(){
-        this.pivotMotor = new CANSparkFlex(Pivot.PIVOT_SPARK_ONE,MotorType.kBrushless);
-        this.pivotMotorEncoder = new Encoder(0,Pivot.PIVOT_THROUGHBORE);
+  public RealPivot() {
+    this.motor = new CANSparkFlex(PIVOT_SPARK_ONE, MotorType.kBrushless);
+    this.encoder = new DutyCycleEncoder(PIVOT_THROUGHBORE);
 
-    }
-    @Override
-    public double getVoltage(){
-        return pivotMotor.getBusVoltage();
-    }
-    @Override 
-    public void setVoltage(double voltage){
-        pivotMotor.setVoltage(voltage);
-    }
+    encoder.setDistancePerRotation(CONVERSION);
+  }
+
+  @Override
+  public void setVoltage(double voltage) {
+    motor.setVoltage(voltage);
+  }
+
+  @Override
+  public double getPosition() {
+    return encoder.getAbsolutePosition();
+  }
 }

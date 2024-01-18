@@ -7,19 +7,10 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
-import org.sciborgs1155.robot.Constants;
 
 public class RealFlywheel implements FlywheelIO {
   private final CANSparkFlex flywheel = new CANSparkFlex(FLYWHEEL, MotorType.kBrushless);
   private final RelativeEncoder encoder = flywheel.getEncoder();
-
-  private final PIDController pid = new PIDController(PID.kP, PID.kI, PID.kD);
-  private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FF.kS, FF.kV, FF.kA);
-
-  private State lastSetpoint = new State();
 
   public RealFlywheel() {
     flywheel.restoreFactoryDefaults();
@@ -27,19 +18,9 @@ public class RealFlywheel implements FlywheelIO {
     flywheel.setIdleMode(IdleMode.kBrake);
     flywheel.setSmartCurrentLimit(CURRENT_LIMIT);
 
-    encoder.setPositionConversionFactor(-1);
-    encoder.setVelocityConversionFactor(-1);
+    encoder.setVelocityConversionFactor(VELOCITY_CONVERSION);
 
     flywheel.burnFlash();
-  }
-
-  @Override
-  public void setSetpoint(State setpoint) {
-    double feedforward = ff.calculate(lastSetpoint.velocity, setpoint.velocity, Constants.PERIOD);
-    double feedback = pid.calculate(getVelocity(), setpoint.velocity);
-
-    flywheel.setVoltage(feedback + feedforward);
-    lastSetpoint = setpoint;
   }
 
   @Override

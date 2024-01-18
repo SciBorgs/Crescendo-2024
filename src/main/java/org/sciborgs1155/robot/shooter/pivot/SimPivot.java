@@ -5,11 +5,16 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
 /** Add your docs here. */
-public class SimPivot implements PivotIO{
-    
-    @Override
-    public void setVoltage(double voltage) {
-        // TODO Auto-generated method stub
-        return;
-    }
+public class SimPivot implements PivotIO {
+  @Override
+  public void setVoltage(double voltage) {
+    // TODO Auto-generated method stub
+    return;
+  }
+
+  @Override
+  public double getPosition() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getPosition'");
+  }
 }

@@ -6,9 +6,8 @@ package org.sciborgs1155.robot.shooter.pivot;
 
 /** Add your docs here. */
 public interface PivotIO {
+  // Sets voltage to the motor
+  public void setVoltage(double voltage);
 
-    //Sets voltage to the motor 
-    
-
-    public void setVoltage(double voltage);
+  public double getPosition();
 }
