@@ -9,23 +9,36 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
 public class RealFlywheel implements FlywheelIO {
-  private final CANSparkFlex flywheel = new CANSparkFlex(FLYWHEEL, MotorType.kBrushless);
-  private final RelativeEncoder encoder = flywheel.getEncoder();
+  private final CANSparkFlex leftMotor;
+  private final CANSparkFlex rightMotor;
+  private final RelativeEncoder encoder;
 
   public RealFlywheel() {
-    flywheel.restoreFactoryDefaults();
-    flywheel.setInverted(false);
-    flywheel.setIdleMode(IdleMode.kBrake);
-    flywheel.setSmartCurrentLimit(CURRENT_LIMIT);
+    this.leftMotor = new CANSparkFlex(LEFT_MOTOR, MotorType.kBrushless);
+    this.rightMotor = new CANSparkFlex(RIGHT_MOTOR, MotorType.kBrushless);
+    this.encoder = leftMotor.getEncoder();
+
+    leftMotor.restoreFactoryDefaults();
+    leftMotor.setInverted(false);
+    leftMotor.setIdleMode(IdleMode.kBrake);
+    leftMotor.setSmartCurrentLimit(CURRENT_LIMIT);
+
+    rightMotor.restoreFactoryDefaults();
+    rightMotor.setInverted(false);
+    rightMotor.setIdleMode(IdleMode.kBrake);
+    rightMotor.setSmartCurrentLimit(CURRENT_LIMIT);
 
     encoder.setVelocityConversionFactor(VELOCITY_CONVERSION);
 
-    flywheel.burnFlash();
+    rightMotor.follow(leftMotor);
+
+    leftMotor.burnFlash();
+    rightMotor.burnFlash();
   }
 
   @Override
   public void setVoltage(double voltage) {
-    flywheel.setVoltage(voltage);
+    leftMotor.setVoltage(voltage);
   }
 
   @Override
@@ -35,6 +48,7 @@ public class RealFlywheel implements FlywheelIO {
 
   @Override
   public void close() throws Exception {
-    flywheel.close();
+    leftMotor.close();
+    rightMotor.close();
   }
 }

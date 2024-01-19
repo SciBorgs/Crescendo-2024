@@ -7,18 +7,31 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
+import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.Flywheel;
 import org.sciborgs1155.robot.shooter.ShooterConstants.Pivot;
 import org.sciborgs1155.robot.shooter.feeder.FeederIO;
+import org.sciborgs1155.robot.shooter.feeder.RealFeeder;
+import org.sciborgs1155.robot.shooter.feeder.SimFeeder;
 import org.sciborgs1155.robot.shooter.flywheel.FlywheelIO;
+import org.sciborgs1155.robot.shooter.flywheel.RealFlywheel;
+import org.sciborgs1155.robot.shooter.flywheel.SimFlywheel;
 import org.sciborgs1155.robot.shooter.pivot.PivotIO;
+import org.sciborgs1155.robot.shooter.pivot.RealPivot;
+import org.sciborgs1155.robot.shooter.pivot.SimPivot;
 
-public class Shooter extends SubsystemBase implements AutoCloseable {
+public class Shooter extends SubsystemBase {
   private final FlywheelIO flywheel;
   private final FeederIO feeder;
   private final PivotIO pivot;
 
-  public Shooter(FlywheelIO flywheel, FeederIO feeder, PivotIO pivot) {
+  public static Shooter create() {
+    return Robot.isReal()
+        ? new Shooter(new RealFlywheel(), new RealPivot(), new RealFeeder())
+        : new Shooter(new SimFlywheel(), new SimPivot(), new SimFeeder());
+  }
+
+  public Shooter(FlywheelIO flywheel, PivotIO pivot, FeederIO feeder) {
     this.flywheel = flywheel;
     this.feeder = feeder;
     this.pivot = pivot;
@@ -57,7 +70,4 @@ public class Shooter extends SubsystemBase implements AutoCloseable {
                 pid.calculate(pivot.getPosition(), goal)
                     + ff.calculate(pid.getSetpoint().velocity)));
   }
-
-  @Override
-  public void close() throws Exception {}
 }

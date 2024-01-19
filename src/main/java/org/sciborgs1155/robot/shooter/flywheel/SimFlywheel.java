@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 public class SimFlywheel implements FlywheelIO {
   private final FlywheelSim sim =
       new FlywheelSim(
-          LinearSystemId.createFlywheelSystem(DCMotor.getNeoVortex(1), MOI, GEARING),
-          DCMotor.getNeoVortex(1),
+          LinearSystemId.createFlywheelSystem(DCMotor.getNeoVortex(2), MOI, GEARING),
+          DCMotor.getNeoVortex(2),
           GEARING);
 
   @Override
