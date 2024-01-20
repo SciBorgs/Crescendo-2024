@@ -1,41 +1,48 @@
 package org.sciborgs1155.robot.drive;
 
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
-import org.sciborgs1155.lib.Fallible;
+import edu.wpi.first.math.geometry.Rotation2d;
+import monologue.Logged;
 
-/** Generalized SwerveModule with closed loop control */
-public interface ModuleIO extends Fallible, Sendable, AutoCloseable {
-  /** Returns the current state of the module. */
-  public SwerveModuleState getState();
+/** Generalized hardware internals for a swerve module */
+public interface ModuleIO extends AutoCloseable, Logged {
+  /**
+   * Sets the drive voltage of the module.
+   *
+   * @param voltage The voltage to inputted into the drive motor.
+   */
+  public void setDriveVoltage(double voltage);
 
-  /** Returns the current position of the module. */
-  public SwerveModulePosition getPosition();
+  /**
+   * Sets the turn voltage of the module.
+   *
+   * @param voltage The voltage to inputted into the turn motor.
+   */
+  public void setTurnVoltage(double voltage);
 
-  /** Sets the desired state for the module. */
-  public void setDesiredState(SwerveModuleState desiredState);
+  /**
+   * Returns the distance the wheel traveled.
+   *
+   * @return The drive encoder position value, in radians.
+   */
+  public double getDrivePosition();
 
-  /** Returns the desired state for the module. */
-  public SwerveModuleState getDesiredState();
+  /**
+   * Returns the current velocity of the wheel.
+   *
+   * @return The drive encoder velocity value, in radians / seconds.
+   */
+  public double getDriveVelocity();
 
-  /** Zeroes all the drive encoders. */
+  /**
+   * Returns the angular position of the module.
+   *
+   * @return The adjusted turn encoder position value, in radians.
+   */
+  public Rotation2d getRotation();
+
+  /** Resets all encoders. */
   public void resetEncoders();
 
-  /** Sets the turn PID constants for the module. */
-  public void setTurnPID(double kP, double kI, double kD);
-
-  /** Sets the drive PID constants for the module. */
-  public void setDrivePID(double kP, double kI, double kD);
-
   @Override
-  default void initSendable(SendableBuilder builder) {
-    builder.addDoubleProperty("current velocity", () -> getState().speedMetersPerSecond, null);
-    builder.addDoubleProperty("current angle", () -> getPosition().angle.getRadians(), null);
-    builder.addDoubleProperty("current position", () -> getPosition().distanceMeters, null);
-    builder.addDoubleProperty(
-        "target velocity", () -> getDesiredState().speedMetersPerSecond, null);
-    builder.addDoubleProperty("target angle", () -> getDesiredState().angle.getRadians(), null);
-  }
+  public void close();
 }

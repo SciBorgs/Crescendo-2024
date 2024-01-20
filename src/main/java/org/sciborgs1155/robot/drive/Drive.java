@@ -1,18 +1,11 @@
 package org.sciborgs1155.robot.drive;
 
-import static org.sciborgs1155.lib.PathFlipper.pathForAlliance;
+import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
 
-import com.ctre.phoenix.sensors.WPI_PigeonIMU;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -20,80 +13,104 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Log;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.List;
-import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+import monologue.Annotations.IgnoreLogged;
+import monologue.Annotations.Log;
+import monologue.Logged;
 import org.photonvision.EstimatedRobotPose;
-import org.sciborgs1155.lib.DeferredCommand;
-import org.sciborgs1155.lib.failure.Fallible;
-import org.sciborgs1155.lib.failure.FaultBuilder;
-import org.sciborgs1155.lib.failure.HardwareFault;
+import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 
-public class Drive extends SubsystemBase implements Fallible, Loggable, AutoCloseable {
+public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
-  @Log private final ModuleIO frontLeft;
-  @Log private final ModuleIO frontRight;
-  @Log private final ModuleIO rearLeft;
-  @Log private final ModuleIO rearRight;
+  // Modules
+  private final SwerveModule frontLeft;
+  private final SwerveModule frontRight;
+  private final SwerveModule rearLeft;
+  private final SwerveModule rearRight;
 
-  private final List<ModuleIO> modules;
+  @IgnoreLogged private final List<SwerveModule> modules;
 
-  // this should be a generic IMU class, once WPILib implements it
-  @Log private final WPI_PigeonIMU imu = new WPI_PigeonIMU(PIGEON);
+  private final GyroIO gyro;
+  private static Rotation2d simRotation = new Rotation2d();
 
   public final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_OFFSET);
 
   // Odometry and pose estimation
   private final SwerveDrivePoseEstimator odometry;
 
-  @Log private final Field2d field2d = new Field2d();
+  @Log.NT private final Field2d field2d = new Field2d();
   private final FieldObject2d[] modules2d;
 
-  // Rate limiting
-  private final SlewRateLimiter xLimiter = new SlewRateLimiter(MAX_ACCEL);
-  private final SlewRateLimiter yLimiter = new SlewRateLimiter(MAX_ACCEL);
+  // SysId
+  private final SysIdRoutine driveRoutine;
+  private final SysIdRoutine turnRoutine;
 
-  @Log private double speedMultiplier = 1;
-
+  /**
+   * A factory to create a new drive subsystem based on whether the robot is being ran in simulation
+   * or not.
+   */
   public static Drive create() {
     return Robot.isReal()
         ? new Drive(
-            new MAXSwerveModule(
-                MODULE_NAMES[0], FRONT_LEFT_DRIVE, FRONT_LEFT_TURNING, ANGULAR_OFFSETS[0]),
-            new MAXSwerveModule(
-                MODULE_NAMES[1], FRONT_RIGHT_DRIVE, FRONT_RIGHT_TURNING, ANGULAR_OFFSETS[1]),
-            new MAXSwerveModule(
-                MODULE_NAMES[2], REAR_LEFT_DRIVE, REAR_LEFT_TURNING, ANGULAR_OFFSETS[2]),
-            new MAXSwerveModule(
-                MODULE_NAMES[3], REAR_RIGHT_DRIVE, REAR_RIGHT_TURNING, ANGULAR_OFFSETS[3]))
-        : new Drive(new SimModule(), new SimModule(), new SimModule(), new SimModule());
+            new FlexModule(FRONT_LEFT_DRIVE, FRONT_LEFT_TURNING, ANGULAR_OFFSETS.get(0)),
+            new FlexModule(FRONT_RIGHT_DRIVE, FRONT_RIGHT_TURNING, ANGULAR_OFFSETS.get(1)),
+            new FlexModule(REAR_LEFT_DRIVE, REAR_LEFT_TURNING, ANGULAR_OFFSETS.get(2)),
+            new FlexModule(REAR_RIGHT_DRIVE, REAR_RIGHT_TURNING, ANGULAR_OFFSETS.get(3)),
+            new GyroIO.NavX())
+        : new Drive(
+            new SimModule(),
+            new SimModule(),
+            new SimModule(),
+            new SimModule(),
+            new GyroIO.NoGyro());
   }
 
-  public Drive(ModuleIO frontLeft, ModuleIO frontRight, ModuleIO rearLeft, ModuleIO rearRight) {
-    this.frontLeft = frontLeft;
-    this.frontRight = frontRight;
-    this.rearLeft = rearLeft;
-    this.rearRight = rearRight;
+  /** A swerve drive subsystem containing four {@link ModuleIO} modules. */
+  public Drive(
+      ModuleIO frontLeft, ModuleIO frontRight, ModuleIO rearLeft, ModuleIO rearRight, GyroIO gyro) {
+    this.frontLeft = new SwerveModule(frontLeft, ANGULAR_OFFSETS.get(0), " FL");
+    this.frontRight = new SwerveModule(frontRight, ANGULAR_OFFSETS.get(1), "FR");
+    this.rearLeft = new SwerveModule(rearLeft, ANGULAR_OFFSETS.get(2), "RL");
+    this.rearRight = new SwerveModule(rearRight, ANGULAR_OFFSETS.get(3), " RR");
+    this.gyro = gyro;
 
-    modules = List.of(frontLeft, frontRight, rearLeft, rearRight);
+    modules = List.of(this.frontLeft, this.frontRight, this.rearLeft, this.rearRight);
     modules2d = new FieldObject2d[modules.size()];
 
-    odometry =
-        new SwerveDrivePoseEstimator(kinematics, getHeading(), getModulePositions(), new Pose2d());
+    driveRoutine =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                volts -> modules.forEach(m -> m.setDriveVoltage(volts.in(Volts))), null, this));
 
-    for (int i = 0; i < modules2d.length; i++) {
-      modules2d[i] = field2d.getObject("module-" + i);
+    turnRoutine =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))), null, this));
+
+    odometry =
+        new SwerveDrivePoseEstimator(
+            kinematics, gyro.getRotation2d(), getModulePositions(), new Pose2d());
+
+    for (int i = 0; i < modules.size(); i++) {
+      var module = modules.get(i);
+      modules2d[i] = field2d.getObject("module-" + module.name);
     }
+
+    SmartDashboard.putData("drive quasistatic forward", driveSysIdQuasistatic(Direction.kForward));
   }
 
   /**
@@ -101,17 +118,9 @@ public class Drive extends SubsystemBase implements Fallible, Loggable, AutoClos
    *
    * @return The pose.
    */
+  @Log.NT
   public Pose2d getPose() {
     return odometry.getEstimatedPosition();
-  }
-
-  /**
-   * Returns the heading of the robot, based on our pigeon
-   *
-   * @return A Rotation2d of our angle
-   */
-  public Rotation2d getHeading() {
-    return imu.getRotation2d();
   }
 
   /**
@@ -120,90 +129,116 @@ public class Drive extends SubsystemBase implements Fallible, Loggable, AutoClos
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
-    odometry.resetPosition(getHeading(), getModulePositions(), pose);
+    odometry.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
   }
 
-  /** Deadbands and squares inputs */
-  private static double scale(double input) {
-    input = MathUtil.applyDeadband(input, Constants.DEADBAND);
-    return Math.copySign(input * input, input);
+  /**
+   * Drives the robot based on a {@link InputStream} for field relative x y and omega velocities.
+   *
+   * @param vx A supplier for the velocity of the robot along the x axis (perpendicular to the
+   *     alliance side).
+   * @param vy A supplier for the velocity of the robot along the y axis (parallel to the alliance
+   *     side).
+   * @param vOmega A supplier for the angular velocity of the robot.
+   * @return The driving command.
+   */
+  public Command drive(InputStream vx, InputStream vy, InputStream vOmega) {
+    return run(() -> driveFieldRelative(new ChassisSpeeds(vx.get(), vy.get(), vOmega.get())));
   }
 
-  /** Drives the robot based on a {@link DoubleSupplier} for x y and omega velocities */
-  public CommandBase drive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier vOmega) {
+  /**
+   * Drives the robot based on a {@link InputStream} for field relative x y and omega velocities.
+   *
+   * @param vx A supplier for the velocity of the robot along the x axis (perpendicular to the
+   *     alliance side).
+   * @param vy A supplier for the velocity of the robot along the y axis (parallel to the alliance
+   *     side).
+   * @param heading A supplier for the field relative heading of the robot.
+   * @return The driving command.
+   */
+  public Command drive(InputStream vx, InputStream vy, Supplier<Rotation2d> heading) {
+    var pid =
+        new ProfiledPIDController(
+            Rotation.P,
+            Rotation.I,
+            Rotation.D,
+            new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
+
     return run(
         () ->
-            drive(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                    xLimiter.calculate(scale(vx.getAsDouble()) * MAX_SPEED * speedMultiplier),
-                    yLimiter.calculate(scale(vy.getAsDouble()) * MAX_SPEED * speedMultiplier),
-                    scale(vOmega.getAsDouble()) * MAX_ANGULAR_SPEED * speedMultiplier,
-                    getHeading())));
+            driveFieldRelative(
+                new ChassisSpeeds(
+                    vx.get(),
+                    vy.get(),
+                    pid.calculate(
+                        getPose().getRotation().getRadians(), heading.get().getRadians()))));
+  }
+
+  /**
+   * Drives the robot relative to field based on provided {@link ChassisSpeeds} and current heading.
+   *
+   * @param speeds The desired field relative chassis speeds.
+   */
+  public void driveFieldRelative(ChassisSpeeds speeds) {
+    driveRobotRelative(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getPose().getRotation()));
   }
 
   /**
    * Drives the robot based on profided {@link ChassisSpeeds}.
    *
-   * <p>This method uses {@link Pose2d#log(Pose2d)} to reduce skew.
+   * <p>This method uses {@link ChassisSpeeds#discretize(ChassisSpeeds, double)} to reduce skew.
    *
-   * @param speeds The desired chassis speeds.
+   * @param speeds The desired robot relative chassis speeds.
    */
-  public void drive(ChassisSpeeds speeds) {
-    var target =
-        new Pose2d(
-            speeds.vxMetersPerSecond * Constants.PERIOD,
-            speeds.vyMetersPerSecond * Constants.PERIOD,
-            Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * Constants.PERIOD));
-
-    var twist = new Pose2d().log(target);
-
-    speeds =
-        new ChassisSpeeds(
-            twist.dx / Constants.PERIOD,
-            twist.dy / Constants.PERIOD,
-            twist.dtheta / Constants.PERIOD);
-
-    setModuleStates(kinematics.toSwerveModuleStates(speeds));
+  public void driveRobotRelative(ChassisSpeeds speeds) {
+    setModuleStates(
+        kinematics.toSwerveModuleStates(
+            ChassisSpeeds.discretize(speeds, Constants.PERIOD.in(Seconds))));
   }
 
   /**
    * Sets the swerve ModuleStates.
    *
-   * @param desiredStates The desired ModuleIO states.
+   * @param desiredStates The desired SwerveModule states.
    */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     if (desiredStates.length != modules.size()) {
       throw new IllegalArgumentException("desiredStates must have the same length as modules");
     }
 
-    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_SPEED);
+    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_SPEED.in(MetersPerSecond));
 
     for (int i = 0; i < modules.size(); i++) {
-      modules.get(i).setDesiredState(desiredStates[i]);
+      modules.get(i).updateDesiredState(desiredStates[i]);
     }
   }
 
   /** Resets the drive encoders to currently read a position of 0. */
   public void resetEncoders() {
-    modules.forEach(ModuleIO::resetEncoders);
+    modules.forEach(SwerveModule::resetEncoders);
   }
 
   /** Zeroes the heading of the robot. */
-  public CommandBase zeroHeading() {
-    return runOnce(imu::reset);
+  public Command zeroHeading() {
+    return runOnce(gyro::reset);
   }
 
-  /** Returns the pitch of the drive gyro */
-  public double getPitch() {
-    return imu.getPitch();
-  }
-
+  /** Returns the module states. */
+  @Log.NT
   private SwerveModuleState[] getModuleStates() {
-    return modules.stream().map(ModuleIO::getState).toArray(SwerveModuleState[]::new);
+    return modules.stream().map(SwerveModule::state).toArray(SwerveModuleState[]::new);
   }
 
+  /** Returns the module positions */
+  @Log.NT
   private SwerveModulePosition[] getModulePositions() {
-    return modules.stream().map(ModuleIO::getPosition).toArray(SwerveModulePosition[]::new);
+    return modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
+  }
+
+  /** Returns the chassis speed. */
+  @Log.NT
+  public ChassisSpeeds getChassisSpeed() {
+    return kinematics.toChassisSpeeds(getModuleStates());
   }
 
   /** Updates pose estimation based on provided {@link EstimatedRobotPose} */
@@ -216,103 +251,66 @@ public class Drive extends SubsystemBase implements Fallible, Loggable, AutoClos
 
   @Override
   public void periodic() {
-    odometry.update(getHeading(), getModulePositions());
+    odometry.update(Robot.isReal() ? gyro.getRotation2d() : simRotation, getModulePositions());
 
     field2d.setRobotPose(getPose());
 
     for (int i = 0; i < modules2d.length; i++) {
       var module = modules.get(i);
-      var transform = new Transform2d(MODULE_OFFSET[i], module.getPosition().angle);
+      var transform = new Transform2d(MODULE_OFFSET[i], module.position().angle);
       modules2d[i].setPose(getPose().transformBy(transform));
     }
   }
 
   @Override
   public void simulationPeriodic() {
-    imu.getSimCollection()
-        .addHeading(
-            Units.radiansToDegrees(
-                    kinematics.toChassisSpeeds(getModuleStates()).omegaRadiansPerSecond)
-                * Constants.PERIOD);
+    simRotation =
+        simRotation.rotateBy(
+            Rotation2d.fromRadians(
+                getChassisSpeed().omegaRadiansPerSecond * Constants.PERIOD.in(Seconds)));
   }
 
   /** Stops drivetrain */
-  public CommandBase stop() {
-    return runOnce(() -> drive(new ChassisSpeeds()));
+  public Command stop() {
+    return runOnce(() -> driveRobotRelative(new ChassisSpeeds()));
   }
 
   /** Sets the drivetrain to an "X" configuration, preventing movement */
-  public CommandBase lock() {
+  public Command lock() {
     var front = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
     var back = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
     return run(() -> setModuleStates(new SwerveModuleState[] {front, back, back, front}));
   }
 
-  /** Sets a new speed multiplier for the robot, this affects max cartesian and angular speeds */
-  public CommandBase setSpeedMultiplier(double multiplier) {
-    return runOnce(() -> speedMultiplier = multiplier);
+  /** Locks the drive motors. */
+  private Command lockDriveMotors() {
+    return Commands.run(() -> modules.forEach(m -> m.updateDriveSpeed(0)));
   }
 
-  /**
-   * Follows a simple {@link PathPlannerTrajectory} on the field.
-   *
-   * <p>For safer use, see {@link this#followPath(PathPlannerTrajectory, boolean)}.
-   *
-   * @param trajectory The trajectory to follow.
-   * @return The command that follows the trajectory.
-   */
-  public CommandBase follow(PathPlannerTrajectory trajectory) {
-    return new PPSwerveControllerCommand(
-            trajectory,
-            this::getPose,
-            kinematics,
-            new PIDController(TRANSLATION.p(), TRANSLATION.i(), TRANSLATION.d()),
-            new PIDController(TRANSLATION.p(), TRANSLATION.i(), TRANSLATION.d()),
-            new PIDController(ROTATION.p(), ROTATION.i(), ROTATION.d()),
-            this::setModuleStates,
-            false)
-        .andThen(stop());
+  /** Locks the turn motors. */
+  private Command lockTurnMotors() {
+    return Commands.run(
+        () -> modules.forEach(m -> m.updateTurnRotation(Rotation2d.fromDegrees(0))));
   }
 
-  /**
-   * Follows the specified trajectory using {@link this#follow(PathPlannerTrajectory)} and resets if
-   * specified
-   */
-  public CommandBase followPath(PathPlannerTrajectory path, boolean resetOdometry) {
-    var newPath = pathForAlliance(path, DriverStation.getAlliance());
-    return (resetOdometry ? pathOdometryReset(newPath) : Commands.none()).andThen(follow(newPath));
+  /** Runs the drive quasistatic SysId while locking turn motors. */
+  public Command driveSysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return driveRoutine.quasistatic(direction).deadlineWith(lockTurnMotors());
   }
 
-  /** Resets odometry to first pose in path, using ppl to reflects if using alliance color */
-  public CommandBase pathOdometryReset(PathPlannerTrajectory trajectory) {
-    var initialState = trajectory.getInitialState();
-    Pose2d initialPose =
-        new Pose2d(initialState.poseMeters.getTranslation(), initialState.holonomicRotation);
-    return Commands.runOnce(() -> resetOdometry(initialPose), this);
+  /** Runs the drive dynamic SysId while locking turn motors. */
+  public Command driveSysIdDynamic(SysIdRoutine.Direction direction) {
+    return driveRoutine.dynamic(direction).deadlineWith(lockTurnMotors());
   }
 
-  /** Creates and follows trajectroy for swerve from startPose to desiredPose */
-  public CommandBase driveToPose(Pose2d startPose, Pose2d desiredPose) {
-    Rotation2d heading = desiredPose.minus(startPose).getTranslation().getAngle();
-    PathPoint start = new PathPoint(startPose.getTranslation(), heading, startPose.getRotation());
-    PathPoint goal =
-        new PathPoint(desiredPose.getTranslation(), heading, desiredPose.getRotation());
-    PathPlannerTrajectory trajectory = PathPlanner.generatePath(CONSTRAINTS, start, goal);
-    return follow(trajectory);
+  /** Runs the turn quasistatic SysId while locking drive motors. */
+  public Command turnSysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return turnRoutine.quasistatic(direction).deadlineWith(lockDriveMotors());
   }
 
-  /** Creates and follows trajectory for swerve from current pose to desiredPose */
-  public CommandBase driveToPose(Pose2d desiredPose) {
-    return new DeferredCommand(() -> driveToPose(getPose(), desiredPose), this);
-  }
-
-  @Override
-  public List<HardwareFault> getFaults() {
-    var builder = new FaultBuilder();
-    for (var module : modules) {
-      builder.register(module.getFaults());
-    }
-    return builder.build();
+  /** Runs the turn dynamic SysId while locking drive motors. */
+  public Command turnSysIdDynamic(SysIdRoutine.Direction direction) {
+    return turnRoutine.dynamic(direction).deadlineWith(lockDriveMotors());
   }
 
   public void close() throws Exception {
@@ -320,6 +318,6 @@ public class Drive extends SubsystemBase implements Fallible, Loggable, AutoClos
     frontRight.close();
     rearLeft.close();
     rearRight.close();
-    imu.close();
+    gyro.close();
   }
 }
