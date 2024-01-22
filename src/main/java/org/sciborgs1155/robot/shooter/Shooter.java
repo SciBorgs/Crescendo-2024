@@ -89,11 +89,23 @@ public class Shooter extends SubsystemBase {
             new TrapezoidProfile.Constraints(
                 ClimbConstants.MAX_VELOCITY, ClimbConstants.MAX_ACCEL));
     ArmFeedforward ff = new ArmFeedforward(ClimbConstants.kS, ClimbConstants.kG, ClimbConstants.kV);
-    
+
     return run(() ->
             pivot.setVoltage(
                 pid.calculate(pivot.getPosition(), goalAngle)
                     + ff.calculate(goalAngle, pid.getSetpoint().velocity)))
         .withName("climbing. . .");
+  }
+
+  public double getFlywheelVelocity() {
+    return flywheel.getVelocity();
+  }
+
+  public double getFeederVelocity() {
+    return feeder.getVelocity();
+  }
+
+  public double getPivotPosition() {
+    return pivot.getPosition();
   }
 }
