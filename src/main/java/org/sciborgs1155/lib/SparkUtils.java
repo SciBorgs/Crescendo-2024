@@ -1,134 +1,111 @@
 package org.sciborgs1155.lib;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Rotations;
 
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkBase;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Per;
-import edu.wpi.first.units.Unit;
-import edu.wpi.first.wpilibj.Timer;
-import java.util.ArrayList;
+import edu.wpi.first.units.Time;
+import edu.wpi.first.units.Units;
+import java.util.Set;
 
-/** Utility class that creates and configures CANSparkMax motor controllers */
+/** Utility class for configuration of Spark motor controllers */
 public class SparkUtils {
 
-  private static final ArrayList<CANSparkMax> sparks = new ArrayList<>();
+  public static final int FRAME_STRATEGY_DISABLED = 65535;
+  public static final int FRAME_STRATEGY_SLOW = 500;
+  public static final int FRAME_STRATEGY_FAST = 15;
 
-  /**
-   * Creates a brushless CANSparkMax and restores it to factory defaults.
-   *
-   * <p>All Spark Max should be created using this method so they can all be stored in a static
-   * list.
-   *
-   * @param id The CAN ID of the Spark Max.
-   * @return A CANSparkMax instance.
-   * @see #safeBurnFlash()
-   */
-  public static CANSparkMax create(int id) {
-    CANSparkMax spark = new CANSparkMax(id, MotorType.kBrushless);
-    spark.restoreFactoryDefaults();
-    sparks.add(spark);
-    return spark;
+  public static final Angle ANGLE_UNIT = Units.Rotations;
+  public static final Time TIME_UNIT = Units.Minutes;
+  public static final Angle THROUGHBORE_PPR =
+      Units.derive(Rotations).splitInto(2048).named("Pulses Per Revolution").symbol("PPR").make();
+
+  /** Represents a type of sensor that can be plugged into the spark */
+  public static enum Sensor {
+    INTEGRATED,
+    ANALOG,
+    QUADRATURE,
+    DUTY_CYCLE;
+  }
+
+  /** Represents a type of data that can be sent from the spark */
+  public static enum Data {
+    POSITION,
+    VELOCITY,
+    CURRENT,
+    VOLTAGE;
   }
 
   /**
-   * Burn all motor configs to flash at the same time, accounting for CAN bus delay. Use once after
-   * fully configuring motors.
+   * Configures CAN frames periods on a spark to send only specified data at high rates.
+   *
+   * @param spark The Spark MAX or Spark FLEX to configure.
+   * @param data The data that the spark needs to send to the RIO.
+   * @param sensors The sensors that provide data for the spark needs to send to the RIO.
+   * @param withFollower Whether this spark has a following motor via {@link
+   *     CANSparkBase#follow(CANSparkBase)}.
+   * @see Sensor
+   * @see Data
+   * @see https://docs.revrobotics.com/brushless/spark-max/control-interfaces
    */
-  public static void safeBurnFlash() {
-    Timer.delay(0.2);
-    for (CANSparkMax spark : sparks) {
-      spark.burnFlash();
-      Timer.delay(0.025);
+  public static void configureFrameStrategy(
+      CANSparkBase spark, Set<Data> data, Set<Sensor> sensors, boolean withFollower) {
+    int status0 = 10; // output, faults
+    int status1 = FRAME_STRATEGY_SLOW; // velocity, temperature, input voltage, current
+    int status2 = FRAME_STRATEGY_SLOW; // position
+    int status3 = FRAME_STRATEGY_DISABLED; // analog encoder | default 50
+    int status4 = FRAME_STRATEGY_DISABLED; // alternate quadrature encoder | default 20
+    int status5 = FRAME_STRATEGY_DISABLED; // duty cycle position | default 200
+    int status6 = FRAME_STRATEGY_DISABLED; // duty cycle velocity | default 200
+
+    if (data.contains(Data.VELOCITY)
+        || data.contains(Data.VOLTAGE)
+        || data.contains(Data.CURRENT)) {
+      status1 = FRAME_STRATEGY_FAST;
     }
-    Timer.delay(0.2);
-  }
 
-  /**
-   * Disables a list of frames for a specific motor.
-   *
-   * <p>For a list of specific frames and what they do, read {@href
-   * https://docs.revrobotics.com/sparkmax/operating-modes/control-interfaces}.
-   *
-   * <p>Typically, we want to disable as many frames as possible to keep CAN bus usage low.
-   * Typically, for all "follower" motor controllers where you do not need to access any data, you
-   * should disable frames 1-6.
-   *
-   * @param spark
-   * @param frames
-   */
-  public static void disableFrames(CANSparkMax spark, int... frames) {
-    for (int frame : frames) {
-      spark.setPeriodicFramePeriod(PeriodicFrame.fromId(frame), 65535);
+    if (data.contains(Data.POSITION)) {
+      status2 = FRAME_STRATEGY_FAST;
     }
+
+    if (sensors.contains(Sensor.ANALOG)) {
+      status3 = FRAME_STRATEGY_FAST;
+    }
+
+    if (sensors.contains(Sensor.QUADRATURE)) {
+      status4 = FRAME_STRATEGY_FAST;
+    }
+
+    if (sensors.contains(Sensor.DUTY_CYCLE)) {
+      if (data.contains(Data.POSITION)) {
+        status5 = FRAME_STRATEGY_FAST;
+      }
+      if (data.contains(Data.VELOCITY)) {
+        status6 = FRAME_STRATEGY_FAST;
+      }
+    }
+
+    if (!withFollower) {
+      status0 = FRAME_STRATEGY_SLOW;
+    }
+
+    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus0, status0);
+    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus1, status1);
+    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus2, status2);
+    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus3, status3);
+    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus4, status4);
+    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus5, status5);
+    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus6, status6);
   }
 
   /**
-   * Sets the position and velocity conversion factors of a {@link RelativeEncoder} based on the
-   * supplied {@link Measure}.
+   * Configures a follower spark to send nothing except output and faults. This means most data will
+   * not be accessible.
    *
-   * <p>The default units of a neo integrated encoder are rotations and minutes. This method
-   * automatically converts a supplied ratio into the appropriate units.
-   *
-   * <pre>
-   * encoder = driveMotor.getEncoder();
-   * // Configure the encoder to return distance with a gearing of 3/2 and wheel circumference of 2 inches
-   * setConversion(encoder, Rotations.of(3).divide(2).times(Inches.of(2)).per(Rotations));
-   * </pre>
-   *
-   * @param encoder The encoder to configure.
-   * @param conversion The ratio of rotations to a desired unit as an angle measure.
+   * @param spark The follower spark.
    */
-  public static <U extends Unit<U>> void setConversion(
-      RelativeEncoder encoder, Measure<Per<U, Angle>> conversion) {
-    var numerator = conversion.unit().numerator();
-    encoder.setPositionConversionFactor(conversion.in(numerator.per(Rotations)));
-    encoder.setVelocityConversionFactor(
-        conversion.per(Seconds.one()).in(numerator.per(Rotations).per(Minute)));
-  }
-
-  /**
-   * Sets the position and velocity conversion factors of a {@link AbsoluteEncoder} based on the
-   * supplied {@link Measure}.
-   *
-   * <p>The default units of a neo integrated encoder are rotations and minutes. This method
-   * automatically converts a supplied ratio into the appropriate units.
-   *
-   * <pre>
-   * encoder = driveMotor.getEncoder();
-   * // Configure the encoder to return distance with a gearing of 3/2 and wheel circumference of 2 inches
-   * setConversion(encoder, Rotations.of(3).divide(2).times(Inches.of(2)).per(Rotations));
-   * </pre>
-   *
-   * @param encoder The encoder to configure.
-   * @param conversion The ratio of rotations to a desired unit as an angle measure.
-   */
-  public static <U extends Unit<U>> void setConversion(
-      AbsoluteEncoder encoder, Measure<Per<U, Angle>> conversion) {
-    var numerator = conversion.unit().numerator();
-    encoder.setPositionConversionFactor(conversion.in(numerator.per(Rotations)));
-    encoder.setVelocityConversionFactor(
-        conversion.per(Seconds.one()).in(numerator.per(Rotations).per(Minute)));
-  }
-
-  /**
-   * Enables and sets the minimum and maximum bounds for input wrapping on an onboard Spark Max PID
-   * controller.
-   *
-   * @param controller The onboard PID controller object.
-   * @param min The minimum position input.
-   * @param max The maximum position input.
-   */
-  public static void enableContinuousPIDInput(
-      SparkMaxPIDController controller, double min, double max) {
-    controller.setPositionPIDWrappingEnabled(true);
-    controller.setPositionPIDWrappingMinInput(min);
-    controller.setPositionPIDWrappingMaxInput(max);
+  public static void configureFollowerFrameStrategy(CANSparkBase spark) {
+    configureFrameStrategy(spark, Set.of(), Set.of(), false);
   }
 }
