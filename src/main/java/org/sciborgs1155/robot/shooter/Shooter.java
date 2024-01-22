@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
@@ -20,11 +21,19 @@ import org.sciborgs1155.robot.shooter.flywheel.SimFlywheel;
 import org.sciborgs1155.robot.shooter.pivot.PivotIO;
 import org.sciborgs1155.robot.shooter.pivot.RealPivot;
 import org.sciborgs1155.robot.shooter.pivot.SimPivot;
+import org.sciborgs1155.robot.shooter.pivot.Visualizer;
 
 public class Shooter extends SubsystemBase {
   private final FlywheelIO flywheel;
   private final FeederIO feeder;
   private final PivotIO pivot;
+
+  final Mechanism2d mech = new Mechanism2d(3, 4);
+  private final Visualizer positionVisualizer = new Visualizer(null, null);
+  private final Visualizer setpointVisualizer = new Visualizer(null, null);
+
+  private final PIDController flywheelPID = new PIDController(Flywheel.kP, Flywheel.kI, Flywheel.kD);
+  private final SimpleMotorFeedforward flywheelFeedforward = new SimpleMotorFeedforward(Flywheel.kS, Flywheel.kV, Flywheel.kA);
 
   public static Shooter create() {
     return Robot.isReal()
@@ -48,13 +57,10 @@ public class Shooter extends SubsystemBase {
 
   // Make sure this is correct !!!
   public Command runFlywheel(DoubleSupplier velocity) {
-    PIDController pid = new PIDController(Flywheel.kP, Flywheel.kI, Flywheel.kD);
-    SimpleMotorFeedforward ff = new SimpleMotorFeedforward(Flywheel.kS, Flywheel.kV, Flywheel.kA);
     return run(() ->
             flywheel.setVoltage(
-                pid.calculate(flywheel.getVelocity(), velocity.getAsDouble())
-                    + ff.calculate(velocity.getAsDouble())))
-        .finallyDo(() -> pid.close())
+                flywheelPID.calculate(flywheel.getVelocity(), velocity.getAsDouble())
+                    + flywheelFeedforward.calculate(velocity.getAsDouble())))
         .withName("running Flywheel");
   }
 
@@ -88,5 +94,11 @@ public class Shooter extends SubsystemBase {
                 pid.calculate(pivot.getPosition(), goalAngle)
                     + ff.calculate(goalAngle + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity)))
         .withName("running Pivot");
+  }
+
+  @Override
+  public void periodic() {
+    positionVisualizer.setState(pivot.getPosition());
+    setpointVisualizer.setState()
   }
 }
