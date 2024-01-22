@@ -4,16 +4,14 @@ import static edu.wpi.first.units.Units.Amps;
 import static org.sciborgs1155.robot.Ports.Shooter.Pivot.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.Pivot.*;
 
-import java.util.Set;
-
-import org.sciborgs1155.lib.SparkUtils;
-import org.sciborgs1155.lib.SparkUtils.Data;
-import org.sciborgs1155.lib.SparkUtils.Sensor;
-
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import java.util.Set;
+import org.sciborgs1155.lib.SparkUtils;
+import org.sciborgs1155.lib.SparkUtils.Data;
+import org.sciborgs1155.lib.SparkUtils.Sensor;
 
 public class RealPivot implements PivotIO {
   private final CANSparkMax lead;
@@ -39,15 +37,9 @@ public class RealPivot implements PivotIO {
     encoder.setDistancePerRotation(CONVERSION);
 
     SparkUtils.configureFrameStrategy(
-      lead, 
-      Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE),
-      Set.of(Sensor.INTEGRATED),
-      true
-    );
+        lead, Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE), Set.of(Sensor.INTEGRATED), true);
 
-    SparkUtils.configureFollowerFrameStrategy(
-      follow
-    );
+    SparkUtils.configureFollowerFrameStrategy(follow);
 
     follow.follow(lead);
 

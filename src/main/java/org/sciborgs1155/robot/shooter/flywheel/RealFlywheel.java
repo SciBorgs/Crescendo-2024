@@ -4,16 +4,14 @@ import static edu.wpi.first.units.Units.Amps;
 import static org.sciborgs1155.robot.Ports.Shooter.Flywheel.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.Flywheel.*;
 
-import java.util.Set;
-
-import org.sciborgs1155.lib.SparkUtils;
-import org.sciborgs1155.lib.SparkUtils.Data;
-import org.sciborgs1155.lib.SparkUtils.Sensor;
-
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
+import java.util.Set;
+import org.sciborgs1155.lib.SparkUtils;
+import org.sciborgs1155.lib.SparkUtils.Data;
+import org.sciborgs1155.lib.SparkUtils.Sensor;
 
 public class RealFlywheel implements FlywheelIO {
   private final CANSparkFlex leftMotor;
@@ -39,14 +37,11 @@ public class RealFlywheel implements FlywheelIO {
     encoder.setPositionConversionFactor(POSITION_CONVERSION);
 
     SparkUtils.configureFrameStrategy(
-      leftMotor, 
-      Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE),
-      Set.of(Sensor.INTEGRATED),
-      true
-      );
-    SparkUtils.configureFollowerFrameStrategy(
-      rightMotor
-      );
+        leftMotor,
+        Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE),
+        Set.of(Sensor.INTEGRATED),
+        true);
+    SparkUtils.configureFollowerFrameStrategy(rightMotor);
 
     rightMotor.follow(leftMotor);
 

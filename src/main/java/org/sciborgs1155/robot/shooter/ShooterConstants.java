@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.*;
+
 import edu.wpi.first.units.*;
 
 public class ShooterConstants {
@@ -15,10 +16,9 @@ public class ShooterConstants {
     public static final double RADIUS = 1;
     public static final Measure<Distance> CIRCUMFERENCE = Meters.of(2 * Math.PI * RADIUS);
 
-    public static final Measure<Angle> POSITION_FACTOR = 
-      Rotations.of(GEARING).times(CIRCUMFERENCE.in(Meters));
-    public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = 
-      POSITION_FACTOR.per(Minute);
+    public static final Measure<Angle> POSITION_FACTOR =
+        Rotations.of(GEARING).times(CIRCUMFERENCE.in(Meters));
+    public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
     public static final double kP = 1;
     public static final double kI = 0;

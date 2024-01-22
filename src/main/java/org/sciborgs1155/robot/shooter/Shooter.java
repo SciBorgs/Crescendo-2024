@@ -50,11 +50,12 @@ public class Shooter extends SubsystemBase {
   public Command runFlywheel(DoubleSupplier velocity) {
     PIDController pid = new PIDController(Flywheel.kP, Flywheel.kI, Flywheel.kD);
     SimpleMotorFeedforward ff = new SimpleMotorFeedforward(Flywheel.kS, Flywheel.kV, Flywheel.kA);
-    return run(
-        () ->
+    return run(() ->
             flywheel.setVoltage(
                 pid.calculate(flywheel.getVelocity(), velocity.getAsDouble())
-                    + ff.calculate(velocity.getAsDouble()))).finallyDo(() -> pid.close()).withName("running Flywheel");
+                    + ff.calculate(velocity.getAsDouble())))
+        .finallyDo(() -> pid.close())
+        .withName("running Flywheel");
   }
 
   public Command runPivot(double goalAngle) {
@@ -66,10 +67,10 @@ public class Shooter extends SubsystemBase {
             new TrapezoidProfile.Constraints(Pivot.MAX_VELOCITY, Pivot.MAX_ACCEL));
     ArmFeedforward ff = new ArmFeedforward(Pivot.kS, Pivot.kG, Pivot.kV);
 
-    return run(
-        () ->
+    return run(() ->
             pivot.setVoltage(
                 pid.calculate(pivot.getPosition(), goalAngle)
-                    + ff.calculate(goalAngle + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity))).withName("running Pivot");
+                    + ff.calculate(goalAngle + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity)))
+        .withName("running Pivot");
   }
 }
