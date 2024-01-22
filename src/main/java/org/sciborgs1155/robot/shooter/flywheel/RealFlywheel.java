@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot.shooter.flywheel;
 
+import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.Ports.Shooter.Flywheel.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.Flywheel.*;
 
@@ -27,8 +28,8 @@ public class RealFlywheel implements FlywheelIO {
     setup.createMotor.createFlex(topMotor, CURRENT_LIMIT);
     setup.createMotorInverted.createFlex(bottomMotor, CURRENT_LIMIT);
 
-    encoder.setVelocityConversionFactor(VELOCITY_CONVERSION);
-    encoder.setPositionConversionFactor(POSITION_CONVERSION);
+    encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
+    encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
 
     SparkUtils.configureFrameStrategy(
         topMotor,

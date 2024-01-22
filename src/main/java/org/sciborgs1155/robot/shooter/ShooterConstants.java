@@ -9,9 +9,7 @@ public class ShooterConstants {
 
     public static final double GEARING = 1;
     public static final Measure<Current> CURRENT_LIMIT = Amps.of(1);
-    public static final double MOI = -1;
-    public static final double VELOCITY_CONVERSION = -1;
-    public static final double POSITION_CONVERSION = -1;
+    public static final double MOI = 1;
 
     public static final double RADIUS = 1;
     public static final Measure<Distance> CIRCUMFERENCE = Meters.of(2 * Math.PI * RADIUS);
@@ -44,8 +42,8 @@ public class ShooterConstants {
 
     public static final double POSITION_OFFSET = 0;
 
-    public static final double MASS = 0;
-    public static final double LENGTH = 0;
+    public static final double MASS = 6;
+    public static final double LENGTH = 3;
 
     public static final double MAX_VELOCITY = 1;
     public static final double MAX_ACCEL = 1;
@@ -65,5 +63,11 @@ public class ShooterConstants {
     public static final double kV = 1;
     public static final double kA = 1;
     public static final double kG = 1;
+
+    public static final class Climb {
+      public static final double kP = 1;
+      public static final double kI = 0;
+      public static final double kD = 0;
+    }
   }
 }
