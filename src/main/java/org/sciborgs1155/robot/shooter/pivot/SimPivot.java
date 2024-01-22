@@ -1,15 +1,13 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
+import static edu.wpi.first.units.Units.Radians;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.Pivot.*;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 public class SimPivot implements PivotIO {
-  private static final Unit<Angle> Radians = null;
   private final SingleJointedArmSim sim =
       new SingleJointedArmSim(
           LinearSystemId.createSingleJointedArmSystem(
