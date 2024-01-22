@@ -3,7 +3,6 @@ package org.sciborgs1155.robot.shooter.feeder;
 import static org.sciborgs1155.robot.Ports.Shooter.Feeder.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.Feeder.*;
 
-import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.units.Current;
@@ -12,6 +11,7 @@ import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
+import org.sciborgs1155.robot.setup.TemplateMotorSetup;
 
 public class RealFeeder implements FeederIO {
 
@@ -19,12 +19,11 @@ public class RealFeeder implements FeederIO {
   private final CANSparkFlex motor;
 
   public RealFeeder() {
+    TemplateMotorSetup setup = new TemplateMotorSetup();
+
     motor = new CANSparkFlex(FEEDER_SPARK, MotorType.kBrushless);
 
-    motor.restoreFactoryDefaults();
-    motor.setIdleMode(IdleMode.kBrake);
-    motor.setInverted(false);
-    motor.setSmartCurrentLimit((int) Math.round(CURRENT_LIMIT.in(Amps)));
+    setup.createMotor.createFlex(motor, CURRENT_LIMIT);
 
     motor.burnFlash();
 
