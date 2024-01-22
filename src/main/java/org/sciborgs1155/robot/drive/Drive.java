@@ -133,9 +133,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         () -> {
           var alliance = DriverStation.getAlliance();
           if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Blue;
+            return alliance.get() == DriverStation.Alliance.Red;
           }
-          return false;
+          throw new RuntimeException("ahhhhhhhhhh");
         },
         this);
   }
