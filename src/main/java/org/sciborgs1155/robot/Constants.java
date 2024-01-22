@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
+import edu.wpi.first.wpilibj.util.Color;
+
 import org.sciborgs1155.robot.drive.DriveConstants;
 
 /**
@@ -23,4 +25,10 @@ public class Constants {
           / DriveConstants.MAX_ANGULAR_SPEED.baseUnitMagnitude();
   public static final double SLOW_SPEED = 0.33;
   public static final double FULL_SPEED = 1.0;
+
+  public static final class Led{
+    public static final Color INTAKE_COLOR = Color.kOrange;
+    public static final Color PASSING_COLOR = Color.kGray;
+    public static final Color SHOOTER_COLOR = Color.kGreen;
+  }
 }
