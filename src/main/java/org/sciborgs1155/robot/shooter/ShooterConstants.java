@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.units.*;
 
 public class ShooterConstants {
-  public static class Flywheel {
+  public static class FlywheelConstants {
 
     public static final double GEARING = 1;
     public static final Measure<Current> CURRENT_LIMIT = Amps.of(1);
@@ -27,7 +27,7 @@ public class ShooterConstants {
     public static final double kA = 0;
   }
 
-  public static class Feeder {
+  public static class FeederConstants {
     public static final Measure<Current> CURRENT_LIMIT = Amps.of(1);
 
     public static final double GEARING = 1;
@@ -36,7 +36,7 @@ public class ShooterConstants {
     public static final double kA = 1;
   }
 
-  public static class Pivot {
+  public static class PivotConstants {
     public static final double GEARING = 1;
     public static final double CONVERSION = 0;
 
@@ -59,19 +59,21 @@ public class ShooterConstants {
     public static final double kI = 0;
     public static final double kD = 0;
 
-    public static final double kPl = 1;
-    public static final double kIl = 0;
-    public static final double kDl = 0;
-
     public static final double kS = 1;
     public static final double kV = 1;
     public static final double kA = 1;
     public static final double kG = 1;
 
-    public static final class Climb {
+    public static final class ClimbConstants {
       public static final double kP = 1;
       public static final double kI = 0;
       public static final double kD = 0;
+
+      public static final double MAX_VELOCITY = 1;
+      public static final double MAX_ACCEL = 1;
+      public static final double kS = 1;
+      public static final double kG = 1;
+      public static final double kV = 1;
     }
   }
 }

@@ -1,7 +1,7 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
 import static edu.wpi.first.units.Units.Radians;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.Pivot.*;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.*;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;

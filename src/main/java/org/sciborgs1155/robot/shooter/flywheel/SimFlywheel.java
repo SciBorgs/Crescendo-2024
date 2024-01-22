@@ -1,7 +1,7 @@
 package org.sciborgs1155.robot.shooter.flywheel;
 
-import static org.sciborgs1155.robot.shooter.ShooterConstants.Flywheel.GEARING;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.Flywheel.MOI;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.GEARING;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.MOI;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
