@@ -1,6 +1,9 @@
 package org.sciborgs1155.robot.led;
 
 import static org.sciborgs1155.robot.Ports.Led.*;
+
+import org.sciborgs1155.robot.led.Led.LEDTheme;
+
 import static org.sciborgs1155.robot.Constants.Led.*;
 
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -17,17 +20,7 @@ public class RealLed implements LedIO {
         led.setLength(ledBuffer.getLength());
     }
 
-    public enum LEDTheme{
-        RAINBOW,
-        BXSCI,
-        IN_INTAKE,
-        IN_PASSING,
-        IN_SHOOTER,
-        AUTO,
-        EXPLODE //means error now, unless you want to implement the ability for the robot to explode (potentially good strategy)
-    }
-    
-
+    @Override
     public void setTheme(LEDTheme ledTheme){
         if (ledTheme == LEDTheme.RAINBOW) {
             time += .005;
@@ -80,7 +73,7 @@ public class RealLed implements LedIO {
             }
         }
 
-        //CODE MAY BE MOVED TO LED.JAVA SOOON/LATER
+
     }
 
 }
