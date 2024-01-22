@@ -25,6 +25,8 @@ public class ShooterConstants {
     public static final double kS = 1;
     public static final double kV = 1;
     public static final double kA = 0;
+
+    public static final double VELOCITY_TOLERANCE = .1;
   }
 
   public static class FeederConstants {
@@ -63,6 +65,8 @@ public class ShooterConstants {
     public static final double kV = 1;
     public static final double kA = 1;
     public static final double kG = 1;
+
+    public static final double POSITION_TOLERANCE = .1;
 
     public static final class ClimbConstants {
       public static final double kP = 1;

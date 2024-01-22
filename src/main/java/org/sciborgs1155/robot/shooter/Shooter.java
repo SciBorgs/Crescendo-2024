@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot.shooter;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -8,6 +9,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import java.util.function.DoubleSupplier;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
@@ -47,6 +49,8 @@ public class Shooter extends SubsystemBase {
     this.feeder = feeder;
     this.pivot = pivot;
   }
+
+  //commands for running each section
 
   public Command runFeeder(double speed) {
     return run(() -> feeder.set(speed)).withName("running Feeder");
@@ -113,6 +117,28 @@ public class Shooter extends SubsystemBase {
                     + ff.calculate(goalAngle, pid.getSetpoint().velocity)))
         .withName("climbing. . .");
   }
+
+  //shooting commands
+  public Command shootStoredNote(double desiredVelocity){
+    return runFlywheel(
+      () -> desiredVelocity).alongWith(
+        runFeeder(1).onlyIf(
+          () -> flywheel.getVelocity() <= desiredVelocity + FlywheelConstants.VELOCITY_TOLERANCE 
+              && flywheel.getVelocity() >= desiredVelocity - FlywheelConstants.VELOCITY_TOLERANCE
+          ));
+  }
+
+  public Command pivotThenShoot(double goalAngle, double desiredVelocity) {
+    return runPivot(goalAngle)
+      .alongWith(
+        shootStoredNote(desiredVelocity)
+          .onlyIf(
+            () -> pivot.getPosition() <= goalAngle + PivotConstants.POSITION_TOLERANCE 
+                && pivot.getPosition() >= goalAngle - PivotConstants.POSITION_TOLERANCE
+            ));
+  }
+
+  //getters for testing
 
   public double getFlywheelVelocity() {
     return flywheel.getVelocity();
