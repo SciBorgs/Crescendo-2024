@@ -61,6 +61,10 @@ public class ShooterConstants {
     public static final double kI = 0;
     public static final double kD = 0;
 
+    public static final double kPl = 1;
+    public static final double kIl = 0;
+    public static final double kDl = 0;
+
     public static final double kS = 1;
     public static final double kV = 1;
     public static final double kA = 1;

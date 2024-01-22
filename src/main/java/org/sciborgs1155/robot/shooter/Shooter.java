@@ -73,4 +73,20 @@ public class Shooter extends SubsystemBase {
                     + ff.calculate(goalAngle + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity)))
         .withName("running Pivot");
   }
+
+  public Command runPivotWithLift(double goalAngle) {
+    ProfiledPIDController pid =
+        new ProfiledPIDController(
+            Pivot.kPl,
+            Pivot.kIl,
+            Pivot.kDl,
+            new TrapezoidProfile.Constraints(Pivot.MAX_VELOCITY, Pivot.MAX_ACCEL));
+    ArmFeedforward ff = new ArmFeedforward(Pivot.kS, Pivot.kG, Pivot.kV);
+
+    return run(() ->
+            pivot.setVoltage(
+                pid.calculate(pivot.getPosition(), goalAngle)
+                    + ff.calculate(goalAngle + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity)))
+        .withName("running Pivot");
+  }
 }
