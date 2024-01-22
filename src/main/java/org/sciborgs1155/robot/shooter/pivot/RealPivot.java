@@ -1,7 +1,14 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
+import static edu.wpi.first.units.Units.Amps;
 import static org.sciborgs1155.robot.Ports.Shooter.Pivot.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.Pivot.*;
+
+import java.util.Set;
+
+import org.sciborgs1155.lib.SparkUtils;
+import org.sciborgs1155.lib.SparkUtils.Data;
+import org.sciborgs1155.lib.SparkUtils.Sensor;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -9,37 +16,48 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
 public class RealPivot implements PivotIO {
-  private final CANSparkMax motor;
+  private final CANSparkMax lead;
   // FIX THESE NAMES!!!!!!!
-  private final CANSparkMax motorTwo;
+  private final CANSparkMax follow;
   private final DutyCycleEncoder encoder;
 
   public RealPivot() {
-    this.motor = new CANSparkMax(PIVOT_SPARK_ONE, MotorType.kBrushless);
-    this.motorTwo = new CANSparkMax(PIVOT_SPARK_TWO, MotorType.kBrushless);
+    this.lead = new CANSparkMax(PIVOT_SPARK_ONE, MotorType.kBrushless);
+    this.follow = new CANSparkMax(PIVOT_SPARK_TWO, MotorType.kBrushless);
     this.encoder = new DutyCycleEncoder(PIVOT_THROUGHBORE);
 
-    motor.restoreFactoryDefaults();
-    motor.setInverted(false);
-    motor.setIdleMode(IdleMode.kBrake);
-    motor.setSmartCurrentLimit(CURRENT_LIMIT);
+    lead.restoreFactoryDefaults();
+    lead.setInverted(false);
+    lead.setIdleMode(IdleMode.kBrake);
+    lead.setSmartCurrentLimit((int) Math.round(CURRENT_LIMIT.in(Amps)));
 
-    motorTwo.restoreFactoryDefaults();
-    motorTwo.setInverted(false);
-    motorTwo.setIdleMode(IdleMode.kBrake);
-    motorTwo.setSmartCurrentLimit(CURRENT_LIMIT);
+    follow.restoreFactoryDefaults();
+    follow.setInverted(false);
+    follow.setIdleMode(IdleMode.kBrake);
+    follow.setSmartCurrentLimit((int) Math.round(CURRENT_LIMIT.in(Amps)));
 
     encoder.setDistancePerRotation(CONVERSION);
 
-    motorTwo.follow(motor);
+    SparkUtils.configureFrameStrategy(
+      lead, 
+      Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE),
+      Set.of(Sensor.INTEGRATED),
+      true
+    );
 
-    motor.burnFlash();
-    motorTwo.burnFlash();
+    SparkUtils.configureFollowerFrameStrategy(
+      follow
+    );
+
+    follow.follow(lead);
+
+    lead.burnFlash();
+    follow.burnFlash();
   }
 
   @Override
   public void setVoltage(double voltage) {
-    motor.setVoltage(voltage);
+    lead.setVoltage(voltage);
   }
 
   @Override
@@ -49,8 +67,8 @@ public class RealPivot implements PivotIO {
 
   @Override
   public void close() throws Exception {
-    motor.close();
-    motorTwo.close();
+    lead.close();
+    follow.close();
     encoder.close();
   }
 }

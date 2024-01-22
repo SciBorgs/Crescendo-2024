@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot.shooter;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -37,12 +38,12 @@ public class Shooter extends SubsystemBase {
     this.pivot = pivot;
   }
 
-  public Command runFeeder(double voltage) {
-    return run(() -> feeder.setVoltage(voltage));
+  public Command runFeeder(double speed) {
+    return run(() -> feeder.set(speed)).withName("running Feeder");
   }
 
   public Command runFeederInverse(double voltage) {
-    return runFeeder(voltage * -1);
+    return runFeeder(voltage * -1).withName("running Feeder backwards");
   }
 
   // Make sure this is correct !!!
@@ -53,21 +54,22 @@ public class Shooter extends SubsystemBase {
         () ->
             flywheel.setVoltage(
                 pid.calculate(flywheel.getVelocity(), velocity.getAsDouble())
-                    + ff.calculate(velocity.getAsDouble())));
+                    + ff.calculate(velocity.getAsDouble()))).finallyDo(() -> pid.close()).withName("running Flywheel");
   }
 
-  public Command runPivot(double goal) {
+  public Command runPivot(double goalAngle) {
     ProfiledPIDController pid =
         new ProfiledPIDController(
             Pivot.kP,
             Pivot.kI,
             Pivot.kD,
             new TrapezoidProfile.Constraints(Pivot.MAX_VELOCITY, Pivot.MAX_ACCEL));
-    SimpleMotorFeedforward ff = new SimpleMotorFeedforward(Pivot.kS, Pivot.kV, Pivot.kA);
+    ArmFeedforward ff = new ArmFeedforward(Pivot.kS, Pivot.kG, Pivot.kV);
+
     return run(
         () ->
             pivot.setVoltage(
-                pid.calculate(pivot.getPosition(), goal)
-                    + ff.calculate(pid.getSetpoint().velocity)));
+                pid.calculate(pivot.getPosition(), goalAngle)
+                    + ff.calculate(goalAngle + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity))).withName("running Pivot");
   }
 }
