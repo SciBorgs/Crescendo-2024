@@ -1,7 +1,7 @@
 package org.sciborgs1155.robot.shooter.feeder;
 
 import static org.sciborgs1155.robot.Ports.Shooter.Feeder.*;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.Feeder.*;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.FeederConstants.*;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;

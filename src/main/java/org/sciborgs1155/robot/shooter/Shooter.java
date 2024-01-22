@@ -9,8 +9,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import org.sciborgs1155.robot.Robot;
-import org.sciborgs1155.robot.shooter.ShooterConstants.Flywheel;
-import org.sciborgs1155.robot.shooter.ShooterConstants.Pivot;
+import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
+import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants;
+import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.ClimbConstants;
 import org.sciborgs1155.robot.shooter.feeder.FeederIO;
 import org.sciborgs1155.robot.shooter.feeder.RealFeeder;
 import org.sciborgs1155.robot.shooter.feeder.SimFeeder;
@@ -48,29 +49,51 @@ public class Shooter extends SubsystemBase {
 
   // Make sure this is correct !!!
   public Command runFlywheel(DoubleSupplier velocity) {
-    PIDController pid = new PIDController(Flywheel.kP, Flywheel.kI, Flywheel.kD);
-    SimpleMotorFeedforward ff = new SimpleMotorFeedforward(Flywheel.kS, Flywheel.kV, Flywheel.kA);
+    PIDController pid =
+        new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
+    SimpleMotorFeedforward ff =
+        new SimpleMotorFeedforward(
+            FlywheelConstants.kS, FlywheelConstants.kV, FlywheelConstants.kA);
     return run(() ->
             flywheel.setVoltage(
                 pid.calculate(flywheel.getVelocity(), velocity.getAsDouble())
                     + ff.calculate(velocity.getAsDouble())))
         .finallyDo(() -> pid.close())
-        .withName("running Flywheel");
+        .withName("running FlywheelConstants");
   }
 
   public Command runPivot(double goalAngle) {
     ProfiledPIDController pid =
         new ProfiledPIDController(
-            Pivot.kP,
-            Pivot.kI,
-            Pivot.kD,
-            new TrapezoidProfile.Constraints(Pivot.MAX_VELOCITY, Pivot.MAX_ACCEL));
-    ArmFeedforward ff = new ArmFeedforward(Pivot.kS, Pivot.kG, Pivot.kV);
+            PivotConstants.kP,
+            PivotConstants.kI,
+            PivotConstants.kD,
+            new TrapezoidProfile.Constraints(
+                PivotConstants.MAX_VELOCITY, PivotConstants.MAX_ACCEL));
+    ArmFeedforward ff = new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
 
     return run(() ->
             pivot.setVoltage(
                 pid.calculate(pivot.getPosition(), goalAngle)
-                    + ff.calculate(goalAngle + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity)))
+                    + ff.calculate(
+                        goalAngle + PivotConstants.POSITION_OFFSET, pid.getSetpoint().velocity)))
         .withName("running Pivot");
+  }
+
+  public Command climb(double goalAngle) {
+    ProfiledPIDController pid =
+        new ProfiledPIDController(
+            ClimbConstants.kP,
+            ClimbConstants.kI,
+            ClimbConstants.kD,
+            new TrapezoidProfile.Constraints(
+                ClimbConstants.MAX_VELOCITY, ClimbConstants.MAX_ACCEL));
+    ArmFeedforward ff = new ArmFeedforward(ClimbConstants.kS, ClimbConstants.kG, ClimbConstants.kV);
+
+    return run(() ->
+            pivot.setVoltage(
+                pid.calculate(pivot.getPosition(), goalAngle)
+                    + ff.calculate(goalAngle, pid.getSetpoint().velocity)))
+        .withName("climbing. . .");
   }
 }

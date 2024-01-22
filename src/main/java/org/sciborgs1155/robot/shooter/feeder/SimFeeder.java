@@ -1,6 +1,6 @@
 package org.sciborgs1155.robot.shooter.feeder;
 
-import static org.sciborgs1155.robot.shooter.ShooterConstants.Feeder.*;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.FeederConstants.*;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
