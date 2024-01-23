@@ -63,7 +63,7 @@ public class Shooter extends SubsystemBase {
         .withName("running Flywheel");
   }
 
-  public Command runPivot(Measure<Angle> goalAngle) {
+  public Command runPivot(Supplier<Measure<Angle>> goalAngle) {
     return runPivotRate(goalAngle, () -> 1.0);
   }
 
@@ -78,7 +78,7 @@ public class Shooter extends SubsystemBase {
 
     return run(() ->
             pivot.setVoltage(
-                pid.calculate(pivot.getPosition(), State h)
+                pid.calculate(pivot.getPosition(), goalAngle.get().in(Units.Radians))
                     + ff.calculate(goalAngle.get().in(Units.Radians) + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity * rate.get())))
         .withName("running Pivot"); 
   }
