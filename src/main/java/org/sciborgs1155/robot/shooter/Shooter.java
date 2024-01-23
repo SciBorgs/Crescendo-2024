@@ -5,11 +5,13 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-import java.util.Optional;
 
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.Flywheel;
@@ -61,7 +63,11 @@ public class Shooter extends SubsystemBase {
         .withName("running Flywheel");
   }
 
-  public Command runPivot(Supplier<Double> goalAngle, Supplier<Double> velocity) {
+  public Command runPivot(Measure<Angle> goalAngle) {
+    return runPivotRate(goalAngle, () -> 1.0);
+  }
+
+  public Command runPivotRate(Supplier<Measure<Angle>> goalAngle, Supplier<Double> rate) {
     ProfiledPIDController pid =
         new ProfiledPIDController(
             Pivot.kP,
@@ -72,12 +78,12 @@ public class Shooter extends SubsystemBase {
 
     return run(() ->
             pivot.setVoltage(
-                pid.calculate(pivot.getPosition(), goalAngle.get())
-                    + ff.calculate(goalAngle.get() + Pivot.POSITION_OFFSET, velocity.get() ? Optional.isPresent(velocity) : pid.getSetpoint().velocity)))
-        .withName("running Pivot");
+                pid.calculate(pivot.getPosition(), State h)
+                    + ff.calculate(goalAngle.get().in(Units.Radians) + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity * rate.get())))
+        .withName("running Pivot"); 
   }
 
-  public Command runPivotWithLift(Supplier<Double> goalAngle) {
+  public Command runPivotWithLift(Supplier<Measure<Angle>> goalAngle) {
     ProfiledPIDController pid =
         new ProfiledPIDController(
             Pivot.kPl,
@@ -88,13 +94,8 @@ public class Shooter extends SubsystemBase {
 
     return run(() ->
             pivot.setVoltage(
-                pid.calculate(pivot.getPosition(), goalAngle.get())
-                    + ff.calculate(goalAngle.get() + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity)))
+                pid.calculate(pivot.getPosition(), goalAngle.get().in(Units.Radians))
+                    + ff.calculate(goalAngle.get().in(Units.Radians) + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity)))
         .withName("running Pivot");
-  }
-
-  public Command manualPivot(Supplier<Double> direction) {
-
-
   }
 }
