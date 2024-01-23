@@ -3,6 +3,7 @@ package org.sciborgs1155.lib;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.CANSparkBase;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Time;
@@ -107,5 +108,24 @@ public class SparkUtils {
    */
   public static void configureFollowerFrameStrategy(CANSparkBase spark) {
     configureFrameStrategy(spark, Set.of(), Set.of(), false);
+  }
+
+  /**
+   * Configures a CANSpark motor.
+   *
+   * @param motor The motor object. This is either a CANSparkMax object or a CANSparkFlex object.
+   * @param inverted The state of inversion. True if inverted.
+   * @param idleMode Idle mode setting (either COAST or BRAKE).
+   * @param limit Current limit in Amps.
+   * @return The motor object.
+   */
+  public static CANSparkBase configureMotor(
+      CANSparkBase motor, boolean inverted, IdleMode idleMode, int limit) {
+    motor.restoreFactoryDefaults();
+    motor.setInverted(inverted);
+    motor.setIdleMode(idleMode);
+    motor.setSmartCurrentLimit(limit);
+
+    return motor;
   }
 }
