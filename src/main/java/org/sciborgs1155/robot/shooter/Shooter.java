@@ -16,9 +16,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
-import monologue.Logged;
 import monologue.Annotations.Log;
+import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants;
@@ -39,10 +38,11 @@ public class Shooter extends SubsystemBase implements Logged {
   private final FeederIO feeder;
   private final PivotIO pivot;
 
-  @Log.NT final Mechanism2d mech = new Mechanism2d(3, 4);
-  @Log.NT final Mechanism2d mech2 = new Mechanism2d(3, 4);
-  private final Visualizer positionVisualizer = new Visualizer(mech, new Color8Bit(255, 0, 0));
-  private final Visualizer setpointVisualizer = new Visualizer(mech2, new Color8Bit(0, 0, 255));
+  @Log.NT final Mechanism2d measurement = new Mechanism2d(3, 4);
+  @Log.NT final Mechanism2d setpoint = new Mechanism2d(3, 4);
+  private final Visualizer positionVisualizer =
+      new Visualizer(measurement, new Color8Bit(255, 0, 0));
+  private final Visualizer setpointVisualizer = new Visualizer(setpoint, new Color8Bit(0, 0, 255));
 
   private final PIDController flywheelPID =
       new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
@@ -129,16 +129,19 @@ public class Shooter extends SubsystemBase implements Logged {
                                     - FlywheelConstants.VELOCITY_TOLERANCE));
   }
 
-  public Command pivotThenShoot(Supplier<Measure<Angle>> goalAngle, DoubleSupplier desiredVelocity) {
+  public Command pivotThenShoot(
+      Supplier<Measure<Angle>> goalAngle, DoubleSupplier desiredVelocity) {
     return runPivot(goalAngle)
         .alongWith(
             shootStoredNote(desiredVelocity)
                 .onlyIf(
                     () ->
                         pivot.getPosition()
-                                <= goalAngle.get().in(Units.Radians) + PivotConstants.POSITION_TOLERANCE
+                                <= goalAngle.get().in(Units.Radians)
+                                    + PivotConstants.POSITION_TOLERANCE
                             && pivot.getPosition()
-                                >= goalAngle.get().in(Units.Radians) - PivotConstants.POSITION_TOLERANCE));
+                                >= goalAngle.get().in(Units.Radians)
+                                    - PivotConstants.POSITION_TOLERANCE));
   }
 
   // getters for testing
