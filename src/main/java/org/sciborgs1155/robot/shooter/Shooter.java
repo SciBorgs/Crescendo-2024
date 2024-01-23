@@ -39,8 +39,11 @@ public class Shooter extends SubsystemBase {
   private final PIDController flywheelPID = new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
   private final SimpleMotorFeedforward flywheelFeedforward = new SimpleMotorFeedforward(FlywheelConstants.kS, FlywheelConstants.kV, FlywheelConstants.kA);
 
-  private final ProfiledPIDController PivotPID = new ProfiledPIDController(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD, new TrapezoidProfile.Constraints(PivotConstants.MAX_VELOCITY, PivotConstants.MAX_ACCEL));
-  private final ArmFeedforward PivotFeedforward = new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
+  private final ProfiledPIDController pivotPID = new ProfiledPIDController(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD, new TrapezoidProfile.Constraints(PivotConstants.MAX_VELOCITY, PivotConstants.MAX_ACCEL));
+  private final ArmFeedforward pivotFeedforward = new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
+
+  private final ProfiledPIDController climbPID = new ProfiledPIDController(ClimbConstants.kP, ClimbConstants.kI, ClimbConstants.kD, new TrapezoidProfile.Constraints(ClimbConstants.MAX_VELOCITY, ClimbConstants.MAX_ACCEL));
+  private final ArmFeedforward climbFeedforward = new ArmFeedforward(ClimbConstants.kS, ClimbConstants.kG, ClimbConstants.kV);
 
   public static Shooter create() {
     return Robot.isReal()
@@ -71,62 +74,44 @@ public class Shooter extends SubsystemBase {
         .withName("running Flywheel");
   }
 
-  public Command runPivot(double goalAngle) {
-    ProfiledPIDController pid =
-        new ProfiledPIDController(
-            PivotConstants.kP,
-            PivotConstants.kI,
-            PivotConstants.kD,
-            new TrapezoidProfile.Constraints(
-                PivotConstants.MAX_VELOCITY, PivotConstants.MAX_ACCEL));
-    ArmFeedforward ff = new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
-
+  public Command runPivot(DoubleSupplier goalAngle) {
     return run(() ->
             pivot.setVoltage(
-                pid.calculate(pivot.getPosition(), goalAngle)
-                    + ff.calculate(goalAngle, pid.getSetpoint().velocity)))
+                pivotPID.calculate(pivot.getPosition(), goalAngle.getAsDouble())
+                    + pivotFeedforward.calculate(pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity)))
         .withName("running Pivot");
   }
 
-  public Command climb(double goalAngle) {
-    ProfiledPIDController pid =
-        new ProfiledPIDController(
-            ClimbConstants.kP,
-            ClimbConstants.kI,
-            ClimbConstants.kD,
-            new TrapezoidProfile.Constraints(
-                ClimbConstants.MAX_VELOCITY, ClimbConstants.MAX_ACCEL));
-    ArmFeedforward ff = new ArmFeedforward(ClimbConstants.kS, ClimbConstants.kG, ClimbConstants.kV);
-
+  public Command climb(DoubleSupplier goalAngle) {
     return run(() ->
             pivot.setVoltage(
-                pid.calculate(pivot.getPosition(), goalAngle)
-                    + ff.calculate(goalAngle, pid.getSetpoint().velocity)))
+                climbPID.calculate(pivot.getPosition(), goalAngle.getAsDouble())
+                    + climbFeedforward.calculate(pivotPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
         .withName("running pivot");
   }
 
   // shooting commands
-  public Command shootStoredNote(double desiredVelocity) {
-    return runFlywheel(() -> desiredVelocity)
+  public Command shootStoredNote(DoubleSupplier desiredVelocity) {
+    return runFlywheel(() -> desiredVelocity.getAsDouble())
         .alongWith(
             runFeeder(1)
                 .onlyIf(
                     () ->
                         flywheel.getVelocity()
-                                <= desiredVelocity + FlywheelConstants.VELOCITY_TOLERANCE
+                                <= desiredVelocity.getAsDouble() + FlywheelConstants.VELOCITY_TOLERANCE
                             && flywheel.getVelocity()
-                                >= desiredVelocity - FlywheelConstants.VELOCITY_TOLERANCE));
+                                >= desiredVelocity.getAsDouble() - FlywheelConstants.VELOCITY_TOLERANCE));
   }
 
-  public Command pivotThenShoot(double goalAngle, double desiredVelocity) {
+  public Command pivotThenShoot(DoubleSupplier goalAngle, DoubleSupplier desiredVelocity) {
     return runPivot(goalAngle)
         .alongWith(
             shootStoredNote(desiredVelocity)
                 .onlyIf(
                     () ->
-                        pivot.getPosition() <= goalAngle + PivotConstants.POSITION_TOLERANCE
+                        pivot.getPosition() <= goalAngle.getAsDouble() + PivotConstants.POSITION_TOLERANCE
                             && pivot.getPosition()
-                                >= goalAngle - PivotConstants.POSITION_TOLERANCE));
+                                >= goalAngle.getAsDouble() - PivotConstants.POSITION_TOLERANCE));
   }
 
   // getters for testing
@@ -146,6 +131,6 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     positionVisualizer.setState(pivot.getPosition());
-    setpointVisualizer.setState();
+    setpointVisualizer.setState(pivotPID.getSetpoint().position);
   }
 }
