@@ -30,5 +30,6 @@ public class Constants {
     public static final Color INTAKE_COLOR = Color.kOrange;
     public static final Color PASSING_COLOR = Color.kGray;
     public static final Color SHOOTER_COLOR = Color.kGreen;
+    public static final int LEDLENGTH = 60; //change to be length of LED strip?
   }
 }

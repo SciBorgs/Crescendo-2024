@@ -1,10 +1,8 @@
 package org.sciborgs1155.robot.led;
 
-import org.sciborgs1155.robot.led.Led.LEDTheme;
-
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import monologue.Logged;
 
 public interface LedIO extends Logged {
-    public void setTheme(LEDTheme ledtheme);
-
+    void setData(AddressableLEDBuffer ledBuffer);
 }
