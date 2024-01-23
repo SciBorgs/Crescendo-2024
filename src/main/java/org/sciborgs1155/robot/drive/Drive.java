@@ -31,6 +31,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
+import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 
 public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
@@ -93,13 +94,13 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
-                volts -> modules.forEach(m -> m.setDriveVoltage(volts.in(Volts))), null, this));
+                volts -> modules.forEach(m -> m.setDriveVoltage(volts.in(Volts))), null, this, new String("drive routine")));
 
     turnRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
-                volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))), null, this));
+                volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))), null, this, new String("turn routine")));
 
     odometry =
         new SwerveDrivePoseEstimator(
@@ -111,6 +112,13 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     }
 
     SmartDashboard.putData("drive quasistatic forward", driveSysIdQuasistatic(Direction.kForward));
+    SmartDashboard.putData("drive dynamic forward", driveSysIdDynamic(Direction.kForward));
+    SmartDashboard.putData("drive quasistatic backward", driveSysIdQuasistatic(Direction.kReverse));
+    SmartDashboard.putData("drive dynamic backward", driveSysIdDynamic(Direction.kReverse));
+    SmartDashboard.putData("turn quasistatic forward", turnSysIdQuasistatic(Direction.kForward));
+    SmartDashboard.putData("turn dynamic forward", turnSysIdDynamic(Direction.kForward));
+    SmartDashboard.putData("turn quasistatic backward", turnSysIdQuasistatic(Direction.kReverse));
+    SmartDashboard.putData("turn dynamic backward", turnSysIdDynamic(Direction.kReverse));
   }
 
   /**
