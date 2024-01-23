@@ -1,11 +1,18 @@
 package org.sciborgs1155.robot;
 
+import static edu.wpi.first.units.Units.Radians;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.*;
+
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sciborgs1155.robot.shooter.Shooter;
+
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
 
 public class ShooterTest {
   Shooter shooter;
@@ -19,7 +26,7 @@ public class ShooterTest {
   @Test
   public void testFlywheel() {
     run(shooter.runFlywheel(() -> 3));
-    run(shooter.runPivot(300));
+    run(shooter.runPivot(() -> Radians.of(Math.PI/4)));
     run(shooter.runFeeder(-0.4));
     fastForward(1000);
 
