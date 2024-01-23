@@ -1,11 +1,13 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.*;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import org.sciborgs1155.robot.Constants;
 
 public class SimPivot implements PivotIO {
   private final SingleJointedArmSim sim =
@@ -23,6 +25,7 @@ public class SimPivot implements PivotIO {
   @Override
   public void setVoltage(double voltage) {
     sim.setInputVoltage(voltage);
+    sim.update(Constants.PERIOD.in(Seconds));
   }
 
   @Override
