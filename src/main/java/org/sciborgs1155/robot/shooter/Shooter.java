@@ -1,16 +1,18 @@
 package org.sciborgs1155.robot.shooter;
 
+import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
+
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
-
-import org.sciborgs1155.robot.Ports.Shooter.Flywheel;
+import monologue.Annotations.Log;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants;
@@ -25,25 +27,38 @@ import org.sciborgs1155.robot.shooter.pivot.PivotIO;
 import org.sciborgs1155.robot.shooter.pivot.RealPivot;
 import org.sciborgs1155.robot.shooter.pivot.SimPivot;
 import org.sciborgs1155.robot.shooter.pivot.Visualizer;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 public class Shooter extends SubsystemBase {
   private final FlywheelIO flywheel;
   private final FeederIO feeder;
   private final PivotIO pivot;
 
-  final Mechanism2d mech = new Mechanism2d(3, 4);
-  private final Visualizer positionVisualizer = new Visualizer(null, null);
-  private final Visualizer setpointVisualizer = new Visualizer(null, null);
+  @Log.NT final Mechanism2d mech = new Mechanism2d(3, 4);
+  private final Visualizer positionVisualizer = new Visualizer(mech, new Color8Bit(255, 0, 0));
+  private final Visualizer setpointVisualizer = new Visualizer(mech, new Color8Bit(0, 0, 255));
 
-  private final PIDController flywheelPID = new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
-  private final SimpleMotorFeedforward flywheelFeedforward = new SimpleMotorFeedforward(FlywheelConstants.kS, FlywheelConstants.kV, FlywheelConstants.kA);
+  private final PIDController flywheelPID =
+      new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
+  private final SimpleMotorFeedforward flywheelFeedforward =
+      new SimpleMotorFeedforward(FlywheelConstants.kS, FlywheelConstants.kV, FlywheelConstants.kA);
 
-  private final ProfiledPIDController pivotPID = new ProfiledPIDController(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD, new TrapezoidProfile.Constraints(PivotConstants.MAX_VELOCITY, PivotConstants.MAX_ACCEL));
-  private final ArmFeedforward pivotFeedforward = new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
+  private final ProfiledPIDController pivotPID =
+      new ProfiledPIDController(
+          PivotConstants.kP,
+          PivotConstants.kI,
+          PivotConstants.kD,
+          new TrapezoidProfile.Constraints(PivotConstants.MAX_VELOCITY, PivotConstants.MAX_ACCEL));
+  private final ArmFeedforward pivotFeedforward =
+      new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
 
-  private final ProfiledPIDController climbPID = new ProfiledPIDController(ClimbConstants.kP, ClimbConstants.kI, ClimbConstants.kD, new TrapezoidProfile.Constraints(ClimbConstants.MAX_VELOCITY, ClimbConstants.MAX_ACCEL));
-  private final ArmFeedforward climbFeedforward = new ArmFeedforward(ClimbConstants.kS, ClimbConstants.kG, ClimbConstants.kV);
+  private final ProfiledPIDController climbPID =
+      new ProfiledPIDController(
+          ClimbConstants.kP,
+          ClimbConstants.kI,
+          ClimbConstants.kD,
+          new TrapezoidProfile.Constraints(ClimbConstants.MAX_VELOCITY, ClimbConstants.MAX_ACCEL));
+  private final ArmFeedforward climbFeedforward =
+      new ArmFeedforward(ClimbConstants.kS, ClimbConstants.kG, ClimbConstants.kV);
 
   public static Shooter create() {
     return Robot.isReal()
@@ -78,7 +93,8 @@ public class Shooter extends SubsystemBase {
     return run(() ->
             pivot.setVoltage(
                 pivotPID.calculate(pivot.getPosition(), goalAngle.getAsDouble())
-                    + pivotFeedforward.calculate(pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity)))
+                    + pivotFeedforward.calculate(
+                        pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity)))
         .withName("running Pivot");
   }
 
@@ -86,7 +102,8 @@ public class Shooter extends SubsystemBase {
     return run(() ->
             pivot.setVoltage(
                 climbPID.calculate(pivot.getPosition(), goalAngle.getAsDouble())
-                    + climbFeedforward.calculate(pivotPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
+                    + climbFeedforward.calculate(
+                        pivotPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
         .withName("running pivot");
   }
 
@@ -98,9 +115,11 @@ public class Shooter extends SubsystemBase {
                 .onlyIf(
                     () ->
                         flywheel.getVelocity()
-                                <= desiredVelocity.getAsDouble() + FlywheelConstants.VELOCITY_TOLERANCE
+                                <= desiredVelocity.getAsDouble()
+                                    + FlywheelConstants.VELOCITY_TOLERANCE
                             && flywheel.getVelocity()
-                                >= desiredVelocity.getAsDouble() - FlywheelConstants.VELOCITY_TOLERANCE));
+                                >= desiredVelocity.getAsDouble()
+                                    - FlywheelConstants.VELOCITY_TOLERANCE));
   }
 
   public Command pivotThenShoot(DoubleSupplier goalAngle, DoubleSupplier desiredVelocity) {
@@ -109,7 +128,8 @@ public class Shooter extends SubsystemBase {
             shootStoredNote(desiredVelocity)
                 .onlyIf(
                     () ->
-                        pivot.getPosition() <= goalAngle.getAsDouble() + PivotConstants.POSITION_TOLERANCE
+                        pivot.getPosition()
+                                <= goalAngle.getAsDouble() + PivotConstants.POSITION_TOLERANCE
                             && pivot.getPosition()
                                 >= goalAngle.getAsDouble() - PivotConstants.POSITION_TOLERANCE));
   }
