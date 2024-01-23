@@ -19,7 +19,7 @@ public class ShooterTest {
   @Test
   public void testFlywheel() {
     run(shooter.runFlywheel(() -> 3));
-    run(shooter.runPivot(300));
+    run(shooter.runPivot(() -> 300));
     run(shooter.runFeeder(-0.4));
     fastForward(1000);
 
