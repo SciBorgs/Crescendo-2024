@@ -19,6 +19,8 @@
       "/Robot/drive/rearLeft/turnFeedback": "PIDController",
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
+      "/Robot/shooter/mech": "Mechanism2d",
+      "/Robot/shooter/mech2": "Mechanism2d",
       "/SmartDashboard/drive quasistatic forward": "Command"
     },
     "windows": {
@@ -39,6 +41,16 @@
           "visible": true
         }
       },
+      "/Robot/shooter/mech": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/Robot/shooter/mech2": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/drive quasistatic forward": {
         "window": {
           "visible": true
@@ -48,6 +60,9 @@
   },
   "NetworkTables": {
     "transitory": {
+      "FMSInfo": {
+        "open": true
+      },
       "Robot": {
         "drive": {
           "Pose2d##v_/Robot/drive/getPose": {
@@ -75,7 +90,13 @@
           },
           "open": true
         },
-        "open": true
+        "open": true,
+        "shooter": {
+          "mech": {
+            "open": true
+          },
+          "open": true
+        }
       },
       "Shuffleboard": {
         "open": true

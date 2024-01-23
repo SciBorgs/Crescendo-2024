@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import monologue.Logged;
 import monologue.Annotations.Log;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
@@ -33,14 +34,15 @@ import org.sciborgs1155.robot.shooter.pivot.RealPivot;
 import org.sciborgs1155.robot.shooter.pivot.SimPivot;
 import org.sciborgs1155.robot.shooter.pivot.Visualizer;
 
-public class Shooter extends SubsystemBase {
+public class Shooter extends SubsystemBase implements Logged {
   private final FlywheelIO flywheel;
   private final FeederIO feeder;
   private final PivotIO pivot;
 
   @Log.NT final Mechanism2d mech = new Mechanism2d(3, 4);
+  @Log.NT final Mechanism2d mech2 = new Mechanism2d(3, 4);
   private final Visualizer positionVisualizer = new Visualizer(mech, new Color8Bit(255, 0, 0));
-  private final Visualizer setpointVisualizer = new Visualizer(mech, new Color8Bit(0, 0, 255));
+  private final Visualizer setpointVisualizer = new Visualizer(mech2, new Color8Bit(0, 0, 255));
 
   private final PIDController flywheelPID =
       new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);

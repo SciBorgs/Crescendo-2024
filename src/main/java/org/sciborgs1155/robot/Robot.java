@@ -37,8 +37,8 @@ public class Robot extends CommandRobot implements Logged {
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
   // SUBSYSTEMS
-  private final Drive drive = Drive.create();
-  private final Shooter shooter = Shooter.create();
+  @Log.File private final Drive drive = Drive.create();
+  @Log.File private final Shooter shooter = Shooter.create();
 
   // COMMANDS
   @Log.NT private final Autos autos = new Autos();

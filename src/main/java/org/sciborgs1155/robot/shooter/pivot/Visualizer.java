@@ -14,7 +14,7 @@ public class Visualizer {
   public Visualizer(Mechanism2d mech, Color8Bit color) {
     chassis = mech.getRoot("Chassis" + instance, Dimensions.BASE_OFFSET, Dimensions.BASE_HEIGHT);
     arm =
-        chassis.append(new MechanismLigament2d("Arm" + instance, Dimensions.SHOOTER_ARM_LENGTH, 0));
+        chassis.append(new MechanismLigament2d("Arm" + instance, Dimensions.SHOOTER_ARM_LENGTH, 0, 4, color));
     instance++;
   }
 

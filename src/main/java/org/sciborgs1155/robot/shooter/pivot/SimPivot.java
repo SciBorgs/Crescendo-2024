@@ -7,6 +7,8 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.*;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import monologue.Annotations.Log;
+
 import org.sciborgs1155.robot.Constants;
 
 public class SimPivot implements PivotIO {
@@ -28,6 +30,7 @@ public class SimPivot implements PivotIO {
     sim.update(Constants.PERIOD.in(Seconds));
   }
 
+  @Log.NT
   @Override
   public double getPosition() {
     return sim.getAngleRads();
