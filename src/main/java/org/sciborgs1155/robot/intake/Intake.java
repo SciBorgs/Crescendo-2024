@@ -14,7 +14,9 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command spin(boolean forward) {
-    return run(() -> motor.set(forward ? 1 : -1)).finallyDo(motor::disable);
+    return run(() ->
+            motor.set(forward ? IntakeConstants.INTAKE_SPEED : -IntakeConstants.INTAKE_SPEED))
+        .finallyDo(motor::disable);
   }
 
   public void close() throws Exception {

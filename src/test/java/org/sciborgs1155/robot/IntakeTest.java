@@ -17,7 +17,7 @@ public class IntakeTest {
   }
 
   @Test
-  public void reachSetpoint() {
+  public void spinMotor() {
     run(intake.spin(true));
     fastForward();
   }
