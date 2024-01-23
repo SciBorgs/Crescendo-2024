@@ -8,9 +8,8 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 
 public class RealLed implements LedIO {
-    AddressableLED led;
-    static double time = 0;
-    
+    public static AddressableLED led;
+        
     public RealLed(){
         led = new AddressableLED(LEDPORT);
         led.setLength(LEDLENGTH);
@@ -21,5 +20,8 @@ public class RealLed implements LedIO {
         led.setData(ledBuffer);
     }
 
-
+    @Override
+    public void close() throws Exception {
+        led.close();
+    }
 }

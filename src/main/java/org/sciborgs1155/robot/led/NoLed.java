@@ -14,4 +14,6 @@ public class NoLed implements LedIO {
         //
         //  https://www.chiefdelphi.com/t/frc-1155-the-sciborgs-2024-build-thread-open-alliance/441531/24
     }
+
+    @Override public void close() throws Exception {}
 }

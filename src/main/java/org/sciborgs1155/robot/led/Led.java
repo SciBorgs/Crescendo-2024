@@ -9,10 +9,12 @@ import org.sciborgs1155.robot.Robot;
 
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import monologue.Logged;
+import monologue.Annotations.Log;
 
-public class Led extends SubsystemBase implements Logged{
+public class Led extends SubsystemBase implements Logged, AutoCloseable{
     private final LedIO led = Robot.isReal() ? new RealLed() : new SimLed(); //led as a class
     public final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH); 
 
@@ -23,11 +25,13 @@ public class Led extends SubsystemBase implements Logged{
         IN_PASSING,
         IN_SHOOTER,
         AUTO,
-        EXPLODE //means error now, unless you want to implement the ability for the robot to explode (potentially good strategy)
+        EXPLODE //means error now, unless you want to implement the ability for the robot to explode (potentially high risk high reward strategy)
     }
 
     static double time = 0;
-    public void setTheme(LEDTheme ledTheme){
+    private LEDTheme ledThemeNow = LEDTheme.AUTO; 
+    public void setLEDTheme(LEDTheme ledTheme){
+        ledThemeNow=ledTheme;
         if (ledTheme == LEDTheme.RAINBOW) {
             time += .005;
             for (int i = 0; i < ledBuffer.getLength(); i++) {
@@ -82,4 +86,18 @@ public class Led extends SubsystemBase implements Logged{
         //some inspiration by: https://github.com/SciBorgs/ChargedUp-2023/blob/io-rewrite/src/main/java/org/sciborgs1155/robot/subsystems/LED.java  
     }
     //work on commands and stuff
+
+    @Log.NT
+    public LEDTheme getTheme(){
+        return ledThemeNow;
+    }
+
+    public Command setTheme(LEDTheme ledTheme){
+        return run(()->setLEDTheme(ledTheme));
+    }
+
+    @Override
+    public void close() throws Exception {
+        led.close();
+    }
 }
