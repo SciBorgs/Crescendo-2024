@@ -7,11 +7,16 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
 import monologue.Annotations.Log;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
@@ -89,19 +94,19 @@ public class Shooter extends SubsystemBase {
         .withName("running Flywheel");
   }
 
-  public Command runPivot(DoubleSupplier goalAngle) {
+  public Command runPivot(Supplier<Measure<Angle>> goalAngle) {
     return run(() ->
             pivot.setVoltage(
-                pivotPID.calculate(pivot.getPosition(), goalAngle.getAsDouble())
+                pivotPID.calculate(pivot.getPosition(), goalAngle.get().in(Units.Radians))
                     + pivotFeedforward.calculate(
                         pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity)))
         .withName("running Pivot");
   }
 
-  public Command climb(DoubleSupplier goalAngle) {
+  public Command climb(Supplier<Measure<Angle>> goalAngle) {
     return run(() ->
             pivot.setVoltage(
-                climbPID.calculate(pivot.getPosition(), goalAngle.getAsDouble())
+                climbPID.calculate(pivot.getPosition(), goalAngle.get().in(Units.Radians))
                     + climbFeedforward.calculate(
                         pivotPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
         .withName("running pivot");
@@ -122,16 +127,16 @@ public class Shooter extends SubsystemBase {
                                     - FlywheelConstants.VELOCITY_TOLERANCE));
   }
 
-  public Command pivotThenShoot(DoubleSupplier goalAngle, DoubleSupplier desiredVelocity) {
+  public Command pivotThenShoot(Supplier<Measure<Angle>> goalAngle, DoubleSupplier desiredVelocity) {
     return runPivot(goalAngle)
         .alongWith(
             shootStoredNote(desiredVelocity)
                 .onlyIf(
                     () ->
                         pivot.getPosition()
-                                <= goalAngle.getAsDouble() + PivotConstants.POSITION_TOLERANCE
+                                <= goalAngle.get().in(Units.Radians) + PivotConstants.POSITION_TOLERANCE
                             && pivot.getPosition()
-                                >= goalAngle.getAsDouble() - PivotConstants.POSITION_TOLERANCE));
+                                >= goalAngle.get().in(Units.Radians) - PivotConstants.POSITION_TOLERANCE));
   }
 
   // getters for testing
