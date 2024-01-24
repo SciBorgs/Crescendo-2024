@@ -2,6 +2,7 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
@@ -37,8 +38,8 @@ public class Robot extends CommandRobot implements Logged {
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
   // SUBSYSTEMS
-  private final Drive drive = Drive.create();
-  private final Shooter shooter = Shooter.create();
+  @Log.File private final Drive drive = Drive.create();
+  @Log.File private final Shooter shooter = Shooter.create();
 
   // COMMANDS
   @Log.NT private final Autos autos = new Autos();
@@ -110,5 +111,7 @@ public class Robot extends CommandRobot implements Logged {
         .or(driver.rightBumper())
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED))
         .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED));
+
+    operator.x().onTrue(shooter.runPivot(() -> Radians.of(20 * Math.PI)));
   }
 }

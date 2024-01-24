@@ -2,7 +2,7 @@ package org.sciborgs1155.robot.shooter.flywheel;
 
 import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.Ports.Shooter.Flywheel.*;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.Flywheel.*;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.*;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;

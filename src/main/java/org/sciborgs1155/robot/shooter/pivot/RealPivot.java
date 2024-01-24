@@ -1,12 +1,13 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
-import static org.sciborgs1155.robot.Ports.Shooter.Pivot.*;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.Pivot.*;
+import static org.sciborgs1155.robot.Ports.Shooter.PivotConstants.*;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.*;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import java.util.Set;
+import monologue.Annotations.Log;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
@@ -58,6 +59,7 @@ public class RealPivot implements PivotIO {
     lead.setVoltage(voltage);
   }
 
+  @Log.NT
   @Override
   public double getPosition() {
     return encoder.getAbsolutePosition();

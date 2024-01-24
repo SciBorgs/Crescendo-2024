@@ -23,4 +23,14 @@ public class Constants {
           / DriveConstants.MAX_ANGULAR_SPEED.baseUnitMagnitude();
   public static final double SLOW_SPEED = 0.33;
   public static final double FULL_SPEED = 1.0;
+
+  public static final class Dimensions {
+    public static final double BASE_OFFSET = 1;
+    // Distance from the center of the robot to the center of the elevator
+
+    public static final double BASE_HEIGHT = 1;
+    // Distance from the ground to the lowest possible elbow position
+
+    public static final double SHOOTER_ARM_LENGTH = 1;
+  }
 }

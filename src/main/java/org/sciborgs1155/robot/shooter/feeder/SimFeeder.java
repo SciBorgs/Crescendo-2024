@@ -1,10 +1,12 @@
 package org.sciborgs1155.robot.shooter.feeder;
 
-import static org.sciborgs1155.robot.shooter.ShooterConstants.Feeder.*;
+import static edu.wpi.first.units.Units.Seconds;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.FeederConstants.*;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import org.sciborgs1155.robot.Constants;
 
 public class SimFeeder implements FeederIO {
   private final DCMotorSim sim =
@@ -13,8 +15,14 @@ public class SimFeeder implements FeederIO {
   @Override
   public void set(double speed) {
     sim.setInputVoltage(speed);
+    sim.update(Constants.PERIOD.in(Seconds));
   }
 
   @Override
   public void close() throws Exception {}
+
+  @Override
+  public double getVelocity() {
+    return sim.getAngularVelocityRadPerSec();
+  }
 }
