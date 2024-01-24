@@ -35,4 +35,12 @@ public class ShooterTest {
 
     assertEquals(3, flywheel.getVelocity(), DELTA);
   }
+
+  @Test
+  public void testFeeder() {
+    run(shooter.runFeeder(4));
+    fastForward();
+
+    assertEquals(4, feeder.getVelocity(), DELTA);
+  }
 }
