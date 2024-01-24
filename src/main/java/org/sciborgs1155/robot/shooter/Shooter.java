@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.Flywheel;
 import org.sciborgs1155.robot.shooter.ShooterConstants.Pivot;
@@ -79,8 +78,10 @@ public class Shooter extends SubsystemBase {
     return run(() ->
             pivot.setVoltage(
                 pid.calculate(pivot.getPosition(), goalAngle.get().in(Units.Radians))
-                    + ff.calculate(goalAngle.get().in(Units.Radians) + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity * rate.get())))
-        .withName("running Pivot"); 
+                    + ff.calculate(
+                        goalAngle.get().in(Units.Radians) + Pivot.POSITION_OFFSET,
+                        pid.getSetpoint().velocity * rate.get())))
+        .withName("running Pivot");
   }
 
   public Command runPivotWithLift(Supplier<Measure<Angle>> goalAngle) {
@@ -95,7 +96,16 @@ public class Shooter extends SubsystemBase {
     return run(() ->
             pivot.setVoltage(
                 pid.calculate(pivot.getPosition(), goalAngle.get().in(Units.Radians))
-                    + ff.calculate(goalAngle.get().in(Units.Radians) + Pivot.POSITION_OFFSET, pid.getSetpoint().velocity)))
+                    + ff.calculate(
+                        goalAngle.get().in(Units.Radians) + Pivot.POSITION_OFFSET,
+                        pid.getSetpoint().velocity)))
         .withName("running Pivot");
+  }
+
+  public Command manualPivot(Supplier<Double> joystickPosition) {
+    PIDController pid = new PIDController(Pivot.kP, Pivot.kI, Pivot.kD);
+    // double accelerationTime = blank;
+    
+    return run(() -> pivot.setVoltage(pid.calculate(pivot.getPosition(), joystickPosition.get())));
   }
 }
