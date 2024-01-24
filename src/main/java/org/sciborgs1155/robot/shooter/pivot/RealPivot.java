@@ -1,6 +1,6 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
-import static org.sciborgs1155.robot.Ports.Shooter.PivotConstants.*;
+import static org.sciborgs1155.robot.Ports.Shooter.Pivot.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.*;
 
 import com.revrobotics.CANSparkFlex;

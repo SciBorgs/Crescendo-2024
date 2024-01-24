@@ -43,4 +43,13 @@ public class ShooterTest {
 
     assertEquals(4, feeder.getVelocity(), DELTA);
   }
+
+  @Test
+    public void testShootStoredNote() {
+      run(shooter.shootStoredNote(() -> 4));
+      fastForward();
+
+      assertEquals(4, flywheel.getVelocity(), DELTA);
+      assertEquals(1, feeder.getVelocity(), DELTA);
+    }
 }
