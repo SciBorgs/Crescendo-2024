@@ -84,8 +84,16 @@ public class Shooter extends SubsystemBase implements Logged {
     return run(() -> feeder.set(speed)).withName("running Feeder");
   }
 
+  public void returnFeederBase(double speed) {
+    feeder.set(speed);
+  }
+
   public Command runFeederInverse(double voltage) {
     return runFeeder((voltage * -1)).withName("running Feeder backwards");
+  }
+
+  public void returnInverseFeederBase(double speed) {
+    returnFeederBase(speed * -1);
   }
 
   // Make sure this is correct !!!
@@ -95,6 +103,12 @@ public class Shooter extends SubsystemBase implements Logged {
                 flywheelPID.calculate(flywheel.getVelocity(), velocity.getAsDouble())
                     + flywheelFeedforward.calculate(velocity.getAsDouble())))
         .withName("running Flywheel");
+  }
+
+  public void returnFlywheelBase(DoubleSupplier velocity) {
+   flywheel.setVoltage(
+        flywheelPID.calculate(flywheel.getVelocity(), velocity.getAsDouble())
+             + flywheelFeedforward.calculate(velocity.getAsDouble()));
   }
 
   public Command runPivot(Supplier<Measure<Angle>> goalAngle) {
@@ -108,6 +122,14 @@ public class Shooter extends SubsystemBase implements Logged {
                 .withName("running Pivot"));
   }
 
+  public void returnPivotBase(Supplier<Measure<Angle>> goalAngle) {
+    pivotPID.setGoal(goalAngle.get().in(Units.Radians));
+      pivot.setVoltage(
+          pivotPID.calculate(pivot.getPosition())
+              + pivotFeedforward.calculate(
+                  pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity));
+  }
+
   public Command climb(Supplier<Measure<Angle>> goalAngle) {
     return runOnce(() -> climbPID.setGoal(goalAngle.get().in(Units.Radians)))
         .andThen(
@@ -117,6 +139,14 @@ public class Shooter extends SubsystemBase implements Logged {
                             + climbFeedforward.calculate(
                                 climbPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
                 .withName("running Climb"));
+  }
+
+  public void returnClimbBase(Supplier<Measure<Angle>> goalAngle){
+    climbPID.setGoal(goalAngle.get().in(Units.Radians));
+      pivot.setVoltage(
+        climbPID.calculate(pivot.getPosition())
+            + climbFeedforward.calculate(
+                climbPID.getSetpoint().position, climbPID.getSetpoint().velocity));
   }
 
   // shooting commands

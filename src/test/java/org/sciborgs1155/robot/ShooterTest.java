@@ -51,6 +51,8 @@ public class ShooterTest {
     final double DELTA = 1e-1;
     run(shooter.climb(() -> Radians.of(Math.PI / 4)));
     fastForward();
+
+    assertEquals(Math.PI / 4, Math.PI);
   }
 
   @Test
@@ -61,4 +63,14 @@ public class ShooterTest {
 
     assertEquals(2, feeder.getVelocity(), DELTA);
   }
+
+  @Test
+    public void testShootStoredNote() {
+      final double DELTA = 1e-1;
+      run(shooter.shootStoredNote(() -> 4));
+      fastForward();
+
+      assertEquals(4, flywheel.getVelocity(), DELTA);
+      assertEquals(1, feeder.getVelocity(), DELTA);
+    }
 }
