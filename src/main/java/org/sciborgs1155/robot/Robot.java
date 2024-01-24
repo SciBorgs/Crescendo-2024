@@ -3,12 +3,8 @@ package org.sciborgs1155.robot;
 import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 
-import org.sciborgs1155.robot.led.Leds;
-import org.sciborgs1155.robot.led.Leds.LEDTheme;
-
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -19,11 +15,12 @@ import org.littletonrobotics.urcl.URCL;
 import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
-import org.sciborgs1155.robot.Constants.Led;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.Autos;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
+import org.sciborgs1155.robot.led.Leds;
+import org.sciborgs1155.robot.led.Leds.LEDTheme;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -111,11 +108,10 @@ public class Robot extends CommandRobot implements Logged {
         .or(driver.rightBumper())
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED))
         .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED));
-    
+
     // currently configured to keyboard 1 in joystick[0], controls are m,./
     operator.a().onTrue(led.setTheme(LEDTheme.BXSCIFLASH));
-    operator.x().onTrue(led.setTheme(LEDTheme.IN_INTAKE)); 
+    operator.x().onTrue(led.setTheme(LEDTheme.IN_INTAKE));
     operator.y().onTrue(led.setTheme(LEDTheme.RAINBOW));
-
   }
 }

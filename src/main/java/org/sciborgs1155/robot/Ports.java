@@ -19,6 +19,6 @@ public final class Ports {
   }
 
   public static final class Led {
-    public final static int LEDPORT = 9; //led port
+    public static final int LEDPORT = 9; // led port
   }
 }
