@@ -50,7 +50,7 @@ public class ShooterConstants {
     public static final double MAX_VELOCITY = 1;
     public static final double MAX_ACCEL = 1;
 
-    public static final Measure<Angle> MAX_ANGLE = Radians.of(0);
+    public static final Measure<Angle> MAX_ANGLE = Radians.of(Math.PI/2);
     public static final Measure<Angle> MIN_ANGLE = Radians.of(0);
 
     public static final Measure<Angle> STARTING_ANGLE = Radians.of(0);
