@@ -91,7 +91,7 @@ public class Shooter extends SubsystemBase implements Logged {
   }
 
   public Command runFeederInverse(double voltage) {
-    return runFeeder(voltage * -1).withName("running Feeder backwards");
+    return runFeeder((voltage * -1)).withName("running Feeder backwards");
   }
 
   public void runInverseFeederBase(double speed) {
@@ -179,20 +179,6 @@ public class Shooter extends SubsystemBase implements Logged {
                             && pivot.getPosition()
                                 >= goalAngle.get().in(Units.Radians)
                                     - PivotConstants.POSITION_TOLERANCE));
-  }
-
-  // getters for testing
-
-  public double getFlywheelVelocity() {
-    return flywheel.getVelocity();
-  }
-
-  public double getFeederVelocity() {
-    return feeder.getVelocity();
-  }
-
-  public double getPivotPosition() {
-    return pivot.getPosition();
   }
 
   @Override

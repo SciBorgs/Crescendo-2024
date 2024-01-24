@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot;
 
+import static edu.wpi.first.units.Units.Radians;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.fastForward;
 import static org.sciborgs1155.lib.TestingUtil.run;
@@ -17,7 +18,6 @@ public class ShooterTest {
   SimPivot pivot;
   SimFlywheel flywheel;
   SimFeeder feeder;
-  final double DELTA = 1e-1;
 
   @BeforeEach
   public void setup() {
@@ -30,6 +30,7 @@ public class ShooterTest {
 
   @Test
   public void testFlywheel() {
+    final double DELTA = 1e-1;
     run(shooter.runFlywheel(() -> 3));
     fastForward(400);
 
@@ -37,15 +38,35 @@ public class ShooterTest {
   }
 
   @Test
-  public void testFeeder() {
-    run(shooter.runFeeder(4));
+  public void testPivot() {
+    final double DELTA = 1e-1;
+    run((shooter.runPivot(() -> Radians.of(Math.PI / 4))));
     fastForward();
 
-    assertEquals(4, feeder.getVelocity(), DELTA);
+    assertEquals(Math.PI / 4, pivot.getPosition(), DELTA);
+  }
+
+  @Test
+  public void testClimb() {
+    final double DELTA = 1e-1;
+    run(shooter.climb(() -> Radians.of(Math.PI / 4)));
+    fastForward();
+
+    assertEquals(Math.PI / 4, Math.PI);
+  }
+
+  @Test
+  public void testFeeder() {
+    final double DELTA = 1e-1;
+    run(shooter.runFeeder(2));
+    fastForward();
+
+    assertEquals(2, feeder.getVelocity(), DELTA);
   }
 
   @Test
     public void testShootStoredNote() {
+      final double DELTA = 1e-1;
       run(shooter.shootStoredNote(() -> 4));
       fastForward();
 
