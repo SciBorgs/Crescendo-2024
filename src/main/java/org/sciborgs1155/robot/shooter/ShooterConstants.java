@@ -8,7 +8,7 @@ public class ShooterConstants {
   public static class FlywheelConstants {
 
     public static final double GEARING = 1;
-    public static final Measure<Current> CURRENT_LIMIT = Amps.of(1);
+    public static final Measure<Current> CURRENT_LIMIT = Amps.of(10);
     public static final double MOI = 1;
 
     public static final double RADIUS = 1;
