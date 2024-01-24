@@ -179,20 +179,6 @@ public class Shooter extends SubsystemBase implements Logged {
                                     - PivotConstants.POSITION_TOLERANCE));
   }
 
-  // getters for testing
-
-  public double getFlywheelVelocity() {
-    return flywheel.getVelocity();
-  }
-
-  public double getFeederVelocity() {
-    return feeder.getVelocity();
-  }
-
-  public double getPivotPosition() {
-    return pivot.getPosition();
-  }
-
   @Override
   public void periodic() {
     positionVisualizer.setState(pivot.getPosition());
