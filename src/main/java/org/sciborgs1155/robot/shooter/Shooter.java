@@ -29,9 +29,9 @@ import org.sciborgs1155.robot.shooter.flywheel.FlywheelIO;
 import org.sciborgs1155.robot.shooter.flywheel.RealFlywheel;
 import org.sciborgs1155.robot.shooter.flywheel.SimFlywheel;
 import org.sciborgs1155.robot.shooter.pivot.PivotIO;
+import org.sciborgs1155.robot.shooter.pivot.PivotVisualizer;
 import org.sciborgs1155.robot.shooter.pivot.RealPivot;
 import org.sciborgs1155.robot.shooter.pivot.SimPivot;
-import org.sciborgs1155.robot.shooter.pivot.Visualizer;
 
 public class Shooter extends SubsystemBase implements Logged {
   private final FlywheelIO flywheel;
@@ -40,9 +40,10 @@ public class Shooter extends SubsystemBase implements Logged {
 
   @Log.NT final Mechanism2d measurement = new Mechanism2d(3, 4);
   @Log.NT final Mechanism2d setpoint = new Mechanism2d(3, 4);
-  private final Visualizer positionVisualizer =
-      new Visualizer(measurement, new Color8Bit(255, 0, 0));
-  private final Visualizer setpointVisualizer = new Visualizer(setpoint, new Color8Bit(0, 0, 255));
+  private final PivotVisualizer positionVisualizer =
+      new PivotVisualizer(measurement, new Color8Bit(255, 0, 0));
+  private final PivotVisualizer setpointVisualizer =
+      new PivotVisualizer(setpoint, new Color8Bit(0, 0, 255));
 
   private final PIDController flywheelPID =
       new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
