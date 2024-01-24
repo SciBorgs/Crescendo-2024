@@ -94,13 +94,19 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
-                volts -> modules.forEach(m -> m.setDriveVoltage(volts.in(Volts))), null, this, new String("drive routine")));
+                volts -> modules.forEach(m -> m.setDriveVoltage(volts.in(Volts))),
+                null,
+                this,
+                new String("drive routine")));
 
     turnRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
-                volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))), null, this, new String("turn routine")));
+                volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))),
+                null,
+                this,
+                new String("turn routine")));
 
     odometry =
         new SwerveDrivePoseEstimator(
