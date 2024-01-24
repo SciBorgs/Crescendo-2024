@@ -6,9 +6,8 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.*;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import monologue.Annotations.Log;
-
 import java.util.Set;
+import monologue.Annotations.Log;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;

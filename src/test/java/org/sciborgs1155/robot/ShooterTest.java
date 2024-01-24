@@ -33,6 +33,7 @@ public class ShooterTest {
   public void testFlywheel() {
     run(shooter.runFlywheel(() -> 3));
     run(shooter.runPivot(() -> Radians.of(Math.PI / 4)));
+    run(shooter.runPivot(() -> Radians.of(Math.PI / 4)));
     run(shooter.runFeeder(-0.4));
     fastForward(1000);
 
