@@ -96,5 +96,12 @@
   },
   "NetworkTables Info": {
     "visible": true
+  },
+  "Plot": {
+    "Plot <0>": {
+      "window": {
+        "visible": false
+      }
+    }
   }
 }

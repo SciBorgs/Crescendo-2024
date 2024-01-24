@@ -20,14 +20,14 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   public static enum LEDTheme {
     RAINBOW, // RGB Gamer Robot
     BXSCI, // Yellow 50%, Green 50%
-    BXSCIFLASH, // Yellow 20%, Green 80%, Moving, (All Yellow moves in one direction, yellow every 5
-    // LEDs, green rest)
+    BXSCIFLASH, // Yellow 20%, Green 80%, Moving,
+    // (All Yellow moves in one direction, yellow every 5 LEDs, green rest)
     IN_INTAKE, // Look at Constants, Orange 100%
     IN_PASSING, // Look at Constants, Grey 100% (but they write it as gray)
     IN_SHOOTER, // Look at Constants, Green 100%
     AUTO, // Yellow 50%, Black 50%
-    EXPLODE // Red 100%                  //means error now, unless you want to implement the ability
-    // for the robot to explode (potentially high risk high reward strategy)
+    ERROR, // Red 100%
+    EXPLODE // Red 100%
   }
 
   static double ticktime = 0;
@@ -98,7 +98,7 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
           ledBuffer.setLED(i, Color.kBlack);
         }
       }
-    } else if (ledTheme == LEDTheme.EXPLODE) {
+    } else if ((ledTheme == LEDTheme.EXPLODE) || (ledTheme == LEDTheme.ERROR)) {
       for (int i = 0; i < ledBuffer.getLength(); i++) {
         ledBuffer.setLED(i, Color.kRed);
       }
@@ -141,8 +141,8 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
     led.close();
   }
 
-  @Override
-  public void periodic() {
-    System.out.println(getBufferDataString());
-  }
+  // @Override
+  // public void periodic() {
+  //   System.out.println(getBufferDataString());
+  // }
 }
