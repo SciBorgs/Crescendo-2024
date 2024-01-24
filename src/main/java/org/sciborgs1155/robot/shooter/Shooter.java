@@ -85,7 +85,7 @@ public class Shooter extends SubsystemBase implements Logged {
   }
 
   public Command runFeederInverse(double voltage) {
-    return runFeeder(voltage * -1).withName("running Feeder backwards");
+    return runFeeder((voltage * -1)).withName("running Feeder backwards");
   }
 
   // Make sure this is correct !!!

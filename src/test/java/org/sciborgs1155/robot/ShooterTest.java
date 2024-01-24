@@ -18,7 +18,6 @@ public class ShooterTest {
   SimPivot pivot;
   SimFlywheel flywheel;
   SimFeeder feeder;
-  final double DELTA = 1e-1;
 
   @BeforeEach
   public void setup() {
@@ -31,6 +30,7 @@ public class ShooterTest {
 
   @Test
   public void testFlywheel() {
+    final double DELTA = 1e-1;
     run(shooter.runFlywheel(() -> 3));
     fastForward(400);
 
@@ -39,7 +39,26 @@ public class ShooterTest {
 
   @Test
   public void testPivot() {
+    final double DELTA = 1e-1;
     run((shooter.runPivot(() -> Radians.of(Math.PI / 4))));
     fastForward();
+
+    assertEquals(Math.PI / 4, pivot.getPosition(), DELTA);
+  }
+
+  @Test
+  public void testClimb() {
+    final double DELTA = 1e-1;
+    run(shooter.climb(() -> Radians.of(Math.PI / 4)));
+    fastForward();
+  }
+
+  @Test
+  public void testFeeder() {
+    final double DELTA = 1e-1;
+    run(shooter.runFeeder(2));
+    fastForward();
+
+    assertEquals(2, feeder.getVelocity(), DELTA);
   }
 }
