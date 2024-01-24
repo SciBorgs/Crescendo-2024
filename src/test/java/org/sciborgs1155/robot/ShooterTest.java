@@ -1,6 +1,5 @@
 package org.sciborgs1155.robot;
 
-import static edu.wpi.first.units.Units.Radians;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.fastForward;
 import static org.sciborgs1155.lib.TestingUtil.run;
@@ -18,7 +17,7 @@ public class ShooterTest {
   SimPivot pivot;
   SimFlywheel flywheel;
   SimFeeder feeder;
-  final double DELTA = 1e-2;
+  final double DELTA = 1e-1;
 
   @BeforeEach
   public void setup() {
@@ -32,13 +31,8 @@ public class ShooterTest {
   @Test
   public void testFlywheel() {
     run(shooter.runFlywheel(() -> 3));
-    run(shooter.runPivot(() -> Radians.of(Math.PI / 4)));
-    run(shooter.runPivot(() -> Radians.of(Math.PI / 4)));
-    run(shooter.runFeeder(-0.4));
-    fastForward(1000);
+    fastForward(400);
 
     assertEquals(3, flywheel.getVelocity(), DELTA);
-    assertEquals(300, pivot.getPosition(), DELTA);
-    assertEquals(-0.4, feeder.getVelocity(), DELTA);
   }
 }

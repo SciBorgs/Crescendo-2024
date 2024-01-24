@@ -98,21 +98,25 @@ public class Shooter extends SubsystemBase implements Logged {
   }
 
   public Command runPivot(Supplier<Measure<Angle>> goalAngle) {
-    return run(() ->
-            pivot.setVoltage(
-                pivotPID.calculate(pivot.getPosition(), goalAngle.get().in(Units.Radians))
-                    + pivotFeedforward.calculate(
-                        pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity)))
-        .withName("running Pivot");
+    return runOnce(() -> pivotPID.setGoal(goalAngle.get().in(Units.Radians)))
+        .andThen(
+            run(() ->
+                    pivot.setVoltage(
+                        pivotPID.calculate(pivot.getPosition())
+                            + pivotFeedforward.calculate(
+                                pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity)))
+                .withName("running Pivot"));
   }
 
   public Command climb(Supplier<Measure<Angle>> goalAngle) {
-    return run(() ->
-            pivot.setVoltage(
-                climbPID.calculate(pivot.getPosition(), goalAngle.get().in(Units.Radians))
-                    + climbFeedforward.calculate(
-                        pivotPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
-        .withName("running pivot");
+    return runOnce(() -> climbPID.setGoal(goalAngle.get().in(Units.Radians)))
+        .andThen(
+            run(() ->
+                    pivot.setVoltage(
+                        climbPID.calculate(pivot.getPosition())
+                            + climbFeedforward.calculate(
+                                climbPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
+                .withName("running Climb"));
   }
 
   // shooting commands
