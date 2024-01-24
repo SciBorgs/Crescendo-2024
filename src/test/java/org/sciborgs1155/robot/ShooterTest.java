@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot;
 
+import static edu.wpi.first.units.Units.Radians;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.fastForward;
 import static org.sciborgs1155.lib.TestingUtil.run;
@@ -34,5 +35,11 @@ public class ShooterTest {
     fastForward(400);
 
     assertEquals(3, flywheel.getVelocity(), DELTA);
+  }
+
+  @Test
+  public void testPivot() {
+    run((shooter.runPivot(() -> Radians.of(Math.PI / 4))));
+    fastForward();
   }
 }
