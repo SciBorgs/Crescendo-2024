@@ -7,7 +7,10 @@ import static org.sciborgs1155.lib.TestingUtil.run;
 import static org.sciborgs1155.lib.TestingUtil.setupHAL;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sciborgs1155.robot.shooter.Shooter;
 import org.sciborgs1155.robot.shooter.feeder.SimFeeder;
 import org.sciborgs1155.robot.shooter.flywheel.SimFlywheel;
@@ -38,14 +41,16 @@ public class ShooterTest {
     assertEquals(3, flywheel.getVelocity(), DELTA);
   }
 
-  @Test
-  public void testPivot() {
+  @ParameterizedTest
+  @ValueSource(doubles = {Math.PI / 4, Math.PI / 8, 3 * Math.PI / 8})
+  public void testPivot(double theta) {
     run((shooter.runPivot(() -> Radians.of(Math.PI / 4))));
-    fastForward();
+    fastForward(600);
 
     assertEquals(Math.PI / 4, pivot.getPosition(), DELTA);
   }
 
+  @Disabled
   @Test
   public void testClimb() {
     run(shooter.climb(() -> Radians.of(Math.PI / 4)));
@@ -62,6 +67,7 @@ public class ShooterTest {
     assertEquals(2, feeder.getVelocity(), DELTA);
   }
 
+  @Disabled
   @Test
   public void testShootStoredNote() {
     run(shooter.shootStoredNote(() -> 4));

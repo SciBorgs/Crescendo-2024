@@ -44,11 +44,11 @@ public class ShooterConstants {
 
     public static final double POSITION_OFFSET = 0;
 
-    public static final double MASS = 6;
+    public static final double MASS = 1;
     public static final double LENGTH = 3;
 
-    public static final double MAX_VELOCITY = 1;
-    public static final double MAX_ACCEL = 1;
+    public static final double MAX_VELOCITY = 0.2;
+    public static final double MAX_ACCEL = 0.2;
 
     public static final Measure<Angle> MAX_ANGLE = Radians.of(Math.PI / 2);
     public static final Measure<Angle> MIN_ANGLE = Radians.of(0);
@@ -57,14 +57,14 @@ public class ShooterConstants {
 
     public static final Measure<Current> CURRENT_LIMIT = Amps.of(6);
 
-    public static final double kP = 5;
+    public static final double kP = 100;
     public static final double kI = 0;
     public static final double kD = 0;
 
     public static final double kS = 0;
     public static final double kV = 0;
     public static final double kA = 0;
-    public static final double kG = 0;
+    public static final double kG = 36;
 
     public static final double POSITION_TOLERANCE = .1;
 
