@@ -27,8 +27,7 @@ public class TalonModule implements ModuleIO {
   public TalonModule(int drivePort, int turnPort) {
     driveMotor = new TalonFX(drivePort);
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
-    SparkUtils.configureMotor(
-        turnMotor, false, IdleMode.kBrake, (int) Turning.CURRENT_LIMIT.in(Amps));
+    SparkUtils.configureSettings(turnMotor, false, IdleMode.kBrake, Turning.CURRENT_LIMIT);
 
     resetEncoders();
 

@@ -1,11 +1,14 @@
 package org.sciborgs1155.lib;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Current;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units;
 import java.util.Set;
@@ -113,19 +116,19 @@ public class SparkUtils {
   /**
    * Configures a CANSpark motor.
    *
-   * @param motor The motor object. This is either a CANSparkMax object or a CANSparkFlex object.
+   * @param spark The motor object. This is either a CANSparkMax object or a CANSparkFlex object.
    * @param inverted The state of inversion. True if inverted.
    * @param idleMode Idle mode setting (either COAST or BRAKE).
    * @param limit Current limit in Amps.
    * @return The motor object.
    */
-  public static CANSparkBase configureMotor(
-      CANSparkBase motor, boolean inverted, IdleMode idleMode, int limit) {
-    motor.restoreFactoryDefaults();
-    motor.setInverted(inverted);
-    motor.setIdleMode(idleMode);
-    motor.setSmartCurrentLimit(limit);
+  public static CANSparkBase configureSettings(
+      CANSparkBase spark, boolean inverted, IdleMode idleMode, Measure<Current> limit) {
+    spark.restoreFactoryDefaults();
+    spark.setInverted(inverted);
+    spark.setIdleMode(idleMode);
+    spark.setSmartCurrentLimit((int) limit.in(Amps));
 
-    return motor;
+    return spark;
   }
 }
