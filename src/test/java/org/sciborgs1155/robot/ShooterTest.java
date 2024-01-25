@@ -63,11 +63,11 @@ public class ShooterTest {
   }
 
   @Test
-    public void testShootStoredNote() {
-      run(shooter.shootStoredNote(() -> 4));
-      fastForward();
+  public void testShootStoredNote() {
+    run(shooter.shootStoredNote(() -> 4));
+    fastForward();
 
-      assertEquals(4, flywheel.getVelocity(), DELTA);
-      assertEquals(1, feeder.getVelocity(), DELTA);
-    }
+    assertEquals(4, flywheel.getVelocity(), DELTA);
+    assertEquals(1, feeder.getVelocity(), DELTA);
+  }
 }

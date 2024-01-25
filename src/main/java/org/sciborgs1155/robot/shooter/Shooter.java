@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -108,9 +107,9 @@ public class Shooter extends SubsystemBase implements Logged {
   }
 
   public void runFlywheelBase(DoubleSupplier velocity) {
-   flywheel.setVoltage(
+    flywheel.setVoltage(
         flywheelPID.calculate(flywheel.getVelocity(), velocity.getAsDouble())
-             + flywheelFeedforward.calculate(velocity.getAsDouble()));
+            + flywheelFeedforward.calculate(velocity.getAsDouble()));
   }
 
   public Command runPivot(Supplier<Measure<Angle>> goalAngle) {
@@ -126,10 +125,10 @@ public class Shooter extends SubsystemBase implements Logged {
 
   public void runPivotBase(Supplier<Measure<Angle>> goalAngle) {
     pivotPID.setGoal(goalAngle.get().in(Units.Radians));
-      pivot.setVoltage(
-          pivotPID.calculate(pivot.getPosition())
-              + pivotFeedforward.calculate(
-                  pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity));
+    pivot.setVoltage(
+        pivotPID.calculate(pivot.getPosition())
+            + pivotFeedforward.calculate(
+                pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity));
   }
 
   public Command climb(Supplier<Measure<Angle>> goalAngle) {
@@ -143,9 +142,9 @@ public class Shooter extends SubsystemBase implements Logged {
                 .withName("running Climb"));
   }
 
-  public void runClimbBase(Supplier<Measure<Angle>> goalAngle){
+  public void runClimbBase(Supplier<Measure<Angle>> goalAngle) {
     climbPID.setGoal(goalAngle.get().in(Units.Radians));
-      pivot.setVoltage(
+    pivot.setVoltage(
         climbPID.calculate(pivot.getPosition())
             + climbFeedforward.calculate(
                 climbPID.getSetpoint().position, climbPID.getSetpoint().velocity));
@@ -153,17 +152,16 @@ public class Shooter extends SubsystemBase implements Logged {
 
   // shooting commands
   public Command shootStoredNote(DoubleSupplier desiredVelocity) {
-    return
-      Commands.parallel(
+    return Commands.parallel(
         Commands.run(() -> runFlywheelBase(() -> desiredVelocity.getAsDouble())),
         Commands.run(() -> runFeederBase(1))
-          .onlyIf(() ->
-            flywheel.getVelocity()
-                    <= desiredVelocity.getAsDouble()
-                        + FlywheelConstants.VELOCITY_TOLERANCE
-                && flywheel.getVelocity()
-                    >= desiredVelocity.getAsDouble()
-                        - FlywheelConstants.VELOCITY_TOLERANCE));
+            .onlyIf(
+                () ->
+                    flywheel.getVelocity()
+                            <= desiredVelocity.getAsDouble() + FlywheelConstants.VELOCITY_TOLERANCE
+                        && flywheel.getVelocity()
+                            >= desiredVelocity.getAsDouble()
+                                - FlywheelConstants.VELOCITY_TOLERANCE));
   }
 
   public Command pivotThenShoot(
