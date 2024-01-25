@@ -156,14 +156,14 @@ public class Shooter extends SubsystemBase implements Logged {
     return
       Commands.parallel(
         Commands.run(() -> runFlywheelBase(() -> desiredVelocity.getAsDouble())),
-        Commands.run(() -> runFeederBase(1)))
+        Commands.run(() -> runFeederBase(1))
           .onlyIf(() ->
             flywheel.getVelocity()
                     <= desiredVelocity.getAsDouble()
                         + FlywheelConstants.VELOCITY_TOLERANCE
                 && flywheel.getVelocity()
                     >= desiredVelocity.getAsDouble()
-                        - FlywheelConstants.VELOCITY_TOLERANCE);
+                        - FlywheelConstants.VELOCITY_TOLERANCE));
   }
 
   public Command pivotThenShoot(

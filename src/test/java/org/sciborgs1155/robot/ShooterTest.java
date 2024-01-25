@@ -19,6 +19,8 @@ public class ShooterTest {
   SimFlywheel flywheel;
   SimFeeder feeder;
 
+  final double DELTA = 1e-1;
+
   @BeforeEach
   public void setup() {
     setupHAL();
@@ -30,7 +32,6 @@ public class ShooterTest {
 
   @Test
   public void testFlywheel() {
-    final double DELTA = 1e-1;
     run(shooter.runFlywheel(() -> 3));
     fastForward(400);
 
@@ -39,7 +40,6 @@ public class ShooterTest {
 
   @Test
   public void testPivot() {
-    final double DELTA = 1e-1;
     run((shooter.runPivot(() -> Radians.of(Math.PI / 4))));
     fastForward();
 
@@ -48,7 +48,6 @@ public class ShooterTest {
 
   @Test
   public void testClimb() {
-    final double DELTA = 1e-1;
     run(shooter.climb(() -> Radians.of(Math.PI / 4)));
     fastForward();
 
@@ -57,7 +56,6 @@ public class ShooterTest {
 
   @Test
   public void testFeeder() {
-    final double DELTA = 1e-1;
     run(shooter.runFeeder(2));
     fastForward();
 
@@ -66,7 +64,6 @@ public class ShooterTest {
 
   @Test
     public void testShootStoredNote() {
-      final double DELTA = 1e-1;
       run(shooter.shootStoredNote(() -> 4));
       fastForward();
 
