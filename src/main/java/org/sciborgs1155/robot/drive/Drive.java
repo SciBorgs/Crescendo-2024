@@ -103,7 +103,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
-                volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))),
+                // volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))),
+                volts -> frontLeft.setTurnVoltage(volts.in(Volts)),
                 null,
                 this,
                 new String("turn routine")));
@@ -125,6 +126,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     SmartDashboard.putData("turn dynamic forward", turnSysIdDynamic(Direction.kForward));
     SmartDashboard.putData("turn quasistatic backward", turnSysIdQuasistatic(Direction.kReverse));
     SmartDashboard.putData("turn dynamic backward", turnSysIdDynamic(Direction.kReverse));
+    SmartDashboard.putData("face same direction", alignModuleDirections());
   }
 
   /**
@@ -243,6 +245,12 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return modules.stream().map(SwerveModule::state).toArray(SwerveModuleState[]::new);
   }
 
+  /** Returns the module states. */
+  @Log.NT
+  private SwerveModuleState[] getModuleSetpoints() {
+    return modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
+  }
+
   /** Returns the module positions */
   @Log.NT
   private SwerveModulePosition[] getModulePositions() {
@@ -307,24 +315,33 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         () -> modules.forEach(m -> m.updateTurnRotation(Rotation2d.fromDegrees(0))));
   }
 
+  private Command alignModuleDirections() {
+    return Commands.run(
+        () -> modules.forEach(m -> m.updateTurnRotation(ANGULAR_OFFSETS.get(modules.indexOf(m)))));
+  }
+
   /** Runs the drive quasistatic SysId while locking turn motors. */
   public Command driveSysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return driveRoutine.quasistatic(direction).deadlineWith(lockTurnMotors());
+    return alignModuleDirections()
+        .andThen(driveRoutine.quasistatic(direction).deadlineWith(lockTurnMotors()));
   }
 
   /** Runs the drive dynamic SysId while locking turn motors. */
   public Command driveSysIdDynamic(SysIdRoutine.Direction direction) {
-    return driveRoutine.dynamic(direction).deadlineWith(lockTurnMotors());
+    return alignModuleDirections()
+        .andThen(driveRoutine.dynamic(direction).deadlineWith(lockTurnMotors()));
   }
 
   /** Runs the turn quasistatic SysId while locking drive motors. */
   public Command turnSysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return turnRoutine.quasistatic(direction).deadlineWith(lockDriveMotors());
+    return alignModuleDirections()
+        .andThen(turnRoutine.quasistatic(direction).deadlineWith(lockDriveMotors()));
   }
 
   /** Runs the turn dynamic SysId while locking drive motors. */
   public Command turnSysIdDynamic(SysIdRoutine.Direction direction) {
-    return turnRoutine.dynamic(direction).deadlineWith(lockDriveMotors());
+    return alignModuleDirections()
+        .andThen(turnRoutine.dynamic(direction).deadlineWith(lockDriveMotors()));
   }
 
   public void close() throws Exception {

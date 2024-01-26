@@ -105,14 +105,14 @@ public final class DriveConstants {
       public static final Measure<Current> CURRENT_LIMIT = Amps.of(20);
 
       public static final class PID {
-        public static final double P = 0.8;
+        public static final double P = 0.8; // 3.596
         public static final double I = 0.0;
         public static final double D = 0.0;
       }
 
       // system constants only used in simulation
       public static final class FF {
-        public static final double S = 0.0;
+        public static final double S = 1.2576;
         public static final double V = 0.25;
         public static final double A = 0.015;
       }

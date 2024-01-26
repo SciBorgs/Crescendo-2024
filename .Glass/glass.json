@@ -1,0 +1,66 @@
+{
+  "NetworkTables": {
+    "Transitory Values": {
+      "open": false
+    },
+    "transitory": {
+      "Robot": {
+        "drive": {
+          "ChassisSpeeds##v_/Robot/drive/getChassisSpeed": {
+            "open": true
+          },
+          "Pose2d##v_/Robot/drive/getPose": {
+            "Translation2d##v_translation": {
+              "open": true
+            },
+            "open": true
+          },
+          "SwerveModulePosition[]##v_/Robot/drive/getModulePositions": {
+            "SwerveModulePosition##v_[0]": {
+              "open": true
+            },
+            "SwerveModulePosition##v_[1]": {
+              "open": true
+            },
+            "SwerveModulePosition##v_[2]": {
+              "Rotation2d##v_angle": {
+                "open": true
+              },
+              "open": true
+            },
+            "SwerveModulePosition##v_[3]": {
+              "open": true
+            },
+            "open": true
+          },
+          "SwerveModuleState[]##v_/Robot/drive/getModuleStates": {
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      }
+    },
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Robot/autos": "String Chooser",
+      "/Robot/drive/field2d": "Field2d",
+      "/Robot/drive/frontLeft/driveFeedback": "PIDController",
+      "/Robot/drive/frontLeft/turnFeedback": "PIDController",
+      "/Robot/drive/frontRight/driveFeedback": "PIDController",
+      "/Robot/drive/frontRight/turnFeedback": "PIDController",
+      "/Robot/drive/rearLeft/driveFeedback": "PIDController",
+      "/Robot/drive/rearLeft/turnFeedback": "PIDController",
+      "/Robot/drive/rearRight/driveFeedback": "PIDController",
+      "/Robot/drive/rearRight/turnFeedback": "PIDController",
+      "/SmartDashboard/drive quasistatic forward": "Command"
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "serverTeam": "1155"
+  }
+}
