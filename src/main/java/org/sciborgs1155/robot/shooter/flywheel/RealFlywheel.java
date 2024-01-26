@@ -6,6 +6,11 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
+
 import com.revrobotics.RelativeEncoder;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
@@ -51,7 +56,7 @@ public class RealFlywheel implements FlywheelIO {
 
   @Override
   public double getVelocity() {
-    return encoder.getVelocity();
+    return encoder.getVelocity() * RPM_TO_MPS_CONVERSION;
   }
 
   @Override

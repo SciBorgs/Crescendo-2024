@@ -85,12 +85,41 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
                 .withName("running Pivot"));
   }
 
-  public void runPivotBase(Supplier<Measure<Angle>> goalAngle) {
-    pivotPID.setGoal(goalAngle.get().in(Units.Radians));
-    pivot.setVoltage(
-        pivotPID.calculate(pivot.getPosition())
-            + pivotFeedforward.calculate(
-                pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity));
+  // public void runPivotBase(Supplier<Measure<Angle>> goalAngle) {
+  //   pivotPID.setGoal(goalAngle.get().in(Units.Radians));
+  //   pivot.setVoltage(
+  //       pivotPID.calculate(pivot.getPosition())
+  //           + pivotFeedforward.calculate(
+  //               pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity));
+  // }
+
+  public Command climb(Supplier<Measure<Angle>> goalAngle) {
+    return runOnce(() -> climbPID.setGoal(goalAngle.get().in(Radians)))
+        .andThen(
+            run(() ->
+                    pivot.setVoltage(
+                        climbPID.calculate(pivot.getPosition())
+                            + climbFeedforward.calculate(
+                                climbPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
+                .withName("running Climb"));
+  }
+
+  // public void runClimbBase(Supplier<Measure<Angle>> goalAngle) {
+  //   climbPID.setGoal(goalAngle.get().in(Radians));
+  //   pivot.setVoltage(
+  //       climbPID.calculate(pivot.getPosition())
+  //           + climbFeedforward.calculate(
+  //               climbPID.getSetpoint().position, climbPID.getSetpoint().velocity));
+  // }
+
+  public double getPosition(){
+    return pivot.getPosition();
+  }
+
+  // ProfilePID doesn't log this stuff
+  @Log.NT
+  public Measure<Angle> getSetpointRadians() {
+    return Radians.of(pivotPID.getSetpoint().position);
   }
 
   @Override

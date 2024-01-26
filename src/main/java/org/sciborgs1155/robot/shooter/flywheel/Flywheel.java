@@ -2,8 +2,14 @@ package org.sciborgs1155.robot.shooter.flywheel;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import java.util.function.DoubleSupplier;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
@@ -43,10 +49,14 @@ public class Flywheel extends SubsystemBase implements AutoCloseable {
         .withName("running Flywheel");
   }
 
-  public void runFlywheelBase(DoubleSupplier velocity) {
-    flywheel.setVoltage(
-        flywheelPID.calculate(flywheel.getVelocity(), velocity.getAsDouble())
-            + flywheelFeedforward.calculate(velocity.getAsDouble()));
+  // public void runFlywheelBase(DoubleSupplier velocity) {
+  //   flywheel.setVoltage(
+  //       flywheelPID.calculate(flywheel.getVelocity(), velocity.getAsDouble())
+  //           + flywheelFeedforward.calculate(velocity.getAsDouble()));
+  // }
+
+  public double getVelocity(){
+    return flywheel.getVelocity();
   }
 
   @Override
