@@ -1,7 +1,7 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2024.1.1-beta-3"
-    id 'com.diffplug.spotless' version '6.23.3'
+    id "edu.wpi.first.GradleRIO" version "2024.2.1"
+    id 'com.diffplug.spotless' version '6.24.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -71,12 +71,12 @@ dependencies {
     simulationRelease wpi.sim.enableRelease()
 
     // Junit testing
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.+'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5+'
 
     // Monologue
-    implementation 'com.github.shueja:Monologue:v1.0.0-alpha2'
+    implementation 'com.github.shueja:Monologue:+'
 }
 
 test {
