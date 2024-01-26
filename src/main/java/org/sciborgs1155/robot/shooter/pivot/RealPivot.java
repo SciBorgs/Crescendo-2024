@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
+import static edu.wpi.first.units.Units.Radians;
 import static org.sciborgs1155.robot.Ports.Shooter.Pivot.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.*;
 
@@ -35,7 +36,7 @@ public class RealPivot implements PivotIO {
     setup.createMotorInverted.createFlex(followTwo, CURRENT_LIMIT);
     setup.createMotorInverted.createFlex(followThree, CURRENT_LIMIT);
 
-    encoder.setDistancePerRotation(CONVERSION);
+    encoder.setDistancePerRotation(POSITION_FACTOR.in(Radians));
 
     SparkUtils.configureFrameStrategy(
         lead, Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE), Set.of(Sensor.INTEGRATED), true);

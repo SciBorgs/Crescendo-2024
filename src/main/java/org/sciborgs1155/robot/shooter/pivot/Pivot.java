@@ -68,6 +68,12 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
     setpointVisualizer = new PivotVisualizer(setpoint, new Color8Bit(0, 0, 255));
   }
 
+  /**
+   * Smoothly angle the pivot to a desired goal using a {@link ProfiledPIDController}.
+   *
+   * @param goalAngle The position to move the pivot to.
+   * @return The command to set the pivot's angle.
+   */
   public Command runPivot(Supplier<Measure<Angle>> goalAngle) {
     return runOnce(() -> pivotPID.setGoal(goalAngle.get().in(Units.Radians)))
         .andThen(

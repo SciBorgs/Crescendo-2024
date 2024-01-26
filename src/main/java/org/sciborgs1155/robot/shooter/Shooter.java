@@ -2,6 +2,7 @@ package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -11,7 +12,6 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -115,7 +115,7 @@ public class Shooter extends SubsystemBase implements Logged {
   }
 
   public Command runPivot(Supplier<Measure<Angle>> goalAngle) {
-    return runOnce(() -> pivotPID.setGoal(goalAngle.get().in(Units.Radians)))
+    return runOnce(() -> pivotPID.setGoal(goalAngle.get().in(Radians)))
         .andThen(
             run(() ->
                     pivot.setVoltage(
@@ -126,7 +126,7 @@ public class Shooter extends SubsystemBase implements Logged {
   }
 
   public void runPivotBase(Supplier<Measure<Angle>> goalAngle) {
-    pivotPID.setGoal(goalAngle.get().in(Units.Radians));
+    pivotPID.setGoal(goalAngle.get().in(Radians));
     pivot.setVoltage(
         pivotPID.calculate(pivot.getPosition())
             + pivotFeedforward.calculate(
@@ -134,7 +134,7 @@ public class Shooter extends SubsystemBase implements Logged {
   }
 
   public Command climb(Supplier<Measure<Angle>> goalAngle) {
-    return runOnce(() -> climbPID.setGoal(goalAngle.get().in(Units.Radians)))
+    return runOnce(() -> climbPID.setGoal(goalAngle.get().in(Radians)))
         .andThen(
             run(() ->
                     pivot.setVoltage(
@@ -145,7 +145,7 @@ public class Shooter extends SubsystemBase implements Logged {
   }
 
   public void runClimbBase(Supplier<Measure<Angle>> goalAngle) {
-    climbPID.setGoal(goalAngle.get().in(Units.Radians));
+    climbPID.setGoal(goalAngle.get().in(Radians));
     pivot.setVoltage(
         climbPID.calculate(pivot.getPosition())
             + climbFeedforward.calculate(
@@ -160,10 +160,11 @@ public class Shooter extends SubsystemBase implements Logged {
             .onlyIf(
                 () ->
                     flywheel.getVelocity()
-                            <= desiredVelocity.getAsDouble() + FlywheelConstants.VELOCITY_TOLERANCE
+                            <= desiredVelocity.getAsDouble()
+                                + FlywheelConstants.VELOCITY_TOLERANCE.in(RadiansPerSecond)
                         && flywheel.getVelocity()
                             >= desiredVelocity.getAsDouble()
-                                - FlywheelConstants.VELOCITY_TOLERANCE));
+                                - FlywheelConstants.VELOCITY_TOLERANCE.in(RadiansPerSecond)));
   }
 
   public Command pivotThenShoot(
@@ -174,11 +175,11 @@ public class Shooter extends SubsystemBase implements Logged {
                 .onlyIf(
                     () ->
                         pivot.getPosition()
-                                <= goalAngle.get().in(Units.Radians)
-                                    + PivotConstants.POSITION_TOLERANCE
+                                <= goalAngle.get().in(Radians)
+                                    + PivotConstants.POSITION_TOLERANCE.in(Radians)
                             && pivot.getPosition()
-                                >= goalAngle.get().in(Units.Radians)
-                                    - PivotConstants.POSITION_TOLERANCE));
+                                >= goalAngle.get().in(Radians)
+                                    - PivotConstants.POSITION_TOLERANCE.in(Radians)));
   }
 
   // ProfilePID doesn't log this stuff

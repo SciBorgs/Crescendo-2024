@@ -1,5 +1,7 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.*;
@@ -14,10 +16,12 @@ public class SimPivot implements PivotIO {
   private final SingleJointedArmSim sim =
       new SingleJointedArmSim(
           LinearSystemId.createSingleJointedArmSystem(
-              DCMotor.getNEO(2), SingleJointedArmSim.estimateMOI(LENGTH, MASS), GEARING),
+              DCMotor.getNEO(2),
+              SingleJointedArmSim.estimateMOI(LENGTH.in(Meters), MASS.in(Kilograms)),
+              GEARING),
           DCMotor.getNEO(2),
           GEARING,
-          LENGTH,
+          LENGTH.in(Meters),
           MIN_ANGLE.in(Radians),
           MAX_ANGLE.in(Radians),
           true,

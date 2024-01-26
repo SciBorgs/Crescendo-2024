@@ -29,6 +29,12 @@ public class Flywheel extends SubsystemBase implements AutoCloseable {
             FlywheelConstants.kS, FlywheelConstants.kV, FlywheelConstants.kA);
   }
 
+  /**
+   * Run the flywheel at a specified velocity.
+   *
+   * @param velocity The desired velocity.
+   * @return The command to set the flywheel's velocity.
+   */
   public Command runFlywheel(DoubleSupplier velocity) {
     return run(() ->
             flywheel.setVoltage(
