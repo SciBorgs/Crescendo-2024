@@ -1,5 +1,7 @@
 package org.sciborgs1155.robot.shooter;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -179,9 +181,15 @@ public class Shooter extends SubsystemBase implements Logged {
                                     - PivotConstants.POSITION_TOLERANCE));
   }
 
+  //ProfilePID doesn't log this stuff
+  @Log.NT
+  public double getPivotSetpointRadians() {
+    return pivotPID.getSetpoint().position;
+  }
+
   @Override
   public void periodic() {
-    positionVisualizer.setState(pivot.getPosition());
-    setpointVisualizer.setState(pivotPID.getSetpoint().position);
+    positionVisualizer.setState(Degrees.convertFrom(pivot.getPosition(), Radians));
+    setpointVisualizer.setState(Degrees.convertFrom(pivotPID.getSetpoint().position, Radians));
   }
 }

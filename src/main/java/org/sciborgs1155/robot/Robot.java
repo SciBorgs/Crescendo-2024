@@ -112,6 +112,6 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED))
         .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED));
 
-    operator.x().onTrue(shooter.runPivot(() -> Radians.of(20 * Math.PI)));
+    operator.x().onTrue(shooter.runPivot(() -> Radians.of(Math.PI/2)));
   }
 }
