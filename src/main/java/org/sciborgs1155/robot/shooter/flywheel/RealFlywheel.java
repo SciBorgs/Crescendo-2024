@@ -28,8 +28,8 @@ public class RealFlywheel implements FlywheelIO {
     setup.createMotor.createFlex(topMotor, CURRENT_LIMIT);
     setup.createMotorInverted.createFlex(bottomMotor, CURRENT_LIMIT);
 
-    encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
     encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
+    encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
 
     SparkUtils.configureFrameStrategy(
         topMotor,

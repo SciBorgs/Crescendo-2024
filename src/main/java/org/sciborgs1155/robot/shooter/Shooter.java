@@ -181,7 +181,7 @@ public class Shooter extends SubsystemBase implements Logged {
                                     - PivotConstants.POSITION_TOLERANCE));
   }
 
-  //ProfilePID doesn't log this stuff
+  // ProfilePID doesn't log this stuff
   @Log.NT
   public double getPivotSetpointRadians() {
     return pivotPID.getSetpoint().position;

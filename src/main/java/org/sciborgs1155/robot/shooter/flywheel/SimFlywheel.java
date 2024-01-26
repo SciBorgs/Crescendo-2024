@@ -9,6 +9,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import org.sciborgs1155.robot.Constants;
 
+/** A simulated {@link FlywheelIO} using {@link FlywheelSim} */
 public class SimFlywheel implements FlywheelIO {
   private final FlywheelSim sim =
       new FlywheelSim(
