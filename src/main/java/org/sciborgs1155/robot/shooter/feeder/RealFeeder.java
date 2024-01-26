@@ -6,7 +6,6 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.FeederConstants.*;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Voltage;
@@ -19,13 +18,11 @@ import org.sciborgs1155.robot.setup.TemplateMotorSetup;
 public class RealFeeder implements FeederIO {
 
   private final CANSparkFlex motor;
-  private final RelativeEncoder encoder;
 
   public RealFeeder() {
     TemplateMotorSetup setup = new TemplateMotorSetup();
 
     motor = new CANSparkFlex(FEEDER_SPARK, MotorType.kBrushless);
-    encoder = motor.getEncoder();
 
     setup.createMotor.createFlex(motor, CURRENT_LIMIT);
 

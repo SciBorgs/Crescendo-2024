@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -62,12 +63,28 @@ public class Shooter extends SubsystemBase implements Logged {
                                     - PivotConstants.POSITION_TOLERANCE.in(Radians)));
   }
 
+  // pivot run commands
+
   public Command runPivot(Supplier<Measure<Angle>> goalAngle) {
     return pivot.runPivot(goalAngle);
   }
 
   public Command climb(Supplier<Measure<Angle>> goalAngle) {
     return pivot.climb(goalAngle);
+  }
+
+  // flywheel run commands
+
+  public Command runFlywheel(DoubleSupplier velocity) {
+    return flywheel.runFlywheel(velocity);
+  }
+
+  public Command runFeeder(Measure<Voltage> voltage) {
+    return feeder.runFeeder(voltage);
+  }
+
+  public Command runFeederInverse(Measure<Voltage> voltage) {
+    return feeder.runFeederInverse(voltage);
   }
 
   // ProfilePID doesn't log this stuff

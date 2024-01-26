@@ -62,7 +62,7 @@ public class ShooterTest {
 
   @Test
   public void testFeeder() {
-    run(feeder.runFeeder(Volts.of(2)));
+    run(shooter.runFeeder(Volts.of(2)));
     fastForward();
 
     assertEquals(2, feeder.getVoltage().in(Volts), DELTA);
