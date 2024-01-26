@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.fastForward;
@@ -61,10 +62,10 @@ public class ShooterTest {
 
   @Test
   public void testFeeder() {
-    run(shooter.runFeeder(2));
+    run(shooter.runFeeder(MetersPerSecond.of(2)));
     fastForward();
 
-    assertEquals(2, feeder.getVelocity(), DELTA);
+    assertEquals(2, feeder.getVelocity().in(MetersPerSecond), DELTA);
   }
 
   @Disabled
@@ -74,6 +75,6 @@ public class ShooterTest {
     fastForward();
 
     assertEquals(4, flywheel.getVelocity(), DELTA);
-    assertEquals(1, feeder.getVelocity(), DELTA);
+    assertEquals(1, feeder.getVelocity().in(MetersPerSecond), DELTA);
   }
 }

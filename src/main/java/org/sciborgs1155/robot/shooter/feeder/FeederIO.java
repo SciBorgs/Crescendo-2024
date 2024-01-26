@@ -1,7 +1,10 @@
 package org.sciborgs1155.robot.shooter.feeder;
 
-public interface FeederIO extends AutoCloseable {
-  public void set(double speed);
+import edu.wpi.first.units.*;
+import edu.wpi.first.units.Measure;
 
-  public double getVelocity();
+public interface FeederIO extends AutoCloseable {
+  public void set(Measure<Velocity<Distance>> speed);
+
+  public Measure<Velocity<Distance>> getVelocity();
 }

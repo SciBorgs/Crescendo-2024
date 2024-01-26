@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
@@ -11,7 +12,9 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -83,20 +86,22 @@ public class Shooter extends SubsystemBase implements Logged {
     this.pivot = pivot;
   }
 
-  public Command runFeeder(double speed) {
+  public Command runFeeder(Measure<Velocity<Distance>> speed) {
     return run(() -> feeder.set(speed)).withName("running Feeder");
   }
 
-  public void runFeederBase(double speed) {
+  public void runFeederBase(Measure<Velocity<Distance>> speed) {
     feeder.set(speed);
   }
 
-  public Command runFeederInverse(double voltage) {
-    return runFeeder((voltage * -1)).withName("running Feeder backwards");
+  public Command runFeederInverse(Measure<Velocity<Distance>> speed) {
+    speed = MetersPerSecond.of(speed.in(MetersPerSecond) * -1);
+    return runFeeder(speed).withName("running Feeder backwards");
   }
 
-  public void runInverseFeederBase(double speed) {
-    runFeederBase(speed * -1);
+  public void runInverseFeederBase(Measure<Velocity<Distance>> speed) {
+    speed = MetersPerSecond.of(speed.in(MetersPerSecond) * -1);
+    runFeederBase(speed);
   }
 
   // Make sure this is correct !!!
@@ -156,7 +161,7 @@ public class Shooter extends SubsystemBase implements Logged {
   public Command shootStoredNote(DoubleSupplier desiredVelocity) {
     return Commands.parallel(
         Commands.run(() -> runFlywheelBase(() -> desiredVelocity.getAsDouble())),
-        Commands.run(() -> runFeederBase(1))
+        Commands.run(() -> runFeederBase(MetersPerSecond.of(1)))
             .onlyIf(
                 () ->
                     flywheel.getVelocity()

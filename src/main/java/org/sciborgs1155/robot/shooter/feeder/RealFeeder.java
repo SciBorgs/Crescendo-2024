@@ -1,10 +1,18 @@
 package org.sciborgs1155.robot.shooter.feeder;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static org.sciborgs1155.robot.Ports.Shooter.Feeder.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.FeederConstants.*;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Velocity;
+
 import com.revrobotics.RelativeEncoder;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
@@ -35,8 +43,8 @@ public class RealFeeder implements FeederIO {
   }
 
   @Override
-  public void set(double speed) {
-    motor.set(speed);
+  public void set(Measure<Velocity<Distance>> speed) {
+    motor.set(speed.in(Units.MetersPerSecond));
   }
 
   @Override
@@ -45,7 +53,7 @@ public class RealFeeder implements FeederIO {
   }
 
   @Override
-  public double getVelocity() {
-    return encoder.getVelocity();
+  public Measure<Velocity<Distance>> getVelocity() {
+    return MetersPerSecond.of(encoder.getVelocity());
   }
 }
