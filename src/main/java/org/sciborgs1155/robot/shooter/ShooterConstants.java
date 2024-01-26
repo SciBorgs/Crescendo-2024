@@ -9,7 +9,7 @@ public class ShooterConstants {
 
     public static final double METERS_PER_ROTATION = .3;
     public static final double RPM_TO_MPS_CONVERSION = 60 * METERS_PER_ROTATION;
-    
+
     public static final double GEARING = 1;
     public static final double MOI = 1;
 

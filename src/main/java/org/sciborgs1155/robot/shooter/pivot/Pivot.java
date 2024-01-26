@@ -112,7 +112,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
   //               climbPID.getSetpoint().position, climbPID.getSetpoint().velocity));
   // }
 
-  public double getPosition(){
+  public double getPosition() {
     return pivot.getPosition();
   }
 

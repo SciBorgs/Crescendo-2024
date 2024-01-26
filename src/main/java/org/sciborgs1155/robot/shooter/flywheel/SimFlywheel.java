@@ -6,9 +6,6 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import org.sciborgs1155.robot.Constants;
 

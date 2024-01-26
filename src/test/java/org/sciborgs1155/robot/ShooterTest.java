@@ -14,11 +14,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sciborgs1155.robot.shooter.Shooter;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
-import org.sciborgs1155.robot.shooter.feeder.SimFeeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
-import org.sciborgs1155.robot.shooter.flywheel.SimFlywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
-import org.sciborgs1155.robot.shooter.pivot.SimPivot;
 
 public class ShooterTest {
   Shooter shooter;

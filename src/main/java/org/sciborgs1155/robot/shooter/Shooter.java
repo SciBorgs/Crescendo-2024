@@ -13,13 +13,11 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
-
 import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
-
 
 public class Shooter extends SubsystemBase implements Logged {
 
@@ -50,7 +48,8 @@ public class Shooter extends SubsystemBase implements Logged {
 
   public Command pivotThenShoot(
       Supplier<Measure<Angle>> goalAngle, DoubleSupplier desiredVelocity) {
-    return pivot.runPivot(goalAngle)
+    return pivot
+        .runPivot(goalAngle)
         .alongWith(
             shootStoredNote(desiredVelocity)
                 .onlyIf(
@@ -63,15 +62,13 @@ public class Shooter extends SubsystemBase implements Logged {
                                     - PivotConstants.POSITION_TOLERANCE.in(Radians)));
   }
 
-  public Command runPivot(Supplier<Measure<Angle>> goalAngle){
+  public Command runPivot(Supplier<Measure<Angle>> goalAngle) {
     return pivot.runPivot(goalAngle);
   }
 
   public Command climb(Supplier<Measure<Angle>> goalAngle) {
     return pivot.climb(goalAngle);
   }
-
-
 
   // ProfilePID doesn't log this stuff
   @Log.NT
