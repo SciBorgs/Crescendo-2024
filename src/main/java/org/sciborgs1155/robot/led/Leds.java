@@ -1,7 +1,7 @@
 package org.sciborgs1155.robot.led;
 
-import static org.sciborgs1155.robot.led.LedConstants.*;
 import static org.sciborgs1155.robot.Ports.Led.*;
+import static org.sciborgs1155.robot.led.LedConstants.*;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;

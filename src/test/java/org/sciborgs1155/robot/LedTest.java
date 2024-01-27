@@ -6,7 +6,6 @@ import static org.sciborgs1155.lib.TestingUtil.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 import org.sciborgs1155.robot.led.Leds;
 import org.sciborgs1155.robot.led.Leds.LEDTheme;
 
@@ -34,9 +33,8 @@ public class LedTest {
   public void testRainbowTheme() {
     run(led.setTheme(LEDTheme.RAINBOW));
     fastForward();
-    assertNotEquals(led.getBufferData(),temp);
-    temp=led.getBufferDataString();
+    assertNotEquals(led.getBufferData(), temp);
+    temp = led.getBufferDataString();
     led.close();
   }
-
 }
