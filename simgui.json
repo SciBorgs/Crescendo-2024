@@ -1,6 +1,9 @@
 {
   "HALProvider": {
     "Addressable LEDs": {
+      "0": {
+        "columns": 64
+      },
       "window": {
         "visible": true
       }
@@ -26,6 +29,9 @@
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
       "/SmartDashboard/drive quasistatic forward": "Command"
     }
+  },
+  "NetworkTables Info": {
+    "visible": true
   },
   "NetworkTables View": {
     "visible": false
