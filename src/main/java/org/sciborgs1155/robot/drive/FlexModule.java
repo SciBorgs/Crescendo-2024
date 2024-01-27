@@ -49,8 +49,8 @@ public class FlexModule implements ModuleIO {
     turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps));
 
     driveEncoder = driveMotor.getEncoder();
-    driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Radians));
-    driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(RadiansPerSecond));
+    driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Meters));
+    driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(MetersPerSecond));
     driveEncoder.setMeasurementPeriod(10);
     driveEncoder.setAverageDepth(2);
 

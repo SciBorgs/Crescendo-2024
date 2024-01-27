@@ -68,6 +68,13 @@
       "/SmartDashboard/turn dynamic forward": "Command",
       "/SmartDashboard/turn quasistatic backward": "Command",
       "/SmartDashboard/turn quasistatic forward": "Command"
+    },
+    "windows": {
+      "/Robot/drive/field2d": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables Info": {
@@ -95,7 +102,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 332,
+          "height": 0,
           "series": [
             {
               "color": [

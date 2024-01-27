@@ -13,7 +13,7 @@ import edu.wpi.first.units.Velocity;
 import java.util.List;
 
 public final class DriveConstants {
-  public static final Measure<Velocity<Distance>> MAX_SPEED = MetersPerSecond.of(9.6);
+  public static final Measure<Velocity<Distance>> MAX_SPEED = MetersPerSecond.of(4.8);
   public static final Measure<Velocity<Angle>> MAX_ANGULAR_SPEED = RadiansPerSecond.of(2 * Math.PI);
   public static final Measure<Velocity<Velocity<Distance>>> MAX_ACCEL =
       MetersPerSecondPerSecond.of(6.5);
@@ -74,9 +74,8 @@ public final class DriveConstants {
       // bevel pinion
       public static final double GEARING = 1.0 / 45.0 / 22.0 * 15.0 * 14.0;
 
-      public static final Measure<Angle> POSITION_FACTOR =
-          Rotations.of(GEARING).times(CIRCUMFERENCE.in(Meters));
-      public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
+      public static final Measure<Distance> POSITION_FACTOR = CIRCUMFERENCE.times(GEARING);
+      public static final Measure<Velocity<Distance>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
       public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 
