@@ -51,7 +51,7 @@ public class RealFlywheel implements FlywheelIO {
 
   @Override
   public double getVelocity() {
-    return encoder.getVelocity() * RPM_TO_MPS_CONVERSION;
+    return encoder.getVelocity();
   }
 
   @Override
