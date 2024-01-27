@@ -68,6 +68,17 @@ public class RealPivot implements PivotIO {
   }
 
   @Override
+  public double getVelocity() {
+    /* FIX THIS!!!! FIX THISISIS!!!!!!!!! DUTY CYCLE ENCODERS ARE ABSOLUTE BULLSHIT
+    AND SO THEY DO NOT HAV A GET VELOCITY FUNTION !!!!!!!! GREETINGS YOUNG TRAVELER IF YOU
+    FIX THIS BULLSHIT I CAN OFFER YOU THREE IRON SHOVERLS. GOOD LUCK ON YOUR ADVENTURES
+    YOUNG ONE!!!!! FIX THIS !!!!!!! THE ROBOT WILL NOT DO S H I T WITHOUT THIS FUNCTION!!!
+    SO FIX IT!!!!! ITS NOT SUPPOSED TO RETURN 0 BUT IT DOES GRAAHAHHHHHH GOD BLESS AMERICA
+    */
+    return 0;
+  }
+
+  @Override
   public void close() throws Exception {
     lead.close();
     followOne.close();

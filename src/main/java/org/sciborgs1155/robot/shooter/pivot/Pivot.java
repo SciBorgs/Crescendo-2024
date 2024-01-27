@@ -3,17 +3,20 @@ package org.sciborgs1155.robot.shooter.pivot;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
 import monologue.Annotations.Log;
+import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.ClimbConstants;
@@ -83,6 +86,29 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
                             + pivotFeedforward.calculate(
                                 pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity)))
                 .withName("running Pivot"));
+  }
+
+  public Command manualPivot(Supplier<Double> joystick) {
+    // shit doesnt work charlies gonna do this later
+    PIDController pid = new PIDController(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD);
+    double initVelocity = pivot.getVelocity();
+    /* double initTheta = pivot.getPosition().getRadians();
+    double deltaTheta =
+        (Math.pow(initVelocity, 2)
+            / (2 * PivotConstants.MAX_ACCEL.in(Units.RadiansPerSecond.per(Units.Second)))); 
+            
+    I might need to use this later, so for now it's gonna stay here in a comment. */
+    return run(
+        () ->
+            pivot.setVoltage(
+                pid.calculate(
+                    pivot.getVelocity(),
+                    Math.min(
+                        joystick.get(),
+                        initVelocity
+                            - (Constants.PERIOD.in(Units.Second)
+                                * PivotConstants.MAX_ACCEL.in(
+                                    Units.RadiansPerSecond.per(Units.Second)))))));
   }
 
   public Command climb(Supplier<Rotation2d> goalAngle) {

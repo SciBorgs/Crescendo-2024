@@ -41,5 +41,10 @@ public class SimPivot implements PivotIO {
   }
 
   @Override
+  public double getVelocity() {
+    return sim.getVelocityRadPerSec();
+  }
+
+  @Override
   public void close() throws Exception {}
 }
