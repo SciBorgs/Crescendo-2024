@@ -1,20 +1,17 @@
 package org.sciborgs1155.robot.led;
 
-import static org.sciborgs1155.robot.Constants.Led.INTAKE_COLOR;
 import static org.sciborgs1155.robot.Constants.Led.LEDLENGTH;
-import static org.sciborgs1155.robot.Constants.Led.PASSING_COLOR;
-import static org.sciborgs1155.robot.Constants.Led.SHOOTER_COLOR;
 
+import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import monologue.Annotations.Log;
 import monologue.Logged;
-import org.sciborgs1155.robot.Robot;
 
 public class Leds extends SubsystemBase implements Logged, AutoCloseable {
-  private final LedIO led = Robot.isReal() ? new RealLed() : new SimLed(); // led as a class
+  private final AddressableLED led = new AddressableLED(0); // led as a class
   public final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
 
   public static enum LEDTheme {
@@ -31,19 +28,16 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   static double ticktime = 0;
-  private LEDTheme ledThemeNow = LEDTheme.AUTO;
 
   public Leds() {
-    setLEDTheme(
-        LEDTheme
-            .AUTO); // put default on initialization here (only run once though, so moving themes
-    // will not move)
+    led.setLength(ledBuffer.getLength());
+    led.setData(ledBuffer);
+    led.start();
   }
 
   public void setLEDTheme(LEDTheme ledTheme) {
-    ledThemeNow = ledTheme;
     if (ledTheme == LEDTheme.RAINBOW) {
-      ticktime += 1; // 1 tick = 0.005 seconds    200 ticks = 1 second
+      ticktime += 16; // 1 tick = 0.005 seconds    200 ticks = 1 second
       for (int i = 0; i < ledBuffer.getLength(); i++) {
 
         final double constant = i / (ledBuffer.getLength() * (Math.PI / 2));
@@ -61,6 +55,7 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
 
         ledBuffer.setRGB(i, (int) red, (int) green, (int) blue);
       }
+      led.setData(ledBuffer);
     } else if (ledTheme == LEDTheme.BXSCI) {
       for (int i = 0; i < ledBuffer.getLength(); i++) {
         if (i % 2 == 0) {
@@ -69,42 +64,8 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
           ledBuffer.setLED(i, Color.kYellow);
         }
       }
-    } else if (ledTheme == LEDTheme.BXSCIFLASH) {
-      ticktime += 1;
-      for (int i = 0; i < ledBuffer.getLength(); i++) {
-        if ((i + ticktime) % 5 == 0) {
-          ledBuffer.setLED(i, Color.kYellow);
-        } else {
-          ledBuffer.setLED(i, Color.kGreen);
-        }
-      }
-    } else if (ledTheme == LEDTheme.IN_INTAKE) {
-      for (int i = 0; i < ledBuffer.getLength(); i++) {
-        ledBuffer.setLED(i, INTAKE_COLOR);
-      }
-    } else if (ledTheme == LEDTheme.IN_PASSING) {
-      for (int i = 0; i < ledBuffer.getLength(); i++) {
-        ledBuffer.setLED(i, PASSING_COLOR);
-      }
-    } else if (ledTheme == LEDTheme.IN_SHOOTER) {
-      for (int i = 0; i < ledBuffer.getLength(); i++) {
-        ledBuffer.setLED(i, SHOOTER_COLOR);
-      }
-    } else if (ledTheme == LEDTheme.AUTO) {
-      for (int i = 0; i < ledBuffer.getLength(); i++) {
-        if (i % 2 == 0) {
-          ledBuffer.setLED(i, Color.kYellow);
-        } else {
-          ledBuffer.setLED(i, Color.kBlack);
-        }
-      }
-    } else if ((ledTheme == LEDTheme.EXPLODE) || (ledTheme == LEDTheme.ERROR)) {
-      for (int i = 0; i < ledBuffer.getLength(); i++) {
-        ledBuffer.setLED(i, Color.kRed);
-      }
+      led.setData(ledBuffer);
     }
-
-    led.setData(ledBuffer);
 
     // documentation:
     // https://docs.wpilib.org/en/stable/docs/software/hardware-apis/misc/addressable-leds.html
@@ -112,10 +73,10 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
     // https://github.com/SciBorgs/ChargedUp-2023/blob/io-rewrite/src/main/java/org/sciborgs1155/robot/subsystems/LED.java
   }
 
-  @Log.NT
-  public LEDTheme getTheme() {
-    return ledThemeNow;
-  }
+  // @Log.NT
+  // public LEDTheme getTheme() {
+  //   return ledThemeNow;
+  // }
 
   private String[] ledBufferData = new String[ledBuffer.getLength()];
 
