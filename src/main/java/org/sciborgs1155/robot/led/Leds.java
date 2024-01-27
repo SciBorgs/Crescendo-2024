@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.led;
 
 import static org.sciborgs1155.robot.led.LedConstants.*;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -21,7 +22,7 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
     IN_PASSING, // Look at Constants, Grey 100% (but they write it as gray)
     IN_SHOOTER, // Look at Constants, Green 100%
     AUTO, // Yellow Green 33%, Green 33%, Gold 33% , moving
-    LIT //Suppose to look like fire
+    LIT // Suppose to look like fire
   }
 
   static double ticktime = 0;
@@ -33,13 +34,13 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public void setLEDTheme(LEDTheme ledTheme) {
-    switch (ledTheme){
-      case RAINBOW: 
+    switch (ledTheme) {
+      case RAINBOW:
         setRainbow(ledBuffer);
         led.setData(ledBuffer);
         break;
-      case SCIBORGS: 
-        setSciborgs(ledBuffer); 
+      case SCIBORGS:
+        setSciborgs(ledBuffer);
         led.setData(ledBuffer);
         break;
       case BXSCIFLASH:
@@ -47,15 +48,15 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
         led.setData(ledBuffer);
         break;
       case IN_INTAKE:
-        setSolidColor(INTAKE_COLOR); //these colors are defined in constants 
+        setSolidColor(INTAKE_COLOR); // these colors are defined in constants
         led.setData(ledBuffer);
         break;
       case IN_PASSING:
-        setSolidColor(PASSING_COLOR); //these colors are defined in constants 
+        setSolidColor(PASSING_COLOR); // these colors are defined in constants
         led.setData(ledBuffer);
         break;
       case IN_SHOOTER:
-        setSolidColor(SHOOTER_COLOR); //these colors are defined in constants 
+        setSolidColor(SHOOTER_COLOR); // these colors are defined in constants
         led.setData(ledBuffer);
         break;
       case AUTO:
