@@ -1,9 +1,6 @@
 {
   "HALProvider": {
     "Addressable LEDs": {
-      "0": {
-        "columns": 21
-      },
       "window": {
         "visible": true
       }
@@ -28,85 +25,9 @@
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
       "/SmartDashboard/drive quasistatic forward": "Command"
-    },
-    "windows": {
-      "/Robot/drive/field2d": {
-        "bottom": 1476,
-        "height": 8.210550308227539,
-        "left": 150,
-        "module- FL": {
-          "style": "Line"
-        },
-        "module- RR": {
-          "style": "Line"
-        },
-        "module-FR": {
-          "style": "Line"
-        },
-        "module-RL": {
-          "style": "Line"
-        },
-        "right": 2961,
-        "top": 79,
-        "width": 16.541748046875,
-        "window": {
-          "visible": true
-        }
-      },
-      "/SmartDashboard/drive quasistatic forward": {
-        "window": {
-          "visible": true
-        }
-      }
     }
   },
-  "NetworkTables": {
-    "Persistent Values": {
-      "open": false
-    },
-    "transitory": {
-      "Robot": {
-        "drive": {
-          "Pose2d##v_/Robot/drive/getPose": {
-            "Rotation2d##v_rotation": {
-              "open": true
-            },
-            "open": true
-          },
-          "frontRight": {
-            "SwerveModulePosition##v_/Robot/drive/frontRight/position": {
-              "Rotation2d##v_angle": {
-                "open": true
-              },
-              "open": true
-            },
-            "SwerveModuleState##v_/Robot/drive/frontRight/state": {
-              "Rotation2d##v_angle": {
-                "open": true
-              },
-              "open": true
-            },
-            "driveFeedback": {
-              "open": true
-            }
-          },
-          "open": true
-        },
-        "led": {
-          "open": true
-        },
-        "open": true
-      },
-      "Shuffleboard": {
-        "open": true
-      }
-    }
-  },
-  "Plot": {
-    "Plot <0>": {
-      "window": {
-        "visible": false
-      }
-    }
+  "NetworkTables View": {
+    "visible": false
   }
 }

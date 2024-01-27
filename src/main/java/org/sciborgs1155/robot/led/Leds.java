@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot.led;
 
 import static org.sciborgs1155.robot.Constants.Led.LEDLENGTH;
-
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -17,8 +16,8 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   public static enum LEDTheme {
     RAINBOW, // RGB Gamer Robot
     BXSCI, // Yellow 50%, Green 50%
-    BXSCIFLASH, // Yellow 20%, Green 80%, Moving,
-    // (All Yellow moves in one direction, yellow every 5 LEDs, green rest)
+    BXSCIFLASH, // Yellow ??%, Green ??%, Moving,
+    // (All Yellow moves in one direction, yellow every few LEDs, green rest)
     IN_INTAKE, // Look at Constants, Orange 100%
     IN_PASSING, // Look at Constants, Grey 100% (but they write it as gray)
     IN_SHOOTER, // Look at Constants, Green 100%
@@ -37,22 +36,19 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
 
   public void setLEDTheme(LEDTheme ledTheme) {
     if (ledTheme == LEDTheme.RAINBOW) {
-      ticktime += 16; // 1 tick = 0.005 seconds    200 ticks = 1 second
+      ticktime +=
+          15; // 1 tick = 0.005 seconds    200 ticks = 1 second (minecraft gameticks x20 speed)
       for (int i = 0; i < ledBuffer.getLength(); i++) {
-
         final double constant = i / (ledBuffer.getLength() * (Math.PI / 2));
-        double green = Math.sin(ticktime / 200 + (constant));
-        double blue = Math.cos(ticktime / 200 + (constant));
-        double red = -Math.sin(ticktime / 200 + (constant));
-
+        double green = Math.sin((ticktime / 200) + (constant));
+        double blue = Math.cos((ticktime / 200) + (constant));
+        double red = -Math.sin((ticktime / 200) + (constant));
         green *= 255 / 2;
         blue *= 255 / 2;
         red *= 255 / 2;
-
         green += 255 / 2;
         blue += 255 / 2;
         red += 255 / 2;
-
         ledBuffer.setRGB(i, (int) red, (int) green, (int) blue);
       }
       led.setData(ledBuffer);
@@ -96,6 +92,10 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   public Command setTheme(LEDTheme ledTheme) {
     return run(() -> setLEDTheme(ledTheme));
   }
+
+  // public Command setColor(Color color) {
+  //   return run(() -> setSolidColor(color));
+  // }
 
   @Override
   public void close() throws Exception {
