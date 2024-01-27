@@ -86,7 +86,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
                         pivotPID.calculate(pivot.getPosition().getRadians())
                             + pivotFeedforward.calculate(
                                 pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity)))
-                .withName("running Pivot"));         
+                .withName("running Pivot"));
   }
 
   public Command manualPivot(Supplier<Double> joystick) {
