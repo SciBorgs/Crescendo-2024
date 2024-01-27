@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.units.*;
 
 public class ShooterConstants {
+  public static final double DATA_INTERVAL = 2;
   public static class FlywheelConstants {
 
     public static final double METERS_PER_ROTATION = .3;
