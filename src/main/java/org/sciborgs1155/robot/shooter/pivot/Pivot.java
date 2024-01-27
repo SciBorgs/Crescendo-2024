@@ -100,6 +100,10 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
     return pivot.getPosition();
   }
 
+  public boolean atSetpoint() {
+    return pivotPID.atSetpoint();
+  }
+
   // ProfilePID doesn't log this stuff
   @Log.NT
   public Measure<Angle> getSetpointRadians() {
