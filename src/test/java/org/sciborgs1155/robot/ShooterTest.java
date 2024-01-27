@@ -7,6 +7,7 @@ import static org.sciborgs1155.lib.TestingUtil.fastForward;
 import static org.sciborgs1155.lib.TestingUtil.run;
 import static org.sciborgs1155.lib.TestingUtil.setupHAL;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ public class ShooterTest {
   @ParameterizedTest
   @ValueSource(doubles = {Math.PI / 4, Math.PI / 8, 3 * Math.PI / 8})
   public void testPivot(double theta) {
-    run((pivot.runPivot(() -> Radians.of(Math.PI / 4))));
+    run((pivot.runPivot(() -> new Rotation2d(Radians.of(Math.PI / 4)))));
     fastForward(600);
 
     assertEquals(Math.PI / 4, pivot.getPosition(), DELTA);
@@ -54,7 +55,7 @@ public class ShooterTest {
   @Disabled
   @Test
   public void testClimb() {
-    run(pivot.climb(() -> Radians.of(Math.PI / 4)));
+    run(pivot.climb(() -> new Rotation2d(Radians.of(Math.PI / 4))));
     fastForward();
 
     assertEquals(Math.PI / 4, Math.PI);

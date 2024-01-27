@@ -4,15 +4,11 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Voltage;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants;
@@ -47,8 +43,7 @@ public class Shooter implements Logged {
                                 - FlywheelConstants.VELOCITY_TOLERANCE.in(RadiansPerSecond)));
   }
 
-  public Command pivotThenShoot(
-      Supplier<Measure<Angle>> goalAngle, DoubleSupplier desiredVelocity) {
+  public Command pivotThenShoot(Supplier<Rotation2d> goalAngle, DoubleSupplier desiredVelocity) {
     return pivot
         .runPivot(goalAngle)
         .alongWith(
@@ -56,10 +51,10 @@ public class Shooter implements Logged {
                 .onlyIf(
                     () ->
                         pivot.getPosition()
-                                <= goalAngle.get().in(Radians)
+                                <= goalAngle.get().getRadians()
                                     + PivotConstants.POSITION_TOLERANCE.in(Radians)
                             && pivot.getPosition()
-                                >= goalAngle.get().in(Radians)
+                                >= goalAngle.get().getRadians()
                                     - PivotConstants.POSITION_TOLERANCE.in(Radians)));
   }
 }

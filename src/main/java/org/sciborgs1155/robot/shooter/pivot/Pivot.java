@@ -4,10 +4,10 @@ import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -74,8 +74,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
    * @param goalAngle The position to move the pivot to.
    * @return The command to set the pivot's angle.
    */
-  public Command runPivot(Supplier<Measure<Angle>> goalAngle) {
-    return runOnce(() -> pivotPID.setGoal(goalAngle.get().in(Units.Radians)))
+  public Command runPivot(Supplier<Rotation2d> goalAngle) {
+    return runOnce(() -> pivotPID.setGoal(goalAngle.get().getRadians()))
         .andThen(
             run(() ->
                     pivot.setVoltage(
@@ -85,16 +85,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
                 .withName("running Pivot"));
   }
 
-  // public void runPivotBase(Supplier<Measure<Angle>> goalAngle) {
-  //   pivotPID.setGoal(goalAngle.get().in(Units.Radians));
-  //   pivot.setVoltage(
-  //       pivotPID.calculate(pivot.getPosition())
-  //           + pivotFeedforward.calculate(
-  //               pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity));
-  // }
-
-  public Command climb(Supplier<Measure<Angle>> goalAngle) {
-    return runOnce(() -> climbPID.setGoal(goalAngle.get().in(Radians)))
+  public Command climb(Supplier<Rotation2d> goalAngle) {
+    return runOnce(() -> climbPID.setGoal(goalAngle.get().getRadians()))
         .andThen(
             run(() ->
                     pivot.setVoltage(
@@ -103,14 +95,6 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
                                 climbPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
                 .withName("running Climb"));
   }
-
-  // public void runClimbBase(Supplier<Measure<Angle>> goalAngle) {
-  //   climbPID.setGoal(goalAngle.get().in(Radians));
-  //   pivot.setVoltage(
-  //       climbPID.calculate(pivot.getPosition())
-  //           + climbFeedforward.calculate(
-  //               climbPID.getSetpoint().position, climbPID.getSetpoint().velocity));
-  // }
 
   public double getPosition() {
     return pivot.getPosition();
