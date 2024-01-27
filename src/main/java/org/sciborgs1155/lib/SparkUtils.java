@@ -86,9 +86,9 @@ public class SparkUtils {
       }
     }
 
-    if (!withFollower) {
-      status0 = FRAME_STRATEGY_SLOW;
-    }
+    // if (!withFollower) {
+    //   status0 = FRAME_STRATEGY_SLOW;
+    // }
 
     spark.setPeriodicFramePeriod(PeriodicFrame.kStatus0, status0);
     spark.setPeriodicFramePeriod(PeriodicFrame.kStatus1, status1);

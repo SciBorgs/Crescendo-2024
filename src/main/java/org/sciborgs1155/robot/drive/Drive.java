@@ -110,7 +110,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
                 // volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))),
-                volts -> frontLeft.setTurnVoltage(volts.in(Volts)),
+                volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))),
                 null,
                 this,
                 new String("turn routine")));

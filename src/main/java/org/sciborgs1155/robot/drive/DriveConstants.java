@@ -13,7 +13,7 @@ import edu.wpi.first.units.Velocity;
 import java.util.List;
 
 public final class DriveConstants {
-  public static final Measure<Velocity<Distance>> MAX_SPEED = MetersPerSecond.of(4.8);
+  public static final Measure<Velocity<Distance>> MAX_SPEED = MetersPerSecond.of(9.6);
   public static final Measure<Velocity<Angle>> MAX_ANGULAR_SPEED = RadiansPerSecond.of(2 * Math.PI);
   public static final Measure<Velocity<Velocity<Distance>>> MAX_ACCEL =
       MetersPerSecondPerSecond.of(6.5);
@@ -87,9 +87,9 @@ public final class DriveConstants {
       }
 
       public static final class FF {
-        public static final double S = 0.3;
-        public static final double V = 2.7;
-        public static final double A = 0.25;
+        public static final double S = 0.13373;
+        public static final double V = 0.33388;
+        public static final double A = 0.021016;
       }
     }
 
@@ -105,16 +105,16 @@ public final class DriveConstants {
       public static final Measure<Current> CURRENT_LIMIT = Amps.of(20);
 
       public static final class PID {
-        public static final double P = 2.7; // 3.596
+        public static final double P = 2.8;
         public static final double I = 0.0;
-        public static final double D = 0.0;
+        public static final double D = 0.001;
       }
 
       // system constants only used in simulation
       public static final class FF {
-        public static final double S = 1.2576;
-        public static final double V = 0.25;
-        public static final double A = 0.015;
+        public static final double S = 0.30817;
+        public static final double V = 0.0010955;
+        public static final double A = 0.00011703;
       }
     }
   }

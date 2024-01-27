@@ -73,8 +73,8 @@ public class Robot extends CommandRobot implements Logged {
         .negate()
         .scale(maxSpeed)
         .scale(() -> speedMultiplier)
-        .signedPow(2)
-        .rateLimit(maxRate);
+        .signedPow(2);
+    // .rateLimit(maxRate);
   }
 
   /**
@@ -105,10 +105,10 @@ public class Robot extends CommandRobot implements Logged {
 
     driver.b().whileTrue(drive.zeroHeading());
 
-    driver
-        .leftBumper()
-        .or(driver.rightBumper())
-        .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED))
-        .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED));
+    // driver
+    //     .leftBumper()
+    //     .or(driver.rightBumper())
+    //     .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED))
+    //     .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED));
   }
 }
