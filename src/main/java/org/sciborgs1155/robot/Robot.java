@@ -115,4 +115,10 @@ public class Robot extends CommandRobot implements Logged {
     operator.b().onTrue(led.setTheme(LEDTheme.LIT));
     operator.y().onTrue(led.setTheme(LEDTheme.RAINBOW));
   }
+
+  @Override
+  public void close() {
+    led.close();
+    super.close();
+  }
 }

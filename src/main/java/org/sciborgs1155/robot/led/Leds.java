@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.led;
 
 import static org.sciborgs1155.robot.led.LedConstants.*;
+import static org.sciborgs1155.robot.Ports.Led.*;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -11,7 +12,7 @@ import monologue.Annotations.Log;
 import monologue.Logged;
 
 public class Leds extends SubsystemBase implements Logged, AutoCloseable {
-  private final AddressableLED led = new AddressableLED(0); // led as a class
+  private final AddressableLED led = new AddressableLED(LEDPORT); // led as a class
   public final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
 
   public static enum LEDTheme {
@@ -111,7 +112,7 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     led.close();
   }
 
