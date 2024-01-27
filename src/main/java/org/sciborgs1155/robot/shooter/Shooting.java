@@ -16,13 +16,13 @@ import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
 
-public class Shooter implements Logged {
+public class Shooting implements Logged {
 
   private final Feeder feeder;
   private final Pivot pivot;
   private final Flywheel flywheel;
 
-  public Shooter(Flywheel flywheel, Pivot pivot, Feeder feeder) {
+  public Shooting(Flywheel flywheel, Pivot pivot, Feeder feeder) {
     this.flywheel = flywheel;
     this.pivot = pivot;
     this.feeder = feeder;

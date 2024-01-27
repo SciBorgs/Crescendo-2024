@@ -13,13 +13,13 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sciborgs1155.robot.shooter.Shooter;
+import org.sciborgs1155.robot.shooter.Shooting;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
 
 public class ShooterTest {
-  Shooter shooter;
+  Shooting shooter;
   Pivot pivot;
   Flywheel flywheel;
   Feeder feeder;
@@ -32,7 +32,7 @@ public class ShooterTest {
     pivot = Pivot.create();
     flywheel = Flywheel.create();
     feeder = Feeder.create();
-    shooter = new Shooter(flywheel, pivot, feeder);
+    shooter = new Shooting(flywheel, pivot, feeder);
   }
 
   @Test
@@ -52,7 +52,6 @@ public class ShooterTest {
     assertEquals(Math.PI / 4, pivot.getPosition(), DELTA);
   }
 
-  @Disabled
   @Test
   public void testClimb() {
     run(pivot.climb(() -> new Rotation2d(Radians.of(Math.PI / 4))));

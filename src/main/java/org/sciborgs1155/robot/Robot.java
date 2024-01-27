@@ -24,7 +24,7 @@ import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.Autos;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
-import org.sciborgs1155.robot.shooter.Shooter;
+import org.sciborgs1155.robot.shooter.Shooting;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
@@ -51,7 +51,7 @@ public class Robot extends CommandRobot implements Logged {
   // COMMANDS
   @Log.NT private final Autos autos = new Autos();
 
-  @Log.NT private final Shooter shooter = new Shooter(flywheel, pivot, feeder);
+  @Log.NT private final Shooting shooter = new Shooting(flywheel, pivot, feeder);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED;
 
