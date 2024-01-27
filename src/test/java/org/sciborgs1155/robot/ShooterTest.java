@@ -9,7 +9,6 @@ import static org.sciborgs1155.lib.TestingUtil.setupHAL;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -68,7 +67,6 @@ public class ShooterTest {
     assertEquals(2, feeder.getVoltage().in(Volts), DELTA);
   }
 
-  @Disabled
   @Test
   public void testShootStoredNote() {
     run(shooter.shootStoredNote(() -> 4));

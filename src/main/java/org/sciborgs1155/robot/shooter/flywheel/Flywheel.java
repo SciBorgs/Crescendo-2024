@@ -53,6 +53,10 @@ public class Flywheel extends SubsystemBase implements AutoCloseable {
     return flywheel.getVelocity();
   }
 
+  public boolean atSetpoint() {
+    return flywheelPID.atSetpoint();
+  }
+
   @Override
   public void close() throws Exception {
     flywheel.close();

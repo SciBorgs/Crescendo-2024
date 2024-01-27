@@ -78,10 +78,10 @@ public class ShooterConstants {
     public static final double kG = 36;
 
     public static final class ClimbConstants {
-      public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(2 * Math.PI);
+      public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.2);
       public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
 
-      public static final double kP = 750;
+      public static final double kP = 100;
       public static final double kI = 0;
       public static final double kD = 0;
 

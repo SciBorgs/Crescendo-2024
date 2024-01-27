@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -10,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Logged;
-import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
@@ -31,16 +29,8 @@ public class Shooting implements Logged {
   // shooting commands
   public Command shootStoredNote(DoubleSupplier desiredVelocity) {
     return Commands.parallel(
-            flywheel.runFlywheel(() -> desiredVelocity.getAsDouble()),
-            feeder.runFeeder(Volts.of(1)))
-        .onlyIf(
-            () ->
-                flywheel.getVelocity()
-                        <= desiredVelocity.getAsDouble()
-                            + FlywheelConstants.VELOCITY_TOLERANCE.in(RadiansPerSecond)
-                    && flywheel.getVelocity()
-                        >= desiredVelocity.getAsDouble()
-                            - FlywheelConstants.VELOCITY_TOLERANCE.in(RadiansPerSecond));
+        flywheel.runFlywheel(() -> desiredVelocity.getAsDouble()),
+        Commands.waitUntil(flywheel::atSetpoint).andThen(feeder.runFeeder(Volts.of(1))));
   }
 
   public Command pivotThenShoot(Supplier<Rotation2d> goalAngle, DoubleSupplier desiredVelocity) {
