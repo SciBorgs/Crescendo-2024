@@ -20,7 +20,7 @@ import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
 
-public class Shooter extends SubsystemBase implements Logged {
+public class Shooter implements Logged {
 
   private final Feeder feeder;
   private final Pivot pivot;
@@ -61,35 +61,5 @@ public class Shooter extends SubsystemBase implements Logged {
                             && pivot.getPosition()
                                 >= goalAngle.get().in(Radians)
                                     - PivotConstants.POSITION_TOLERANCE.in(Radians)));
-  }
-
-  // pivot run commands
-
-  public Command runPivot(Supplier<Measure<Angle>> goalAngle) {
-    return pivot.runPivot(goalAngle);
-  }
-
-  public Command climb(Supplier<Measure<Angle>> goalAngle) {
-    return pivot.climb(goalAngle);
-  }
-
-  // flywheel run commands
-
-  public Command runFlywheel(DoubleSupplier velocity) {
-    return flywheel.runFlywheel(velocity);
-  }
-
-  public Command runFeeder(Measure<Voltage> voltage) {
-    return feeder.runFeeder(voltage);
-  }
-
-  public Command runFeederInverse(Measure<Voltage> voltage) {
-    return feeder.runFeederInverse(voltage);
-  }
-
-  // ProfilePID doesn't log this stuff
-  @Log.NT
-  public double getPivotSetpointRadians() {
-    return pivot.getSetpointRadians().in(Radians);
   }
 }

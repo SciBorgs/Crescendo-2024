@@ -44,10 +44,15 @@ public class Robot extends CommandRobot implements Logged {
   @Log.File private final Drive drive = Drive.create();
 
   @Log.File
-  private final Shooter shooter = new Shooter(Flywheel.create(), Pivot.create(), Feeder.create());
+
+  private final Flywheel flywheel = Flywheel.create();
+  private final Feeder feeder = Feeder.create();
+  private final Pivot pivot = Pivot.create();
 
   // COMMANDS
   @Log.NT private final Autos autos = new Autos();
+
+  @Log.NT private final Shooter shooter = new Shooter(flywheel, pivot, feeder);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED;
 
@@ -118,6 +123,6 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED));
 
     // remember to fix this later
-    operator.x().onTrue(shooter.runPivot(() -> Radians.of(Math.PI / 2)));
+    operator.x().onTrue(pivot.runPivot(() -> Radians.of(Math.PI / 2)));
   }
 }
