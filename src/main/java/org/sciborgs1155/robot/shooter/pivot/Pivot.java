@@ -89,30 +89,46 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
                 .withName("running Pivot"));
   }
 
-  public Command manualPivot(Supplier<Double> joystick, Supplier<Rotation2d> maxRotation) {
-    double initVelocity = pivot.getVelocity();
-    // gooberValue is the next max speed in order for the pivot to not go over the max angle.
-    double gooberValue =
-        initVelocity
-            - (Constants.PERIOD.in(Units.Second)
-                * PivotConstants.MAX_ACCEL.in(Units.RadiansPerSecond.per(Units.Second)));
-    double initTheta = pivot.getPosition().getRadians();
-    double deltaTheta =
-        (Math.pow(initVelocity, 2)
-            / (2 * PivotConstants.MAX_ACCEL.in(Units.RadiansPerSecond.per(Units.Second))));
-    double currentError = Math.abs(maxRotation.get().getRadians() - (initTheta + deltaTheta));
-    double maxError = 0.1;
+  public Command easyManualPivot(Supplier<Double> joystick) {
+    double periodMovement =
+        Constants.PERIOD.in(Units.Second)
+            * joystick.get()
+            * PivotConstants.MAX_VELOCITY.in(Units.RadiansPerSecond);
+    double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
+    double setpoint =
+        Math.max(
+            Math.min(PivotConstants.MAX_ANGLE.in(Units.Radians), draftSetpoint),
+            PivotConstants.MIN_ANGLE.in(Units.Radians));
+    return run(
+        () -> pivot.setVoltage(velocityPID.calculate(pivot.getPosition().getRadians(), setpoint)));
+  }
 
-    if (currentError <= maxError) {
-      return run(
-          () ->
-              pivot.setVoltage(
-                  velocityPID.calculate(
-                      pivot.getVelocity(), Math.min(joystick.get(), gooberValue))));
-    } else {
-      return run(
-          () -> pivot.setVoltage(velocityPID.calculate(pivot.getVelocity(), joystick.get())));
-    }
+  public Command manualPivot(Supplier<Double> joystick, Rotation2d maxRotation) {
+    return run(
+        () -> {
+          double initVelocity = pivot.getVelocity();
+          // gooberValue is the next max speed in order for the pivot to not go over the max angle.
+          double gooberValue =
+              initVelocity
+                  - (Constants.PERIOD.in(Units.Second)
+                      * 5
+                      * PivotConstants.MAX_ACCEL.in(Units.RadiansPerSecond.per(Units.Second)));
+          double initTheta = pivot.getPosition().getRadians();
+          double deltaTheta =
+              (Math.pow(initVelocity, 2)
+                  / (2 * PivotConstants.MAX_ACCEL.in(Units.RadiansPerSecond.per(Units.Second))));
+
+          boolean slow = maxRotation.getRadians() <= initTheta + deltaTheta;
+          if (slow) {
+            System.out.println("slowing!");
+          } else {
+            System.out.println("fastttt");
+          }
+          double velocity = slow ? Math.min(joystick.get(), gooberValue) : joystick.get();
+          // double currentError = .getRadians() - (initTheta + deltaTheta));
+          // double maxError = 0.1;
+          pivot.setVoltage(velocityPID.calculate(pivot.getVelocity(), velocity));
+        });
   }
 
   public Command climb(Supplier<Rotation2d> goalAngle) {

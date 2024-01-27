@@ -124,7 +124,6 @@ public class Robot extends CommandRobot implements Logged {
     // remember to fix this later
     operator.x().onTrue(pivot.runPivot(() -> new Rotation2d(Radians.of(Math.PI / 2))));
     pivot.manualPivot(
-        () -> operator.getLeftY(),
-        () -> new Rotation2d(Radians.of(Math.PI / 2))); // is this how I do it???
+        () -> operator.getLeftY(), Rotation2d.fromRadians(Math.PI / 2)); // is this how I do it???
   }
 }

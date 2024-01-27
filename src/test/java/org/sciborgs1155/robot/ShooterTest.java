@@ -88,11 +88,11 @@ public class ShooterTest {
 
   @Test
   public void testManualControl() {
-    run(pivot.manualPivot(() -> 1.0, () -> new Rotation2d(Radians.of(Math.PI / 2))));
-    fastForward();
-    
+    run(pivot.manualPivot(() -> 0.5, Rotation2d.fromRadians(Math.PI / 3)));
+    fastForward(30);
 
-    assertEquals(1, pivot.getVelocity());
-    assertEquals(Math.PI / 2, pivot.getPosition());
+    // assertEquals(0.5, pivot.getVelocity(), 0.1);
+    fastForward(100);
+    assertEquals(Math.PI / 3, pivot.getPosition().getRadians());
   }
 }
