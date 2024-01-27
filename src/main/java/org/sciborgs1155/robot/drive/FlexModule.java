@@ -3,7 +3,6 @@ package org.sciborgs1155.robot.drive;
 import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.COUPLING_RATIO;
 
-import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -22,8 +21,8 @@ import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Turning;
 
 public class FlexModule implements ModuleIO {
 
-  private final CANSparkBase driveMotor; // Neo Vortex
-  private final CANSparkBase turnMotor; // Neo 550
+  private final CANSparkFlex driveMotor; // Neo Vortex
+  private final CANSparkMax turnMotor; // Neo 550
 
   private final RelativeEncoder driveEncoder;
   private final SparkAbsoluteEncoder turningEncoder;
@@ -52,11 +51,14 @@ public class FlexModule implements ModuleIO {
     driveEncoder = driveMotor.getEncoder();
     driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Radians));
     driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(RadiansPerSecond));
+    driveEncoder.setMeasurementPeriod(10);
+    driveEncoder.setAverageDepth(2);
 
     turningEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);
     turningEncoder.setInverted(Turning.ENCODER_INVERTED);
     turningEncoder.setPositionConversionFactor(Turning.POSITION_FACTOR.in(Radians));
     turningEncoder.setVelocityConversionFactor(Turning.VELOCITY_FACTOR.in(RadiansPerSecond));
+    turningEncoder.setAverageDepth(2);
 
     SparkUtils.configureFrameStrategy(
         driveMotor,
