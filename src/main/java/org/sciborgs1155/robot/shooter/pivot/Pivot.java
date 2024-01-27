@@ -95,8 +95,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
     /* double initTheta = pivot.getPosition().getRadians();
     double deltaTheta =
         (Math.pow(initVelocity, 2)
-            / (2 * PivotConstants.MAX_ACCEL.in(Units.RadiansPerSecond.per(Units.Second)))); 
-            
+            / (2 * PivotConstants.MAX_ACCEL.in(Units.RadiansPerSecond.per(Units.Second))));
+
     I might need to use this later, so for now it's gonna stay here in a comment. */
     return run(
         () ->
