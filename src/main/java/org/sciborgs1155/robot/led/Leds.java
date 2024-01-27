@@ -17,8 +17,8 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   public static enum LEDTheme {
     RAINBOW, // RGB Gamer Robot
     BXSCI, // Yellow 50%, Green 50%
-    BXSCIFLASH, // Yellow 20%, Green 80%, Moving,
-    // (All Yellow moves in one direction, yellow every 5 LEDs, green rest)
+    BXSCIFLASH, // Yellow ??%, Green ??%, Moving,
+    // (All Yellow moves in one direction, yellow every few LEDs, green rest)
     IN_INTAKE, // Look at Constants, Orange 100%
     IN_PASSING, // Look at Constants, Grey 100% (but they write it as gray)
     IN_SHOOTER, // Look at Constants, Green 100%
