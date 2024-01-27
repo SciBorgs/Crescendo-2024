@@ -98,7 +98,13 @@
           },
           "open": true,
           "pivot": {
-            "open": true
+            "open": true,
+            "pivot": {
+              "Rotation2d##v_/Robot/shooter/pivot/pivot/getPosition": {
+                "open": true
+              },
+              "open": true
+            }
           },
           "setpoint": {
             "open": true
@@ -123,7 +129,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 310,
+          "height": 0,
           "series": [
             {
               "color": [

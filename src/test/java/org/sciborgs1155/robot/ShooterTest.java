@@ -85,4 +85,14 @@ public class ShooterTest {
     assertEquals(1, feeder.getVoltage().in(Volts), DELTA);
     assertEquals(4, flywheel.getVelocity(), DELTA);
   }
+
+  @Test
+  public void testManualControl() {
+    run(pivot.manualPivot(() -> 1.0, () -> new Rotation2d(Radians.of(Math.PI / 2))));
+    fastForward();
+    
+
+    assertEquals(1, pivot.getVelocity());
+    assertEquals(Math.PI / 2, pivot.getPosition());
+  }
 }

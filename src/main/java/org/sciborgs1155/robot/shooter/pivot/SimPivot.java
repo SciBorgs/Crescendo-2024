@@ -40,6 +40,7 @@ public class SimPivot implements PivotIO {
     return new Rotation2d(sim.getAngleRads());
   }
 
+  @Log.NT
   @Override
   public double getVelocity() {
     return sim.getVelocityRadPerSec();
