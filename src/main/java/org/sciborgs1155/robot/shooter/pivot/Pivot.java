@@ -7,8 +7,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -17,16 +15,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
 import monologue.Annotations.Log;
 import org.sciborgs1155.robot.Constants;
+import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.ClimbConstants;
 
-public class Pivot extends SubsystemBase implements AutoCloseable {
-  private final PivotIO pivot;
+public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
+  @Log.NT private final PivotIO pivot;
 
   // pivot control
   private final ProfiledPIDController pivotPID;
   private final ArmFeedforward pivotFeedforward;
+  private final PIDController velocityPID = new PIDController(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD);
+
 
   // climb control
   private final ProfiledPIDController climbPID;
@@ -90,7 +91,6 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
 
   public Command manualPivot(Supplier<Double> joystick) {
     // shit doesnt work charlies gonna do this later
-    PIDController pid = new PIDController(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD);
     double initVelocity = pivot.getVelocity();
     /* double initTheta = pivot.getPosition().getRadians();
     double deltaTheta =
@@ -101,7 +101,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
     return run(
         () ->
             pivot.setVoltage(
-                pid.calculate(
+                velocityPID.calculate(
                     pivot.getVelocity(),
                     Math.min(
                         joystick.get(),
@@ -122,6 +122,11 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
                 .withName("running Climb"));
   }
 
+  @Log.NT
+  private double positionRadians() {
+    return getPosition().getRadians();
+  }
+
   public Rotation2d getPosition() {
     return pivot.getPosition();
   }
@@ -132,8 +137,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
 
   // ProfilePID doesn't log this stuff
   @Log.NT
-  public Measure<Angle> getSetpointRadians() {
-    return Radians.of(pivotPID.getSetpoint().position);
+  private double setpointRadians() {
+    return pivotPID.getSetpoint().position;
   }
 
   @Override

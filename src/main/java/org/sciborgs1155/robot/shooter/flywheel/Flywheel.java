@@ -5,10 +5,11 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
+import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
 
-public class Flywheel extends SubsystemBase implements AutoCloseable {
+public class Flywheel extends SubsystemBase implements AutoCloseable, Logged {
   private final FlywheelIO flywheel;
 
   private final PIDController flywheelPID;

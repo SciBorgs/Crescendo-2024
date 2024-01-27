@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
@@ -14,9 +15,9 @@ import org.sciborgs1155.robot.shooter.pivot.Pivot;
 
 public class Shooting implements Logged {
 
-  private final Feeder feeder;
-  private final Pivot pivot;
-  private final Flywheel flywheel;
+  @Log.NT private final Feeder feeder;
+  @Log.NT private final Pivot pivot;
+  @Log.NT private final Flywheel flywheel;
 
   public Shooting(Flywheel flywheel, Pivot pivot, Feeder feeder) {
     this.flywheel = flywheel;
