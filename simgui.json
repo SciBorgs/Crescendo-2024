@@ -22,6 +22,11 @@
       "/SmartDashboard/drive quasistatic forward": "Command"
     },
     "windows": {
+      "/Robot/autos": {
+        "window": {
+          "visible": true
+        }
+      },
       "/Robot/drive/field2d": {
         "bottom": 1476,
         "height": 8.210550308227539,
@@ -54,6 +59,12 @@
   },
   "NetworkTables": {
     "transitory": {
+      "FMSInfo": {
+        "open": true
+      },
+      "PathPlanner": {
+        "open": true
+      },
       "Robot": {
         "drive": {
           "Pose2d##v_/Robot/drive/getPose": {
@@ -89,6 +100,9 @@
     }
   },
   "NetworkTables Info": {
+    "Server": {
+      "open": true
+    },
     "visible": true
   }
 }
