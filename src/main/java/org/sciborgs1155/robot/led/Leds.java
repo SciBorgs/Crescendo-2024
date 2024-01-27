@@ -16,11 +16,12 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   public static enum LEDTheme {
     RAINBOW, // RGB Gamer Robot
     SCIBORGS, // Yellow 50%, Dark Grey 50%
-    BXSCIFLASH, // Yellow ??%, Green ??% but moving around
+    BXSCIFLASH, // Yellow ??%, Green ??%, moving
     IN_INTAKE, // Look at Constants, Orange 100%
     IN_PASSING, // Look at Constants, Grey 100% (but they write it as gray)
     IN_SHOOTER, // Look at Constants, Green 100%
-    AUTO, // Yellow 50%, Black 50%
+    AUTO, // Yellow Green 33%, Green 33%, Gold 33% , moving
+    LIT //Suppose to look like fire
   }
 
   static double ticktime = 0;
@@ -34,26 +35,37 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   public void setLEDTheme(LEDTheme ledTheme) {
     switch (ledTheme){
       case RAINBOW: 
-        setRainbow(ledBuffer); 
+        setRainbow(ledBuffer);
         led.setData(ledBuffer);
         break;
       case SCIBORGS: 
         setSciborgs(ledBuffer); 
+        led.setData(ledBuffer);
         break;
       case BXSCIFLASH:
         setBXSCIFlash(ledBuffer);
+        led.setData(ledBuffer);
         break;
       case IN_INTAKE:
         setSolidColor(INTAKE_COLOR); //these colors are defined in constants 
+        led.setData(ledBuffer);
         break;
       case IN_PASSING:
         setSolidColor(PASSING_COLOR); //these colors are defined in constants 
+        led.setData(ledBuffer);
         break;
       case IN_SHOOTER:
         setSolidColor(SHOOTER_COLOR); //these colors are defined in constants 
+        led.setData(ledBuffer);
         break;
       case AUTO:
         setAuto(ledBuffer);
+        led.setData(ledBuffer);
+        break;
+      case LIT:
+        setFire(ledBuffer);
+        led.setData(ledBuffer);
+        break;
     }
 
     // documentation:

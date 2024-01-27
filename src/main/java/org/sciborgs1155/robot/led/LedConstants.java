@@ -10,7 +10,7 @@ public class LedConstants {
     public static final int LEDLENGTH = 120; // change to be length of LED strip?
 
     static double ticktime = 0;
-    static int temp = 0; 
+    static double temp = 0; 
 
     // 1 tick = 0.005 seconds    200 ticks = 1 second (minecraft gameticks x20 speed)
 
@@ -54,17 +54,36 @@ public class LedConstants {
     }
 
     public static void setAuto(AddressableLEDBuffer ledBuffer){
-      ticktime+=1;
+      ticktime+=0.1;
       for (int i = 0; i < ledBuffer.getLength(); i++) {
-        temp=(int) (i + ticktime) % 3;
-        if (temp == 0) {
+        temp=(i + ticktime) % 3;
+        if (temp<1) {
           ledBuffer.setLED(i, Color.kYellowGreen);
-        } else if (temp == 1){
+        } else if (temp<2){
           ledBuffer.setLED(i, Color.kGreen);
-        } else if (temp == 2){
+        } else if (temp<3){
           ledBuffer.setLED(i, Color.kGold);
         }
       }
     }
+
+    public static void setFire(AddressableLEDBuffer ledBuffer){
+     ticktime+=0.3; //the robot is lit! (but it should not burning)
+      for (int i = 0; i < ledBuffer.getLength(); i++) {
+        temp=(i + ticktime) % 5;
+        if (temp<1) {
+          ledBuffer.setLED(i, Color.kRed);
+        } else if (temp<2){
+          ledBuffer.setLED(i, Color.kOrange);
+        } else if (temp<3){
+          ledBuffer.setLED(i, Color.kYellow);
+        } else if (temp<4){
+          ledBuffer.setLED(i, Color.kOrangeRed);
+        } else if (temp<5){
+          ledBuffer.setLED(i, Color.kOrange);
+        }
+      }
+    } 
+  
 
 }

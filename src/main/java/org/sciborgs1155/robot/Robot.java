@@ -112,7 +112,7 @@ public class Robot extends CommandRobot implements Logged {
     // currently configured to keyboard 1 in joystick[0], controls are m,./
     // look in Leds.java for all themes and what they look like
     // (or just allow it to print the Led data and read the hex values)
-    // operator.b().onTrue(led.setTheme(LEDTheme.SCIBORGS));
+    operator.b().onTrue(led.setTheme(LEDTheme.LIT));
     operator.y().onTrue(led.setTheme(LEDTheme.RAINBOW));
   }
 }
