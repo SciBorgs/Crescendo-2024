@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
 import monologue.Annotations.Log;
-import org.sciborgs1155.robot.Constants;
 import monologue.Logged;
+import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.ClimbConstants;
@@ -26,8 +26,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   // pivot control
   private final ProfiledPIDController pivotPID;
   private final ArmFeedforward pivotFeedforward;
-  private final PIDController velocityPID = new PIDController(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD);
-
+  private final PIDController velocityPID =
+      new PIDController(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD);
 
   // climb control
   private final ProfiledPIDController climbPID;

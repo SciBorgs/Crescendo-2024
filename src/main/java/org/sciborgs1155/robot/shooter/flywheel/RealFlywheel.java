@@ -4,11 +4,10 @@ import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.Ports.Shooter.Flywheel.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.*;
 
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkBase.IdleMode;
-
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;

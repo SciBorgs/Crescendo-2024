@@ -112,7 +112,6 @@ public class SparkUtils {
   public static void configureFollowerFrameStrategy(CANSparkBase spark) {
     configureFrameStrategy(spark, Set.of(), Set.of(), false);
   }
-  
 
   /**
    * Configures a CANSpark motor.
