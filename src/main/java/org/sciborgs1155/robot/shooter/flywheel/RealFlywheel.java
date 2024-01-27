@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.Ports.Shooter.Flywheel.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.*;
 
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
@@ -11,7 +12,6 @@ import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
-import org.sciborgs1155.robot.setup.TemplateMotorSetup;
 
 public class RealFlywheel implements FlywheelIO {
   private final CANSparkFlex topMotor;
@@ -19,14 +19,13 @@ public class RealFlywheel implements FlywheelIO {
   private final RelativeEncoder encoder;
 
   public RealFlywheel() {
-    TemplateMotorSetup setup = new TemplateMotorSetup();
 
     topMotor = new CANSparkFlex(LEFT_MOTOR, MotorType.kBrushless);
     bottomMotor = new CANSparkFlex(RIGHT_MOTOR, MotorType.kBrushless);
     encoder = topMotor.getEncoder();
 
-    setup.createMotor.createFlex(topMotor, CURRENT_LIMIT);
-    setup.createMotorInverted.createFlex(bottomMotor, CURRENT_LIMIT);
+    SparkUtils.configureSettings(false, IdleMode.kBrake, CURRENT_LIMIT, topMotor);
+    SparkUtils.configureSettings(true, IdleMode.kBrake, CURRENT_LIMIT, bottomMotor);
 
     encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
     encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
