@@ -105,7 +105,7 @@ public final class DriveConstants {
       public static final Measure<Current> CURRENT_LIMIT = Amps.of(20);
 
       public static final class PID {
-        public static final double P = 0.8; // 3.596
+        public static final double P = 2.7; // 3.596
         public static final double I = 0.0;
         public static final double D = 0.0;
       }

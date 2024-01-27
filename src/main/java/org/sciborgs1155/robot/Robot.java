@@ -85,11 +85,11 @@ public class Robot extends CommandRobot implements Logged {
     drive.setDefaultCommand(
         drive.drive(
             createJoystickStream(
-                driver::getLeftX,
+                driver::getLeftY, // account for roborio (and navx) facing wrong direction
                 DriveConstants.MAX_SPEED.in(MetersPerSecond),
                 DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond)),
             createJoystickStream(
-                driver::getLeftY,
+                driver::getLeftX,
                 DriveConstants.MAX_SPEED.in(MetersPerSecond),
                 DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond)),
             createJoystickStream(
@@ -103,7 +103,7 @@ public class Robot extends CommandRobot implements Logged {
     autonomous().whileTrue(new ProxyCommand(autos::get));
     FaultLogger.onFailing(f -> Commands.print(f.toString()));
 
-    driver.b().onTrue(drive.zeroHeading());
+    driver.b().whileTrue(drive.zeroHeading());
 
     driver
         .leftBumper()
