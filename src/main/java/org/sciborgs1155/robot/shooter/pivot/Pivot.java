@@ -14,12 +14,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
 import monologue.Annotations.Log;
+import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants;
 import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.ClimbConstants;
 
-public class Pivot extends SubsystemBase implements AutoCloseable {
-  private final PivotIO pivot;
+public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
+  @Log.NT private final PivotIO pivot;
 
   // pivot control
   private final ProfiledPIDController pivotPID;
@@ -96,6 +97,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
                 .withName("running Climb"));
   }
 
+  @Log.NT
   public Rotation2d getPosition() {
     return pivot.getPosition();
   }

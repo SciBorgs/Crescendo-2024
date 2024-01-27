@@ -42,11 +42,11 @@ public class Robot extends CommandRobot implements Logged {
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
   // SUBSYSTEMS
-  @Log.File private final Drive drive = Drive.create();
+  @Log.NT private final Drive drive = Drive.create();
 
-  @Log.File private final Flywheel flywheel = Flywheel.create();
-  @Log.File private final Feeder feeder = Feeder.create();
-  @Log.File private final Pivot pivot = Pivot.create();
+  private final Flywheel flywheel = Flywheel.create();
+  private final Feeder feeder = Feeder.create();
+  private final Pivot pivot = Pivot.create();
 
   // COMMANDS
   @Log.NT private final Autos autos = new Autos();
