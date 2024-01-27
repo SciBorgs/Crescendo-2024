@@ -26,7 +26,9 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   // pivot control
   private final ProfiledPIDController pivotPID;
   private final ArmFeedforward pivotFeedforward;
-  private final PIDController velocityPID =
+
+  @Log.NT
+  private final PIDController manualPID =
       new PIDController(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD);
 
   // climb control
@@ -90,17 +92,19 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command easyManualPivot(Supplier<Double> joystick) {
-    double periodMovement =
-        Constants.PERIOD.in(Units.Second)
-            * joystick.get()
-            * PivotConstants.MAX_VELOCITY.in(Units.RadiansPerSecond);
-    double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
-    double setpoint =
-        Math.max(
-            Math.min(PivotConstants.MAX_ANGLE.in(Units.Radians), draftSetpoint),
-            PivotConstants.MIN_ANGLE.in(Units.Radians));
     return run(
-        () -> pivot.setVoltage(velocityPID.calculate(pivot.getPosition().getRadians(), setpoint)));
+        () -> {
+          double periodMovement =
+              Constants.PERIOD.in(Units.Second)
+                  * joystick.get()
+                  * PivotConstants.MAX_VELOCITY.in(Units.RadiansPerSecond);
+          double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
+          double setpoint =
+              Math.max(
+                  Math.min(PivotConstants.MAX_ANGLE.in(Units.Radians), draftSetpoint),
+                  PivotConstants.MIN_ANGLE.in(Units.Radians));
+          pivot.setVoltage(manualPID.calculate(pivot.getPosition().getRadians(), setpoint));
+        });
   }
 
   public Command manualPivot(Supplier<Double> joystick, Rotation2d maxRotation) {
@@ -127,7 +131,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
           double velocity = slow ? Math.min(joystick.get(), gooberValue) : joystick.get();
           // double currentError = .getRadians() - (initTheta + deltaTheta));
           // double maxError = 0.1;
-          pivot.setVoltage(velocityPID.calculate(pivot.getVelocity(), velocity));
+          pivot.setVoltage(manualPID.calculate(pivot.getVelocity(), velocity));
         });
   }
 

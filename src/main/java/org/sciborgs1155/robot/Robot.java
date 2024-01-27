@@ -123,7 +123,7 @@ public class Robot extends CommandRobot implements Logged {
 
     // remember to fix this later
     operator.x().onTrue(pivot.runPivot(() -> new Rotation2d(Radians.of(Math.PI / 2))));
-    pivot.manualPivot(
-        () -> operator.getLeftY(), Rotation2d.fromRadians(Math.PI / 2)); // is this how I do it???
+    pivot.setDefaultCommand(pivot.easyManualPivot(operator::getLeftY));
+    // operator.a().toggleOnTrue(pivot.easyManualPivot(operator::getLeftY));
   }
 }

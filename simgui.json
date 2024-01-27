@@ -20,11 +20,13 @@
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
       "/Robot/flywheel": "Subsystem",
+      "/Robot/pivot/manualPID": "PIDController",
       "/Robot/pivot/measurement": "Mechanism2d",
       "/Robot/pivot/setpoint": "Mechanism2d",
       "/Robot/shooter/measurement": "Mechanism2d",
       "/Robot/shooter/mech": "Mechanism2d",
       "/Robot/shooter/mech2": "Mechanism2d",
+      "/Robot/shooter/pivot/manualPID": "PIDController",
       "/Robot/shooter/pivot/measurement": "Mechanism2d",
       "/Robot/shooter/pivot/setpoint": "Mechanism2d",
       "/Robot/shooter/setpoint": "Mechanism2d",
@@ -92,6 +94,21 @@
           }
         },
         "open": true,
+        "pivot": {
+          "manualPID": {
+            "open": true
+          },
+          "measurement": {
+            "open": true
+          },
+          "open": true,
+          "pivot": {
+            "Rotation2d##v_/Robot/pivot/pivot/getPosition": {
+              "open": true
+            },
+            "open": true
+          }
+        },
         "shooter": {
           "mech": {
             "open": true
@@ -129,7 +146,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 0,
+          "height": -27,
           "series": [
             {
               "color": [

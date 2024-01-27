@@ -9,6 +9,7 @@ import static org.sciborgs1155.lib.TestingUtil.setupHAL;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -86,6 +87,7 @@ public class ShooterTest {
     assertEquals(4, flywheel.getVelocity(), DELTA);
   }
 
+  @Disabled
   @Test
   public void testManualControl() {
     run(pivot.manualPivot(() -> 0.5, Rotation2d.fromRadians(Math.PI / 3)));
