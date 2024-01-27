@@ -98,6 +98,10 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   @Log.NT
+  private double positionRadians() {
+    return getPosition().getRadians();
+  }
+
   public Rotation2d getPosition() {
     return pivot.getPosition();
   }
@@ -108,8 +112,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   // ProfilePID doesn't log this stuff
   @Log.NT
-  public Measure<Angle> getSetpointRadians() {
-    return Radians.of(pivotPID.getSetpoint().position);
+  private double setpointRadians() {
+    return pivotPID.getSetpoint().position;
   }
 
   @Override
