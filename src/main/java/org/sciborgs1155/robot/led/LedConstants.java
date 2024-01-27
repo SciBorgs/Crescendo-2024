@@ -83,4 +83,18 @@ public class LedConstants {
       }
     }
   }
+
+  public static void setChase(AddressableLEDBuffer ledBuffer) {
+    ticktime += 0.3;
+    for (int i = 0; i < ledBuffer.getLength(); i++) {
+      temp = (i + ticktime) % 6;
+      if (temp < 1) {
+        ledBuffer.setLED(i, Color.kYellow);
+      } else if (temp > 3 && temp < 4) {
+        ledBuffer.setLED(i, Color.kLimeGreen);
+      } else {
+        ledBuffer.setLED(i, Color.kGreen);
+      }
+    }
+  }
 }

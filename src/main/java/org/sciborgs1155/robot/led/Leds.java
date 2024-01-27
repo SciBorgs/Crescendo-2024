@@ -23,7 +23,8 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
     IN_PASSING, // Look at Constants, Grey 100% (but they write it as gray)
     IN_SHOOTER, // Look at Constants, Green 100%
     AUTO, // Yellow Green 33%, Green 33%, Gold 33% , moving
-    LIT // Suppose to look like fire
+    LIT, // Suppose to look like fire
+    CHASE // Looks like those store lights chasing eachother in a loop
   }
 
   static double ticktime = 0;
@@ -66,6 +67,10 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
         break;
       case LIT:
         setFire(ledBuffer);
+        led.setData(ledBuffer);
+        break;
+      case CHASE:
+        setChase(ledBuffer);
         led.setData(ledBuffer);
         break;
     }
