@@ -11,12 +11,15 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
 
   public Intake() {
     motor = new CANSparkFlex(IntakeConstants.INTAKE_DEVICE_ID, MotorType.kBrushless);
+    setDefaultCommand(run(motor::disable));
   }
 
-  public Command spin(boolean forward) {
-    return run(() ->
-            motor.set(forward ? IntakeConstants.INTAKE_SPEED : -IntakeConstants.INTAKE_SPEED))
-        .finallyDo(motor::disable);
+  public Command intake() {
+    return run(() -> motor.set(IntakeConstants.INTAKE_SPEED));
+  }
+
+  public Command outtake() {
+    return run(() -> motor.set(-IntakeConstants.INTAKE_SPEED));
   }
 
   public void close() throws Exception {
