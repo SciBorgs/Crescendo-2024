@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Radians;
 import static org.sciborgs1155.robot.Ports.Shooter.Pivot.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.*;
 
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,7 +14,6 @@ import monologue.Annotations.Log;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
-import org.sciborgs1155.robot.setup.TemplateMotorSetup;
 
 public class RealPivot implements PivotIO {
   private final CANSparkFlex lead;
@@ -24,7 +24,6 @@ public class RealPivot implements PivotIO {
   private final DutyCycleEncoder encoder;
 
   public RealPivot() {
-    TemplateMotorSetup setup = new TemplateMotorSetup();
 
     lead = new CANSparkFlex(PIVOT_SPARK_ONE, MotorType.kBrushless);
     followOne = new CANSparkFlex(PIVOT_SPARK_TWO, MotorType.kBrushless);
@@ -32,10 +31,8 @@ public class RealPivot implements PivotIO {
     followThree = new CANSparkFlex(PIVOT_SPARK_FOUR, MotorType.kBrushless);
     encoder = new DutyCycleEncoder(PIVOT_THROUGHBORE);
 
-    setup.createMotor.createFlex(lead, CURRENT_LIMIT);
-    setup.createMotor.createFlex(followOne, CURRENT_LIMIT);
-    setup.createMotorInverted.createFlex(followTwo, CURRENT_LIMIT);
-    setup.createMotorInverted.createFlex(followThree, CURRENT_LIMIT);
+    SparkUtils.configureSettings(false, IdleMode.kBrake, CURRENT_LIMIT, lead, followOne);
+    SparkUtils.configureSettings(true, IdleMode.kBrake, CURRENT_LIMIT, followTwo, followThree);
 
     encoder.setDistancePerRotation(POSITION_FACTOR.in(Radians));
 
