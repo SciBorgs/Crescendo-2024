@@ -18,13 +18,15 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   public static enum LEDTheme {
     RAINBOW, // RGB Gamer Robot
     SCIBORGS, // Yellow 50%, Dark Grey 50%
+    FEMAIDENS, // Yellow 50%, Green 50%
     BXSCIFLASH, // Yellow ??%, Green ??%, moving
     IN_INTAKE, // Look at Constants, Orange 100%
     IN_PASSING, // Look at Constants, Grey 100% (but they write it as gray)
     IN_SHOOTER, // Look at Constants, Green 100%
     AUTO, // Yellow Green 33%, Green 33%, Gold 33% , moving
     LIT, // Suppose to look like fire
-    CHASE // Looks like those store lights chasing eachother in a loop
+    CHASE, // Looks like those store lights chasing eachother in a loop
+    RAINDROP // falling notes thing, random colors drop from the top
   }
 
   static double ticktime = 0;
@@ -43,6 +45,10 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
         break;
       case SCIBORGS:
         setSciborgs(ledBuffer);
+        led.setData(ledBuffer);
+        break;
+      case FEMAIDENS:
+        setFeMaidens(ledBuffer);
         led.setData(ledBuffer);
         break;
       case BXSCIFLASH:
@@ -71,6 +77,10 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
         break;
       case CHASE:
         setChase(ledBuffer);
+        led.setData(ledBuffer);
+        break;
+      case RAINDROP:
+        setRaindrop(ledBuffer);
         led.setData(ledBuffer);
         break;
     }

@@ -2,7 +2,7 @@
   "HALProvider": {
     "Addressable LEDs": {
       "0": {
-        "columns": 12
+        "columns": 5
       },
       "window": {
         "visible": true
@@ -30,10 +30,17 @@
       "/SmartDashboard/drive quasistatic forward": "Command"
     }
   },
+  "NetworkTables": {
+    "transitory": {
+      "Robot": {
+        "led": {
+          "open": true
+        },
+        "open": true
+      }
+    }
+  },
   "NetworkTables Info": {
     "visible": true
-  },
-  "NetworkTables View": {
-    "visible": false
   }
 }

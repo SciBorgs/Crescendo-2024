@@ -14,6 +14,14 @@ public class LedConstants {
 
   // 1 tick = 0.005 seconds    200 ticks = 1 second (minecraft gameticks x20 speed)
 
+  // specifically for raindrop
+  private static final int[] shape = {12, 10};
+  // number of rows, then LEDs per row, REMEMBER TO CHANGE COLUMN NUMBER TO LEDS PER ROW IN THE SIM
+  static Color[][] grid = new Color[shape[0]][shape[1]];
+  private static final Color[] colorpool = {
+    Color.kRed, Color.kOrange, Color.kYellow, Color.kGreen, Color.kBlue, Color.kPurple
+  };
+
   public static void setRainbow(AddressableLEDBuffer ledBuffer) {
     ticktime += 13;
     for (int i = 0; i < ledBuffer.getLength(); i++) {
@@ -37,6 +45,16 @@ public class LedConstants {
         ledBuffer.setLED(i, Color.kDarkGray);
       } else {
         ledBuffer.setLED(i, Color.kYellow);
+      }
+    }
+  }
+
+  public static void setFeMaidens(AddressableLEDBuffer ledBuffer) {
+    for (int i = 0; i < ledBuffer.getLength(); i++) {
+      if (i % 2 == 0) {
+        ledBuffer.setLED(i, Color.kPurple);
+      } else {
+        ledBuffer.setLED(i, Color.kGreen);
       }
     }
   }
@@ -94,6 +112,37 @@ public class LedConstants {
         ledBuffer.setLED(i, Color.kLimeGreen);
       } else {
         ledBuffer.setLED(i, Color.kGreen);
+      }
+    }
+  }
+
+  public static void setRaindrop(AddressableLEDBuffer ledBuffer) {
+    // start on 2:26 PM speedrun, end speedrun on 4:51 PM
+    // (i spent an hour trying to fix something and learned that java lists in lists suck!)
+    // REQUIRES FINAL GRID SHAPE DIMENSIONS, ASSUMES FORTH AND FORTH ONLY LAYERING!
+    // (back and forth would be easy to do, edit some parts, add reverse list row code)
+    ticktime +=0.1;
+
+    for (int i = 0; i < shape[1]; i++) {
+      grid[0][i] = Color.kBlack;
+    }
+
+    grid[0][(int) (Math.round(Math.random() * (shape[1] - 1)))] =
+        colorpool[(int) (Math.round(Math.random() * (colorpool.length - 1)))];
+
+    for (int i = shape[0] - 1; i > 0; i -= 1) {
+      for (int ie = 0; ie < shape[1]; ie += 1) { 
+        // THIS INSIDE FOR LOOP COST ME AN HOUR
+        grid[i][ie] = grid[i - 1][ie]; 
+      }
+    }
+
+    for (int i = 0; i < shape[0]; i++) {
+      for (int ie = 0; ie < shape[1]; ie++) {
+        if (grid[i][ie] == null && grid[i][ie] != Color.kBlack) {
+          grid[i][ie] = Color.kBlack;
+        }
+        ledBuffer.setLED(i * shape[1] + ie, grid[i][ie]);
       }
     }
   }

@@ -13,3 +13,8 @@ Our robot code is centered around [Robot.java](src/main/java/org/sciborgs1155/ro
 - [REVLib](https://docs.revrobotics.com/sparkmax/software-resources/spark-max-api-information)
 - [PathPlannerLib](https://github.com/mjansen4857/pathplanner/wiki)
 - [PhotonLib](https://docs.photonvision.org/en/latest/docs/programming/photonlib/adding-vendordep.html)
+
+
+Processor	12th Gen Intel(R) Core(TM) i9-12900K   3.20 GHz
+Installed RAM	64.0 GB (63.7 GB usable)
+System type	64-bit operating system, x64-based processor
