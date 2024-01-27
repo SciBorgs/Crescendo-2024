@@ -1,9 +1,6 @@
 package org.sciborgs1155.robot.led;
 
-import static org.sciborgs1155.robot.Constants.Led.INTAKE_COLOR;
-import static org.sciborgs1155.robot.Constants.Led.LEDLENGTH;
-import static org.sciborgs1155.robot.Constants.Led.PASSING_COLOR;
-import static org.sciborgs1155.robot.Constants.Led.SHOOTER_COLOR;
+import static org.sciborgs1155.robot.Constants.Led.*;
 
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -43,22 +40,19 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   public void setLEDTheme(LEDTheme ledTheme) {
     ledThemeNow = ledTheme;
     if (ledTheme == LEDTheme.RAINBOW) {
-      ticktime += 1; // 1 tick = 0.005 seconds    200 ticks = 1 second
+      ticktime +=
+          15; // 1 tick = 0.005 seconds    200 ticks = 1 second (minecraft gameticks x20 speed)
       for (int i = 0; i < ledBuffer.getLength(); i++) {
-
         final double constant = i / (ledBuffer.getLength() * (Math.PI / 2));
-        double green = Math.sin(ticktime / 200 + (constant));
-        double blue = Math.cos(ticktime / 200 + (constant));
-        double red = -Math.sin(ticktime / 200 + (constant));
-
+        double green = Math.sin((ticktime / 200) + (constant));
+        double blue = Math.cos((ticktime / 200) + (constant));
+        double red = -Math.sin((ticktime / 200) + (constant));
         green *= 255 / 2;
         blue *= 255 / 2;
         red *= 255 / 2;
-
         green += 255 / 2;
         blue += 255 / 2;
         red += 255 / 2;
-
         ledBuffer.setRGB(i, (int) red, (int) green, (int) blue);
       }
     } else if (ledTheme == LEDTheme.BXSCI) {
@@ -72,7 +66,7 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
     } else if (ledTheme == LEDTheme.BXSCIFLASH) {
       ticktime += 1;
       for (int i = 0; i < ledBuffer.getLength(); i++) {
-        if ((i + ticktime) % 5 == 0) {
+        if (((i + ticktime) / 3) % 5 == 0) {
           ledBuffer.setLED(i, Color.kYellow);
         } else {
           ledBuffer.setLED(i, Color.kGreen);
@@ -112,6 +106,13 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
     // https://github.com/SciBorgs/ChargedUp-2023/blob/io-rewrite/src/main/java/org/sciborgs1155/robot/subsystems/LED.java
   }
 
+  public void setSolidColor(Color color) {
+    for (int i = 0; i < ledBuffer.getLength(); i++) {
+      ledBuffer.setLED(i, color);
+    }
+    led.setData(ledBuffer);
+  }
+
   @Log.NT
   public LEDTheme getTheme() {
     return ledThemeNow;
@@ -134,6 +135,10 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
 
   public Command setTheme(LEDTheme ledTheme) {
     return run(() -> setLEDTheme(ledTheme));
+  }
+
+  public Command setColor(Color color) {
+    return run(() -> setSolidColor(color));
   }
 
   @Override

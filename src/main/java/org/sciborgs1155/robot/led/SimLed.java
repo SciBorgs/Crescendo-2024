@@ -13,6 +13,7 @@ public class SimLed implements LedIO {
 
   public SimLed() {
     led.setLength(LEDLENGTH);
+    ledsim.setRunning(true);
   }
 
   @Override
@@ -24,7 +25,7 @@ public class SimLed implements LedIO {
     return ledsim.getData();
   }
 
-  // work on this
+  // sim works now! Hint: go to Hardware>Addressable LEDs to show it
   // documentation:
   // https://first.wpi.edu/wpilib/allwpilib/docs/release/java/edu/wpi/first/wpilibj/simulation/AddressableLEDSim.html
 

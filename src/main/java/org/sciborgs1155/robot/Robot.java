@@ -5,6 +5,7 @@ import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -109,11 +110,19 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED))
         .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED));
 
-    // currently configured to keyboard 1 in joystick[0], controls are m,./
-    // look in Leds.java for all themes and what they look like
-    // (or just allow it to print the Led data and read the hex values)
+    /*
+      currently configured to keyboard 1 in joystick[0], controls are m,./
+      look in Leds.java for all themes and what they look like
+      (or just allow it to print the Led data and read the hex values)
+      you can also use led.setTheme(LEDTheme.BXSCIFLASH); to set a premade theme
+      you can also use led.setColor(Color.kOrange); to set a single color
+      note: unless a strategy is to confuse opponents with flashing lights to hypnotise them, this
+      should probably not be binded to a XBOX controller but instead used in other systems (ex.
+      bagel/donut/note location)
+    */
+
     operator.a().onTrue(led.setTheme(LEDTheme.BXSCIFLASH));
-    operator.b().onTrue(led.setTheme(LEDTheme.BXSCI));
+    operator.b().onTrue(led.setColor(Color.kWhite));
     operator.x().onTrue(led.setTheme(LEDTheme.IN_INTAKE));
     operator.y().onTrue(led.setTheme(LEDTheme.RAINBOW));
   }
