@@ -80,15 +80,15 @@ public final class DriveConstants {
       public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 
       public static final class PID {
-        public static final double P = 0.2;
+        public static final double P = 0.12389;
         public static final double I = 0.0;
         public static final double D = 0.0;
       }
 
       public static final class FF {
-        public static final double S = 0.13373;
-        public static final double V = 0.33388;
-        public static final double A = 0.021016;
+        public static final double S = 0.12389;
+        public static final double V = 2.0928;
+        public static final double A = 0.12098;
       }
     }
 
