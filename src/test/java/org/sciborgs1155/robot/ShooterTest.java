@@ -49,7 +49,7 @@ public class ShooterTest {
     run((pivot.runPivot(() -> new Rotation2d(Radians.of(Math.PI / 4)))));
     fastForward(600);
 
-    assertEquals(Math.PI / 4, pivot.getPosition(), DELTA);
+    assertEquals(Math.PI / 4, pivot.getPosition().getRadians(), DELTA);
   }
 
   @Test
@@ -57,7 +57,7 @@ public class ShooterTest {
     run(pivot.climb(() -> new Rotation2d(Radians.of(Math.PI / 4))));
     fastForward();
 
-    assertEquals(Math.PI / 4, Math.PI);
+    assertEquals(Math.PI / 4, pivot.getPosition().getRadians(), DELTA);
   }
 
   @Test

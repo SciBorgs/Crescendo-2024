@@ -31,16 +31,16 @@ public class Shooting implements Logged {
   // shooting commands
   public Command shootStoredNote(DoubleSupplier desiredVelocity) {
     return Commands.parallel(
-        Commands.run(() -> flywheel.runFlywheel(() -> desiredVelocity.getAsDouble())),
-        Commands.run(() -> feeder.runFeeder(Volts.of(1)))
-            .onlyIf(
-                () ->
-                    flywheel.getVelocity()
-                            <= desiredVelocity.getAsDouble()
-                                + FlywheelConstants.VELOCITY_TOLERANCE.in(RadiansPerSecond)
-                        && flywheel.getVelocity()
-                            >= desiredVelocity.getAsDouble()
-                                - FlywheelConstants.VELOCITY_TOLERANCE.in(RadiansPerSecond)));
+            flywheel.runFlywheel(() -> desiredVelocity.getAsDouble()),
+            feeder.runFeeder(Volts.of(1)))
+        .onlyIf(
+            () ->
+                flywheel.getVelocity()
+                        <= desiredVelocity.getAsDouble()
+                            + FlywheelConstants.VELOCITY_TOLERANCE.in(RadiansPerSecond)
+                    && flywheel.getVelocity()
+                        >= desiredVelocity.getAsDouble()
+                            - FlywheelConstants.VELOCITY_TOLERANCE.in(RadiansPerSecond));
   }
 
   public Command pivotThenShoot(Supplier<Rotation2d> goalAngle, DoubleSupplier desiredVelocity) {
@@ -50,10 +50,10 @@ public class Shooting implements Logged {
             shootStoredNote(desiredVelocity)
                 .onlyIf(
                     () ->
-                        pivot.getPosition()
+                        pivot.getPosition().getRadians()
                                 <= goalAngle.get().getRadians()
                                     + PivotConstants.POSITION_TOLERANCE.in(Radians)
-                            && pivot.getPosition()
+                            && pivot.getPosition().getRadians()
                                 >= goalAngle.get().getRadians()
                                     - PivotConstants.POSITION_TOLERANCE.in(Radians)));
   }

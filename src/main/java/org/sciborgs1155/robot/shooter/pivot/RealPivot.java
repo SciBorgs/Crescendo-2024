@@ -6,6 +6,7 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.*;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import java.util.Set;
 import monologue.Annotations.Log;
@@ -62,8 +63,8 @@ public class RealPivot implements PivotIO {
 
   @Log.NT
   @Override
-  public double getPosition() {
-    return encoder.getAbsolutePosition();
+  public Rotation2d getPosition() {
+    return new Rotation2d(encoder.getAbsolutePosition());
   }
 
   @Override

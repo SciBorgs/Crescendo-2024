@@ -79,7 +79,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
         .andThen(
             run(() ->
                     pivot.setVoltage(
-                        pivotPID.calculate(pivot.getPosition())
+                        pivotPID.calculate(pivot.getPosition().getRadians())
                             + pivotFeedforward.calculate(
                                 pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity)))
                 .withName("running Pivot"));
@@ -90,13 +90,13 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
         .andThen(
             run(() ->
                     pivot.setVoltage(
-                        climbPID.calculate(pivot.getPosition())
+                        climbPID.calculate(pivot.getPosition().getRadians())
                             + climbFeedforward.calculate(
                                 climbPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
                 .withName("running Climb"));
   }
 
-  public double getPosition() {
+  public Rotation2d getPosition() {
     return pivot.getPosition();
   }
 
@@ -108,7 +108,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable {
 
   @Override
   public void periodic() {
-    positionVisualizer.setState(Degrees.convertFrom(pivot.getPosition(), Radians));
+    positionVisualizer.setState(pivot.getPosition().getDegrees());
     setpointVisualizer.setState(Degrees.convertFrom(pivotPID.getSetpoint().position, Radians));
   }
 
