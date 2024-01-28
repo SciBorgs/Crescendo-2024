@@ -12,8 +12,11 @@ import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
 public class Flywheel extends SubsystemBase implements AutoCloseable, Logged {
   private final FlywheelIO flywheel;
 
-  private final PIDController flywheelPID;
-  private final SimpleMotorFeedforward flywheelFeedforward;
+  private final PIDController flywheelPID =
+      new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
+
+  private final SimpleMotorFeedforward flywheelFeedforward =
+      new SimpleMotorFeedforward(FlywheelConstants.kS, FlywheelConstants.kV, FlywheelConstants.kA);
 
   /** Creates real or simulated flywheel based on {@link Robot#isReal()} */
   public static Flywheel create() {
@@ -22,12 +25,6 @@ public class Flywheel extends SubsystemBase implements AutoCloseable, Logged {
 
   public Flywheel(FlywheelIO flywheel) {
     this.flywheel = flywheel;
-
-    flywheelPID =
-        new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
-    flywheelFeedforward =
-        new SimpleMotorFeedforward(
-            FlywheelConstants.kS, FlywheelConstants.kV, FlywheelConstants.kA);
   }
 
   /**
