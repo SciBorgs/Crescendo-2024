@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Annotations.Log;
@@ -25,6 +24,7 @@ public class Shooting implements Logged {
 
   private final Hashtable<Translation2d, ShooterState> shootingData;
 
+  /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
   public static record ShooterState(Rotation2d angle, double speed) {
     public static ShooterState create(double angle, double speed) {
       return new ShooterState(Rotation2d.fromRadians(angle), speed);
@@ -57,38 +57,6 @@ public class Shooting implements Logged {
     return pivot
         .runPivot(goalAngle)
         .alongWith(Commands.waitUntil(pivot::atSetpoint).andThen(shootStoredNote(desiredVelocity)));
-  }
-
-  public ShooterState getDesiredState2(Translation2d position) {
-    double x0 = Math.floor(position.getX() / DATA_INTERVAL) * DATA_INTERVAL;
-    double x1 = Math.ceil(position.getX() / DATA_INTERVAL) * DATA_INTERVAL;
-    double y0 = Math.floor(position.getY() / DATA_INTERVAL) * DATA_INTERVAL;
-    double y1 = Math.ceil(position.getY() / DATA_INTERVAL) * DATA_INTERVAL;
-
-    List<Translation2d> tList =
-        List.of(
-            new Translation2d(x0, y0),
-            new Translation2d(x0, y1),
-            new Translation2d(x1, y0),
-            new Translation2d(x1, y1));
-
-    double angle = 0;
-    double speed = 0;
-
-    for (Translation2d pos : tList) {
-      angle += getAnglePart(pos);
-      speed += getSpeedPart(pos);
-    }
-
-    return new ShooterState(Rotation2d.fromRadians(angle), speed);
-  }
-
-  public double getAnglePart(Translation2d pos) {
-    return 0;
-  }
-
-  public double getSpeedPart(Translation2d pos) {
-    return 0;
   }
 
   private static double interpolate(double a, double b, double dist) {
