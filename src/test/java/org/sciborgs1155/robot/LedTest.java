@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.sciborgs1155.lib.TestingUtil.*;
 
@@ -11,6 +12,8 @@ import org.sciborgs1155.robot.led.Leds.LEDTheme;
 public class LedTest {
   Leds led;
   String temp = "";
+  String correct =
+      "[#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00]";
 
   @BeforeEach
   public void setup() {
@@ -22,8 +25,7 @@ public class LedTest {
   public void testThemeSet() {
     run(led.setTheme(LEDTheme.SCIBORGS));
     fastForward();
-    assertNotEquals(led.getBufferDataString(), temp);
-    temp = led.getBufferDataString();
+    assertEquals(led.getBufferDataString(), correct);
     led.close();
   }
 

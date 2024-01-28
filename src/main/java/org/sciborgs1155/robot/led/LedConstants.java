@@ -7,7 +7,7 @@ public class LedConstants {
   public static final Color INTAKE_COLOR = Color.kOrange;
   public static final Color PASSING_COLOR = Color.kGray;
   public static final Color SHOOTER_COLOR = Color.kGreen;
-  public static final int LEDLENGTH = 1200; // change to be length of LED strip?
+  public static final int LEDLENGTH = 30; // change to be length of LED strip?
 
   static double ticktime = 0;
   static double temp = 0;
