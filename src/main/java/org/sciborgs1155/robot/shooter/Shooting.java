@@ -23,11 +23,24 @@ public class Shooting implements Logged {
   @Log.NT private final Pivot pivot;
   @Log.NT private final Flywheel flywheel;
 
-  private final Hashtable<Translation2d, ShooterState> shootingData = new Hashtable<>();
+  private final Hashtable<Translation2d, ShooterState> shootingData;
 
-  public static record ShooterState(Rotation2d angle, double velocity) {}
+  public static record ShooterState(Rotation2d angle, double velocity) {
+    public static ShooterState create(double angle, double speed) {
+      return new ShooterState(Rotation2d.fromRadians(angle), speed);
+    }
+  }
 
   public Shooting(Flywheel flywheel, Pivot pivot, Feeder feeder) {
+    this(flywheel, pivot, feeder, new Hashtable<Translation2d, ShooterState>());
+  }
+
+  public Shooting(
+      Flywheel flywheel,
+      Pivot pivot,
+      Feeder feeder,
+      Hashtable<Translation2d, ShooterState> shootingData) {
+    this.shootingData = shootingData;
     this.flywheel = flywheel;
     this.pivot = pivot;
     this.feeder = feeder;
@@ -82,45 +95,41 @@ public class Shooting implements Logged {
     return 0;
   }
 
-  public ShooterState getDesiredState(Translation2d position) {
+  private static double interpolate(double a, double b, double dist) {
+    assert 0 <= dist && dist <= 1;
+    return a * dist + b * (1 - dist);
+  }
+
+  public static ShooterState interpolateStates(ShooterState a, ShooterState b, double dist) {
+    assert 0 <= dist && dist <= 1;
+    return new ShooterState(
+        Rotation2d.fromRadians(interpolate(a.angle().getRadians(), b.angle().getRadians(), dist)),
+        interpolate(a.velocity(), b.velocity(), dist));
+  }
+
+  /** bilinear interpolation ({@link https://en.wikipedia.org/wiki/Bilinear_interpolation}) */
+  public ShooterState desiredState(Translation2d position) throws Exception {
     double x0 = Math.floor(position.getX() / DATA_INTERVAL) * DATA_INTERVAL;
     double x1 = Math.ceil(position.getX() / DATA_INTERVAL) * DATA_INTERVAL;
     double y0 = Math.floor(position.getY() / DATA_INTERVAL) * DATA_INTERVAL;
     double y1 = Math.ceil(position.getY() / DATA_INTERVAL) * DATA_INTERVAL;
 
-    Translation2d point1 = new Translation2d(x0, y0);
-    Translation2d point2 = new Translation2d(x0, y1);
-    Translation2d point3 = new Translation2d(x1, y0);
-    Translation2d point4 = new Translation2d(x1, y1);
+    double x_dist = (position.getX() - x0) / DATA_INTERVAL;
+    double y_dist = (position.getY() - y0) / DATA_INTERVAL;
 
-    ShooterState state1 = shootingData.get(point1);
-    ShooterState state2 = shootingData.get(point2);
-    ShooterState state3 = shootingData.get(point3);
-    ShooterState state4 = shootingData.get(point4);
-
-    double distance1 = position.getDistance(point1);
-    double distance2 = position.getDistance(point2);
-    double distance3 = position.getDistance(point3);
-    double distance4 = position.getDistance(point4);
-    double distanceSum = distance1 + distance2 + distance3 + distance4;
-
-    double factor1 = inShootingRange(point1) ? distance1 / distanceSum : 0;
-    double factor2 = inShootingRange(point2) ? distance2 / distanceSum : 0;
-    double factor3 = inShootingRange(point3) ? distance3 / distanceSum : 0;
-    double factor4 = inShootingRange(point4) ? distance4 / distanceSum : 0;
-
-    Rotation2d angle =
-        Rotation2d.fromRadians(
-            factor1 * state1.angle().getRadians()
-                + factor2 * state2.angle().getRadians()
-                + factor3 * state3.angle().getRadians()
-                + factor4 * state4.angle().getRadians());
-    double velocity =
-        factor1 * state1.velocity()
-            + factor2 * state2.velocity()
-            + factor3 * state3.velocity()
-            + factor4 * state4.velocity();
-
-    return new ShooterState(angle, velocity);
+    try {
+      return interpolateStates(
+          interpolateStates(
+              shootingData.get(new Translation2d(x0, y0)),
+              shootingData.get(new Translation2d(x1, y0)),
+              x_dist),
+          interpolateStates(
+              shootingData.get(new Translation2d(x0, y1)),
+              shootingData.get(new Translation2d(x1, y1)),
+              x_dist),
+          y_dist);
+    } catch (Exception e) {
+      throw (new Exception("cannot shoot from this position!"));
+    }
   }
 }
