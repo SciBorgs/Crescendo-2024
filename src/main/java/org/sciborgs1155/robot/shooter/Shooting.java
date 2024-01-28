@@ -64,14 +64,14 @@ public class Shooting implements Logged {
     return a * dist + b * (1 - dist);
   }
 
-  public static ShooterState interpolateStates(ShooterState a, ShooterState b, double dist) {
+  private static ShooterState interpolateStates(ShooterState a, ShooterState b, double dist) {
     assert 0 <= dist && dist <= 1;
     return new ShooterState(
         Rotation2d.fromRadians(interpolate(a.angle().getRadians(), b.angle().getRadians(), dist)),
         interpolate(a.speed(), b.speed(), dist));
   }
 
-  /** bilinear interpolation ({@link https://en.wikipedia.org/wiki/Bilinear_interpolation}) */
+  /** uses bilinear interpolation ({@link https://en.wikipedia.org/wiki/Bilinear_interpolation}) */
   public ShooterState desiredState(Translation2d position) throws Exception {
     double x0 = Math.floor(position.getX() / DATA_INTERVAL) * DATA_INTERVAL;
     double x1 = Math.ceil(position.getX() / DATA_INTERVAL) * DATA_INTERVAL;
