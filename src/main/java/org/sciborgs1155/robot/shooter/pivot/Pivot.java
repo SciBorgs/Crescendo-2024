@@ -80,7 +80,6 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   public Command manualPivot(Supplier<Double> joystick) {
     return run(
         () -> {
-          // TODO this is kind of cursed i'll deal with it later (maybe just make vel 0 in ff)
           double velocity = joystick.get() * PivotConstants.MAX_VELOCITY.in(Units.RadiansPerSecond);
           double periodMovement = Constants.PERIOD.in(Units.Second) * velocity;
           double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
@@ -90,7 +89,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
                   PivotConstants.MIN_ANGLE.in(Units.Radians));
           pivot.setVoltage(
               pivotPID.calculate(pivot.getPosition().getRadians(), setpoint)
-                  + pivotFeedforward.calculate(setpoint, velocity));
+                  + pivotFeedforward.calculate(setpoint, 0));
         });
   }
 
