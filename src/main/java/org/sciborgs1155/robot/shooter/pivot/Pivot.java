@@ -3,7 +3,6 @@ package org.sciborgs1155.robot.shooter.pivot;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -24,23 +23,33 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   @Log.NT private final PivotIO pivot;
 
   // pivot control
-  private final ProfiledPIDController pivotPID;
-  private final ArmFeedforward pivotFeedforward;
-
-  @Log.NT
-  private final PIDController manualPID =
-      new PIDController(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD);
+  public final ProfiledPIDController pivotPID =
+      new ProfiledPIDController(
+          PivotConstants.kP,
+          PivotConstants.kI,
+          PivotConstants.kD,
+          new TrapezoidProfile.Constraints(PivotConstants.MAX_VELOCITY, PivotConstants.MAX_ACCEL));
+  private final ArmFeedforward pivotFeedforward =
+      new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
 
   // climb control
-  private final ProfiledPIDController climbPID;
-  private final ArmFeedforward climbFeedforward;
+  private final ProfiledPIDController climbPID =
+      new ProfiledPIDController(
+          ClimbConstants.kP,
+          ClimbConstants.kI,
+          ClimbConstants.kD,
+          new TrapezoidProfile.Constraints(ClimbConstants.MAX_VELOCITY, ClimbConstants.MAX_ACCEL));
+  private final ArmFeedforward climbFeedforward =
+      new ArmFeedforward(ClimbConstants.kS, ClimbConstants.kG, ClimbConstants.kV);
 
   // visualization
-  @Log.NT final Mechanism2d measurement;
-  @Log.NT final Mechanism2d setpoint;
+  @Log.NT final Mechanism2d measurement = new Mechanism2d(3, 4);
+  @Log.NT final Mechanism2d setpoint = new Mechanism2d(3, 4);
 
-  private final PivotVisualizer positionVisualizer;
-  private final PivotVisualizer setpointVisualizer;
+  private final PivotVisualizer positionVisualizer =
+      new PivotVisualizer(measurement, new Color8Bit(255, 0, 0));
+  private final PivotVisualizer setpointVisualizer =
+      new PivotVisualizer(setpoint, new Color8Bit(0, 0, 255));
 
   /** Creates a real or simulated pivot based on {@link Robot#isReal()} */
   public static Pivot create() {
@@ -49,29 +58,6 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   public Pivot(PivotIO pivot) {
     this.pivot = pivot;
-
-    pivotPID =
-        new ProfiledPIDController(
-            PivotConstants.kP,
-            PivotConstants.kI,
-            PivotConstants.kD,
-            new TrapezoidProfile.Constraints(
-                PivotConstants.MAX_VELOCITY, PivotConstants.MAX_ACCEL));
-    pivotFeedforward = new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
-
-    climbPID =
-        new ProfiledPIDController(
-            ClimbConstants.kP,
-            ClimbConstants.kI,
-            ClimbConstants.kD,
-            new TrapezoidProfile.Constraints(
-                ClimbConstants.MAX_VELOCITY, ClimbConstants.MAX_ACCEL));
-    climbFeedforward = new ArmFeedforward(ClimbConstants.kS, ClimbConstants.kG, ClimbConstants.kV);
-
-    measurement = new Mechanism2d(3, 4);
-    setpoint = new Mechanism2d(3, 4);
-    positionVisualizer = new PivotVisualizer(measurement, new Color8Bit(255, 0, 0));
-    setpointVisualizer = new PivotVisualizer(setpoint, new Color8Bit(0, 0, 255));
   }
 
   /**
@@ -91,47 +77,20 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
                 .withName("running Pivot"));
   }
 
-  public Command easyManualPivot(Supplier<Double> joystick) {
+  public Command manualPivot(Supplier<Double> joystick) {
     return run(
         () -> {
-          double periodMovement =
-              Constants.PERIOD.in(Units.Second)
-                  * joystick.get()
-                  * PivotConstants.MAX_VELOCITY.in(Units.RadiansPerSecond);
+          // TODO this is kind of cursed i'll deal with it later
+          double velocity = joystick.get() * PivotConstants.MAX_VELOCITY.in(Units.RadiansPerSecond);
+          double periodMovement = Constants.PERIOD.in(Units.Second) * velocity;
           double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
           double setpoint =
               Math.max(
                   Math.min(PivotConstants.MAX_ANGLE.in(Units.Radians), draftSetpoint),
                   PivotConstants.MIN_ANGLE.in(Units.Radians));
-          pivot.setVoltage(manualPID.calculate(pivot.getPosition().getRadians(), setpoint));
-        });
-  }
-
-  public Command manualPivot(Supplier<Double> joystick, Rotation2d maxRotation) {
-    return run(
-        () -> {
-          double initVelocity = pivot.getVelocity();
-          // gooberValue is the next max speed in order for the pivot to not go over the max angle.
-          double gooberValue =
-              initVelocity
-                  - (Constants.PERIOD.in(Units.Second)
-                      * 5
-                      * PivotConstants.MAX_ACCEL.in(Units.RadiansPerSecond.per(Units.Second)));
-          double initTheta = pivot.getPosition().getRadians();
-          double deltaTheta =
-              (Math.pow(initVelocity, 2)
-                  / (2 * PivotConstants.MAX_ACCEL.in(Units.RadiansPerSecond.per(Units.Second))));
-
-          boolean slow = maxRotation.getRadians() <= initTheta + deltaTheta;
-          if (slow) {
-            System.out.println("slowing!");
-          } else {
-            System.out.println("fastttt");
-          }
-          double velocity = slow ? Math.min(joystick.get(), gooberValue) : joystick.get();
-          // double currentError = .getRadians() - (initTheta + deltaTheta));
-          // double maxError = 0.1;
-          pivot.setVoltage(manualPID.calculate(pivot.getVelocity(), velocity));
+          pivot.setVoltage(
+              pivotPID.calculate(pivot.getPosition().getRadians(), setpoint)
+                  + pivotFeedforward.calculate(setpoint, velocity));
         });
   }
 

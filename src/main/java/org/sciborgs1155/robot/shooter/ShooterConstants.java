@@ -61,7 +61,7 @@ public class ShooterConstants {
     public static final Measure<Mass> MASS = Kilograms.of(1);
     public static final Measure<Distance> LENGTH = Meters.of(3);
 
-    public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.2);
+    public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.5);
     public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
 
     public static final Measure<Angle> MAX_ANGLE = Radians.of(Math.PI / 2);
@@ -71,13 +71,13 @@ public class ShooterConstants {
 
     public static final Measure<Current> CURRENT_LIMIT = Amps.of(6);
 
-    public static final double kP = 100;
+    public static final double kP = 70;
     public static final double kI = 0;
     public static final double kD = 0;
 
-    public static final double kS = 0;
-    public static final double kV = 0;
-    public static final double kG = 36;
+    public static final double kS = 5;
+    public static final double kV = 10;
+    public static final double kG = 10;
 
     public static final class ClimbConstants {
       public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.2);

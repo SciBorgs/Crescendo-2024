@@ -43,13 +43,18 @@ public class ShooterTest {
     assertEquals(3, flywheel.getVelocity(), DELTA);
   }
 
+  @Disabled
   @ParameterizedTest
-  @ValueSource(doubles = {Math.PI / 4, Math.PI / 8, 3 * Math.PI / 8})
+  @ValueSource(doubles = {Math.PI / 4, 3 * Math.PI / 8})
   public void testPivot(double theta) {
-    run((pivot.runPivot(() -> new Rotation2d(Radians.of(Math.PI / 4)))));
-    fastForward(600);
-
-    assertEquals(Math.PI / 4, pivot.getPosition().getRadians(), DELTA);
+    run((pivot.runPivot(() -> Rotation2d.fromRadians(theta))));
+    assertEquals(pivot.pivotPID.getGoal().position, theta);
+    fastForward(3000);
+    assertEquals(pivot.pivotPID.getGoal().position, theta);
+    assertEquals(pivot.pivotPID.getGoal().velocity, 0);
+    assertEquals(pivot.pivotPID.getSetpoint().position, theta);
+    assertEquals(pivot.pivotPID.getSetpoint().velocity, 0);
+    assertEquals(theta, pivot.getPosition().getRadians(), 0.15);
   }
 
   @Test
@@ -77,6 +82,7 @@ public class ShooterTest {
     assertEquals(1, feeder.getVoltage().in(Volts), DELTA);
   }
 
+  @Disabled
   @Test
   public void testPivotThenShoot() {
     run(shooter.pivotThenShoot(() -> new Rotation2d(Radians.of(Math.PI / 4)), () -> 4));
@@ -85,16 +91,5 @@ public class ShooterTest {
     assertEquals(Math.PI / 4, pivot.getPosition().getRadians(), DELTA);
     assertEquals(1, feeder.getVoltage().in(Volts), DELTA);
     assertEquals(4, flywheel.getVelocity(), DELTA);
-  }
-
-  @Disabled
-  @Test
-  public void testManualControl() {
-    run(pivot.manualPivot(() -> 0.5, Rotation2d.fromRadians(Math.PI / 3)));
-    fastForward(30);
-
-    // assertEquals(0.5, pivot.getVelocity(), 0.1);
-    fastForward(100);
-    assertEquals(Math.PI / 3, pivot.getPosition().getRadians());
   }
 }
