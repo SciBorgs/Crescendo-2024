@@ -18,12 +18,12 @@
     {
       "axisConfig": [
         {
-          "decKey": 68,
-          "incKey": 65
-        },
-        {
           "decKey": 87,
           "incKey": 83
+        },
+        {
+          "decKey": 68,
+          "incKey": 65
         },
         {
           "decKey": 69,
@@ -33,8 +33,8 @@
         },
         {},
         {
-          "decKey": 76,
-          "incKey": 74
+          "decKey": 74,
+          "incKey": 76
         }
       ],
       "axisCount": 6,
