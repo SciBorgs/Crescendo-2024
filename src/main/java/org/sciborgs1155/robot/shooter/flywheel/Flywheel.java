@@ -41,12 +41,6 @@ public class Flywheel extends SubsystemBase implements AutoCloseable, Logged {
         .withName("running Flywheel");
   }
 
-  // public void runFlywheelBase(DoubleSupplier velocity) {
-  //   flywheel.setVoltage(
-  //       flywheelPID.calculate(flywheel.getVelocity(), velocity.getAsDouble())
-  //           + flywheelFeedforward.calculate(velocity.getAsDouble()));
-  // }
-
   public double getVelocity() {
     return flywheel.getVelocity();
   }
