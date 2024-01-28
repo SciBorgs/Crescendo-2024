@@ -36,14 +36,14 @@ public class InterpolationTest {
   public void interp() throws Exception {
     var state = shooting.desiredState(new Translation2d(1, 1));
     assertEquals(25, state.angle().getDegrees(), 1e-10);
-    assertEquals(2, state.velocity());
+    assertEquals(2, state.speed());
   }
 
   @Test
   public void interpAtKnownPoint() throws Exception {
     var state = shooting.desiredState(new Translation2d(2, 0));
     assertEquals(20, state.angle().getDegrees());
-    assertEquals(2, state.velocity());
+    assertEquals(2, state.speed());
   }
 
   @Test

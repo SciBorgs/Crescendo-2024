@@ -25,7 +25,7 @@ public class Shooting implements Logged {
 
   private final Hashtable<Translation2d, ShooterState> shootingData;
 
-  public static record ShooterState(Rotation2d angle, double velocity) {
+  public static record ShooterState(Rotation2d angle, double speed) {
     public static ShooterState create(double angle, double speed) {
       return new ShooterState(Rotation2d.fromRadians(angle), speed);
     }
@@ -104,7 +104,7 @@ public class Shooting implements Logged {
     assert 0 <= dist && dist <= 1;
     return new ShooterState(
         Rotation2d.fromRadians(interpolate(a.angle().getRadians(), b.angle().getRadians(), dist)),
-        interpolate(a.velocity(), b.velocity(), dist));
+        interpolate(a.speed(), b.speed(), dist));
   }
 
   /** bilinear interpolation ({@link https://en.wikipedia.org/wiki/Bilinear_interpolation}) */
