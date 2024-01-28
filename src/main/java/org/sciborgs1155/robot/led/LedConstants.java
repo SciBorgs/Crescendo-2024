@@ -7,7 +7,7 @@ public class LedConstants {
   public static final Color INTAKE_COLOR = Color.kOrange;
   public static final Color PASSING_COLOR = Color.kGray;
   public static final Color SHOOTER_COLOR = Color.kGreen;
-  public static final int LEDLENGTH = 120; // change to be length of LED strip?
+  public static final int LEDLENGTH = 1200; // change to be length of LED strip?
 
   static double ticktime = 0;
   static double temp = 0;
@@ -23,7 +23,7 @@ public class LedConstants {
   };
 
   public static void setRainbow(AddressableLEDBuffer ledBuffer) {
-    ticktime += 13;
+    ticktime += 20;
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       final double constant = i / (ledBuffer.getLength() * (Math.PI / 2));
       double green = Math.sin((ticktime / 200) + (constant));
@@ -54,7 +54,7 @@ public class LedConstants {
       if (i % 2 == 0) {
         ledBuffer.setLED(i, Color.kPurple);
       } else {
-        ledBuffer.setLED(i, Color.kGreen);
+        ledBuffer.setLED(i, Color.kLime);
       }
     }
   }
@@ -71,16 +71,17 @@ public class LedConstants {
   }
 
   public static void setAuto(AddressableLEDBuffer ledBuffer) {
-    ticktime += 0.1;
+    ticktime += 0.3;
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       temp = (i + ticktime) % 3;
       if (temp < 1) {
-        ledBuffer.setLED(i, Color.kYellowGreen);
-      } else if (temp < 2) {
-        ledBuffer.setLED(i, Color.kGreen);
-      } else if (temp < 3) {
         ledBuffer.setLED(i, Color.kGold);
+      } else if (temp < 2.4) {
+        ledBuffer.setLED(i, Color.kBlack);
       }
+      //  else if (temp < 3) {
+      //   ledBuffer.setLED(i, Color.kBlanchedAlmond);
+      // }
     }
   }
 
@@ -106,13 +107,14 @@ public class LedConstants {
     ticktime += 0.3;
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       temp = (i + ticktime) % 6;
-      if (temp < 1) {
-        ledBuffer.setLED(i, Color.kYellow);
-      } else if (temp > 3 && temp < 4) {
-        ledBuffer.setLED(i, Color.kLimeGreen);
+      if (temp < 2) {
+        ledBuffer.setLED(i, Color.kDarkMagenta);
       } else {
-        ledBuffer.setLED(i, Color.kGreen);
+        ledBuffer.setLED(i, Color.kDeepSkyBlue);
       }
+      // else {
+      //   ledBuffer.setLED(i, Color.kDeepSkyBlue);
+      // }
     }
   }
 
@@ -121,7 +123,7 @@ public class LedConstants {
     // (i spent an hour trying to fix something and learned that java lists in lists suck!)
     // REQUIRES FINAL GRID SHAPE DIMENSIONS, ASSUMES FORTH AND FORTH ONLY LAYERING!
     // (back and forth would be easy to do, edit some parts, add reverse list row code)
-    ticktime +=0.1;
+    ticktime += 0.3;
 
     for (int i = 0; i < shape[1]; i++) {
       grid[0][i] = Color.kBlack;
@@ -131,9 +133,9 @@ public class LedConstants {
         colorpool[(int) (Math.round(Math.random() * (colorpool.length - 1)))];
 
     for (int i = shape[0] - 1; i > 0; i -= 1) {
-      for (int ie = 0; ie < shape[1]; ie += 1) { 
+      for (int ie = 0; ie < shape[1]; ie += 1) {
         // THIS INSIDE FOR LOOP COST ME AN HOUR
-        grid[i][ie] = grid[i - 1][ie]; 
+        grid[i][ie] = grid[i - 1][ie];
       }
     }
 

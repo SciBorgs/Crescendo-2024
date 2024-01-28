@@ -5,7 +5,6 @@ import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -122,10 +121,10 @@ public class Robot extends CommandRobot implements Logged {
       should probably not be binded to a XBOX controller but instead used in other systems (ex.
       bagel/donut/note location)
     */
-    operator.a().onTrue(led.setTheme(LEDTheme.LIT));
+    operator.a().onTrue(led.setTheme(LEDTheme.RAINBOW));
     operator.b().onTrue(led.setTheme(LEDTheme.CHASE));
-    operator.x().onTrue(led.setColor(Color.kLime));
-    operator.y().onTrue(led.setTheme(LEDTheme.RAINDROP));
+    operator.x().onTrue(led.setTheme(LEDTheme.AUTO));
+    operator.y().onTrue(led.setTheme(LEDTheme.SCIBORGS));
   }
 
   @Override
