@@ -59,10 +59,6 @@ public class Shooting implements Logged {
         .alongWith(Commands.waitUntil(pivot::atSetpoint).andThen(shootStoredNote(desiredVelocity)));
   }
 
-  public boolean inShootingRange(Translation2d position) {
-    return true;
-  }
-
   public ShooterState getDesiredState2(Translation2d position) {
     double x0 = Math.floor(position.getX() / DATA_INTERVAL) * DATA_INTERVAL;
     double x1 = Math.ceil(position.getX() / DATA_INTERVAL) * DATA_INTERVAL;
