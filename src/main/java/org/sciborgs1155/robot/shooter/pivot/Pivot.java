@@ -1,7 +1,5 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
-import static edu.wpi.first.units.Units.*;
-
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -125,8 +123,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
-    positionVisualizer.setState(pivot.getPosition().getDegrees());
-    setpointVisualizer.setState(Degrees.convertFrom(pivotPID.getSetpoint().position, Radians));
+    positionVisualizer.setState(pivot.getPosition());
+    setpointVisualizer.setState(Rotation2d.fromRadians(pivotPID.getSetpoint().position));
   }
 
   @Override

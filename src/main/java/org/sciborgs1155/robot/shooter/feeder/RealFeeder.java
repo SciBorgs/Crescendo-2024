@@ -1,15 +1,11 @@
 package org.sciborgs1155.robot.shooter.feeder;
 
-import static edu.wpi.first.units.Units.Volts;
 import static org.sciborgs1155.robot.Ports.Shooter.Feeder.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.FeederConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Voltage;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
@@ -35,17 +31,12 @@ public class RealFeeder implements FeederIO {
   }
 
   @Override
-  public void set(Measure<Voltage> voltage) {
-    motor.set(voltage.in(Units.Volts));
+  public void set(double voltage) {
+    motor.setVoltage(voltage);
   }
 
   @Override
   public void close() throws Exception {
     motor.close();
-  }
-
-  @Override
-  public Measure<Voltage> getVoltage() {
-    return Volts.of(motor.getBusVoltage());
   }
 }

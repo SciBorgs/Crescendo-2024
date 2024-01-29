@@ -1,6 +1,6 @@
 package org.sciborgs1155.robot.shooter;
 
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Meters;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,11 +25,7 @@ public class Shooting implements Logged {
   private final Hashtable<Translation2d, ShooterState> shootingData;
 
   /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
-  public static record ShooterState(Rotation2d angle, double speed) {
-    public static ShooterState create(double angle, double speed) {
-      return new ShooterState(Rotation2d.fromRadians(angle), speed);
-    }
-  }
+  public static record ShooterState(Rotation2d angle, double speed) {}
 
   public Shooting(Flywheel flywheel, Pivot pivot, Feeder feeder) {
     this(flywheel, pivot, feeder, new Hashtable<Translation2d, ShooterState>());
@@ -50,7 +46,7 @@ public class Shooting implements Logged {
   public Command shootStoredNote(DoubleSupplier desiredVelocity) {
     return Commands.parallel(
         flywheel.runFlywheel(() -> desiredVelocity.getAsDouble()),
-        Commands.waitUntil(flywheel::atSetpoint).andThen(feeder.runFeeder(Volts.of(1))));
+        Commands.waitUntil(flywheel::atSetpoint).andThen(feeder.runFeeder(1)));
   }
 
   public Command pivotThenShoot(Supplier<Rotation2d> goalAngle, DoubleSupplier desiredVelocity) {
@@ -73,13 +69,15 @@ public class Shooting implements Logged {
 
   /** uses bilinear interpolation ({@link https://en.wikipedia.org/wiki/Bilinear_interpolation}) */
   public ShooterState desiredState(Translation2d position) throws Exception {
-    double x0 = Math.floor(position.getX() / DATA_INTERVAL) * DATA_INTERVAL;
-    double x1 = Math.ceil(position.getX() / DATA_INTERVAL) * DATA_INTERVAL;
-    double y0 = Math.floor(position.getY() / DATA_INTERVAL) * DATA_INTERVAL;
-    double y1 = Math.ceil(position.getY() / DATA_INTERVAL) * DATA_INTERVAL;
+    double intervalMeters = DATA_INTERVAL.in(Meters);
 
-    double x_dist = (position.getX() - x0) / DATA_INTERVAL;
-    double y_dist = (position.getY() - y0) / DATA_INTERVAL;
+    double x0 = Math.floor(position.getX() / intervalMeters) * intervalMeters;
+    double x1 = Math.ceil(position.getX() / intervalMeters) * intervalMeters;
+    double y0 = Math.floor(position.getY() / intervalMeters) * intervalMeters;
+    double y1 = Math.ceil(position.getY() / intervalMeters) * intervalMeters;
+
+    double x_dist = (position.getX() - x0) / intervalMeters;
+    double y_dist = (position.getY() - y0) / intervalMeters;
 
     try {
       return interpolateStates(

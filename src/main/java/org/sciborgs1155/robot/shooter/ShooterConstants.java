@@ -5,12 +5,9 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.units.*;
 
 public class ShooterConstants {
-  public static final double DATA_INTERVAL = 2;
+  public static final Measure<Distance> DATA_INTERVAL = Meters.of(2);
 
   public static class FlywheelConstants {
-
-    public static final double METERS_PER_ROTATION = .3;
-    public static final double RPM_TO_MPS_CONVERSION = 60 * METERS_PER_ROTATION;
 
     public static final double GEARING = 1;
     public static final double MOI = 1;

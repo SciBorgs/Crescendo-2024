@@ -51,7 +51,7 @@ public class Robot extends CommandRobot implements Logged {
 
   @Log.NT private final Shooting shooter = new Shooting(flywheel, pivot, feeder);
 
-  @Log.NT private double speedMultiplier = Constants.FULL_SPEED;
+  @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
@@ -116,8 +116,8 @@ public class Robot extends CommandRobot implements Logged {
     driver
         .leftBumper()
         .or(driver.rightBumper())
-        .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED))
-        .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED));
+        .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER))
+        .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER));
 
     operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
   }
