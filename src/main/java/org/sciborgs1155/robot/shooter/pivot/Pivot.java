@@ -103,10 +103,6 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   @Log.NT
-  private double positionRadians() {
-    return getPosition().getRadians();
-  }
-
   public Rotation2d getPosition() {
     return pivot.getPosition();
   }
