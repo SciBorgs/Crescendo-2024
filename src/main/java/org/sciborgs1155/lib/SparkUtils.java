@@ -119,7 +119,7 @@ public class SparkUtils {
    * @param spark The motor object. This is either a CANSparkMax object or a CANSparkFlex object.
    * @param inverted The state of inversion. True if inverted.
    * @param idleMode Idle mode setting (either kCoast or kBrake).
-   * @param limit current limit in Amps.
+   * @param limit current limit.
    */
   public static void configureSettings(
       boolean inverted, IdleMode idleMode, Measure<Current> limit, CANSparkBase spark) {
@@ -136,7 +136,7 @@ public class SparkUtils {
    *     object.
    * @param inverted The state of inversion. True if inverted.
    * @param idleMode Idle mode setting (either kCoast or kBrake).
-   * @param limit current limit in Amps.
+   * @param limit current limit.
    */
   public static void configureSettings(
       boolean inverted, IdleMode idleMode, Measure<Current> limit, CANSparkBase... sparks) {
