@@ -12,6 +12,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.robot.shooter.Cache.ShooterState;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
@@ -23,9 +24,6 @@ public class Shooting implements Logged {
   @Log.NT private final Flywheel flywheel;
 
   private final Hashtable<Translation2d, ShooterState> shootingData;
-
-  /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
-  public static record ShooterState(Rotation2d angle, double speed) {}
 
   public Shooting(Flywheel flywheel, Pivot pivot, Feeder feeder) {
     this(flywheel, pivot, feeder, Cache.loadStates());
@@ -65,10 +63,6 @@ public class Shooting implements Logged {
     return new ShooterState(
         Rotation2d.fromRadians(interpolate(a.angle().getRadians(), b.angle().getRadians(), dist)),
         interpolate(a.speed(), b.speed(), dist));
-  }
-
-  public Hashtable<Translation2d, ShooterState> data() {
-    return shootingData;
   }
 
   /** uses bilinear interpolation ({@link https://en.wikipedia.org/wiki/Bilinear_interpolation}) */

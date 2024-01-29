@@ -10,11 +10,18 @@ import java.util.Hashtable;
 import java.util.Map;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.sciborgs1155.robot.shooter.Shooting.ShooterState;
 
 public class Cache {
   private static final String cacheFilename = "cached_shooter_states.json";
   private static Hashtable<Translation2d, ShooterState> data = new Hashtable<>();
+
+  /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
+  public static record ShooterState(Rotation2d angle, double speed) {
+    @Override
+    public String toString() {
+      return "{angle: " + angle.getRadians() + "; speed: " + speed + "}";
+    }
+  }
 
   private static Translation2d strToPoint(String str) {
     String[] asStrs = str.split(",");
@@ -58,16 +65,7 @@ public class Cache {
     for (Map.Entry<Translation2d, ShooterState> entry : d.entrySet()) {
       var p = entry.getKey();
       var s = entry.getValue();
-      str +=
-          "("
-              + p.getX()
-              + ", "
-              + p.getY()
-              + ") : {speed: "
-              + s.speed()
-              + "; angle: "
-              + s.angle().getRadians()
-              + "}\n";
+      str += "(" + p.getX() + ", " + p.getY() + ") : " + s + "\n";
     }
     return str;
   }

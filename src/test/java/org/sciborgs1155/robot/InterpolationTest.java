@@ -9,8 +9,8 @@ import java.util.Hashtable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.sciborgs1155.robot.shooter.Cache.ShooterState;
 import org.sciborgs1155.robot.shooter.Shooting;
-import org.sciborgs1155.robot.shooter.Shooting.ShooterState;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
@@ -42,17 +42,14 @@ public class InterpolationTest {
   }
 
   @Test
-  public void interpWithCasadiData() throws Exception {
-    var state = shootingReal.desiredState(new Translation2d(2, 2));
-    assertEquals(0.963, state.angle().getRadians());
-    assertEquals(7.692, state.speed());
-  }
+  public void lookupWithCasadiData() throws Exception {
+    var state1 = shootingReal.desiredState(new Translation2d(2, 2));
+    assertEquals(0.963, state1.angle().getRadians());
+    assertEquals(7.692, state1.speed());
 
-  @Test
-  public void interpAtKnownPoint() throws Exception {
-    var state = shootingReal.desiredState(new Translation2d(0.5, 0.5));
-    assertEquals(1.298, state.angle().getRadians());
-    assertEquals(6.479, state.speed());
+    var state2 = shootingReal.desiredState(new Translation2d(0.5, 0.5));
+    assertEquals(1.298, state2.angle().getRadians());
+    assertEquals(6.479, state2.speed());
   }
 
   @Test
