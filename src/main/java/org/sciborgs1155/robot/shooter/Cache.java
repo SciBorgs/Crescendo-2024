@@ -12,7 +12,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 public class Cache {
-  private static final String cacheFilename = "cached_shooter_states.json";
+  private static final String cacheFilename = "shooter_states_cache.json";
   private static Hashtable<Translation2d, ShooterState> data = new Hashtable<>();
 
   /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */

@@ -170,4 +170,4 @@ bin/
 *-window.json
 
 # shooter states cache
-cached_shooter_states.json
+shooter_states_cache.json

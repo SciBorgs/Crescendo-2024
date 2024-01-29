@@ -23,5 +23,5 @@ for x, y in points:
 
 json_results = json.dumps(results, indent=4)
 
-with open("src/main/deploy/cached_shooter_states.json", "w") as file:
+with open("src/main/deploy/shooter_states_cache.json", "w") as file:
     file.write(json_results)
