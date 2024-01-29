@@ -23,6 +23,10 @@ public class Cache {
     }
   }
 
+  public static void main(String[] args) throws Exception {
+    System.exit(runCasadi().exitValue());
+  }
+
   private static Translation2d strToPoint(String str) {
     String[] asStrs = str.split(",");
     return new Translation2d(Double.parseDouble(asStrs[0]), Double.parseDouble(asStrs[1]));
@@ -81,9 +85,5 @@ public class Cache {
     System.out.println("generating states...");
     casadi.waitFor();
     return casadi;
-  }
-
-  public static void main(String[] args) throws Exception {
-    System.exit(runCasadi().exitValue());
   }
 }
