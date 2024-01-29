@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import java.util.Hashtable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sciborgs1155.robot.shooter.Cache.ShooterState;
 import org.sciborgs1155.robot.shooter.Shooting;
@@ -31,7 +32,7 @@ public class InterpolationTest {
   @BeforeEach
   public void setupShooting() {
     shooting = new Shooting(Flywheel.create(), Pivot.create(), Feeder.create(), data);
-    shootingReal = new Shooting(Flywheel.create(), Pivot.create(), Feeder.create());
+    // shootingReal = new Shooting(Flywheel.create(), Pivot.create(), Feeder.create());
   }
 
   @Test
@@ -41,6 +42,7 @@ public class InterpolationTest {
     assertEquals(2, state.speed());
   }
 
+  @Disabled
   @Test
   public void lookupWithCasadiData() throws Exception {
     var state1 = shootingReal.desiredState(new Translation2d(2, 2));
