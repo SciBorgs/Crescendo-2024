@@ -168,3 +168,6 @@ bin/
 
 # Simulation GUI and other tools window save file
 *-window.json
+
+# shooter states cache
+cached_shooter_states.json
