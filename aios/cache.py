@@ -1,12 +1,12 @@
 import json
 from trajectory import Trajectory
 
-interval = 2
+interval = 0.5
 
 points = []
 
-for i in range(1, 6):
-    for j in range(1, 6):
+for i in range(1, 15):
+    for j in range(1, 15):
         points += [(i * interval, j * interval)]
 
 results = {}
@@ -23,5 +23,5 @@ for x, y in points:
 
 json_results = json.dumps(results, indent=4)
 
-with open("cached_shooter_states.json", "w") as file:
+with open("src/main/deploy/cached_shooter_states.json", "w") as file:
     file.write(json_results)

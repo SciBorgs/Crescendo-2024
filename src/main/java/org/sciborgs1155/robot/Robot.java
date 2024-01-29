@@ -6,8 +6,11 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -19,9 +22,12 @@ import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
-import org.sciborgs1155.robot.commands.Autos;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
+import org.sciborgs1155.robot.shooter.Shooting;
+import org.sciborgs1155.robot.shooter.feeder.Feeder;
+import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
+import org.sciborgs1155.robot.shooter.pivot.Pivot;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -36,15 +42,22 @@ public class Robot extends CommandRobot implements Logged {
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
   // SUBSYSTEMS
-  private final Drive drive = Drive.create();
+  @Log.NT private final Drive drive = Drive.create();
+
+  private final Flywheel flywheel = Flywheel.create();
+  private final Feeder feeder = Feeder.create();
+  private final Pivot pivot = Pivot.create();
 
   // COMMANDS
-  @Log.NT private final Autos autos = new Autos();
+  @Log.NT private final SendableChooser<Command> autos = AutoBuilder.buildAutoChooser();
 
-  @Log.NT private double speedMultiplier = Constants.FULL_SPEED;
+  @Log.NT private final Shooting shooter = new Shooting(flywheel, pivot, feeder);
+
+  @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
+    registerCommands();
     configureGameBehavior();
     configureSubsystemDefaults();
     configureBindings();
@@ -98,15 +111,22 @@ public class Robot extends CommandRobot implements Logged {
                 DriveConstants.MAX_ANGULAR_ACCEL.in(RadiansPerSecond.per(Second)))));
   }
 
+  /** Registers all named commands, which will be used by pathplanner */
+  private void registerCommands() {
+    // EX: NamedCommands.registerCommand(name, command);
+  }
+
   /** Configures trigger -> command bindings */
   private void configureBindings() {
-    autonomous().whileTrue(new ProxyCommand(autos::get));
+    autonomous().whileTrue(new ProxyCommand(autos::getSelected));
     FaultLogger.onFailing(f -> Commands.print(f.toString()));
 
     driver
         .leftBumper()
         .or(driver.rightBumper())
-        .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED))
-        .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED));
+        .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER))
+        .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER));
+
+    operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
   }
 }
