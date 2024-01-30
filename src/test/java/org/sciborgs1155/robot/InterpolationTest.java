@@ -40,6 +40,8 @@ public class InterpolationTest {
     var state = shooting.desiredState(new Translation2d(1, 1));
     assertEquals(25, state.angle().getDegrees(), 1e-10);
     assertEquals(2, state.speed());
+    var state2 = shooting.desiredState(new Translation2d(0.5, 0.5));
+    assertEquals(27.5, state2.angle().getDegrees());
   }
 
   @Disabled
