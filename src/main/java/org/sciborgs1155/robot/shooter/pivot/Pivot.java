@@ -6,9 +6,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+
+import static edu.wpi.first.units.Units.Volts;
+
 import java.util.function.Supplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -19,6 +25,7 @@ import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.ClimbConst
 
 public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   @Log.NT private final PivotIO pivot;
+  private final SysIdRoutine sysIdRoutineoogabooga;
 
   // pivot control
   public final ProfiledPIDController pivotPID =
@@ -56,6 +63,12 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   public Pivot(PivotIO pivot) {
     this.pivot = pivot;
+    sysIdRoutineoogabooga = new SysIdRoutine(new SysIdRoutine.Config(), new SysIdRoutine.Mechanism((v) -> pivot.setVoltage(v.in(Volts)), null, this, "pivotSysId"));
+
+    SmartDashboard.putData("quasistaticForward", quasistaticForward());
+    SmartDashboard.putData("quasistaticBack", quasistaticBack());
+    SmartDashboard.putData("dynamicForward", dynamicForward());
+    SmartDashboard.putData("dynamicBack", dynamicBack());
   }
 
   /**
@@ -115,6 +128,22 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   @Log.NT
   private double setpointRadians() {
     return pivotPID.getSetpoint().position;
+  }
+
+  public Command quasistaticForward() {
+    return sysIdRoutineoogabooga.quasistatic(Direction.kForward);
+  }
+
+  public Command quasistaticBack() {
+    return sysIdRoutineoogabooga.quasistatic(Direction.kReverse);
+  }
+
+  public Command dynamicForward() {
+    return sysIdRoutineoogabooga.dynamic(Direction.kForward);
+  }
+
+  public Command dynamicBack() {
+    return sysIdRoutineoogabooga.dynamic(Direction.kReverse);
   }
 
   @Override
