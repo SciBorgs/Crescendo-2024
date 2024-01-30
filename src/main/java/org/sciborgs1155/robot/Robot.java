@@ -38,7 +38,8 @@ public class Robot extends CommandRobot implements Logged {
 
   // SUBSYSTEMS
   private final Drive drive = Drive.create();
-  private final Intake intake = new Intake(x -> {}); // CHANGE THIS WHEN THERES A REAL INTAKE
+  private final Intake intake =
+      Intake.create(false); // CHANGE THIS TO TRUE WHEN THERES A REAL INTAKE
 
   // COMMANDS
   @Log.NT private final Autos autos = new Autos();

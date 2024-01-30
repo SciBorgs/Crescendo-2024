@@ -24,13 +24,25 @@ public class Intake extends SubsystemBase implements Logged {
   }
 
   /**
-   * Creates intake with a real motor. THERE MIGHT BE A RESOURCE LEAK.
+   * Creates an intake.
    *
-   * @return
+   * @param isReal If the robot is real or not.
+   * @return New intake object.
    */
-  public static Intake create() {
-    CANSparkFlex spark =
-        new CANSparkFlex(IntakeConstants.INTAKE_DEVICE_ID, MotorType.kBrushless); // RESOURCE LEAK!
-    return new Intake(spark::setVoltage);
+  public static Intake create(boolean isReal) {
+    if (isReal) {
+      return new Intake(
+          new Consumer<Double>() {
+            private final CANSparkFlex spark =
+                new CANSparkFlex(IntakeConstants.INTAKE_DEVICE_ID, MotorType.kBrushless);
+
+            @Override
+            public void accept(Double t) {
+              spark.set(t);
+            }
+          });
+    }
+
+    return new Intake(t -> {});
   }
 }
