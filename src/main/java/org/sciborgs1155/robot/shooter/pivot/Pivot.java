@@ -1,5 +1,7 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,9 +14,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
-import static edu.wpi.first.units.Units.Volts;
-
 import java.util.function.Supplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -63,7 +62,11 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   public Pivot(PivotIO pivot) {
     this.pivot = pivot;
-    sysIdRoutineoogabooga = new SysIdRoutine(new SysIdRoutine.Config(), new SysIdRoutine.Mechanism((v) -> pivot.setVoltage(v.in(Volts)), null, this, "pivotSysId"));
+    sysIdRoutineoogabooga =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                (v) -> pivot.setVoltage(v.in(Volts)), null, this, "pivotSysId"));
 
     SmartDashboard.putData("quasistaticForward", quasistaticForward());
     SmartDashboard.putData("quasistaticBack", quasistaticBack());

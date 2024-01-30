@@ -2,13 +2,12 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -20,9 +19,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import monologue.Monologue;
-
-import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.*;
-
 import org.littletonrobotics.urcl.URCL;
 import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
@@ -135,13 +131,12 @@ public class Robot extends CommandRobot implements Logged {
 
     operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
 
-    //shooting into speaker when up to subwoofer
-    operator.x().toggleOnTrue(
-      shooting.pivotThenShoot(
-        () -> new Rotation2d(PRESET_SUBWOOFER_ANGLE), 
-        () -> PRESET_SUBWOOFER_VELOCITY.in(RadiansPerSecond)));
-
-    operator.b().toggleOnTrue(
-      shooting.shootStoredNote(() -> RadiansPerSecond.of(operator.getLeftX()).in(RadiansPerSecond)));
+    // shooting into speaker when up to subwoofer
+    operator
+        .x()
+        .toggleOnTrue(
+            shooting.pivotThenShoot(
+                () -> new Rotation2d(PRESET_SUBWOOFER_ANGLE),
+                () -> PRESET_SUBWOOFER_VELOCITY.in(RadiansPerSecond)));
   }
 }

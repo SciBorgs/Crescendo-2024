@@ -1,5 +1,7 @@
 package org.sciborgs1155.robot.shooter.flywheel;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -7,9 +9,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
-import static edu.wpi.first.units.Units.Volts;
-
 import java.util.function.DoubleSupplier;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
@@ -32,8 +31,12 @@ public class Flywheel extends SubsystemBase implements AutoCloseable, Logged {
 
   public Flywheel(FlywheelIO flywheel) {
     this.flywheel = flywheel;
-    sysIdoogabooga = new SysIdRoutine(new SysIdRoutine.Config(), new SysIdRoutine.Mechanism((v) -> flywheel.setVoltage(v.in(Volts)), null, this, "flywheel"));
-  
+    sysIdoogabooga =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                (v) -> flywheel.setVoltage(v.in(Volts)), null, this, "flywheel"));
+
     SmartDashboard.putData("quasistaticBack", quasistaticBack());
     SmartDashboard.putData("quasistaticForward", quasistaticForward());
     SmartDashboard.putData("dynamicBack", dynamicBack());
