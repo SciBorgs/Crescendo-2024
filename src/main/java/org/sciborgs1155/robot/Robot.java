@@ -121,10 +121,10 @@ public class Robot extends CommandRobot implements Logged {
       should probably not be binded to a XBOX controller but instead used in other systems (ex.
       bagel/donut/note location)
     */
-    operator.a().onTrue(led.setTheme(LEDTheme.RAINBOW));
-    operator.b().onTrue(led.setTheme(LEDTheme.CHASE));
-    operator.x().onTrue(led.setTheme(LEDTheme.AUTO));
-    operator.y().onTrue(led.setTheme(LEDTheme.SCIBORGS));
+    operator.a().onTrue(led.setTheme(LEDTheme.IN_INTAKE_INRANGE));
+    operator.b().onTrue(led.setTheme(LEDTheme.IN_INTAKE_OUTRANGE));
+    operator.x().onTrue(led.setTheme(LEDTheme.RAINBOW));
+    operator.y().onTrue(led.setTheme(LEDTheme.RAINDROP));
   }
 
   @Override

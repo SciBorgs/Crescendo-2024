@@ -20,9 +20,12 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
     SCIBORGS, // Yellow 50%, Dark Grey 50%
     FEMAIDENS, // Yellow 50%, Green 50%
     BXSCIFLASH, // Yellow ??%, Green ??%, moving
-    IN_INTAKE, // Look at Constants, Orange 100%
-    IN_PASSING, // Look at Constants, Grey 100% (but they write it as gray)
-    IN_SHOOTER, // Look at Constants, Green 100%
+    IN_INTAKE_INRANGE, // Look at Constants and Code Below
+    IN_PASSING_INRANGE, // Look at Constants and Code Below
+    IN_SHOOTER_INRANGE, // Look at Constants and Code Below
+    IN_INTAKE_OUTRANGE, // Look at Constants and Code Below
+    IN_PASSING_OUTRANGE, // Look at Constants and Code Below
+    IN_SHOOTER_OUTRANGE, // Look at Constants and Code Below
     AUTO, // Yellow Green 33%, Green 33%, Gold 33% , moving
     LIT, // Suppose to look like fire
     CHASE, // Looks like those store lights chasing eachother in a loop
@@ -55,16 +58,34 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
         setBXSCIFlash(ledBuffer);
         led.setData(ledBuffer);
         break;
-      case IN_INTAKE:
-        setSolidColor(INTAKE_COLOR); // these colors are defined in constants
+      case IN_INTAKE_INRANGE:
+        // these colors are defined in constants, meant for when the robot is IN shooting range
+        setSolidColor(INTAKE_COLOR);
         led.setData(ledBuffer);
         break;
-      case IN_PASSING:
-        setSolidColor(PASSING_COLOR); // these colors are defined in constants
+      case IN_PASSING_INRANGE:
+        // these colors are defined in constants, meant for when the robot is IN shooting range
+        setSolidColor(PASSING_COLOR);
         led.setData(ledBuffer);
         break;
-      case IN_SHOOTER:
-        setSolidColor(SHOOTER_COLOR); // these colors are defined in constants
+      case IN_SHOOTER_INRANGE:
+        // these colors are defined in constants, meant for when the robot is IN shooting range
+        setSolidColor(SHOOTER_COLOR);
+        led.setData(ledBuffer);
+        break;
+      case IN_INTAKE_OUTRANGE:
+        // these colors are defined in constants, meant for when robot is OUT of shooting range
+        setSplitColor(INTAKE_COLOR, OUTOFRANGE_COLOR);
+        led.setData(ledBuffer);
+        break;
+      case IN_PASSING_OUTRANGE:
+        // these colors are defined in constants, meant for when robot is OUT of shooting range
+        setSplitColor(PASSING_COLOR, OUTOFRANGE_COLOR);
+        led.setData(ledBuffer);
+        break;
+      case IN_SHOOTER_OUTRANGE:
+        // these colors are defined in constants, meant for when robot is OUT of shooting range
+        setSplitColor(SHOOTER_COLOR, OUTOFRANGE_COLOR);
         led.setData(ledBuffer);
         break;
       case AUTO:
@@ -103,6 +124,17 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
     led.setData(ledBuffer);
   }
 
+  public void setSplitColor(Color color1, Color color2) {
+    for (int i = 0; i < ledBuffer.getLength(); i++) {
+      if (i % 2 == 0) {
+        ledBuffer.setLED(i, color1);
+      } else {
+        ledBuffer.setLED(i, color2);
+      }
+    }
+    led.setData(ledBuffer);
+  }
+
   private String[] ledBufferData = new String[ledBuffer.getLength()];
 
   public String[] getBufferData() {
@@ -124,6 +156,10 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
 
   public Command setColor(Color color) {
     return run(() -> setSolidColor(color));
+  }
+
+  public Command setHalfHalfColor(Color color1, Color color2) {
+    return run(() -> setSplitColor(color1, color2));
   }
 
   @Override

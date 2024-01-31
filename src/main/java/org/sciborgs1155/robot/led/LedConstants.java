@@ -4,9 +4,11 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 
 public class LedConstants {
-  public static final Color INTAKE_COLOR = Color.kOrange;
+  public static final Color INTAKE_COLOR = Color.kYellow;
   public static final Color PASSING_COLOR = Color.kGray;
   public static final Color SHOOTER_COLOR = Color.kGreen;
+  public static final Color OUTOFRANGE_COLOR = Color.kRed;
+
   public static final int LEDLENGTH = 30; // change to be length of LED strip?
 
   static double ticktime = 0;
@@ -15,7 +17,7 @@ public class LedConstants {
   // 1 tick = 0.005 seconds    200 ticks = 1 second (minecraft gameticks x20 speed)
 
   // specifically for raindrop
-  private static final int[] shape = {12, 10};
+  private static final int[] shape = {10, 3};
   // number of rows, then LEDs per row, REMEMBER TO CHANGE COLUMN NUMBER TO LEDS PER ROW IN THE SIM
   static Color[][] grid = new Color[shape[0]][shape[1]];
   private static final Color[] colorpool = {
@@ -125,12 +127,14 @@ public class LedConstants {
     // (back and forth would be easy to do, edit some parts, add reverse list row code)
     ticktime += 0.3;
 
-    for (int i = 0; i < shape[1]; i++) {
-      grid[0][i] = Color.kBlack;
+    if (Math.round(Math.random()) == 0) {
+      for (int i = 0; i < shape[1]; i++) {
+        grid[0][i] = Color.kBlack;
+      }
+    } else {
+      grid[0][(int) (Math.round(Math.random() * (shape[1] - 1)))] =
+          colorpool[(int) (Math.round(Math.random() * (colorpool.length - 1)))];
     }
-
-    grid[0][(int) (Math.round(Math.random() * (shape[1] - 1)))] =
-        colorpool[(int) (Math.round(Math.random() * (colorpool.length - 1)))];
 
     for (int i = shape[0] - 1; i > 0; i -= 1) {
       for (int ie = 0; ie < shape[1]; ie += 1) {
