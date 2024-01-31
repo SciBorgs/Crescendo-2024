@@ -26,6 +26,7 @@ import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
+import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.shooter.Shooting;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
@@ -49,6 +50,8 @@ public class Robot extends CommandRobot implements Logged {
   private final Flywheel flywheel = Flywheel.create();
   private final Feeder feeder = Feeder.create();
   private final Pivot pivot = Pivot.create();
+  private final Intake intake =
+      Intake.create(false); // CHANGE THIS TO TRUE WHEN THERES A REAL INTAKE
 
   // COMMANDS
   @Log.NT private final SendableChooser<Command> autos = AutoBuilder.buildAutoChooser();
