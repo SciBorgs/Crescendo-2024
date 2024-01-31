@@ -25,7 +25,6 @@ public class Vision {
   private List<PhotonCameraSim> cameraSimList = new ArrayList<PhotonCameraSim>();
   private VisionSystemSim visionSim;
 
-
   public Vision(VisionConstants.CameraConfig... cameras) {
     // this.frontCamera = new PhotonCamera(VisionConstants.FRONT_CAMERA_NAME);
     // this.rearCamera = new PhotonCamera(VisionConstants.REAR_CAMERA_NAME);
