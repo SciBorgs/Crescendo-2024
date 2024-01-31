@@ -1,48 +1,33 @@
 package org.sciborgs1155.robot.intake;
 
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.function.Consumer;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import monologue.Logged;
+import org.sciborgs1155.robot.intake.IntakeIO.RealIntake;
+import org.sciborgs1155.robot.intake.IntakeIO.NoIntake;
 
 public class Intake extends SubsystemBase implements Logged {
-  private final Consumer<Double> motor;
+  private final IntakeIO intake;
 
-  public Intake(Consumer<Double> motor) {
-    this.motor = motor;
-    setDefaultCommand(run(() -> motor.accept(0.)));
+  public Intake(IntakeIO intake) {
+    this.intake = intake;
+    setDefaultCommand(run(() -> intake.setPower(0)));
   }
 
   public Command intake() {
-    return run(() -> motor.accept(IntakeConstants.INTAKE_SPEED));
+    return run(() -> intake.setPower(IntakeConstants.INTAKE_SPEED));
   }
 
   public Command outtake() {
-    return run(() -> motor.accept(-IntakeConstants.INTAKE_SPEED));
+    return run(() -> intake.setPower(-IntakeConstants.INTAKE_SPEED));
   }
 
-  /**
-   * Creates an intake.
-   *
-   * @param isReal If the robot is real or not.
-   * @return New intake object.
-   */
+  public Trigger holdingNote() {
+    return new Trigger(intake::getBeambreakStatus);
+  }
+
   public static Intake create(boolean isReal) {
-    if (isReal) {
-      return new Intake(
-          new Consumer<Double>() {
-            private final CANSparkFlex spark =
-                new CANSparkFlex(IntakeConstants.INTAKE_DEVICE_ID, MotorType.kBrushless);
-
-            @Override
-            public void accept(Double t) {
-              spark.set(t);
-            }
-          });
-    }
-
-    return new Intake(t -> {});
+    return isReal ? new Intake(new RealIntake()) : new Intake(new NoIntake());
   }
 }
