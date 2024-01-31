@@ -22,6 +22,7 @@ import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.Autos;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
+import org.sciborgs1155.robot.vision.Vision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -37,11 +38,14 @@ public class Robot extends CommandRobot implements Logged {
 
   // SUBSYSTEMS
   private final Drive drive = Drive.create();
+  private final Vision vision = new Vision(null);
 
   // COMMANDS
   @Log.NT private final Autos autos = new Autos();
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED;
+
+  // @Log.NT private double simPosition = 0;
 
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
@@ -63,6 +67,11 @@ public class Robot extends CommandRobot implements Logged {
       URCL.start();
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
+
+      addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), 0.02);
+
+      // addPeriodic((simPosition)->vision::simulationPeriodic, kDefaultPeriod);
+
     }
   }
 

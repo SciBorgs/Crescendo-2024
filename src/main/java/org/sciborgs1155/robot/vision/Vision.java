@@ -6,9 +6,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -19,56 +19,53 @@ import org.photonvision.simulation.VisionSystemSim;
 import org.sciborgs1155.robot.Robot;
 
 public class Vision {
-  private final PhotonCamera frontCamera;
-  private final PhotonCamera rearCamera;
-  private final PhotonPoseEstimator frontPhotonEstimator;
-  private final PhotonPoseEstimator rearPhotonEstimator;
-  private double lastEstTimestamp = 0;
 
-  // Simulation
-  private PhotonCameraSim cameraSim;
+  private List<PhotonCamera> cameraList = new ArrayList<PhotonCamera>();
+  private List<PhotonPoseEstimator> poseEstimatorList = new ArrayList<PhotonPoseEstimator>();
+  private List<PhotonCameraSim> cameraSimList = new ArrayList<PhotonCameraSim>();
   private VisionSystemSim visionSim;
 
-  public Vision() {
-    this.frontCamera = new PhotonCamera(VisionConstants.FRONT_CAMERA_NAME);
-    this.rearCamera = new PhotonCamera(VisionConstants.REAR_CAMERA_NAME);
 
-    frontPhotonEstimator =
-        new PhotonPoseEstimator(
-            VisionConstants.TAG_LAYOUT,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            frontCamera,
-            VisionConstants.ROBOT_TO_CAM);
+  public Vision(VisionConstants.CameraConfig... cameras) {
+    // this.frontCamera = new PhotonCamera(VisionConstants.FRONT_CAMERA_NAME);
+    // this.rearCamera = new PhotonCamera(VisionConstants.REAR_CAMERA_NAME);
+    boolean isSimulation = Robot.isSimulation();
+    if (isSimulation) {
+      this.visionSim = new VisionSystemSim("main");
+      this.visionSim.addAprilTags(null);
+    }
 
-    frontPhotonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-    rearPhotonEstimator =
-        new PhotonPoseEstimator(
-            VisionConstants.TAG_LAYOUT,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            rearCamera,
-            VisionConstants.ROBOT_TO_CAM);
-    rearPhotonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    for (int i = 0; i < cameras.length; i++) {
+      PhotonCamera curCamera = new PhotonCamera(cameras[i].name());
+      PhotonPoseEstimator curPoseEstimator =
+          new PhotonPoseEstimator(
+              VisionConstants.TAG_LAYOUT,
+              PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+              curCamera,
+              cameras[i].robotToCam());
 
-    // ----- Simulation
-    if (Robot.isSimulation()) {
-      // Create the vision system simulation which handles cameras and targets on the field.
-      visionSim = new VisionSystemSim("main");
-      // Add all the AprilTags inside the tag layout as visible targets to this simulated field.
-      visionSim.addAprilTags(VisionConstants.TAG_LAYOUT);
-      // Create simulated camera properties. These can be set to mimic your actual camera.
-      var cameraProp = new SimCameraProperties();
-      cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(90));
-      cameraProp.setCalibError(0.35, 0.10);
-      cameraProp.setFPS(15);
-      cameraProp.setAvgLatencyMs(50);
-      cameraProp.setLatencyStdDevMs(15);
-      // Create a PhotonCameraSim which will update the linked PhotonCamera's values with visible
-      // targets.
-      cameraSim = new PhotonCameraSim(frontCamera, cameraProp);
-      // Add the simulated camera to view the targets on this simulated field.
-      visionSim.addCamera(cameraSim, VisionConstants.ROBOT_TO_CAM);
+      curPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
-      cameraSim.enableDrawWireframe(true);
+      // Adding cameras and pose estimators to respective lists
+      this.cameraList.add(curCamera);
+      this.poseEstimatorList.add(curPoseEstimator);
+
+      if (isSimulation) {
+        // If robot is in simulation, cameraSims will be instantiated and added to respective list
+        PhotonCameraSim cameraSim;
+        var cameraProp = new SimCameraProperties();
+        cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(90));
+        cameraProp.setCalibError(0.35, 0.10);
+        cameraProp.setFPS(15);
+        cameraProp.setAvgLatencyMs(50);
+        cameraProp.setLatencyStdDevMs(15);
+
+        cameraSim = new PhotonCameraSim(curCamera, cameraProp);
+        // Add the simulated camera to view the targets on this simulated field.
+        this.visionSim.addCamera(cameraSim, cameras[i].robotToCam());
+
+        cameraSim.enableDrawWireframe(true);
+      }
     }
   }
 
@@ -79,31 +76,17 @@ public class Vision {
    * @return An {@link EstimatedRobotPose} with an estimated pose, estimate timestamp, and targets
    *     used for estimation.
    */
-  public Optional<EstimatedRobotPose> getEstimatedGlobalPose(
-      PhotonPoseEstimator poseEstimator, PhotonCamera camera) {
-    var visionEst = poseEstimator.update();
-
-    double latestTimestamp = camera.getLatestResult().getTimestampSeconds();
-    boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
-    if (Robot.isSimulation()) {
-      visionEst.ifPresentOrElse(
-          est ->
-              getSimDebugField()
-                  .getObject("VisionEstimation")
-                  .setPose(est.estimatedPose.toPose2d()),
-          () -> {
-            if (newResult) getSimDebugField().getObject("VisionEstimation").setPoses();
-          });
-    }
-    if (newResult) lastEstTimestamp = latestTimestamp;
-    return visionEst;
-  }
-
   public EstimatedRobotPose[] getEstimatedGlobalPoses() {
+    return poseEstimatorList.stream()
+        .map(PhotonPoseEstimator::update)
+        .flatMap(Optional::stream)
+        .toArray(EstimatedRobotPose[]::new);
+    /*
     return Stream.of(frontPhotonEstimator, rearPhotonEstimator)
         .map(PhotonPoseEstimator::update)
         .flatMap(Optional::stream)
         .toArray(EstimatedRobotPose[]::new);
+    */
   }
 
   /**
@@ -150,8 +133,4 @@ public class Vision {
   }
 
   /** A Field2d for visualizing our robot and objects on the field. */
-  public Field2d getSimDebugField() {
-    if (!Robot.isSimulation()) return null;
-    return visionSim.getDebugField();
-  }
 }

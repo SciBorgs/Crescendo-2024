@@ -11,12 +11,18 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
 public class VisionConstants {
+  public static record CameraConfig(String name, Transform3d robotToCam) {}
+
   public static final AprilTagFieldLayout TAG_LAYOUT = null;
 
-  public static final String FRONT_CAMERA_NAME = "placeholder";
-  public static final String REAR_CAMERA_NAME = "placeholder";
-  public static final Transform3d ROBOT_TO_CAM =
-      new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+  public static final CameraConfig FRONT_CAMERA_CONFIG =
+      new CameraConfig(
+          "placeholder",
+          new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0)));
+  public static final CameraConfig SIDE_CAMERA_CONFIG =
+      new CameraConfig(
+          "placeholder",
+          new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0)));
 
   // The layout of the AprilTags on the field
   public static final AprilTagFieldLayout kTagLayout =
