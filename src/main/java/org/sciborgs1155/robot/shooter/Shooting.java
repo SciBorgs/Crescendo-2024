@@ -55,7 +55,7 @@ public class Shooting implements Logged {
 
   private static double interpolate(double a, double b, double dist) {
     assert 0 <= dist && dist <= 1;
-    return a * dist + b * (1 - dist);
+    return a * (1 - dist) + b * dist;
   }
 
   private static ShooterState interpolateStates(ShooterState a, ShooterState b, double dist) {

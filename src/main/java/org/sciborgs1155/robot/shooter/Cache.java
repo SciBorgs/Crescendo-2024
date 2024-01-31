@@ -2,6 +2,7 @@ package org.sciborgs1155.robot.shooter;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import java.io.File;
 import java.io.FileReader;
@@ -13,6 +14,7 @@ import org.json.simple.parser.JSONParser;
 
 public class Cache {
   private static final String cacheFilename = "shooter_states_cache.json";
+  private static final File cacheFile = new File(Filesystem.getDeployDirectory(), cacheFilename);
   private static Hashtable<Translation2d, ShooterState> data = new Hashtable<>();
 
   /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
@@ -37,10 +39,12 @@ public class Cache {
         Rotation2d.fromRadians((double) dict.get("angle")), (double) dict.get("speed"));
   }
 
+  /** the loading is not type safe, if it doesn't work a blank table will be generated */
   public static Hashtable<Translation2d, ShooterState> loadStates() {
     try {
       return loadStatesThrows();
     } catch (Exception e) {
+      DriverStation.reportError("cannot read from json! Returning blank table", false);
       return new Hashtable<>();
     }
   }
@@ -48,7 +52,7 @@ public class Cache {
   @SuppressWarnings("unchecked")
   private static Hashtable<Translation2d, ShooterState> loadStatesThrows()
       throws IOException, InterruptedException, org.json.simple.parser.ParseException {
-    FileReader reader = new FileReader(new File(Filesystem.getDeployDirectory(), cacheFilename));
+    FileReader reader = new FileReader(cacheFile);
     JSONParser parser = new JSONParser();
     JSONObject obj = (JSONObject) parser.parse(reader);
 
@@ -57,7 +61,7 @@ public class Cache {
           if (k instanceof String && v instanceof JSONObject) {
             data.put(strToPoint((String) k), dictToState((JSONObject) v));
           } else {
-            throw new RuntimeException("something has gone wroooonnnnggg!!");
+            throw new RuntimeException("can't read from json!!");
           }
         });
 
