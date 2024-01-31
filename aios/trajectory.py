@@ -95,7 +95,7 @@ class Trajectory:
 
 
         opti.minimize( 
-           ( self.angleWeight * deltaTheta ** 2) + (self.speedWeight * deltaV ** 2)
+           ( self.angleWeight * deltaTheta ** 2) + (self.speedWeight * deltaV ** 2) #angle weight should be made into a percent
         )
 
         opti.subject_to(
@@ -146,8 +146,10 @@ class Trajectory:
             self.vx * ((abs(self.y)) / (self.vy + (self.launchSpeed + deltaV) * casadi.cos(deltaTheta + self.currentAngleState))) + self.x
         )
         opti.solver('ipopt')
-
-        solutions = opti.solve()
+        try:
+            solutions = opti.solve()
+        except:
+            return ValueError("No calculations for shooting available at this position.")
 
 
         return {
