@@ -19,6 +19,7 @@
       "/Robot/drive/rearLeft/turnFeedback": "PIDController",
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
+      "/Robot/drive/rotationController": "ProfiledPIDController",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",
       "/SmartDashboard/drive quasistatic backward": "Command",

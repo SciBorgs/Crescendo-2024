@@ -1,12 +1,11 @@
 package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -70,7 +69,7 @@ public class Robot extends CommandRobot implements Logged {
   }
 
   /** Creates an input stream for a joystick. */
-  private InputStream createJoystickStream(InputStream input, double maxSpeed, double maxRate) {
+  private InputStream createJoystickStream(InputStream input, double maxSpeed) {
     return input
         .deadband(Constants.DEADBAND, 1)
         .negate()
@@ -88,16 +87,10 @@ public class Robot extends CommandRobot implements Logged {
         drive.drive(
             createJoystickStream(
                 driver::getLeftY, // account for roborio (and navx) facing wrong direction
-                DriveConstants.MAX_SPEED.in(MetersPerSecond),
-                DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond)),
+                DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+            createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
             createJoystickStream(
-                driver::getLeftX,
-                DriveConstants.MAX_SPEED.in(MetersPerSecond),
-                DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond)),
-            createJoystickStream(
-                driver::getRightX,
-                DriveConstants.MAX_ANGULAR_SPEED.in(RadiansPerSecond),
-                DriveConstants.MAX_ANGULAR_ACCEL.in(RadiansPerSecond.per(Second)))));
+                driver::getRightX, DriveConstants.MAX_ANGULAR_SPEED.in(RadiansPerSecond))));
   }
 
   /** Registers all named commands, which will be used by pathplanner */
@@ -111,6 +104,21 @@ public class Robot extends CommandRobot implements Logged {
     FaultLogger.onFailing(f -> Commands.print(f.toString()));
 
     driver.b().whileTrue(drive.zeroHeading());
+    driver
+        .x()
+        .toggleOnTrue(
+            drive
+                .driveFacingTarget(
+                    createJoystickStream(
+                        driver::getLeftY, // account for roborio (and navx) facing wrong direction
+                        DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+                    createJoystickStream(
+                        driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+                    Translation2d::new)
+                .until(
+                    () ->
+                        Math.abs(Math.hypot(driver.getRightX(), driver.getRightY()))
+                            > Constants.DEADBAND));
 
     driver
         .leftBumper()

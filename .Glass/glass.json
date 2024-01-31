@@ -1,5 +1,6 @@
 {
   "NetworkTables": {
+    "properties": true,
     "transitory": {
       "Robot": {
         "drive": {
@@ -36,15 +37,20 @@
                 "open": true
               },
               "open": true
-            },
-            "open": true
+            }
           },
-          "open": true
+          "open": true,
+          "rotationController": {
+            "open": true
+          }
         },
         "open": true
       },
       "SmartDashboard": {
-        "open": true
+        "open": true,
+        "turn quasistatic forward": {
+          "open": true
+        }
       }
     },
     "types": {
@@ -59,6 +65,7 @@
       "/Robot/drive/rearLeft/turnFeedback": "PIDController",
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
+      "/Robot/drive/rotationController": "ProfiledPIDController",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",
       "/SmartDashboard/drive quasistatic backward": "Command",

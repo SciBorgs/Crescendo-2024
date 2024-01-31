@@ -14,6 +14,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -66,6 +67,14 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   private final SysIdRoutine turnRoutine;
 
   private final AHRS gyro = new AHRS();
+
+  @Log.NT
+  private final ProfiledPIDController rotationController =
+      new ProfiledPIDController(
+          Rotation.P,
+          Rotation.I,
+          Rotation.D,
+          new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
 
   /**
    * A factory to create a new drive subsystem based on whether the robot is being ran in simulation
@@ -129,6 +138,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
       modules2d[i] = field2d.getObject("module-" + module.name);
     }
 
+    rotationController.enableContinuousInput(0, 2 * Math.PI);
+
     SmartDashboard.putData("drive quasistatic forward", driveSysIdQuasistatic(Direction.kForward));
     SmartDashboard.putData("drive dynamic forward", driveSysIdDynamic(Direction.kForward));
     SmartDashboard.putData("drive quasistatic backward", driveSysIdQuasistatic(Direction.kReverse));
@@ -184,6 +195,11 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     odometry.resetPosition(getHeading(), getModulePositions(), pose);
   }
 
+  public Command driveFacingTarget(
+      InputStream vx, InputStream vy, Supplier<Translation2d> translation) {
+    return drive(vx, vy, () -> translation.get().minus(getPose().getTranslation()).getAngle());
+  }
+
   /**
    * Drives the robot based on a {@link InputStream} for field relative x y and omega velocities.
    *
@@ -209,12 +225,12 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @return The driving command.
    */
   public Command drive(InputStream vx, InputStream vy, Supplier<Rotation2d> heading) {
-    var pid =
-        new ProfiledPIDController(
-            Rotation.P,
-            Rotation.I,
-            Rotation.D,
-            new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
+    // var pid =
+    //     new ProfiledPIDController(
+    //         Rotation.P,
+    //         Rotation.I,
+    //         Rotation.D,
+    //         new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
 
     return run(
         () ->
@@ -222,7 +238,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                 new ChassisSpeeds(
                     vx.get(),
                     vy.get(),
-                    pid.calculate(
+                    rotationController.calculate(
                         getPose().getRotation().getRadians(), heading.get().getRadians()))));
   }
 
