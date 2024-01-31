@@ -277,7 +277,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   /** Returns the module states. */
   @Log.NT
-  private SwerveModuleState[] getModuleStates() {
+  public SwerveModuleState[] getModuleStates() {
     return modules.stream().map(SwerveModule::state).toArray(SwerveModuleState[]::new);
   }
 
@@ -289,7 +289,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   /** Returns the module positions */
   @Log.NT
-  private SwerveModulePosition[] getModulePositions() {
+  public SwerveModulePosition[] getModulePositions() {
     return modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
   }
 
