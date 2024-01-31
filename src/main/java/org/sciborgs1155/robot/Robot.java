@@ -2,9 +2,14 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.*;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -16,9 +21,12 @@ import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
-import org.sciborgs1155.robot.commands.Autos;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
+import org.sciborgs1155.robot.shooter.Shooting;
+import org.sciborgs1155.robot.shooter.feeder.Feeder;
+import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
+import org.sciborgs1155.robot.shooter.pivot.Pivot;
 import org.sciborgs1155.robot.led.Leds;
 import org.sciborgs1155.robot.led.Leds.LEDTheme;
 
@@ -35,16 +43,23 @@ public class Robot extends CommandRobot implements Logged {
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
   // SUBSYSTEMS
-  private final Drive drive = Drive.create();
+  @Log.NT private final Drive drive = Drive.create();
+
+  private final Flywheel flywheel = Flywheel.create();
+  private final Feeder feeder = Feeder.create();
+  private final Pivot pivot = Pivot.create();
   private final Leds led = new Leds();
 
   // COMMANDS
-  @Log.NT private final Autos autos = new Autos();
+  @Log.NT private final SendableChooser<Command> autos = AutoBuilder.buildAutoChooser();
 
-  @Log.NT private double speedMultiplier = Constants.FULL_SPEED;
+  @Log.NT private final Shooting shooting = new Shooting(flywheel, pivot, feeder);
+
+  @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
+    registerCommands();
     configureGameBehavior();
     configureSubsystemDefaults();
     configureBindings();
@@ -98,33 +113,31 @@ public class Robot extends CommandRobot implements Logged {
                 DriveConstants.MAX_ANGULAR_ACCEL.in(RadiansPerSecond.per(Second)))));
   }
 
+  /** Registers all named commands, which will be used by pathplanner */
+  private void registerCommands() {
+    // EX: NamedCommands.registerCommand(name, command);
+  }
+
   /** Configures trigger -> command bindings */
   private void configureBindings() {
-    autonomous().whileTrue(new ProxyCommand(autos::get));
+    autonomous().whileTrue(new ProxyCommand(autos::getSelected));
     FaultLogger.onFailing(f -> Commands.print(f.toString()));
 
     driver
         .leftBumper()
         .or(driver.rightBumper())
-        .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED))
-        .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED));
+        .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER))
+        .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER));
 
-    /*
-      currently configured to keyboard 1 in joystick[0], controls are m,./
-      look in Leds.java and LedConstants.java for all themes and what they look like
-      (or just allow it to print the Led data and read the hex values)
+    operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
 
-      you can also use led.setTheme(LEDTheme.BXSCIFLASH); to set a premade theme
-      you can also use led.setColor(Color.kOrange); to set a single color
-
-      note: unless a strategy is to confuse opponents with flashing lights to hypnotise them, this
-      should probably not be binded to a XBOX controller but instead used in other systems (ex.
-      bagel/donut/note location)
-    */
-    operator.a().onTrue(led.setTheme(LEDTheme.IN_INTAKE_INRANGE));
-    operator.b().onTrue(led.setTheme(LEDTheme.IN_INTAKE_OUTRANGE));
-    operator.x().onTrue(led.setTheme(LEDTheme.RAINBOW));
-    operator.y().onTrue(led.setTheme(LEDTheme.RAINDROP));
+    // shooting into speaker when up to subwoofer
+    operator
+        .x()
+        .toggleOnTrue(
+            shooting.pivotThenShoot(
+                () -> new Rotation2d(PRESET_SUBWOOFER_ANGLE),
+                () -> PRESET_SUBWOOFER_VELOCITY.in(RadiansPerSecond)));
   }
 
   @Override
