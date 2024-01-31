@@ -7,7 +7,7 @@ import monologue.Logged;
 import org.sciborgs1155.robot.intake.IntakeIO.RealIntake;
 import org.sciborgs1155.robot.intake.IntakeIO.NoIntake;
 
-public class Intake extends SubsystemBase implements Logged {
+public class Intake extends SubsystemBase implements Logged, AutoCloseable {
   private final IntakeIO intake;
 
   public Intake(IntakeIO intake) {
@@ -29,5 +29,10 @@ public class Intake extends SubsystemBase implements Logged {
 
   public static Intake create(boolean isReal) {
     return isReal ? new Intake(new RealIntake()) : new Intake(new NoIntake());
+  }
+
+  @Override
+  public void close() throws Exception {
+      intake.close();
   }
 }
