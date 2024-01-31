@@ -1,8 +1,14 @@
 package org.sciborgs1155.robot.drive;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
 
 /** Generalized gyroscope. Pigeon2, Navx, and SimGyro are to be implemented */
 public interface GyroIO extends AutoCloseable {
@@ -10,7 +16,7 @@ public interface GyroIO extends AutoCloseable {
   public default void calibrate() {}
 
   /** Returns the rate of rotation. */
-  public double getRate();
+  public Measure<Velocity<Angle>> getAngularVelocity();
 
   /** Returns the heading of the robot as a Rotation2d. */
   public default Rotation2d getRotation2d() {
@@ -24,11 +30,12 @@ public interface GyroIO extends AutoCloseable {
   public void reset();
 
   /** GyroIO implementation for NavX */
-  public class NavX implements GyroIO {
+  public static class NavX implements GyroIO {
     private final AHRS ahrs = new AHRS();
+    private final MutableMeasure<Velocity<Angle>> angleRate = MutableMeasure.zero(RadiansPerSecond);
 
-    public double getRate() {
-      return ahrs.getRate();
+    public Measure<Velocity<Angle>> getAngularVelocity() {
+      return angleRate.mut_replace(ahrs.getRate(), DegreesPerSecond);
     }
 
     @Override
@@ -45,14 +52,15 @@ public interface GyroIO extends AutoCloseable {
   }
 
   /** GyroIO implementation for nonexistent gyro */
-  public class NoGyro implements GyroIO {
+  public static class NoGyro implements GyroIO {
+    private final Measure<Velocity<Angle>> angleRate = RadiansPerSecond.zero();
 
     @Override
     public void close() throws Exception {}
 
     @Override
-    public double getRate() {
-      return 0;
+    public Measure<Velocity<Angle>> getAngularVelocity() {
+      return angleRate;
     }
 
     @Override

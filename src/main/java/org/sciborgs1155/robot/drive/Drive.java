@@ -18,6 +18,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
@@ -100,13 +103,13 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
-                volts -> modules.forEach(m -> m.setDriveVoltage(volts.in(Volts))), null, this));
+                volts -> modules.forEach(m -> m.setDriveVoltage(volts)), null, this));
 
     turnRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
-                volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))), null, this));
+                volts -> modules.forEach(m -> m.setTurnVoltage(volts)), null, this));
 
     odometry =
         new SwerveDrivePoseEstimator(
@@ -311,7 +314,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   /** Locks the drive motors. */
   private Command lockDriveMotors() {
-    return Commands.run(() -> modules.forEach(m -> m.updateDriveSpeed(0)));
+    Measure<Velocity<Distance>> velocity = MetersPerSecond.of(0);
+    return Commands.run(() -> modules.forEach(m -> m.updateDriveSpeed(velocity)));
   }
 
   /** Locks the turn motors. */

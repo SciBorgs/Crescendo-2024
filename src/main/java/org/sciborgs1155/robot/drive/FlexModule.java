@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot.drive;
 
 import static edu.wpi.first.units.Units.*;
-import static org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.COUPLING_RATIO;
 
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -12,6 +11,11 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import java.util.Set;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.SparkUtils;
@@ -29,6 +33,9 @@ public class FlexModule implements ModuleIO {
   private final SparkAbsoluteEncoder turningEncoder;
 
   private final Rotation2d angularOffset;
+  private final MutableMeasure<Distance> drivePos = MutableMeasure.zero(Meters);
+  private final MutableMeasure<Velocity<Distance>> driveVelocity =
+      MutableMeasure.zero(MetersPerSecond);
 
   /**
    * Constructs a SwerveModule for rev's MAX Swerve.
@@ -75,26 +82,25 @@ public class FlexModule implements ModuleIO {
   }
 
   @Override
-  public void setDriveVoltage(double voltage) {
-    driveMotor.setVoltage(voltage);
+  public void setDriveVoltage(Measure<Voltage> voltage) {
+    driveMotor.setVoltage(voltage.in(Volts));
   }
 
   @Override
-  public void setTurnVoltage(double voltage) {
-    turnMotor.setVoltage(voltage);
+  public void setTurnVoltage(Measure<Voltage> voltage) {
+    turnMotor.setVoltage(voltage.in(Volts));
   }
 
   @Override
-  public double getDrivePosition() {
-    double driveRot = driveEncoder.getPosition();
+  public Measure<Distance> getDrivePosition() {
+    drivePos.mut_replace(driveEncoder.getPosition(), Meters);
     // account for rotation of turn motor on rotation of drive motor
-    driveRot -= turningEncoder.getPosition() * COUPLING_RATIO;
-    return driveRot;
+    return drivePos.mut_minus(turningEncoder.getPosition(), Meters);
   }
 
   @Override
-  public double getDriveVelocity() {
-    return driveEncoder.getVelocity();
+  public Measure<Velocity<Distance>> getDriveVelocity() {
+    return driveVelocity.mut_replace(driveEncoder.getVelocity(), MetersPerSecond);
   }
 
   @Override

@@ -11,6 +11,11 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
@@ -23,6 +28,10 @@ public class TalonModule implements ModuleIO {
   private final CANSparkMax turnMotor;
 
   private final SparkAbsoluteEncoder turnEncoder;
+
+  private final MutableMeasure<Distance> drivePos = MutableMeasure.zero(Meters);
+  private final MutableMeasure<Velocity<Distance>> driveVelocity =
+      MutableMeasure.zero(MetersPerSecond);
 
   public TalonModule(int drivePort, int turnPort) {
     driveMotor = new TalonFX(drivePort);
@@ -52,23 +61,23 @@ public class TalonModule implements ModuleIO {
   }
 
   @Override
-  public void setDriveVoltage(double voltage) {
-    driveMotor.setVoltage(voltage);
+  public void setDriveVoltage(Measure<Voltage> voltage) {
+    driveMotor.setVoltage(voltage.in(Volts));
   }
 
   @Override
-  public void setTurnVoltage(double voltage) {
-    turnMotor.setVoltage(voltage);
+  public void setTurnVoltage(Measure<Voltage> voltage) {
+    turnMotor.setVoltage(voltage.in(Volts));
   }
 
   @Override
-  public double getDrivePosition() {
-    return driveMotor.getPosition().getValueAsDouble();
+  public Measure<Distance> getDrivePosition() {
+    return drivePos.mut_replace(driveMotor.getPosition().getValueAsDouble(), Meters);
   }
 
   @Override
-  public double getDriveVelocity() {
-    return driveMotor.getVelocity().getValueAsDouble();
+  public Measure<Velocity<Distance>> getDriveVelocity() {
+    return driveVelocity.mut_replace(driveMotor.getVelocity().getValueAsDouble(), MetersPerSecond);
   }
 
   @Override
