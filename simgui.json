@@ -40,7 +40,13 @@
       "/Robot/shooter/pivot/measurement": "Mechanism2d",
       "/Robot/shooter/pivot/setpoint": "Mechanism2d",
       "/Robot/shooter/setpoint": "Mechanism2d",
-      "/SmartDashboard/drive quasistatic forward": "Command"
+      "/Robot/shooting/pivot/measurement": "Mechanism2d",
+      "/Robot/shooting/pivot/setpoint": "Mechanism2d",
+      "/SmartDashboard/drive quasistatic forward": "Command",
+      "/SmartDashboard/dynamicBack": "Command",
+      "/SmartDashboard/dynamicForward": "Command",
+      "/SmartDashboard/quasistaticBack": "Command",
+      "/SmartDashboard/quasistaticForward": "Command"
     },
     "windows": {
       "/Robot/autos": {
@@ -67,16 +73,6 @@
         "right": 2961,
         "top": 79,
         "width": 16.541748046875,
-        "window": {
-          "visible": true
-        }
-      },
-      "/Robot/shooter/pivot/measurement": {
-        "window": {
-          "visible": true
-        }
-      },
-      "/Robot/shooter/pivot/setpoint": {
         "window": {
           "visible": true
         }
@@ -167,6 +163,7 @@
             0.0,
             0.8500000238418579
           ],
+          "height": 80,
           "series": [
             {
               "color": [
@@ -190,7 +187,8 @@
         }
       ],
       "window": {
-        "name": "Pivot"
+        "name": "Pivot",
+        "visible": false
       }
     }
   }

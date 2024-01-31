@@ -5,8 +5,12 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 import java.util.Hashtable;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -16,7 +20,7 @@ import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
 
-public class Shooting implements Logged {
+public class Shooting extends SubsystemBase implements Logged {
 
   @Log.NT private final Feeder feeder;
   @Log.NT private final Pivot pivot;
@@ -93,5 +97,10 @@ public class Shooting implements Logged {
     } catch (Exception e) {
       throw (new Exception("cannot shoot from this position!"));
     }
+  }
+
+  public boolean canShoot(){
+    //please code
+    return true;
   }
 }

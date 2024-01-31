@@ -8,7 +8,9 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
@@ -111,6 +113,8 @@ public class Robot extends CommandRobot implements Logged {
                 driver::getRightX,
                 DriveConstants.MAX_ANGULAR_SPEED.in(RadiansPerSecond),
                 DriveConstants.MAX_ANGULAR_ACCEL.in(RadiansPerSecond.per(Second)))));
+    // led.setDefaultCommand(led.setTheme(LEDTheme.RAINBOW));
+
   }
 
   /** Registers all named commands, which will be used by pathplanner */
@@ -133,16 +137,24 @@ public class Robot extends CommandRobot implements Logged {
 
     // shooting into speaker when up to subwoofer
     operator
-        .x()
+        .x().and(() -> shooting.canShoot())
         .toggleOnTrue(
             shooting.pivotThenShoot(
                 () -> new Rotation2d(PRESET_SUBWOOFER_ANGLE),
                 () -> PRESET_SUBWOOFER_VELOCITY.in(RadiansPerSecond)));
+    operator
+        .x().and(() -> shooting.canShoot())
+        .onTrue(led.setColor(Color.kWheat));
+    
   }
 
   @Override
   public void close() {
     led.close();
     super.close();
+  }
+
+  public Command rumble(){
+    return Commands.run(() -> operator.getHID().setRumble(RumbleType.kBothRumble, 0.5));
   }
 }
