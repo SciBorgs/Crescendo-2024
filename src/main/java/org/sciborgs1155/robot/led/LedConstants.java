@@ -4,10 +4,11 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 
 public class LedConstants {
-  public static final Color INTAKE_COLOR = Color.kYellow;
-  public static final Color PASSING_COLOR = Color.kGray;
+  public static final Color INTAKE_COLOR = Color.kOrange;
+  public static final Color PASSING_COLOR = Color.kYellow;
   public static final Color SHOOTER_COLOR = Color.kGreen;
   public static final Color OUTOFRANGE_COLOR = Color.kRed;
+  public static final Color NO_BAGEL_COLOR = Color.kBrown;
 
   public static final int LEDLENGTH = 30; // change to be length of LED strip?
 

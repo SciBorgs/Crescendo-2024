@@ -140,6 +140,9 @@
           "setpoint": {
             "open": true
           }
+        },
+        "shooting": {
+          "open": true
         }
       },
       "Shuffleboard": {

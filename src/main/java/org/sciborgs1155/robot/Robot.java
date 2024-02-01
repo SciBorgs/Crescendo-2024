@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
@@ -25,12 +24,12 @@ import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
+import org.sciborgs1155.robot.led.Leds;
+import org.sciborgs1155.robot.led.Leds.LEDTheme;
 import org.sciborgs1155.robot.shooter.Shooting;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
-import org.sciborgs1155.robot.led.Leds;
-import org.sciborgs1155.robot.led.Leds.LEDTheme;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -113,8 +112,8 @@ public class Robot extends CommandRobot implements Logged {
                 driver::getRightX,
                 DriveConstants.MAX_ANGULAR_SPEED.in(RadiansPerSecond),
                 DriveConstants.MAX_ANGULAR_ACCEL.in(RadiansPerSecond.per(Second)))));
-    // led.setDefaultCommand(led.setTheme(LEDTheme.RAINBOW));
 
+    led.setDefaultCommand(led.setBasedShootable(shooting.canShoot()));
   }
 
   /** Registers all named commands, which will be used by pathplanner */
@@ -137,15 +136,18 @@ public class Robot extends CommandRobot implements Logged {
 
     // shooting into speaker when up to subwoofer
     operator
-        .x().and(() -> shooting.canShoot())
+        .x()
+        .and(() -> shooting.canShoot())
         .toggleOnTrue(
             shooting.pivotThenShoot(
                 () -> new Rotation2d(PRESET_SUBWOOFER_ANGLE),
                 () -> PRESET_SUBWOOFER_VELOCITY.in(RadiansPerSecond)));
-    operator
-        .x().and(() -> shooting.canShoot())
-        .onTrue(led.setColor(Color.kWheat));
-    
+
+    // assuming x is shoot button, will rumble if cant shoot
+    operator.x().and(() -> !shooting.canShoot()).onTrue(rumble(RumbleType.kBothRumble, 0.5));
+    operator.a().onTrue(led.setTheme(LEDTheme.IN_INTAKE));
+    operator.b().onTrue(led.setTheme(LEDTheme.NO_BAGEL));
+    operator.y().onTrue(led.setTheme(LEDTheme.RAINBOW));
   }
 
   @Override
@@ -154,7 +156,7 @@ public class Robot extends CommandRobot implements Logged {
     super.close();
   }
 
-  public Command rumble(){
-    return Commands.run(() -> operator.getHID().setRumble(RumbleType.kBothRumble, 0.5));
+  public Command rumble(RumbleType rumbleType, double strength) {
+    return Commands.run(() -> operator.getHID().setRumble(rumbleType, strength));
   }
 }

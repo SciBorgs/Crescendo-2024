@@ -20,19 +20,20 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
     SCIBORGS, // Yellow 50%, Dark Grey 50%
     FEMAIDENS, // Yellow 50%, Green 50%
     BXSCIFLASH, // Yellow ??%, Green ??%, moving
-    IN_INTAKE_INRANGE, // Look at Constants and Code Below
-    IN_PASSING_INRANGE, // Look at Constants and Code Below
-    IN_SHOOTER_INRANGE, // Look at Constants and Code Below
-    IN_INTAKE_OUTRANGE, // Look at Constants and Code Below
-    IN_PASSING_OUTRANGE, // Look at Constants and Code Below
-    IN_SHOOTER_OUTRANGE, // Look at Constants and Code Below
+    NO_BAGEL, // Look at Constatnts and Code Below
+    IN_INTAKE, // Look at Constants and Code Below
+    IN_PASSING, // Look at Constants and Code Below
+    IN_SHOOTER, // Look at Constants and Code Below
     AUTO, // Yellow Green 33%, Green 33%, Gold 33% , moving
     LIT, // Suppose to look like fire
     CHASE, // Looks like those store lights chasing eachother in a loop
-    RAINDROP // falling notes thing, random colors drop from the top
+    RAINDROP, // falling notes thing, random colors drop from the top
+    NONE // does nothing
   }
 
   static double ticktime = 0;
+  static boolean inrange = false;
+  static LEDTheme lastTheme = LEDTheme.NONE;
 
   public Leds() {
     led.setLength(ledBuffer.getLength());
@@ -58,34 +59,40 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
         setBXSCIFlash(ledBuffer);
         led.setData(ledBuffer);
         break;
-      case IN_INTAKE_INRANGE:
-        // these colors are defined in constants, meant for when the robot is IN shooting range
-        setSolidColor(INTAKE_COLOR);
+      case NO_BAGEL:
+        // these colors are defined in constants
+        if (inrange) {
+          setSolidColor(NO_BAGEL_COLOR);
+        } else {
+          setSplitColor(NO_BAGEL_COLOR, OUTOFRANGE_COLOR);
+        }
         led.setData(ledBuffer);
         break;
-      case IN_PASSING_INRANGE:
-        // these colors are defined in constants, meant for when the robot is IN shooting range
-        setSolidColor(PASSING_COLOR);
+      case IN_INTAKE:
+        // these colors are defined in constants
+        if (inrange) {
+          setSolidColor(INTAKE_COLOR);
+        } else {
+          setSplitColor(INTAKE_COLOR, OUTOFRANGE_COLOR);
+        }
         led.setData(ledBuffer);
         break;
-      case IN_SHOOTER_INRANGE:
-        // these colors are defined in constants, meant for when the robot is IN shooting range
-        setSolidColor(SHOOTER_COLOR);
+      case IN_PASSING:
+        // these colors are defined in constants
+        if (inrange) {
+          setSolidColor(PASSING_COLOR);
+        } else {
+          setSplitColor(PASSING_COLOR, OUTOFRANGE_COLOR);
+        }
         led.setData(ledBuffer);
         break;
-      case IN_INTAKE_OUTRANGE:
-        // these colors are defined in constants, meant for when robot is OUT of shooting range
-        setSplitColor(INTAKE_COLOR, OUTOFRANGE_COLOR);
-        led.setData(ledBuffer);
-        break;
-      case IN_PASSING_OUTRANGE:
-        // these colors are defined in constants, meant for when robot is OUT of shooting range
-        setSplitColor(PASSING_COLOR, OUTOFRANGE_COLOR);
-        led.setData(ledBuffer);
-        break;
-      case IN_SHOOTER_OUTRANGE:
-        // these colors are defined in constants, meant for when robot is OUT of shooting range
-        setSplitColor(SHOOTER_COLOR, OUTOFRANGE_COLOR);
+      case IN_SHOOTER:
+        // these colors are defined in constants
+        if (inrange) {
+          setSolidColor(SHOOTER_COLOR);
+        } else {
+          setSplitColor(SHOOTER_COLOR, OUTOFRANGE_COLOR);
+        }
         led.setData(ledBuffer);
         break;
       case AUTO:
@@ -104,6 +111,8 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
         setRaindrop(ledBuffer);
         led.setData(ledBuffer);
         break;
+      case NONE:
+        break;
     }
 
     // documentation:
@@ -116,6 +125,16 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   // public LEDTheme getTheme() {
   //   return ledThemeNow;
   // }
+
+  public void setColorBasedOnShootability(boolean canShoot) {
+    if (lastTheme == LEDTheme.NO_BAGEL
+        || lastTheme == LEDTheme.IN_INTAKE
+        || lastTheme == LEDTheme.IN_PASSING
+        || lastTheme == LEDTheme.IN_SHOOTER) {
+      inrange = canShoot;
+      setLEDTheme(lastTheme);
+    }
+  }
 
   public void setSolidColor(Color color) {
     for (int i = 0; i < ledBuffer.getLength(); i++) {
@@ -150,16 +169,28 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
     return ("[" + String.join(",", getBufferData()) + "]");
   }
 
+  /** Command to set LedTheme LEDs (look at enum) */
   public Command setTheme(LEDTheme ledTheme) {
     return run(() -> setLEDTheme(ledTheme));
   }
 
+  /** Command to setSolidColor LEDs */
   public Command setColor(Color color) {
     return run(() -> setSolidColor(color));
   }
 
+  /** Command to setHalfHalfColor LEDs (50%,50%) */
   public Command setHalfHalfColor(Color color1, Color color2) {
     return run(() -> setSplitColor(color1, color2));
+  }
+
+  /**
+   * COMMAND TO UPDATE OUT OF RANGE BASED ON SHOOTABILITY BOOLEAN PASSED IN If last LEDTheme is
+   * about the bagel/note, theme will be updated to have a 50% OUT OF RANGE color on top of the
+   * bagel/note related LEDTheme
+   */
+  public Command setBasedShootable(boolean shootable) {
+    return run(() -> setColorBasedOnShootability(shootable));
   }
 
   @Override
