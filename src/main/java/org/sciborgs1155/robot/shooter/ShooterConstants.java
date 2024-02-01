@@ -43,7 +43,7 @@ public class ShooterConstants {
     public static final double kV = 0.5;
     public static final double kA = 1;
 
-    public static final int START_BEAMBREAK = -1;
+    public static final int FRONT_BEAMBREAK = -1;
     public static final int END_BEAMBREAK = -1;
   }
 

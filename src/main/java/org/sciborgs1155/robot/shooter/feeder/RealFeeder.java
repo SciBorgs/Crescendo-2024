@@ -15,14 +15,14 @@ import org.sciborgs1155.lib.SparkUtils.Sensor;
 public class RealFeeder implements FeederIO {
 
   private final CANSparkFlex motor;
-  private final DigitalInput startBeambreak;
+  private final DigitalInput frontBeambreak;
   private final DigitalInput endBeambreak;
 
   public RealFeeder() {
 
     motor = new CANSparkFlex(FEEDER_SPARK, MotorType.kBrushless);
 
-    startBeambreak = new DigitalInput(START_BEAMBREAK);
+    frontBeambreak = new DigitalInput(FRONT_BEAMBREAK);
     endBeambreak = new DigitalInput(END_BEAMBREAK);
 
     SparkUtils.configureSettings(false, IdleMode.kBrake, CURRENT_LIMIT, motor);
@@ -47,8 +47,8 @@ public class RealFeeder implements FeederIO {
   }
 
   @Override
-  public boolean getStartBeambreakValue() {
-    return startBeambreak.get();
+  public boolean getFrontBeambreakValue() {
+    return frontBeambreak.get();
   }
 
   @Override
