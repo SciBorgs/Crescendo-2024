@@ -6,6 +6,6 @@ import org.sciborgs1155.robot.intake.Intake;
 public class IntakeTest {
   @Test
   public void init() throws Exception {
-    Intake.create(true);
+    Intake.create(false);
   }
 }
