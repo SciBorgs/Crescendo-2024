@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sciborgs1155.robot.shooter.Shooting;
-import org.sciborgs1155.robot.shooter.feeder.Feeder;
-import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
-import org.sciborgs1155.robot.shooter.pivot.Pivot;
+import org.sciborgs1155.robot.commands.Shooting;
+import org.sciborgs1155.robot.feeder.Feeder;
+import org.sciborgs1155.robot.flywheel.Flywheel;
+import org.sciborgs1155.robot.pivot.Pivot;
 
 public class ShooterTest {
   Shooting shooter;

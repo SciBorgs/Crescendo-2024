@@ -1,4 +1,4 @@
-package org.sciborgs1155.robot.shooter.feeder;
+package org.sciborgs1155.robot.feeder;
 
 import static edu.wpi.first.units.Units.*;
 

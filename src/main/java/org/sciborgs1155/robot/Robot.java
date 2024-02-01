@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
-import static org.sciborgs1155.robot.shooter.flywheel.FlywheelConstants.*;
+import static org.sciborgs1155.robot.flywheel.FlywheelConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,12 +24,12 @@ import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
+import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
-import org.sciborgs1155.robot.shooter.Shooting;
-import org.sciborgs1155.robot.shooter.feeder.Feeder;
-import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
-import org.sciborgs1155.robot.shooter.pivot.Pivot;
+import org.sciborgs1155.robot.feeder.Feeder;
+import org.sciborgs1155.robot.flywheel.Flywheel;
+import org.sciborgs1155.robot.pivot.Pivot;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a

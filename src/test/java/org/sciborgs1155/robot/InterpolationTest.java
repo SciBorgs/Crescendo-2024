@@ -9,11 +9,11 @@ import java.util.Hashtable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sciborgs1155.robot.shooter.Shooting;
-import org.sciborgs1155.robot.shooter.Shooting.ShooterState;
-import org.sciborgs1155.robot.shooter.feeder.Feeder;
-import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
-import org.sciborgs1155.robot.shooter.pivot.Pivot;
+import org.sciborgs1155.robot.commands.Shooting;
+import org.sciborgs1155.robot.commands.Shooting.ShooterState;
+import org.sciborgs1155.robot.feeder.Feeder;
+import org.sciborgs1155.robot.flywheel.Flywheel;
+import org.sciborgs1155.robot.pivot.Pivot;
 
 public class InterpolationTest {
   private static Hashtable<Translation2d, ShooterState> data = new Hashtable<>();

@@ -1,7 +1,7 @@
-package org.sciborgs1155.robot.shooter.flywheel;
+package org.sciborgs1155.robot.flywheel;
 
 import static edu.wpi.first.units.Units.Seconds;
-import static org.sciborgs1155.robot.shooter.flywheel.FlywheelConstants.*;
+import static org.sciborgs1155.robot.flywheel.FlywheelConstants.*;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;

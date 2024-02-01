@@ -1,13 +1,12 @@
-package org.sciborgs1155.robot.shooter.pivot;
+package org.sciborgs1155.robot.pivot;
 
-import static edu.wpi.first.units.Units.Volts;
-import static org.sciborgs1155.robot.shooter.pivot.PivotConstants.*;
+import static edu.wpi.first.units.Units.*;
+import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -93,13 +92,11 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   public Command manualPivot(Supplier<Double> joystick) {
     return run(
         () -> {
-          double velocity = joystick.get() * PivotConstants.MAX_VELOCITY.in(Units.RadiansPerSecond);
-          double periodMovement = Constants.PERIOD.in(Units.Second) * velocity;
+          double velocity = joystick.get() * PivotConstants.MAX_VELOCITY.in(RadiansPerSecond);
+          double periodMovement = Constants.PERIOD.in(Second) * velocity;
           double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
           double setpoint =
-              Math.max(
-                  Math.min(PivotConstants.MAX_ANGLE.in(Units.Radians), draftSetpoint),
-                  PivotConstants.MIN_ANGLE.in(Units.Radians));
+              Math.max(Math.min(MAX_ANGLE.in(Radians), draftSetpoint), MIN_ANGLE.in(Radians));
           pivot.setVoltage(
               pivotPID.calculate(pivot.getPosition().getRadians(), setpoint)
                   + pivotFeedforward.calculate(setpoint, 0));

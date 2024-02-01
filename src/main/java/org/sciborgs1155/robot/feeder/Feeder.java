@@ -1,4 +1,4 @@
-package org.sciborgs1155.robot.shooter.feeder;
+package org.sciborgs1155.robot.feeder;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;

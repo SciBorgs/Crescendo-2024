@@ -1,4 +1,4 @@
-package org.sciborgs1155.robot.shooter.pivot;
+package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.Meters;
 

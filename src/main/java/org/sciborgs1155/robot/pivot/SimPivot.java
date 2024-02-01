@@ -1,7 +1,7 @@
-package org.sciborgs1155.robot.shooter.pivot;
+package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.*;
-import static org.sciborgs1155.robot.shooter.pivot.PivotConstants.*;
+import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;

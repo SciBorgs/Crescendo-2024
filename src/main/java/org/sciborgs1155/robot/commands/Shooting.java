@@ -1,26 +1,26 @@
-package org.sciborgs1155.robot.shooter;
+package org.sciborgs1155.robot.commands;
 
 import static edu.wpi.first.units.Units.Meters;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.Hashtable;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-import monologue.Annotations.Log;
-import monologue.Logged;
-import org.sciborgs1155.robot.shooter.feeder.Feeder;
-import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
-import org.sciborgs1155.robot.shooter.pivot.Pivot;
+import org.sciborgs1155.robot.feeder.Feeder;
+import org.sciborgs1155.robot.flywheel.Flywheel;
+import org.sciborgs1155.robot.pivot.Pivot;
 
-public class Shooting implements Logged {
+public class Shooting {
 
-  @Log.NT private final Feeder feeder;
-  @Log.NT private final Pivot pivot;
-  @Log.NT private final Flywheel flywheel;
+  private final Feeder feeder;
+  private final Pivot pivot;
+  private final Flywheel flywheel;
+  private final Measure<Distance> DATA_INTERVAL = Meters.of(2);
 
   private final Hashtable<Translation2d, ShooterState> shootingData;
 

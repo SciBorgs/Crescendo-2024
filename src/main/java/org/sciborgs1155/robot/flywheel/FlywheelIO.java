@@ -1,4 +1,4 @@
-package org.sciborgs1155.robot.shooter.flywheel;
+package org.sciborgs1155.robot.flywheel;
 
 public interface FlywheelIO extends AutoCloseable {
   public void setVoltage(double voltage);

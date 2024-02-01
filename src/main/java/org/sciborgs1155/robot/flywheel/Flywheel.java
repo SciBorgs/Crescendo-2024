@@ -1,7 +1,7 @@
-package org.sciborgs1155.robot.shooter.flywheel;
+package org.sciborgs1155.robot.flywheel;
 
 import static edu.wpi.first.units.Units.Volts;
-import static org.sciborgs1155.robot.shooter.flywheel.FlywheelConstants.*;
+import static org.sciborgs1155.robot.flywheel.FlywheelConstants.*;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
