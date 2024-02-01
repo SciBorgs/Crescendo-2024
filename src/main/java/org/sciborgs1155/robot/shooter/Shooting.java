@@ -91,7 +91,8 @@ public class Shooting implements Logged {
               x_dist),
           y_dist);
     } catch (Exception e) {
-      throw (new Exception("cannot shoot from this position!"));
+      throw (new Exception(
+          "cannot shoot from this position!")); // TODO this shouldn't be in the final code
     }
   }
 }
