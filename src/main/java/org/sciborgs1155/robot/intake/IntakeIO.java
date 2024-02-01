@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 public interface IntakeIO extends AutoCloseable {
   public void setPower(double percentage);
 
-  public boolean getBeambreakStatus();
+  public boolean getBeambreakValue();
 
   public static class RealIntake implements IntakeIO {
     private final CANSparkFlex spark =
@@ -20,7 +20,7 @@ public interface IntakeIO extends AutoCloseable {
     }
 
     @Override
-    public boolean getBeambreakStatus() {
+    public boolean getBeambreakValue() {
       return beambreak.get();
     }
 
@@ -38,7 +38,7 @@ public interface IntakeIO extends AutoCloseable {
     }
 
     @Override
-    public boolean getBeambreakStatus() {
+    public boolean getBeambreakValue() {
       return false;
     }
 

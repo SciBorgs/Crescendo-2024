@@ -24,7 +24,7 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Trigger holdingNote() {
-    return new Trigger(intake::getBeambreakStatus);
+    return new Trigger(intake::getBeambreakValue);
   }
 
   public static Intake create(boolean isReal) {
