@@ -32,6 +32,7 @@ public interface GyroIO extends AutoCloseable {
   public static class NavX implements GyroIO {
     private final AHRS ahrs = new AHRS();
 
+    @Override
     public Measure<Velocity<Angle>> getAngularVelocity() {
       return DegreesPerSecond.of(ahrs.getRate());
     }
@@ -41,6 +42,7 @@ public interface GyroIO extends AutoCloseable {
       return ahrs.getRotation3d();
     }
 
+    @Override
     public void reset() {
       ahrs.reset();
     }

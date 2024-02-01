@@ -74,10 +74,9 @@ public class Robot extends CommandRobot implements Logged {
     return input
         .deadband(Constants.DEADBAND, 1)
         .negate()
-        .scale(maxSpeed)
-        .scale(() -> speedMultiplier)
         .signedPow(2)
-        .rateLimit(maxRate);
+        .scale(maxSpeed)
+        .scale(() -> speedMultiplier);
   }
 
   /**
@@ -88,11 +87,11 @@ public class Robot extends CommandRobot implements Logged {
     drive.setDefaultCommand(
         drive.drive(
             createJoystickStream(
-                driver::getLeftX,
+                driver::getLeftY, // account for roborio (and navx) facing wrong direction
                 DriveConstants.MAX_SPEED.in(MetersPerSecond),
                 DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond)),
             createJoystickStream(
-                driver::getLeftY,
+                driver::getLeftX,
                 DriveConstants.MAX_SPEED.in(MetersPerSecond),
                 DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond)),
             createJoystickStream(
@@ -111,10 +110,12 @@ public class Robot extends CommandRobot implements Logged {
     autonomous().whileTrue(new ProxyCommand(autos::getSelected));
     FaultLogger.onFailing(f -> Commands.print(f.toString()));
 
+    driver.b().whileTrue(drive.zeroHeading());
+
     driver
         .leftBumper()
         .or(driver.rightBumper())
-        .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED))
-        .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED));
+        .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED))
+        .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED));
   }
 }
