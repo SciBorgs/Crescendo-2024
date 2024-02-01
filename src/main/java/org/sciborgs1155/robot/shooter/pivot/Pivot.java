@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
 import static edu.wpi.first.units.Units.Volts;
+import static org.sciborgs1155.robot.shooter.pivot.PivotConstants.*;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -19,8 +20,6 @@ import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
-import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants;
-import org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.ClimbConstants;
 
 public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   @Log.NT private final PivotIO pivot;

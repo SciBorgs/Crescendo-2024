@@ -1,7 +1,7 @@
 package org.sciborgs1155.robot.shooter.feeder;
 
 import static edu.wpi.first.units.Units.Seconds;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.FeederConstants.*;
+import static org.sciborgs1155.robot.shooter.feeder.FeederConstants.*;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;

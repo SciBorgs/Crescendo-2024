@@ -2,7 +2,7 @@ package org.sciborgs1155.robot.shooter.pivot;
 
 import static edu.wpi.first.units.Units.Radians;
 import static org.sciborgs1155.robot.Ports.Shooter.Pivot.*;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.*;
+import static org.sciborgs1155.robot.shooter.pivot.PivotConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;

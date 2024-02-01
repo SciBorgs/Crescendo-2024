@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.shooter.flywheel;
 
 import static edu.wpi.first.units.Units.Volts;
+import static org.sciborgs1155.robot.shooter.flywheel.FlywheelConstants.*;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -12,17 +13,14 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.function.DoubleSupplier;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
-import org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants;
 
 public class Flywheel extends SubsystemBase implements AutoCloseable, Logged {
   private final FlywheelIO flywheel;
   private final SysIdRoutine sysIdoogabooga;
 
-  private final PIDController flywheelPID =
-      new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
+  private final PIDController flywheelPID = new PIDController(kP, kI, kD);
 
-  private final SimpleMotorFeedforward flywheelFeedforward =
-      new SimpleMotorFeedforward(FlywheelConstants.kS, FlywheelConstants.kV, FlywheelConstants.kA);
+  private final SimpleMotorFeedforward flywheelFeedforward = new SimpleMotorFeedforward(kS, kV, kA);
 
   /** Creates real or simulated flywheel based on {@link Robot#isReal()} */
   public static Flywheel create() {

@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.*;
+import static org.sciborgs1155.robot.shooter.flywheel.FlywheelConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;

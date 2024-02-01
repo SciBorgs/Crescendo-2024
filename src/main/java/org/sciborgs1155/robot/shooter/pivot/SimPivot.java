@@ -1,10 +1,7 @@
 package org.sciborgs1155.robot.shooter.pivot;
 
-import static edu.wpi.first.units.Units.Kilograms;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Seconds;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.PivotConstants.*;
+import static edu.wpi.first.units.Units.*;
+import static org.sciborgs1155.robot.shooter.pivot.PivotConstants.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
