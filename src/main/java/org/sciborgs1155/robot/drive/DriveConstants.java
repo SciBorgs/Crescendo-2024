@@ -96,7 +96,8 @@ public final class DriveConstants {
       public static final double MOTOR_GEARING = 1.0 / 4.0 / 3.0;
       public static final double ENCODER_GEARING = 1;
 
-      public static final Measure<Angle> POSITION_FACTOR = Rotations.of(ENCODER_GEARING);
+      public static final Measure<Angle> POSITION_FACTOR =
+          Rotations.of(ENCODER_GEARING); // TODO what's up with rotation2ds vs measure<angle>?
       public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
       public static final boolean ENCODER_INVERTED = true;
