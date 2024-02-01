@@ -112,8 +112,6 @@ public class Robot extends CommandRobot implements Logged {
                 driver::getRightX,
                 DriveConstants.MAX_ANGULAR_SPEED.in(RadiansPerSecond),
                 DriveConstants.MAX_ANGULAR_ACCEL.in(RadiansPerSecond.per(Second)))));
-
-    led.setDefaultCommand(led.setBasedShootable(shooting.canShoot()));
   }
 
   /** Registers all named commands, which will be used by pathplanner */
@@ -145,9 +143,21 @@ public class Robot extends CommandRobot implements Logged {
 
     // assuming x is shoot button, will rumble if cant shoot
     operator.x().and(() -> !shooting.canShoot()).onTrue(rumble(RumbleType.kBothRumble, 0.5));
-    operator.a().onTrue(led.setTheme(LEDTheme.IN_INTAKE));
-    operator.b().onTrue(led.setTheme(LEDTheme.NO_BAGEL));
-    operator.y().onTrue(led.setTheme(LEDTheme.RAINBOW));
+    operator
+        .a()
+        .onTrue(
+            led.setTheme(LEDTheme.IN_INTAKE)
+                .andThen(() -> led.setBasedShootable(shooting.canShoot())));
+    operator
+        .b()
+        .onTrue(
+            led.setTheme(LEDTheme.NO_BAGEL)
+                .andThen(() -> led.setBasedShootable(shooting.canShoot())));
+    operator
+        .y()
+        .onTrue(
+            led.setTheme(LEDTheme.RAINBOW)
+                .andThen(() -> led.setBasedShootable(shooting.canShoot())));
   }
 
   @Override

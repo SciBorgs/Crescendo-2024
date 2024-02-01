@@ -100,7 +100,6 @@ public class Shooting extends SubsystemBase implements Logged {
 
   public boolean canShoot() {
     // please code real code here
-    System.out.println(shootability);
     return shootability;
   }
 }
