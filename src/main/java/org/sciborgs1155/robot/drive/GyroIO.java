@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 
 /** Generalized gyroscope. Pigeon2, Navx, and SimGyro are to be implemented */
@@ -32,10 +31,9 @@ public interface GyroIO extends AutoCloseable {
   /** GyroIO implementation for NavX */
   public static class NavX implements GyroIO {
     private final AHRS ahrs = new AHRS();
-    private final MutableMeasure<Velocity<Angle>> angleRate = MutableMeasure.zero(RadiansPerSecond);
 
     public Measure<Velocity<Angle>> getAngularVelocity() {
-      return angleRate.mut_replace(ahrs.getRate(), DegreesPerSecond);
+      return DegreesPerSecond.of(ahrs.getRate());
     }
 
     @Override

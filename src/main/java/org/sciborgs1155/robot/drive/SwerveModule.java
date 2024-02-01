@@ -11,7 +11,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import monologue.Annotations.Log;
@@ -29,10 +28,6 @@ public class SwerveModule implements Logged, AutoCloseable {
   private SwerveModuleState setpoint = new SwerveModuleState();
 
   public final String name;
-
-  private final MutableMeasure<Velocity<Distance>> driveVelocity =
-      MutableMeasure.zero(MetersPerSecond);
-  private final MutableMeasure<Voltage> turnVoltage = MutableMeasure.zero(Volts);
 
   /**
    * Constructs a SwerveModule for rev's MAX Swerve using vortexes (flex) or krakens (talon).
@@ -82,7 +77,7 @@ public class SwerveModule implements Logged, AutoCloseable {
   public void updateDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
     setpoint = SwerveModuleState.optimize(desiredState, module.getRotation());
-    updateDriveSpeed(driveVelocity.mut_replace(setpoint.speedMetersPerSecond, MetersPerSecond));
+    updateDriveSpeed(MetersPerSecond.of(setpoint.speedMetersPerSecond));
     updateTurnRotation(setpoint.angle);
   }
 
@@ -109,9 +104,8 @@ public class SwerveModule implements Logged, AutoCloseable {
    * @param rotation The desired rotation of the module.
    */
   void updateTurnRotation(Rotation2d rotation) {
-    turnVoltage.mut_replace(
-        turnFeedback.calculate(module.getRotation().getRadians(), rotation.getRadians()), Volts);
-    module.setTurnVoltage(turnVoltage);
+    module.setTurnVoltage(
+        Volts.of(turnFeedback.calculate(module.getRotation().getRadians(), rotation.getRadians())));
   }
 
   @Log.NT

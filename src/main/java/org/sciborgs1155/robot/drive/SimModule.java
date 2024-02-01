@@ -11,7 +11,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -32,10 +31,6 @@ public class SimModule implements ModuleIO {
           DCMotor.getNeo550(1),
           Turning.MOTOR_GEARING);
 
-  private final MutableMeasure<Distance> drivePos = MutableMeasure.zero(Meters);
-  private final MutableMeasure<Velocity<Distance>> driveVelocity =
-      MutableMeasure.zero(MetersPerSecond);
-
   @Override
   public void setDriveVoltage(Measure<Voltage> voltage) {
     drive.setInputVoltage(voltage.in(Volts));
@@ -50,12 +45,12 @@ public class SimModule implements ModuleIO {
 
   @Override
   public Measure<Distance> getDrivePosition() {
-    return drivePos.mut_replace(drive.getAngularPositionRad(), Meters);
+    return Meters.of(drive.getAngularPositionRad());
   }
 
   @Override
   public Measure<Velocity<Distance>> getDriveVelocity() {
-    return driveVelocity.mut_replace(drive.getAngularVelocityRadPerSec(), MetersPerSecond);
+    return MetersPerSecond.of(drive.getAngularVelocityRadPerSec());
   }
 
   @Override

@@ -13,7 +13,6 @@ import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import java.util.Set;
@@ -33,9 +32,6 @@ public class FlexModule implements ModuleIO {
   private final SparkAbsoluteEncoder turningEncoder;
 
   private final Rotation2d angularOffset;
-  private final MutableMeasure<Distance> drivePos = MutableMeasure.zero(Meters);
-  private final MutableMeasure<Velocity<Distance>> driveVelocity =
-      MutableMeasure.zero(MetersPerSecond);
 
   /**
    * Constructs a SwerveModule for rev's MAX Swerve.
@@ -93,14 +89,13 @@ public class FlexModule implements ModuleIO {
 
   @Override
   public Measure<Distance> getDrivePosition() {
-    drivePos.mut_replace(driveEncoder.getPosition(), Meters);
+    return Meters.of(driveEncoder.getPosition()).minus(Meters.of(turningEncoder.getPosition()));
     // account for rotation of turn motor on rotation of drive motor
-    return drivePos.mut_minus(turningEncoder.getPosition(), Meters);
   }
 
   @Override
   public Measure<Velocity<Distance>> getDriveVelocity() {
-    return driveVelocity.mut_replace(driveEncoder.getVelocity(), MetersPerSecond);
+    return MetersPerSecond.of(driveEncoder.getVelocity());
   }
 
   @Override

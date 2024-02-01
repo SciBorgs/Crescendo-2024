@@ -13,7 +13,6 @@ import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import java.util.Set;
@@ -28,10 +27,6 @@ public class TalonModule implements ModuleIO {
   private final CANSparkMax turnMotor;
 
   private final SparkAbsoluteEncoder turnEncoder;
-
-  private final MutableMeasure<Distance> drivePos = MutableMeasure.zero(Meters);
-  private final MutableMeasure<Velocity<Distance>> driveVelocity =
-      MutableMeasure.zero(MetersPerSecond);
 
   public TalonModule(int drivePort, int turnPort) {
     driveMotor = new TalonFX(drivePort);
@@ -72,12 +67,12 @@ public class TalonModule implements ModuleIO {
 
   @Override
   public Measure<Distance> getDrivePosition() {
-    return drivePos.mut_replace(driveMotor.getPosition().getValueAsDouble(), Meters);
+    return Meters.of(driveMotor.getPosition().getValueAsDouble());
   }
 
   @Override
   public Measure<Velocity<Distance>> getDriveVelocity() {
-    return driveVelocity.mut_replace(driveMotor.getVelocity().getValueAsDouble(), MetersPerSecond);
+    return MetersPerSecond.of(driveMotor.getVelocity().getValueAsDouble());
   }
 
   @Override
