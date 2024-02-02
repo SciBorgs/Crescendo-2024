@@ -39,15 +39,11 @@
               "open": true
             }
           },
-          "open": true,
-          "rotationController": {
-            "open": true
-          }
+          "open": true
         },
         "open": true
       },
       "SmartDashboard": {
-        "open": true,
         "turn quasistatic forward": {
           "open": true
         }

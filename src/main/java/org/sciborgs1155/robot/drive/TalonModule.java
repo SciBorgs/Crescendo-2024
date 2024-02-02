@@ -15,6 +15,7 @@ import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
+import org.sciborgs1155.lib.TalonUtils;
 import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Turning;
 
 /** Class to encapsulate a CTRE Talon Swerve module */
@@ -49,6 +50,8 @@ public class TalonModule implements ModuleIO {
     toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     toApply.CurrentLimits.SupplyCurrentLimit = 50;
     driveMotor.getConfigurator().apply(toApply);
+
+    TalonUtils.addMotor(driveMotor);
   }
 
   @Override
