@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
@@ -143,21 +144,9 @@ public class Robot extends CommandRobot implements Logged {
 
     // assuming x is shoot button, will rumble if cant shoot
     operator.x().and(() -> !shooting.canShoot()).onTrue(rumble(RumbleType.kBothRumble, 0.5));
-    operator
-        .a()
-        .onTrue(
-            led.setTheme(LEDTheme.IN_INTAKE)
-                .andThen(() -> led.setBasedShootable(shooting.canShoot())));
-    operator
-        .b()
-        .onTrue(
-            led.setTheme(LEDTheme.NO_BAGEL)
-                .andThen(() -> led.setBasedShootable(shooting.canShoot())));
-    operator
-        .y()
-        .onTrue(
-            led.setTheme(LEDTheme.RAINBOW)
-                .andThen(() -> led.setBasedShootable(shooting.canShoot())));
+    operator.a().onTrue(led.setLEDTheme(LEDTheme.IN_INTAKE_OUTRANGE));
+    operator.b().onTrue(led.setColor(Color.kAqua));
+    operator.y().onTrue(led.setLEDTheme(LEDTheme.RAINBOW));
   }
 
   @Override

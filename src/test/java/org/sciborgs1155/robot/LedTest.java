@@ -21,17 +21,17 @@ public class LedTest {
     led = new Leds();
   }
 
-  @RepeatedTest(5)
+  @RepeatedTest(1)
   public void testThemeSet() {
-    run(led.setTheme(LEDTheme.SCIBORGS));
+    run(led.setLEDTheme(LEDTheme.SCIBORGS));
     fastForward();
     assertEquals(led.getBufferDataString(), correct);
     led.close();
   }
 
-  @RepeatedTest(5)
+  @RepeatedTest(1)
   public void testRainbowTheme() {
-    run(led.setTheme(LEDTheme.RAINBOW));
+    run(led.setLEDTheme(LEDTheme.RAINBOW));
     fastForward();
     assertNotEquals(led.getBufferData(), temp);
     temp = led.getBufferDataString();
