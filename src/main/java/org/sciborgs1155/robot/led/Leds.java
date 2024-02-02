@@ -13,48 +13,31 @@ import monologue.Annotations.Log;
 import monologue.Logged;
 
 public class Leds extends SubsystemBase implements Logged, AutoCloseable {
-  private static final AddressableLED led = new AddressableLED(LEDPORT); // led as a class
-  public static final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
+  private final AddressableLED led = new AddressableLED(LEDPORT); // led as a class
 
   public static enum LEDTheme {
     RAINBOW(Leds::setRainbow), // RGB Gamer Robot
     SCIBORGS(Leds::setSciborgs), // Yellow 50%, Dark Grey 50%
     FEMAIDENS(Leds::setFeMaidens), // Yellow 50%, Green 50%
     BXSCIFLASH(Leds::setBXSCIFlash), // Yellow ??%, Green ??%, moving
-    NO_BAGEL_INRANGE(
-        (buffer) -> setSolidColor(buffer, NO_BAGEL_COLOR)), // Look at Constatnts and Code Below
-    NO_BAGEL_OUTRANGE(
-        (buffer) ->
-            setSplitColor(
-                buffer, NO_BAGEL_COLOR, OUTOFRANGE_COLOR)), // Look at Constatnts and Code Below
-    IN_INTAKE_INRANGE(
-        (buffer) -> setSolidColor(buffer, INTAKE_COLOR)), // Look at Constants and Code Below
-    IN_INTAKE_OUTRANGE(
-        (buffer) ->
-            setSplitColor(
-                buffer, INTAKE_COLOR, OUTOFRANGE_COLOR)), // Look at Constants and Code Below
-    IN_PASSING_INRANGE(
-        (buffer) -> setSolidColor(buffer, PASSING_COLOR)), // Look at Constants and Code Below
-    IN_PASSING_OUTRANGE(
-        (buffer) ->
-            setSplitColor(
-                buffer, PASSING_COLOR, OUTOFRANGE_COLOR)), // Look at Constants and Code Below
-    IN_SHOOTER_INRANGE(
-        (buffer) -> setSolidColor(buffer, SHOOTER_COLOR)), // Look at Constants and Code Below
-    IN_SHOOTER_OUTRANGE(
-        (buffer) ->
-            setSplitColor(
-                buffer, SHOOTER_COLOR, OUTOFRANGE_COLOR)), // Look at Constants and Code Below
+    NO_BAGEL_INRANGE((buffer) -> setSolidColor(buffer, NO_BAGEL_COLOR)), // Look at Constatnts and Code Below
+    NO_BAGEL_OUTRANGE((buffer) ->setAlternatingColor(buffer, NO_BAGEL_COLOR, OUTOFRANGE_COLOR)), // Look at Constatnts and Code Below
+    IN_INTAKE_INRANGE((buffer) -> setSolidColor(buffer, INTAKE_COLOR)), // Look at Constants and Code Below
+    IN_INTAKE_OUTRANGE((buffer) -> setAlternatingColor(buffer, INTAKE_COLOR, OUTOFRANGE_COLOR)), // Look at Constants and Code Below
+    IN_PASSING_INRANGE((buffer) -> setSolidColor(buffer, PASSING_COLOR)), // Look at Constants and Code Below
+    IN_PASSING_OUTRANGE((buffer) -> setAlternatingColor(buffer, PASSING_COLOR, OUTOFRANGE_COLOR)), // Look at Constants and Code Below
+    IN_SHOOTER_INRANGE((buffer) -> setSolidColor(buffer, SHOOTER_COLOR)), // Look at Constants and Code Below
+    IN_SHOOTER_OUTRANGE((buffer) -> setAlternatingColor(buffer, SHOOTER_COLOR, OUTOFRANGE_COLOR)), // Look at Constants and Code Below
     AUTO(Leds::setAuto), // Yellow Green 33%, Green 33%, Gold 33% , moving
     LIT(Leds::setFire), // Suppose to look like fire
     CHASE(Leds::setChase), // Looks like those store lights chasing eachother in a loop
     RAINDROP(Leds::setRaindrop), // falling notes thing, random colors drop from the top
     NONE(Leds::nothing); // does nothing
 
-    public final Consumer<AddressableLEDBuffer> setLEDs;
+    public final Consumer<AddressableLEDBuffer> ledBuffer;
 
-    private LEDTheme(Consumer<AddressableLEDBuffer> setLEDs) {
-      this.setLEDs = setLEDs;
+    private LEDTheme(Consumer<AddressableLEDBuffer> ledBuffer) {
+      this.ledBuffer = ledBuffer;
     }
   }
 
@@ -74,7 +57,7 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   public Command setLEDTheme(LEDTheme ledTheme) {
     return run(
         () -> {
-          ledTheme.setLEDs.accept(ledBuffer);
+          ledTheme.ledBuffer.accept(ledBuffer);
           led.setData(ledBuffer);
         });
   }
@@ -107,7 +90,7 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   public Command setHalfHalfColor(Color color1, Color color2) {
     return run(
         () -> {
-          setSplitColor(ledBuffer, color1, color2);
+          setAlternatingColor(ledBuffer, color1, color2);
           LEDTheme.NONE.setLEDs.accept(ledBuffer);
           led.setData(ledBuffer);
         });
@@ -143,14 +126,13 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   //   System.out.println(getBufferDataString());
   // }
 
-  public static void setSolidColor(AddressableLEDBuffer ledBuffer, Color color) {
+  public static AddressableLEDBuffer setSolidColor(AddressableLEDBuffer ledBuffer, Color color) {
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       ledBuffer.setLED(i, color);
     }
-    led.setData(ledBuffer);
   }
 
-  public static void setSplitColor(AddressableLEDBuffer ledBuffer, Color color1, Color color2) {
+  public static AddressableLEDBuffer setAlternatingColor(AddressableLEDBuffer ledBuffer, Color color1, Color color2) {
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       if (i % 2 == 0) {
         ledBuffer.setLED(i, color1);
@@ -158,13 +140,12 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
         ledBuffer.setLED(i, color2);
       }
     }
-    led.setData(ledBuffer);
   }
 
   // A bunch of methoeds for the LEDThemes below!
   // (the ones that can't be copy paste) (some exceptions)
 
-  private static void setRainbow(AddressableLEDBuffer ledBuffer) {
+  private static AddressableLEDBuffer setRainbow(AddressableLEDBuffer ledBuffer) {
     ticktime += 20;
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       final double constant = i / (ledBuffer.getLength() * (Math.PI / 2));
@@ -179,10 +160,9 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
       red += 255 / 2;
       ledBuffer.setRGB(i, (int) red, (int) green, (int) blue);
     }
-    led.setData(ledBuffer);
   }
 
-  private static void setSciborgs(AddressableLEDBuffer ledBuffer) {
+  private static AddressableLEDBuffer setSciborgs(AddressableLEDBuffer ledBuffer) {
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       if (i % 2 == 0) {
         ledBuffer.setLED(i, Color.kDarkGray);
@@ -190,10 +170,9 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
         ledBuffer.setLED(i, Color.kYellow);
       }
     }
-    led.setData(ledBuffer);
   }
 
-  private static void setFeMaidens(AddressableLEDBuffer ledBuffer) {
+  private static AddressableLEDBuffer setFeMaidens(AddressableLEDBuffer ledBuffer) {
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       if (i % 2 == 0) {
         ledBuffer.setLED(i, Color.kPurple);
@@ -201,10 +180,9 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
         ledBuffer.setLED(i, Color.kLime);
       }
     }
-    led.setData(ledBuffer);
   }
 
-  private static void setBXSCIFlash(AddressableLEDBuffer ledBuffer) {
+  private static AddressableLEDBuffer setBXSCIFlash(AddressableLEDBuffer ledBuffer) {
     ticktime += 1;
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       if ((i + ticktime) % 5 == 0) {
@@ -213,10 +191,9 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
         ledBuffer.setLED(i, Color.kGreen);
       }
     }
-    led.setData(ledBuffer);
   }
 
-  private static void setAuto(AddressableLEDBuffer ledBuffer) {
+  private static AddressableLEDBuffer setAuto(AddressableLEDBuffer ledBuffer) {
     ticktime += 0.3;
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       temp = (i + ticktime) % 3;
@@ -225,11 +202,10 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
       } else if (temp < 2.4) {
         ledBuffer.setLED(i, Color.kBlack);
       }
-      led.setData(ledBuffer);
     }
   }
 
-  private static void setFire(AddressableLEDBuffer ledBuffer) {
+  private static AddressableLEDBuffer setFire(AddressableLEDBuffer ledBuffer) {
     ticktime += 0.3; // the robot is lit! (but it should not burning)
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       temp = (i + ticktime) % 5;
@@ -244,11 +220,10 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
       } else if (temp < 5) {
         ledBuffer.setLED(i, Color.kOrange);
       }
-      led.setData(ledBuffer);
     }
   }
 
-  private static void setChase(AddressableLEDBuffer ledBuffer) {
+  private static AddressableLEDBuffer setChase(AddressableLEDBuffer ledBuffer) {
     ticktime += 0.3;
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       temp = (i + ticktime) % 6;
@@ -257,11 +232,10 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
       } else {
         ledBuffer.setLED(i, Color.kDeepSkyBlue);
       }
-      led.setData(ledBuffer);
     }
   }
 
-  private static void setRaindrop(AddressableLEDBuffer ledBuffer) {
+  private static AddressableLEDBuffer setRaindrop(AddressableLEDBuffer ledBuffer) {
     // start on 2:26 PM speedrun, end speedrun on 4:51 PM
     // (i spent an hour trying to fix something and learned that java lists in lists suck!)
     // REQUIRES FINAL GRID SHAPE DIMENSIONS, ASSUMES FORTH AND FORTH ONLY LAYERING!
@@ -292,9 +266,7 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
         ledBuffer.setLED(i * shape[1] + ie, grid[i][ie]);
       }
     }
-
-    led.setData(ledBuffer);
   }
 
-  private static void nothing(AddressableLEDBuffer ledBuffer) {}
+  private static AddressableLEDBuffer nothing(AddressableLEDBuffer ledBuffer) {}
 }

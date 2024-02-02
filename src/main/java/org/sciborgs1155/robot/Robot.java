@@ -144,7 +144,8 @@ public class Robot extends CommandRobot implements Logged {
 
     // assuming x is shoot button, will rumble if cant shoot
     operator.x().and(() -> !shooting.canShoot()).onTrue(rumble(RumbleType.kBothRumble, 0.5));
-    operator.a().onTrue(led.setLEDTheme(LEDTheme.IN_INTAKE_OUTRANGE));
+    operator.a().and(shooting::canShoot).onTrue(led.setLEDTheme(LEDTheme.IN_INTAKE_INRANGE));
+    operator.a().and(shooting::cantShoot).onTrue(led.setLEDTheme(LEDTheme.IN_INTAKE_OUTRANGE));
     operator.b().onTrue(led.setColor(Color.kAqua));
     operator.y().onTrue(led.setLEDTheme(LEDTheme.RAINBOW));
   }

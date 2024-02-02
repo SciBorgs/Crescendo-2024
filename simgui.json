@@ -85,6 +85,9 @@
         "open": true
       },
       "Robot": {
+        "autos": {
+          "open": true
+        },
         "drive": {
           "Pose2d##v_/Robot/drive/getPose": {
             "Rotation2d##v_rotation": {
@@ -108,7 +111,11 @@
             "driveFeedback": {
               "open": true
             }
-          }
+          },
+          "open": true
+        },
+        "led": {
+          "open": true
         },
         "open": true,
         "pivot": {
@@ -142,10 +149,13 @@
           }
         },
         "shooting": {
-          "open": true
+          "open": true,
+          "pivot": {
+            "open": true
+          }
         }
       },
-      "Shuffleboard": {
+      "SmartDashboard": {
         "open": true
       }
     }
