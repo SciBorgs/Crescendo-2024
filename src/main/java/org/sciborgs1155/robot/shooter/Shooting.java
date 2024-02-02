@@ -12,7 +12,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
-import org.sciborgs1155.robot.shooter.Cache.ShooterState;
+import org.sciborgs1155.robot.shooter.Cache.NoteTrajectory;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
@@ -23,17 +23,17 @@ public class Shooting implements Logged {
   @Log.NT private final Pivot pivot;
   @Log.NT private final Flywheel flywheel;
 
-  private final Hashtable<Translation2d, ShooterState> shootingData;
+  private final Hashtable<Translation2d, NoteTrajectory> shootingData;
 
   public Shooting(Flywheel flywheel, Pivot pivot, Feeder feeder) {
-    this(flywheel, pivot, feeder, Cache.loadStates());
+    this(flywheel, pivot, feeder, Cache.loadTrajectories());
   }
 
   public Shooting(
       Flywheel flywheel,
       Pivot pivot,
       Feeder feeder,
-      Hashtable<Translation2d, ShooterState> shootingData) {
+      Hashtable<Translation2d, NoteTrajectory> shootingData) {
     this.shootingData = shootingData;
     this.flywheel = flywheel;
     this.pivot = pivot;
@@ -58,15 +58,15 @@ public class Shooting implements Logged {
     return a * (1 - dist) + b * dist;
   }
 
-  private static ShooterState interpolateStates(ShooterState a, ShooterState b, double dist) {
+  private static NoteTrajectory interpolateStates(NoteTrajectory a, NoteTrajectory b, double dist) {
     assert 0 <= dist && dist <= 1;
-    return new ShooterState(
+    return new NoteTrajectory(
         Rotation2d.fromRadians(interpolate(a.angle().getRadians(), b.angle().getRadians(), dist)),
         interpolate(a.speed(), b.speed(), dist));
   }
 
   /** uses bilinear interpolation ({@link https://en.wikipedia.org/wiki/Bilinear_interpolation}) */
-  public ShooterState desiredState(Translation2d position) throws Exception {
+  public NoteTrajectory desiredState(Translation2d position) throws Exception {
     if (shootingData.containsKey(position)) {
       return shootingData.get(position);
     }

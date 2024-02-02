@@ -8,31 +8,31 @@ import edu.wpi.first.math.geometry.Translation2d;
 import java.util.Hashtable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.sciborgs1155.robot.shooter.Cache.ShooterState;
+import org.sciborgs1155.robot.shooter.Cache;
+import org.sciborgs1155.robot.shooter.Cache.NoteTrajectory;
 import org.sciborgs1155.robot.shooter.Shooting;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
 
 public class InterpolationTest {
-  private static Hashtable<Translation2d, ShooterState> data = new Hashtable<>();
+  private static Hashtable<Translation2d, NoteTrajectory> data = new Hashtable<>();
   private Shooting shooting;
   private Shooting shootingReal;
 
   @BeforeAll
   public static void setupData() {
-    data.put(new Translation2d(0, 0), new ShooterState(Rotation2d.fromDegrees(30), 2));
-    data.put(new Translation2d(0, 2), new ShooterState(Rotation2d.fromDegrees(30), 2));
-    data.put(new Translation2d(2, 0), new ShooterState(Rotation2d.fromDegrees(20), 2));
-    data.put(new Translation2d(2, 2), new ShooterState(Rotation2d.fromDegrees(20), 2));
+    data.put(new Translation2d(0, 0), new NoteTrajectory(Rotation2d.fromDegrees(30), 2));
+    data.put(new Translation2d(0, 2), new NoteTrajectory(Rotation2d.fromDegrees(30), 2));
+    data.put(new Translation2d(2, 0), new NoteTrajectory(Rotation2d.fromDegrees(20), 2));
+    data.put(new Translation2d(2, 2), new NoteTrajectory(Rotation2d.fromDegrees(20), 2));
   }
 
   @BeforeEach
   public void setupShooting() {
     shooting = new Shooting(Flywheel.create(), Pivot.create(), Feeder.create(), data);
-    // shootingReal = new Shooting(Flywheel.create(), Pivot.create(), Feeder.create());
+    shootingReal = new Shooting(Flywheel.create(), Pivot.create(), Feeder.create());
   }
 
   @Test
@@ -44,7 +44,11 @@ public class InterpolationTest {
     assertEquals(27.5, state2.angle().getDegrees());
   }
 
-  @Disabled
+  @Test
+  public void loads() throws Exception {
+    Cache.loadStatesThrows();
+  }
+
   @Test
   public void lookupWithCasadiData() throws Exception {
     var state1 = shootingReal.desiredState(new Translation2d(2, 2));

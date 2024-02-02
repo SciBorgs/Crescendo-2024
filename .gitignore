@@ -169,5 +169,5 @@ bin/
 # Simulation GUI and other tools window save file
 *-window.json
 
-# shooter states cache
-shooter_states_cache.json
+# shooter trajectory cache
+shooter_trajectories_cache.json

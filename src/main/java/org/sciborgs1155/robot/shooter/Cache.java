@@ -13,12 +13,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 public class Cache {
-  private static final String cacheFilename = "shooter_states_cache.json";
-  private static final File cacheFile = new File(Filesystem.getDeployDirectory(), cacheFilename);
-  private static Hashtable<Translation2d, ShooterState> data = new Hashtable<>();
+  private static final String cacheFilename = "src/main/deploy/shooter_trajectories_cache.json";
+  private static final File cacheFile = new File(Filesystem.getLaunchDirectory(), cacheFilename);
+  // new File(Filesystem.getDeployDirectory(), cacheFilename);
 
   /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
-  public static record ShooterState(Rotation2d angle, double speed) {
+  public static record NoteTrajectory(Rotation2d angle, double speed) {
     @Override
     public String toString() {
       return "{angle: " + angle.getRadians() + "; speed: " + speed + "}";
@@ -34,13 +34,14 @@ public class Cache {
     return new Translation2d(Double.parseDouble(asStrs[0]), Double.parseDouble(asStrs[1]));
   }
 
-  private static ShooterState dictToState(JSONObject dict) {
-    return new ShooterState(
-        Rotation2d.fromRadians((double) dict.get("angle")), (double) dict.get("speed"));
+  private static NoteTrajectory dictToTrajectory(JSONObject dict) {
+    return new NoteTrajectory(
+        Rotation2d.fromRadians((double) dict.get("angle")),
+        (double) dict.get("speed"));
   }
 
   /** the loading is not type safe, if it doesn't work a blank table will be generated */
-  public static Hashtable<Translation2d, ShooterState> loadStates() {
+  public static Hashtable<Translation2d, NoteTrajectory> loadTrajectories() {
     try {
       return loadStatesThrows();
     } catch (Exception e) {
@@ -50,8 +51,9 @@ public class Cache {
   }
 
   @SuppressWarnings("unchecked")
-  private static Hashtable<Translation2d, ShooterState> loadStatesThrows()
+  public static Hashtable<Translation2d, NoteTrajectory> loadStatesThrows()
       throws IOException, InterruptedException, org.json.simple.parser.ParseException {
+    Hashtable<Translation2d, NoteTrajectory> data = new Hashtable<>();
     FileReader reader = new FileReader(cacheFile);
     JSONParser parser = new JSONParser();
     JSONObject obj = (JSONObject) parser.parse(reader);
@@ -59,7 +61,7 @@ public class Cache {
     obj.forEach(
         (k, v) -> {
           if (k instanceof String && v instanceof JSONObject) {
-            data.put(strToPoint((String) k), dictToState((JSONObject) v));
+            data.put(strToPoint((String) k), dictToTrajectory((JSONObject) v));
           } else {
             throw new RuntimeException("can't read from json!!");
           }
@@ -68,9 +70,9 @@ public class Cache {
     return data;
   }
 
-  public static String dataToString(Hashtable<Translation2d, ShooterState> d) {
+  public static String dataToString(Hashtable<Translation2d, NoteTrajectory> d) {
     String str = "";
-    for (Map.Entry<Translation2d, ShooterState> entry : d.entrySet()) {
+    for (Map.Entry<Translation2d, NoteTrajectory> entry : d.entrySet()) {
       var p = entry.getKey();
       var s = entry.getValue();
       str += "(" + p.getX() + ", " + p.getY() + ") : " + s + "\n";
