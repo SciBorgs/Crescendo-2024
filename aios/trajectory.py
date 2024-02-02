@@ -21,40 +21,49 @@ class Trajectory:
         The change in the x-coordinate with respect to time at launch time.
     vy : float
         The change in the y-coordinate with respect to time at launch time.
-    launchSpeed : float
+    phi: float
+        The current angle that the shooter is at with respect to the y-axis
+    v : float
         The current launch speed of the shooter.
-    currentAngleState : float
+    theta : float
         The angle relative to the horizontal that the shooter is inclined at. 
     angleWeight : float
         The weight in the loss function of a change in angle
     speedWeight : float
         The weight in the loss function of a change in shooter launching speed.
+    headingWeight : float
+        The weight in the loss function of a change in shooter heading.
+
 
     Methods 
     -------
     getNewShooterState()
         Returns a dict of a new state the motor should be in. (Launch speed and angle of inclination relative to floor).
     """
-    def __init__(self, x:float, y:float, vx:float, vy:float, launchSpeed : float, currentAngleState:float, angleWeight:float, speedWeight:float):
+    def __init__(self, x:float, y:float, vx:float, vy:float, phi:float, v : float, theta:float, angleWeight:float, speedWeight:float, headingWeight:float):
         """
         Parameters
         ----------
         x : float
-            The x-coordinate of the robot at the time of launch
+            The x-coordinate of the robot at the time of launch.
         y: float
             The y-coordinate of the robot at the time of launch.
         vx: float
             The change in the x-coordinate with respect to time at launch time.
         vy : float
             The change in the y-coordinate with respect to time at launch time.
+        phi: float
+            The current angle that the shooter is at with respect to the y-axis. Towards the left side is negative and towards the right is positive (viewing the opening of the speaker)
         launchSpeed : float
             The current launch speed of the shooter.
         currentAngleState : float
             The angle relative to the horizontal that the shooter is inclined at. 
         angleWeight : float
-            The weight in the loss function of a change in angle
+            The weight in the loss function of a change in angle.
         speedWeight : float
             The weight in the loss function of a change in shooter launching speed.
+        headingWeight : float
+            The weight in the loss function of a change in shooter heading.
 
         """
 
@@ -62,10 +71,13 @@ class Trajectory:
         self.y = y
         self.vx = vx
         self.vy = vy
-        self.launchSpeed = launchSpeed
-        self.currentAngleState = currentAngleState
+        self.phi = phi
+        self.v = v
+        self.theta = theta
         self.angleWeight = angleWeight
         self.speedWeight = speedWeight
+        self.headingWeight = headingWeight
+
         self.MIN_HEIGHT = 1.98 #m
         self.MAX_HEIGHT = 2.11 #m
         self.GRAVITATIONAL_ACCELERATION = 9.805 #m/s/s
@@ -77,74 +89,71 @@ class Trajectory:
 
     def getNewShooterState(self):
         """
-        Returns a dict of a new rotational speed and angle for the motor to be.
+        Returns a dict of a new rotational speed, angle, and heading for the motor to be.
         """
-        
-        if self.vx == 0:
-            self.vx = 0.001
-        #Get heading relative to center of speaker back
-        if self.currentAngleState == 0 or self.launchSpeed == 0:
-            self.currentAngleState = math.pi / 4
-            self.launchSpeed = self.MAX_LAUNCH_SPEED / 2
-
+  
 
         #Variable initialization
         opti = casadi.Opti()
         deltaV = opti.variable()
         deltaTheta = opti.variable()
+        deltaPhi = opti.variable()
 
-
+        if self.vx == 0:
+            self.vx = 0.0001
+        if self.vy == 0:
+            self.vy = 0.0001
+       
         opti.minimize( 
-           ( self.angleWeight * deltaTheta ** 2) + (self.speedWeight * deltaV ** 2) #angle weight should be made into a percent
+           ( self.angleWeight * deltaTheta ** 2) + (self.speedWeight * deltaV ** 2) + (self.headingWeight * deltaPhi ** 2)
         )
 
         opti.subject_to(
-            self.MIN_HEIGHT + (self.NOTE_THICKNESS / 2) < 
-            (self.launchSpeed + deltaV) * casadi.sin(deltaTheta + self.currentAngleState) * ( (abs(self.y) - self.OPENING_GAP) / (self.vy + ( (self.launchSpeed + deltaV) * casadi.cos(deltaTheta + self.currentAngleState))))
-            - 0.5 * self.GRAVITATIONAL_ACCELERATION * ((abs(self.y) - self.OPENING_GAP) / (self.vy + ((self.launchSpeed + deltaV) * casadi.cos(deltaTheta + self.currentAngleState)))) ** 2
+            0 < self.v + deltaV
         )
 
         opti.subject_to(
-            self.MAX_HEIGHT - (self.NOTE_THICKNESS / 2) < 
-            (self.launchSpeed + deltaV) * casadi.sin(deltaTheta + self.currentAngleState) * ( (abs(self.y)) / (self.vy + ( (self.launchSpeed + deltaV) * casadi.cos(deltaTheta + self.currentAngleState))))
-            - 0.5 * self.GRAVITATIONAL_ACCELERATION * ((abs(self.y)) / (self.vy + ((self.launchSpeed + deltaV) * casadi.cos(deltaTheta + self.currentAngleState)))) ** 2
+            self.v + deltaV <= self.MAX_LAUNCH_SPEED
         )
-
         opti.subject_to(
-            0 <= 
-            (self.launchSpeed + deltaV) * casadi.sin(deltaTheta + self.currentAngleState) * ( 1 / (self.vy + ( (self.launchSpeed + deltaV) * casadi.cos(deltaTheta + self.currentAngleState))))
-            - self.GRAVITATIONAL_ACCELERATION * (abs(self.y) - self.OPENING_GAP) * (1 / (self.vy + ((self.launchSpeed + deltaV) * casadi.cos(deltaTheta + self.currentAngleState)))) ** 2
-        )
-
-        
-        opti.subject_to(
-           0 < self.currentAngleState + deltaTheta
-        )
-
-        opti.subject_to(
-           math.pi / 2 > self.currentAngleState + deltaTheta
+            0 < self.theta + deltaTheta 
         )
         
         opti.subject_to(
-           0 < self.launchSpeed + deltaV 
+            self.theta + deltaTheta < math.pi / 2
         )
 
         opti.subject_to(
-            self.launchSpeed + deltaV < self.MAX_LAUNCH_SPEED
+            -1 * math.pi / 2 < self.phi + deltaPhi 
         )
+
+        opti.subject_to(
+            self.phi + deltaPhi < math.pi / 2
+        )
+
+        opti.subject_to(
+            self.MAX_HEIGHT - (self.NOTE_THICKNESS / 2) >
+           ( (self.v + deltaV) * casadi.sin(deltaTheta + self.theta) * (self.y - self.OPENING_GAP)/ ( ( (self.v + deltaV) * casadi.cos(self.theta + deltaTheta) * casadi.cos(self.phi + deltaPhi) ) + self.vy ) )
+           - 0.5 * self.GRAVITATIONAL_ACCELERATION * ((self.y - self.OPENING_GAP)/ ( ( (self.v + deltaV) * casadi.cos(self.theta + deltaTheta) * casadi.cos(self.phi + deltaPhi) ) + self.vy )) ** 2
+        )
+
+        opti.subject_to(
+            self.MIN_HEIGHT + (self.NOTE_THICKNESS / 2) >
+           ( (self.v + deltaV) * casadi.sin(deltaTheta + self.theta) * (self.y)/ ( ( (self.v + deltaV) * casadi.cos(self.theta + deltaTheta) * casadi.cos(self.phi + deltaPhi) ) + self.vy ) )
+           - 0.5 * self.GRAVITATIONAL_ACCELERATION * ((self.y)/ ( ( (self.v + deltaV) * casadi.cos(self.theta + deltaTheta) * casadi.cos(self.phi + deltaPhi) ) + self.vy )) ** 2
+        )
+
+        opti.subject_to(
+            0 <=
+           ( (self.v + deltaV) * casadi.sin(deltaTheta + self.theta) * (1)/ ( ( (self.v + deltaV) * casadi.cos(self.theta + deltaTheta) * casadi.cos(self.phi + deltaPhi) ) + self.vy ) )
+           - self.GRAVITATIONAL_ACCELERATION * (self.y)/ ( ( ( (self.v + deltaV) * casadi.cos(self.theta + deltaTheta) * casadi.cos(self.phi + deltaPhi) ) + self.vy )) ** 2
+        )
+
+        opti.subject_to(
+            (-1 * self.SPEAKER_WIDTH + self.NOTE_OUTER_RADIUS) / 2 < self.x + (( (self.v + deltaV) * casadi.cos(self.theta + deltaTheta) * casadi.sin(self.phi + deltaPhi)) + self.vx) * (self.y)/ ( ( (self.v + deltaV) * casadi.cos(self.theta + deltaTheta) * casadi.cos(self.phi + deltaPhi) ) + self.vy )
+        )
+
         
-
-        opti.subject_to((self.SPEAKER_WIDTH - self.NOTE_OUTER_RADIUS) / 2 > self.vx * ((abs(self.y) - self.OPENING_GAP) / (self.vy + ( (self.launchSpeed + deltaV) * casadi.cos(deltaTheta + self.currentAngleState)))) + self.x)
-
-        opti.subject_to(
-            (- 1 * self.SPEAKER_WIDTH + self.NOTE_OUTER_RADIUS) / 2 <
-            self.vx * ((abs(self.y)) / (self.vy + (self.launchSpeed + deltaV) * casadi.cos(deltaTheta + self.currentAngleState))) + self.x
-        )
-
-        opti.subject_to(
-            (self.SPEAKER_WIDTH - self.NOTE_OUTER_RADIUS) / 2 > 
-            self.vx * ((abs(self.y)) / (self.vy + (self.launchSpeed + deltaV) * casadi.cos(deltaTheta + self.currentAngleState))) + self.x
-        )
         opti.solver('ipopt')
         try:
             solutions = opti.solve()
@@ -153,8 +162,9 @@ class Trajectory:
 
 
         return {
-            'speed' : round(solutions.value(deltaV) + self.launchSpeed, 3), 
-            'angle' : round(solutions.value(deltaTheta) + self.currentAngleState, 3),
+            'speed' : round(solutions.value(deltaV) + self.v, 3), 
+            'angle' : round(solutions.value(deltaTheta) + self.theta, 3),
+            'heading' : round(solutions.value(deltaPhi) + self.phi , 3)
         }
 
 
