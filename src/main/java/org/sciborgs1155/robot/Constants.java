@@ -2,8 +2,11 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import org.sciborgs1155.robot.drive.DriveConstants;
 
 /**
@@ -23,4 +26,19 @@ public class Constants {
           / DriveConstants.MAX_ANGULAR_SPEED.baseUnitMagnitude();
   public static final double SLOW_SPEED = 0.33;
   public static final double FULL_SPEED = 1.0;
+
+  public static class Field {
+    public static final Translation2d BLUE_SPEAKER_POSE = new Translation2d(-0.086473, 5.757474);
+    public static final Translation2d RED_SPEAKER_POSE = new Translation2d(16.389722, 5.757474);
+
+    public static Translation2d getSpeaker() {
+      if (DriverStation.getAlliance().isPresent()) {
+        return DriverStation.getAlliance().get() == Alliance.Red
+            ? RED_SPEAKER_POSE
+            : BLUE_SPEAKER_POSE;
+      } else {
+        return BLUE_SPEAKER_POSE;
+      }
+    }
+  }
 }
