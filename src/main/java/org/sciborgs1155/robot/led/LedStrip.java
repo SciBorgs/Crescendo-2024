@@ -12,14 +12,14 @@ import java.util.function.Consumer;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
-public class Leds extends SubsystemBase implements Logged, AutoCloseable {
+public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   private final AddressableLED led = new AddressableLED(LEDPORT); // led as a class
 
   public static enum LEDTheme {
-    RAINBOW(Leds::setRainbow), // RGB Gamer Robot
-    SCIBORGS(Leds::setSciborgs), // Yellow 50%, Dark Grey 50%
-    FEMAIDENS(Leds::setFeMaidens), // Yellow 50%, Green 50%
-    BXSCIFLASH(Leds::setBXSCIFlash), // Yellow ??%, Green ??%, moving
+    RAINBOW(LedStrip::setRainbow), // RGB Gamer Robot
+    SCIBORGS(LedStrip::setSciborgs), // Yellow 50%, Dark Grey 50%
+    FEMAIDENS(LedStrip::setFeMaidens), // Yellow 50%, Green 50%
+    BXSCIFLASH(LedStrip::setBXSCIFlash), // Yellow ??%, Green ??%, moving
     NO_BAGEL_INRANGE((buffer) -> setSolidColor(buffer, NO_BAGEL_COLOR)), // Look at Constatnts and Code Below
     NO_BAGEL_OUTRANGE((buffer) ->setAlternatingColor(buffer, NO_BAGEL_COLOR, OUTOFRANGE_COLOR)), // Look at Constatnts and Code Below
     IN_INTAKE_INRANGE((buffer) -> setSolidColor(buffer, INTAKE_COLOR)), // Look at Constants and Code Below
@@ -28,11 +28,11 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
     IN_PASSING_OUTRANGE((buffer) -> setAlternatingColor(buffer, PASSING_COLOR, OUTOFRANGE_COLOR)), // Look at Constants and Code Below
     IN_SHOOTER_INRANGE((buffer) -> setSolidColor(buffer, SHOOTER_COLOR)), // Look at Constants and Code Below
     IN_SHOOTER_OUTRANGE((buffer) -> setAlternatingColor(buffer, SHOOTER_COLOR, OUTOFRANGE_COLOR)), // Look at Constants and Code Below
-    AUTO(Leds::setAuto), // Yellow Green 33%, Green 33%, Gold 33% , moving
-    LIT(Leds::setFire), // Suppose to look like fire
-    CHASE(Leds::setChase), // Looks like those store lights chasing eachother in a loop
-    RAINDROP(Leds::setRaindrop), // falling notes thing, random colors drop from the top
-    NONE(Leds::nothing); // does nothing
+    AUTO(LedStrip::setAuto), // Yellow Green 33%, Green 33%, Gold 33% , moving
+    LIT(LedStrip::setFire), // Suppose to look like fire
+    CHASE(LedStrip::setChase), // Looks like those store lights chasing eachother in a loop
+    RAINDROP(LedStrip::setRaindrop), // falling notes thing, random colors drop from the top
+    NONE(LedStrip::nothing); // does nothing
 
     public final Consumer<AddressableLEDBuffer> ledBuffer;
 
@@ -47,7 +47,7 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   static boolean inrange = false;
   static LEDTheme lastTheme = LEDTheme.NONE;
 
-  public Leds() {
+  public LedStrip() {
     led.setLength(ledBuffer.getLength());
     led.setData(ledBuffer);
     led.start();
@@ -126,10 +126,12 @@ public class Leds extends SubsystemBase implements Logged, AutoCloseable {
   //   System.out.println(getBufferDataString());
   // }
 
-  public static AddressableLEDBuffer setSolidColor(AddressableLEDBuffer ledBuffer, Color color) {
+  public static AddressableLEDBuffer setSolidColor(Color color) {
+    final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       ledBuffer.setLED(i, color);
     }
+    return ledBuffer;
   }
 
   public static AddressableLEDBuffer setAlternatingColor(AddressableLEDBuffer ledBuffer, Color color1, Color color2) {

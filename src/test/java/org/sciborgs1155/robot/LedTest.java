@@ -6,11 +6,11 @@ import static org.sciborgs1155.lib.TestingUtil.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-import org.sciborgs1155.robot.led.Leds;
-import org.sciborgs1155.robot.led.Leds.LEDTheme;
+import org.sciborgs1155.robot.led.LedStrip;
+import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 
 public class LedTest {
-  Leds led;
+  LedStrip led;
   String temp = "";
   String correct =
       "[#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00]";
@@ -18,7 +18,7 @@ public class LedTest {
   @BeforeEach
   public void setup() {
     setupHAL();
-    led = new Leds();
+    led = new LedStrip();
   }
 
   @RepeatedTest(1)
