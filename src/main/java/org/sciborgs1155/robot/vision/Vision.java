@@ -20,9 +20,9 @@ import org.sciborgs1155.robot.Robot;
 
 public class Vision {
 
-  private List<PhotonCamera> cameraList = new ArrayList<PhotonCamera>();
-  private List<PhotonPoseEstimator> poseEstimatorList = new ArrayList<PhotonPoseEstimator>();
-  private List<PhotonCameraSim> cameraSimList = new ArrayList<PhotonCameraSim>();
+  private List<PhotonCamera> cameras = new ArrayList<PhotonCamera>();
+  private List<PhotonPoseEstimator> poseEstimators = new ArrayList<PhotonPoseEstimator>();
+  private List<PhotonCameraSim> simCameras = new ArrayList<PhotonCameraSim>();
   private VisionSystemSim visionSim;
 
   public Vision(VisionConstants.CameraConfig... cameras) {
@@ -31,7 +31,7 @@ public class Vision {
     boolean isSimulation = Robot.isSimulation();
     if (isSimulation) {
       this.visionSim = new VisionSystemSim("main");
-      this.visionSim.addAprilTags(null);
+      this.visionSim.addAprilTags(VisionConstants.TAG_LAYOUT);
     }
 
     for (int i = 0; i < cameras.length; i++) {
@@ -46,8 +46,8 @@ public class Vision {
       curPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
       // Adding cameras and pose estimators to respective lists
-      this.cameraList.add(curCamera);
-      this.poseEstimatorList.add(curPoseEstimator);
+      this.cameras.add(curCamera);
+      this.poseEstimators.add(curPoseEstimator);
 
       if (isSimulation) {
         // If robot is in simulation, cameraSims will be instantiated and added to respective list
@@ -62,7 +62,7 @@ public class Vision {
         cameraSim = new PhotonCameraSim(curCamera, cameraProp);
         // Add the simulated camera to view the targets on this simulated field.
         this.visionSim.addCamera(cameraSim, cameras[i].robotToCam());
-
+        this.simCameras.add(cameraSim);
         cameraSim.enableDrawWireframe(true);
       }
     }
@@ -76,16 +76,10 @@ public class Vision {
    *     used for estimation.
    */
   public EstimatedRobotPose[] getEstimatedGlobalPoses() {
-    return poseEstimatorList.stream()
+    return poseEstimators.stream()
         .map(PhotonPoseEstimator::update)
         .flatMap(Optional::stream)
         .toArray(EstimatedRobotPose[]::new);
-    /*
-    return Stream.of(frontPhotonEstimator, rearPhotonEstimator)
-        .map(PhotonPoseEstimator::update)
-        .flatMap(Optional::stream)
-        .toArray(EstimatedRobotPose[]::new);
-    */
   }
 
   /**
@@ -130,6 +124,4 @@ public class Vision {
   public void resetSimPose(Pose2d pose) {
     if (Robot.isSimulation()) visionSim.resetRobotPose(pose);
   }
-
-  /** A Field2d for visualizing our robot and objects on the field. */
 }

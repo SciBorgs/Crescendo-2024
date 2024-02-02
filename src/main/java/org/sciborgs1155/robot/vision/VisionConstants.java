@@ -13,7 +13,9 @@ import edu.wpi.first.math.numbers.N3;
 public class VisionConstants {
   public static record CameraConfig(String name, Transform3d robotToCam) {}
 
-  public static final AprilTagFieldLayout TAG_LAYOUT = null;
+  public static final AprilTagFieldLayout TAG_LAYOUT =
+      AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+  ;
 
   public static final CameraConfig FRONT_CAMERA_CONFIG =
       new CameraConfig(
@@ -25,8 +27,6 @@ public class VisionConstants {
           new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0)));
 
   // The layout of the AprilTags on the field
-  public static final AprilTagFieldLayout kTagLayout =
-      AprilTagFields.kDefaultField.loadAprilTagLayoutField();
 
   // The standard deviations of
   public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
