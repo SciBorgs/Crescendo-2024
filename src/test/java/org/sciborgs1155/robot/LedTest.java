@@ -14,6 +14,7 @@ public class LedTest {
   String temp = "";
   String correct =
       "[#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00]";
+  String latest = "";
 
   @BeforeEach
   public void setup() {
@@ -25,7 +26,7 @@ public class LedTest {
   public void testThemeSet() {
     run(led.setLEDTheme(LEDTheme.SCIBORGS));
     fastForward();
-    assertEquals(led.getBufferDataString(), correct);
+    assertEquals(correct, LedStrip.getBufferDataString(LEDTheme.SCIBORGS.ledBuffer.get()));
     led.close();
   }
 
@@ -33,8 +34,9 @@ public class LedTest {
   public void testRainbowTheme() {
     run(led.setLEDTheme(LEDTheme.RAINBOW));
     fastForward();
-    assertNotEquals(led.getBufferData(), temp);
-    temp = led.getBufferDataString();
+    latest = LedStrip.getBufferDataString(LEDTheme.RAINBOW.ledBuffer.get());
+    assertNotEquals(temp,latest);
+    temp = latest;
     led.close();
   }
 }

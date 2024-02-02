@@ -23,7 +23,7 @@ public class Shooting extends SubsystemBase implements Logged {
   @Log.NT private final Pivot pivot;
   @Log.NT private final Flywheel flywheel;
   
-  @Log.NT public static boolean shootability;
+  @Log.NT public boolean shootability;
 
   private final Hashtable<Translation2d, ShooterState> shootingData;
   
@@ -105,10 +105,5 @@ public class Shooting extends SubsystemBase implements Logged {
   }
   public boolean cantShoot(){
     return !canShoot();
-  }
-
-  @Override
-  public void periodic() {
-      System.out.println(canShoot());
   }
 }
