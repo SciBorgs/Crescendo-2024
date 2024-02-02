@@ -4,7 +4,8 @@ import math
 class Trajectory:
     """
     Represents a trajectory object. 
-    Returns a shooter setting to send the note into the speaker.
+    Returns an optimal setting of angle relative to horizontal
+    and shooter launch speed to send the note into the speaker.
 
     The origin has been chosen as the center of the speaker-back that is being scored into. "x-axis" is parallel to side that speaker is attached to.
 
@@ -21,11 +22,11 @@ class Trajectory:
     vy : float
         The change in the y-coordinate with respect to time at launch time.
     phi: float
-        The current heading that the shooter is at with respect to the y-axis
+        The current angle that the shooter is at with respect to the y-axis
     v : float
         The current launch speed of the shooter.
     theta : float
-        The angle relative to the horizontal that the shooter is vertically inclined at. 
+        The angle relative to the horizontal that the shooter is inclined at. 
     angleWeight : float
         The weight in the loss function of a change in angle
     speedWeight : float
@@ -37,7 +38,7 @@ class Trajectory:
     Methods 
     -------
     getNewShooterState()
-        Returns a dict of a new state the motor should be in. (Launch speed, angle of inclination relative to floor, and heading).
+        Returns a dict of a new state the motor should be in. (Launch speed and angle of inclination relative to floor).
     """
     def __init__(self, x:float, y:float, vx:float, vy:float, phi:float, v : float, theta:float, angleWeight:float, speedWeight:float, headingWeight:float):
         """
@@ -53,10 +54,10 @@ class Trajectory:
             The change in the y-coordinate with respect to time at launch time.
         phi: float
             The current angle that the shooter is at with respect to the y-axis. Towards the left side is negative and towards the right is positive (viewing the opening of the speaker)
-        v : float
+        launchSpeed : float
             The current launch speed of the shooter.
-        theta : float
-            The angle relative to the horizontal that the shooter is vertically inclined at. 
+        currentAngleState : float
+            The angle relative to the horizontal that the shooter is inclined at. 
         angleWeight : float
             The weight in the loss function of a change in angle.
         speedWeight : float
@@ -151,6 +152,11 @@ class Trajectory:
         opti.subject_to(
             (-1 * self.SPEAKER_WIDTH + self.NOTE_OUTER_RADIUS) / 2 < self.x + (( (self.v + deltaV) * casadi.cos(self.theta + deltaTheta) * casadi.sin(self.phi + deltaPhi)) + self.vx) * (self.y)/ ( ( (self.v + deltaV) * casadi.cos(self.theta + deltaTheta) * casadi.cos(self.phi + deltaPhi) ) + self.vy )
         )
+
+        opti.subject_to(
+            (self.SPEAKER_WIDTH - self.NOTE_OUTER_RADIUS) / 2 > self.x + (( (self.v + deltaV) * casadi.cos(self.theta + deltaTheta) * casadi.sin(self.phi + deltaPhi)) + self.vx) * (self.y)/ ( ( (self.v + deltaV) * casadi.cos(self.theta + deltaTheta) * casadi.cos(self.phi + deltaPhi) ) + self.vy )
+        )
+
 
         
         opti.solver('ipopt')
