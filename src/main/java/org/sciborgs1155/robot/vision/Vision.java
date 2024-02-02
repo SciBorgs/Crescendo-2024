@@ -131,5 +131,4 @@ public class Vision {
     if (Robot.isSimulation()) visionSim.resetRobotPose(pose);
   }
 
-  /** A Field2d for visualizing our robot and objects on the field. */
 }
