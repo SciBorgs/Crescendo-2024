@@ -225,13 +225,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @return The driving command.
    */
   public Command drive(InputStream vx, InputStream vy, Supplier<Rotation2d> heading) {
-    // var pid =
-    //     new ProfiledPIDController(
-    //         Rotation.P,
-    //         Rotation.I,
-    //         Rotation.D,
-    //         new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
-
     return run(
         () ->
             driveFieldRelative(
