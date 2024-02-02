@@ -3,6 +3,7 @@ package org.sciborgs1155.lib;
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.wpilibj.DriverStation;
 import java.util.ArrayList;
 
 public class TalonUtils {
@@ -46,6 +47,11 @@ public class TalonUtils {
   public static boolean loadOrchestraFile(String fileName) {
     var success = orchestra.loadMusic(fileName);
     fileLoaded = success.isOK();
+
+    if (!fileLoaded) {
+      fileNotFound();
+    }
+
     return fileLoaded;
   }
 
@@ -55,8 +61,12 @@ public class TalonUtils {
    * @return Whether the operation was successful.
    */
   public static boolean play() {
-    var success = orchestra.play();
-    return success.isOK();
+    if (fileLoaded) {
+      var success = orchestra.play();
+      return success.isOK();
+    }
+    fileNotFound();
+    return false;
   }
 
   /**
@@ -65,8 +75,12 @@ public class TalonUtils {
    * @return Whether the operation was successful.
    */
   public static boolean stop() {
-    var success = orchestra.stop();
-    return success.isOK();
+    if (fileLoaded) {
+      var success = orchestra.stop();
+      return success.isOK();
+    }
+    fileNotFound();
+    return false;
   }
 
   /**
@@ -75,7 +89,17 @@ public class TalonUtils {
    * @return Whether the operation was successful.
    */
   public static boolean pause() {
-    var success = orchestra.pause();
-    return success.isOK();
+    if (fileLoaded) {
+      var success = orchestra.play();
+      return success.isOK();
+    }
+    fileNotFound();
+    return false;
+  }
+
+  private static void fileNotFound() {
+    DriverStation.reportError(
+        "CHRP file not loaded. Check that it is in the deploy directory & includes file extension.",
+        true);
   }
 }
