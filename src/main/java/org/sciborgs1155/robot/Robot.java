@@ -46,6 +46,7 @@ public class Robot extends CommandRobot implements Logged {
 
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
+    drive.configureAuto();
     registerCommands();
     configureGameBehavior();
     configureSubsystemDefaults();

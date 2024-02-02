@@ -6,7 +6,9 @@ import static org.sciborgs1155.lib.TestingUtil.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.GyroIO;
 import org.sciborgs1155.robot.drive.SimModule;
@@ -20,7 +22,7 @@ public class SwerveTest {
   GyroIO.NoGyro gyro;
   Drive drive;
 
-  final double DELTA = 1.5e-1;
+  final double DELTA = 0.15;
 
   @BeforeEach
   public void setup() {
@@ -34,31 +36,32 @@ public class SwerveTest {
     drive.resetEncoders();
   }
 
-  @Test
+  @ParameterizedTest
+  @MethodSource()
   public void reachesRobotVelocity() {
-    double xVelocitySetpoint = 1.155;
-    double yVelocitySetpoint = 2.265;
+    double xVelocitySetpoint = -2;
+    double yVelocitySetpoint = 4;
     run(drive.drive(() -> xVelocitySetpoint, () -> yVelocitySetpoint, drive::getHeading));
     fastForward(200);
 
     ChassisSpeeds chassisSpeed = drive.getChassisSpeed();
-    assertEquals(
-        Math.hypot(xVelocitySetpoint, yVelocitySetpoint),
-        Math.hypot(chassisSpeed.vxMetersPerSecond, chassisSpeed.vyMetersPerSecond),
-        DELTA);
+
+    assertEquals(xVelocitySetpoint, chassisSpeed.vxMetersPerSecond, DELTA);
+    assertEquals(yVelocitySetpoint, chassisSpeed.vyMetersPerSecond, DELTA);
   }
 
-  @Test
-  public void reachesAngularVelocity() {
-    double omegaRadiansPerSecond = 1.155;
-    run(drive.drive(() -> 1, () -> 0, () -> omegaRadiansPerSecond));
+  @ParameterizedTest
+  @ValueSource(doubles = {3, 4})
+  public void reachesAngularVelocity(double omegaRadiansPerSecond) {
+    run(drive.drive(() -> 0, () -> 0, () -> omegaRadiansPerSecond));
     fastForward();
 
     ChassisSpeeds chassisSpeed = drive.getChassisSpeed();
     assertEquals(omegaRadiansPerSecond, chassisSpeed.omegaRadiansPerSecond, DELTA);
   }
 
-  @Test
+  @ParameterizedTest
+  @MethodSource()
   public void testModuleDistance() {
     double xVelocitySetpoint = 2.265;
     double yVelocitySetpoint = 0;

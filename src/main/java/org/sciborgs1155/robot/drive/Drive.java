@@ -149,26 +149,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     SmartDashboard.putData("turn quasistatic backward", turnSysIdQuasistatic(Direction.kReverse));
     SmartDashboard.putData("turn dynamic backward", turnSysIdDynamic(Direction.kReverse));
     SmartDashboard.putData("face same direction", alignModuleDirections());
-
-    AutoBuilder.configureHolonomic(
-        this::getPose,
-        this::resetOdometry,
-        this::getChassisSpeed,
-        this::driveRobotRelative,
-        new HolonomicPathFollowerConfig(
-            new PIDConstants(Translation.P, Translation.I, Translation.D),
-            new PIDConstants(Rotation.P, Rotation.I, Rotation.D),
-            MAX_SPEED.in(MetersPerSecond),
-            TRACK_WIDTH.divide(2).in(Meters),
-            new ReplanningConfig()),
-        () -> {
-          var alliance = DriverStation.getAlliance();
-          if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Red;
-          }
-          throw new RuntimeException("ahhhhhhhhhh");
-        },
-        this);
   }
 
   /**
@@ -255,6 +235,28 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     setModuleStates(
         kinematics.toSwerveModuleStates(
             ChassisSpeeds.discretize(speeds, Constants.PERIOD.in(Seconds))));
+  }
+
+  public void configureAuto() {
+    AutoBuilder.configureHolonomic(
+        this::getPose,
+        this::resetOdometry,
+        this::getChassisSpeed,
+        this::driveRobotRelative,
+        new HolonomicPathFollowerConfig(
+            new PIDConstants(Translation.P, Translation.I, Translation.D),
+            new PIDConstants(Rotation.P, Rotation.I, Rotation.D),
+            MAX_SPEED.in(MetersPerSecond),
+            TRACK_WIDTH.divide(2).in(Meters),
+            new ReplanningConfig()),
+        () -> {
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          throw new RuntimeException("ahhhhhhhhhh");
+        },
+        this);
   }
 
   /**
@@ -390,6 +392,5 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     frontRight.close();
     rearLeft.close();
     rearRight.close();
-    // gyro.close();
   }
 }
