@@ -40,7 +40,7 @@ public class Robot extends CommandRobot implements Logged {
   private final Drive drive = Drive.create();
 
   // COMMANDS
-  @Log.NT private final SendableChooser<Command> autos = AutoBuilder.buildAutoChooser();
+  @Log.NT private final SendableChooser<Command> autos;
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED;
 
@@ -48,6 +48,7 @@ public class Robot extends CommandRobot implements Logged {
   public Robot() {
     drive.configureAuto();
     registerCommands();
+    autos = AutoBuilder.buildAutoChooser();
     configureGameBehavior();
     configureSubsystemDefaults();
     configureBindings();
