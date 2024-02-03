@@ -16,17 +16,16 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   private final AddressableLED led = new AddressableLED(LEDPORT); // led as a class
 
   public static enum LEDTheme {
+    BXSCIFLASH(() -> movingColor(Color.kGreen, Color.kYellow, 5)), // Yellow ??%, Green ??%, moving
+    FIRE(LedStrip::fire), // Suppose to look like fire
+
     RAINBOW(LedStrip::rainbow), // RGB Gamer Robot
     SCIBORGS(() -> alternatingColor(Color.kDarkGray, Color.kYellow)), // Yellow 50%, Dark Grey 50%
     FEMAIDENS(() -> alternatingColor(Color.kPurple, Color.kLime)), // Yellow 50%, Green 50%
-    BXSCIFLASH(() -> movingColor(Color.kGreen, Color.kYellow, 5)), // Yellow ??%, Green ??%, moving
-    GREEN(() -> solidColor(Color.kGreen)),
-    RED(() -> solidColor(Color.kRed)),
     AUTO(
         () ->
             movingColor(
                 Color.kBlack, Color.kYellow, 3)), // Yellow Green 33%, Green 33%, Gold 33% , moving
-    LIT(LedStrip::fire), // Suppose to look like fire
     CHASE(
         () ->
             movingColor(
