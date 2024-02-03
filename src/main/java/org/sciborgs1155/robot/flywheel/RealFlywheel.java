@@ -6,7 +6,6 @@ import static org.sciborgs1155.robot.flywheel.FlywheelConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
@@ -20,19 +19,16 @@ public class RealFlywheel implements FlywheelIO {
 
   public RealFlywheel() {
 
-    topMotor = new CANSparkFlex(LEFT_MOTOR, MotorType.kBrushless);
-    bottomMotor = new CANSparkFlex(RIGHT_MOTOR, MotorType.kBrushless);
+    topMotor = SparkUtils.createSparkFlex(LEFT_MOTOR, false, IdleMode.kBrake, CURRENT_LIMIT);
+    bottomMotor = SparkUtils.createSparkFlex(RIGHT_MOTOR, false, IdleMode.kBrake, CURRENT_LIMIT);
     encoder = topMotor.getEncoder();
-
-    SparkUtils.configureSettings(false, IdleMode.kBrake, CURRENT_LIMIT, topMotor);
-    SparkUtils.configureSettings(true, IdleMode.kBrake, CURRENT_LIMIT, bottomMotor);
 
     encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
     encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
 
     SparkUtils.configureFrameStrategy(
         topMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE),
+        Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
         Set.of(Sensor.INTEGRATED),
         true);
     SparkUtils.configureFollowerFrameStrategy(bottomMotor);

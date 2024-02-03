@@ -6,7 +6,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
@@ -26,8 +25,7 @@ public class TalonModule implements ModuleIO {
 
   public TalonModule(int drivePort, int turnPort) {
     driveMotor = new TalonFX(drivePort);
-    turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
-    SparkUtils.configureSettings(false, IdleMode.kBrake, Turning.CURRENT_LIMIT, turnMotor);
+    turnMotor = SparkUtils.createSparkMax(turnPort, false, IdleMode.kBrake, Turning.CURRENT_LIMIT);
 
     resetEncoders();
 
@@ -41,7 +39,7 @@ public class TalonModule implements ModuleIO {
 
     SparkUtils.configureFrameStrategy(
         turnMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE),
+        Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
         Set.of(Sensor.DUTY_CYCLE),
         false);
 

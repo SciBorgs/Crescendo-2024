@@ -5,7 +5,6 @@ import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
@@ -16,18 +15,12 @@ public class RealFeeder implements FeederIO {
   private final CANSparkFlex motor;
 
   public RealFeeder() {
-
-    motor = new CANSparkFlex(FEEDER_SPARK, MotorType.kBrushless);
-
-    SparkUtils.configureSettings(false, IdleMode.kBrake, CURRENT_LIMIT, motor);
+    motor = SparkUtils.createSparkFlex(FEEDER_SPARK, false, IdleMode.kBrake, CURRENT_LIMIT);
 
     motor.burnFlash();
 
     SparkUtils.configureFrameStrategy(
-        motor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE),
-        Set.of(Sensor.INTEGRATED),
-        false);
+        motor, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.INTEGRATED), false);
   }
 
   @Override

@@ -26,18 +26,16 @@ public class RealPivot implements PivotIO {
   public RealPivot() {
 
     lead = new CANSparkFlex(PIVOT_SPARK_ONE, MotorType.kBrushless);
-    followOne = new CANSparkFlex(PIVOT_SPARK_TWO, MotorType.kBrushless);
-    followTwo = new CANSparkFlex(PIVOT_SPARK_THREE, MotorType.kBrushless);
-    followThree = new CANSparkFlex(PIVOT_SPARK_FOUR, MotorType.kBrushless);
+    followOne = SparkUtils.createSparkFlex(PIVOT_SPARK_TWO, false, IdleMode.kBrake, CURRENT_LIMIT);
+    followTwo = SparkUtils.createSparkFlex(PIVOT_SPARK_THREE, true, IdleMode.kBrake, CURRENT_LIMIT);
+    followThree =
+        SparkUtils.createSparkFlex(PIVOT_SPARK_FOUR, true, IdleMode.kBrake, CURRENT_LIMIT);
     encoder = new DutyCycleEncoder(PIVOT_THROUGHBORE);
-
-    SparkUtils.configureSettings(false, IdleMode.kBrake, CURRENT_LIMIT, lead, followOne);
-    SparkUtils.configureSettings(true, IdleMode.kBrake, CURRENT_LIMIT, followTwo, followThree);
 
     encoder.setDistancePerRotation(POSITION_FACTOR.in(Radians));
 
     SparkUtils.configureFrameStrategy(
-        lead, Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE), Set.of(Sensor.INTEGRATED), true);
+        lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.INTEGRATED), true);
 
     SparkUtils.configureFollowerFrameStrategy(followOne);
     SparkUtils.configureFollowerFrameStrategy(followTwo);

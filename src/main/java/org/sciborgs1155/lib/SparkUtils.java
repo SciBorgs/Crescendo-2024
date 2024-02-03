@@ -5,7 +5,10 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Measure;
@@ -38,7 +41,8 @@ public class SparkUtils {
     POSITION,
     VELOCITY,
     CURRENT,
-    VOLTAGE;
+    OUTPUT,
+    INPUT;
   }
 
   /**
@@ -63,9 +67,11 @@ public class SparkUtils {
     int status5 = FRAME_STRATEGY_DISABLED; // duty cycle position | default 200
     int status6 = FRAME_STRATEGY_DISABLED; // duty cycle velocity | default 200
 
-    if (data.contains(Data.VELOCITY)
-        || data.contains(Data.VOLTAGE)
-        || data.contains(Data.CURRENT)) {
+    if (!data.contains(Data.OUTPUT) && !withFollower) {
+      status0 = FRAME_STRATEGY_SLOW;
+    }
+
+    if (data.contains(Data.VELOCITY) || data.contains(Data.INPUT) || data.contains(Data.CURRENT)) {
       status1 = FRAME_STRATEGY_FAST;
     }
 
@@ -90,10 +96,6 @@ public class SparkUtils {
       }
     }
 
-    if (!withFollower) {
-      status0 = FRAME_STRATEGY_SLOW;
-    }
-
     spark.setPeriodicFramePeriod(PeriodicFrame.kStatus0, status0);
     spark.setPeriodicFramePeriod(PeriodicFrame.kStatus1, status1);
     spark.setPeriodicFramePeriod(PeriodicFrame.kStatus2, status2);
@@ -114,34 +116,44 @@ public class SparkUtils {
   }
 
   /**
-   * Configures a CANSpark motor.
+   * Creates a CANSparkMax in brushless mode with the given configuration.
    *
-   * @param spark The motor object. This is either a CANSparkMax object or a CANSparkFlex object.
-   * @param inverted The state of inversion. True if inverted.
-   * @param idleMode Idle mode setting (either kCoast or kBrake).
-   * @param limit current limit.
+   * <p>This method restores the spark to factory defaults before applying configurations.
+   *
+   * @param id The CAN ID of the motor controller.
+   * @param inverted Whether the motor controller is inverted.
+   * @param idleMode The idle behavior of the motor.
+   * @param currentLimit The smart current limit of the motor controller.
+   * @return A new CANSparkMax object.
    */
-  public static void configureSettings(
-      boolean inverted, IdleMode idleMode, Measure<Current> limit, CANSparkBase spark) {
+  public static CANSparkMax createSparkMax(
+      int id, boolean inverted, IdleMode idleMode, Measure<Current> currentLimit) {
+    CANSparkMax spark = new CANSparkMax(id, MotorType.kBrushless);
     spark.restoreFactoryDefaults();
     spark.setInverted(inverted);
     spark.setIdleMode(idleMode);
-    spark.setSmartCurrentLimit((int) limit.in(Amps));
+    spark.setSmartCurrentLimit((int) currentLimit.in(Amps));
+    return spark;
   }
 
   /**
-   * Configures multiple CANSpark motors.
+   * Creates a CANSparkFlex in brushless mode with the given configuration.
    *
-   * @param sparks The spark objects. These can either be a CANSparkMax object or a CANSparkFlex
-   *     object.
-   * @param inverted The state of inversion. True if inverted.
-   * @param idleMode Idle mode setting (either kCoast or kBrake).
-   * @param limit current limit.
+   * <p>This method restores the spark to factory defaults before applying configurations.
+   *
+   * @param id The CAN ID of the motor controller.
+   * @param inverted Whether the motor controller is inverted.
+   * @param idleMode The idle behavior of the motor.
+   * @param currentLimit The smart current limit of the motor controller.
+   * @return A new CANSparkFlex object.
    */
-  public static void configureSettings(
-      boolean inverted, IdleMode idleMode, Measure<Current> limit, CANSparkBase... sparks) {
-    for (var spark : sparks) {
-      configureSettings(inverted, idleMode, limit, spark);
-    }
+  public static CANSparkFlex createSparkFlex(
+      int id, boolean inverted, IdleMode idleMode, Measure<Current> currentLimit) {
+    CANSparkFlex spark = new CANSparkFlex(id, MotorType.kBrushless);
+    spark.restoreFactoryDefaults();
+    spark.setInverted(inverted);
+    spark.setIdleMode(idleMode);
+    spark.setSmartCurrentLimit((int) currentLimit.in(Amps));
+    return spark;
   }
 }

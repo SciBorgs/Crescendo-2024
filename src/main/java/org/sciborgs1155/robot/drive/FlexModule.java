@@ -5,9 +5,6 @@ import static org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.COUPLI
 
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
@@ -37,11 +34,9 @@ public class FlexModule implements ModuleIO {
    * @param turnPort turning motor port
    */
   public FlexModule(int drivePort, int turnPort, Rotation2d angularOffset) {
-    driveMotor = new CANSparkFlex(drivePort, MotorType.kBrushless);
-    SparkUtils.configureSettings(false, IdleMode.kBrake, Driving.CURRENT_LIMIT, driveMotor);
-
-    turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
-    SparkUtils.configureSettings(false, IdleMode.kBrake, Turning.CURRENT_LIMIT, turnMotor);
+    driveMotor =
+        SparkUtils.createSparkFlex(drivePort, false, IdleMode.kBrake, Driving.CURRENT_LIMIT);
+    turnMotor = SparkUtils.createSparkMax(turnPort, false, IdleMode.kBrake, Turning.CURRENT_LIMIT);
 
     driveEncoder = driveMotor.getEncoder();
     driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Radians));
@@ -54,12 +49,12 @@ public class FlexModule implements ModuleIO {
 
     SparkUtils.configureFrameStrategy(
         driveMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE),
+        Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
         Set.of(Sensor.INTEGRATED),
         false);
     SparkUtils.configureFrameStrategy(
         turnMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE),
+        Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
         Set.of(Sensor.DUTY_CYCLE),
         false);
 
