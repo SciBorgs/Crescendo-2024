@@ -19,8 +19,8 @@ public class RealFlywheel implements FlywheelIO {
 
   public RealFlywheel() {
 
-    topMotor = SparkUtils.createSparkFlex(LEFT_MOTOR, false, IdleMode.kBrake, CURRENT_LIMIT);
-    bottomMotor = SparkUtils.createSparkFlex(RIGHT_MOTOR, false, IdleMode.kBrake, CURRENT_LIMIT);
+    topMotor = SparkUtils.createSparkFlex(TOP_MOTOR, false, IdleMode.kBrake, CURRENT_LIMIT);
+    bottomMotor = SparkUtils.createSparkFlex(BOTTOM_MOTOR, false, IdleMode.kBrake, CURRENT_LIMIT);
     encoder = topMotor.getEncoder();
 
     encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));

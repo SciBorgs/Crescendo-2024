@@ -12,13 +12,15 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.function.DoubleSupplier;
 import monologue.Logged;
+import monologue.Annotations.Log;
+
 import org.sciborgs1155.robot.Robot;
 
 public class Flywheel extends SubsystemBase implements AutoCloseable, Logged {
   private final FlywheelIO flywheel;
-  private final SysIdRoutine sysIdoogabooga;
+  private final SysIdRoutine sysId; //sysIdoogabooga
 
-  private final PIDController flywheelPID = new PIDController(kP, kI, kD);
+  @Log.NT private final PIDController flywheelPID = new PIDController(kP, kI, kD);
 
   private final SimpleMotorFeedforward flywheelFeedforward = new SimpleMotorFeedforward(kS, kV, kA);
 
@@ -29,7 +31,7 @@ public class Flywheel extends SubsystemBase implements AutoCloseable, Logged {
 
   public Flywheel(FlywheelIO flywheel) {
     this.flywheel = flywheel;
-    sysIdoogabooga =
+    sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
@@ -55,28 +57,28 @@ public class Flywheel extends SubsystemBase implements AutoCloseable, Logged {
         .withName("running Flywheel");
   }
 
-  public double getVelocity() {
+  @Log.NT public double getVelocity() {
     return flywheel.getVelocity();
   }
 
-  public boolean atSetpoint() {
+  @Log.NT public boolean atSetpoint() {
     return flywheelPID.atSetpoint();
   }
 
   public Command quasistaticBack() {
-    return sysIdoogabooga.quasistatic(Direction.kReverse);
+    return sysId.quasistatic(Direction.kReverse);
   }
 
   public Command quasistaticForward() {
-    return sysIdoogabooga.quasistatic(Direction.kForward);
+    return sysId.quasistatic(Direction.kForward);
   }
 
   public Command dynamicForward() {
-    return sysIdoogabooga.dynamic(Direction.kForward);
+    return sysId.dynamic(Direction.kForward);
   }
 
   public Command dynamicBack() {
-    return sysIdoogabooga.dynamic(Direction.kReverse);
+    return sysId.dynamic(Direction.kReverse);
   }
 
   @Override

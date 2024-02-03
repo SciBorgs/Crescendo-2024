@@ -22,26 +22,27 @@ import org.sciborgs1155.robot.Robot;
 
 public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   @Log.NT private final PivotIO pivot;
-  private final SysIdRoutine sysIdRoutineoogabooga;
+  private final SysIdRoutine sysIdRoutine; //sysIdRoutineoogabooga
 
   // pivot control
-  public final ProfiledPIDController pivotPID =
+  @Log.NT 
+  final ProfiledPIDController pivotPID =
       new ProfiledPIDController(
           PivotConstants.kP,
           PivotConstants.kI,
           PivotConstants.kD,
           new TrapezoidProfile.Constraints(PivotConstants.MAX_VELOCITY, PivotConstants.MAX_ACCEL));
-  private final ArmFeedforward pivotFeedforward =
+  @Log.NT private final ArmFeedforward pivotFeedforward =
       new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
 
   // climb control
-  private final ProfiledPIDController climbPID =
+  @Log.NT private final ProfiledPIDController climbPID =
       new ProfiledPIDController(
           ClimbConstants.kP,
           ClimbConstants.kI,
           ClimbConstants.kD,
           new TrapezoidProfile.Constraints(ClimbConstants.MAX_VELOCITY, ClimbConstants.MAX_ACCEL));
-  private final ArmFeedforward climbFeedforward =
+  @Log.NT private final ArmFeedforward climbFeedforward =
       new ArmFeedforward(ClimbConstants.kS, ClimbConstants.kG, ClimbConstants.kV);
 
   // visualization
@@ -60,7 +61,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   public Pivot(PivotIO pivot) {
     this.pivot = pivot;
-    sysIdRoutineoogabooga =
+    sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
@@ -119,6 +120,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     return pivot.getPosition();
   }
 
+  @Log.NT
   public boolean atSetpoint() {
     return pivotPID.atSetpoint();
   }
@@ -130,19 +132,19 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command quasistaticForward() {
-    return sysIdRoutineoogabooga.quasistatic(Direction.kForward);
+    return sysIdRoutine.quasistatic(Direction.kForward);
   }
 
   public Command quasistaticBack() {
-    return sysIdRoutineoogabooga.quasistatic(Direction.kReverse);
+    return sysIdRoutine.quasistatic(Direction.kReverse);
   }
 
   public Command dynamicForward() {
-    return sysIdRoutineoogabooga.dynamic(Direction.kForward);
+    return sysIdRoutine.dynamic(Direction.kForward);
   }
 
   public Command dynamicBack() {
-    return sysIdRoutineoogabooga.dynamic(Direction.kReverse);
+    return sysIdRoutine.dynamic(Direction.kReverse);
   }
 
   @Override

@@ -14,8 +14,8 @@ public class SimFeeder implements FeederIO {
       new DCMotorSim(LinearSystemId.createDCMotorSystem(kV, kA), DCMotor.getNeoVortex(1), GEARING);
 
   @Override
-  public void set(double voltage) {
-    sim.setInputVoltage(voltage);
+  public void set(double power) {
+    sim.setInputVoltage(power);
     sim.update(Constants.PERIOD.in(Seconds));
   }
 

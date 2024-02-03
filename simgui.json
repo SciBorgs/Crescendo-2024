@@ -20,9 +20,12 @@
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
       "/Robot/flywheel": "Subsystem",
+      "/Robot/flywheel/flywheelPID": "PIDController",
+      "/Robot/pivot/climbPID": "ProfiledPIDController",
       "/Robot/pivot/manualPID": "PIDController",
       "/Robot/pivot/manualSetpoint": "Mechanism2d",
       "/Robot/pivot/measurement": "Mechanism2d",
+      "/Robot/pivot/pivotPID": "ProfiledPIDController",
       "/Robot/pivot/setpoint": "Mechanism2d",
       "/Robot/shooter/measurement": "Mechanism2d",
       "/Robot/shooter/mech": "Mechanism2d",
@@ -32,7 +35,11 @@
       "/Robot/shooter/pivot/measurement": "Mechanism2d",
       "/Robot/shooter/pivot/setpoint": "Mechanism2d",
       "/Robot/shooter/setpoint": "Mechanism2d",
-      "/SmartDashboard/drive quasistatic forward": "Command"
+      "/SmartDashboard/drive quasistatic forward": "Command",
+      "/SmartDashboard/dynamicBack": "Command",
+      "/SmartDashboard/dynamicForward": "Command",
+      "/SmartDashboard/quasistaticBack": "Command",
+      "/SmartDashboard/quasistaticForward": "Command"
     },
     "windows": {
       "/Robot/autos": {
@@ -159,6 +166,7 @@
             0.0,
             0.8500000238418579
           ],
+          "height": 80,
           "series": [
             {
               "color": [
