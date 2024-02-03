@@ -45,8 +45,6 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
 
   // 1 tick = 0.02 seconds (because periodic)   50 ticks = 1 second
   static double tick = 0; // needs to be double or else rainbow breaks
-  static boolean inrange = false;
-  static LEDTheme lastTheme = LEDTheme.NONE;
   public static final Color[] colorpool = {
     Color.kRed, Color.kOrange, Color.kYellow, Color.kGreen, Color.kBlue, Color.kPurple
   };
