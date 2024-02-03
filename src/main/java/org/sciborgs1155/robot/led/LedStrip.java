@@ -15,6 +15,8 @@ import monologue.Logged;
 public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   private final AddressableLED led = new AddressableLED(LEDPORT); // led as a class
 
+  // NOTE: THERE CAN ONLY BE ONE ADDRESABLELED (because roborio)
+
   public static enum LEDTheme {
     BXSCIFLASH(() -> movingColor(Color.kGreen, Color.kYellow, 5)), // Yellow ??%, Green ??%, moving
     FIRE(LedStrip::fire), // Suppose to look like fire
@@ -82,10 +84,6 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
       buffer.setLED(i, f.apply(i));
     }
     return buffer;
-  }
-
-  private static AddressableLEDBuffer solidColor(Color color) {
-    return gen(i -> color);
   }
 
   private static AddressableLEDBuffer alternatingColor(Color color1, Color color2) {

@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.Hashtable;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -94,5 +95,10 @@ public class Shooting extends SubsystemBase implements Logged {
     } catch (Exception e) {
       throw (new Exception("cannot shoot from this position!"));
     }
+  }
+
+  // TODO siggy needs to write this! (siggy was here)
+  public Trigger canShoot() {
+    return new Trigger(() -> false);
   }
 }
