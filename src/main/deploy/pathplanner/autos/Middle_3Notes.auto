@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.9751772230817188,
-      "y": 3.8807583069711598
+      "x": 0.7993888854980469,
+      "y": 4.013235092163086
     },
-    "rotation": 179.49741833327897
+    "rotation": 1.3364580342345409e-30
   },
   "command": {
     "type": "sequential",
@@ -14,48 +14,54 @@
         {
           "type": "path",
           "data": {
-            "pathName": "note 1"
+            "pathName": "M_3"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": null
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "note 2"
+            "name": "Shoot"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": null
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "note 3"
+            "name": "Intake"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": null
+            "name": "Shoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "end"
+            "pathName": "M_3-2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "M-2-6"
           }
         }
       ]
     }
   },
-  "folder": null,
-  "choreoAuto": false
+  "folder": "Middle Autos",
+  "choreoAuto": true
 }

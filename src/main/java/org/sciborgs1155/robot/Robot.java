@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -41,13 +42,14 @@ public class Robot extends CommandRobot implements Logged {
   private final Drive drive = Drive.create();
 
   // COMMANDS
-  @Log.NT private final SendableChooser<Command> autos = AutoBuilder.buildAutoChooser();
+  @Log.NT private final SendableChooser<Command> autos;
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED;
 
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
     registerCommands();
+    autos = AutoBuilder.buildAutoChooser();
     configureGameBehavior();
     configureSubsystemDefaults();
     configureBindings();
@@ -103,7 +105,7 @@ public class Robot extends CommandRobot implements Logged {
 
   /** Registers all named commands, which will be used by pathplanner */
   private void registerCommands() {
-    // EX: NamedCommands.registerCommand(name, command);
+    NamedCommands.registerCommand("Lock", drive.lock());
   }
 
   /** Configures trigger -> command bindings */
