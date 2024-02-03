@@ -85,11 +85,6 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     led.close();
   }
 
-  // @Override
-  // public void periodic() {
-  //   System.out.println(getBufferDataString());
-  // }
-
   private static AddressableLEDBuffer setSolidColor(Color color) {
     final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
     for (int i = 0; i < ledBuffer.getLength(); i++) {
@@ -101,11 +96,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   private static AddressableLEDBuffer setAlternatingColor(Color color1, Color color2) {
     final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
     for (int i = 0; i < ledBuffer.getLength(); i++) {
-      if (i % 2 == 0) {
-        ledBuffer.setLED(i, color1);
-      } else {
-        ledBuffer.setLED(i, color2);
-      }
+      ledBuffer.setLED(i, i % 2 == 0 ? color1 : color2);
     }
     return ledBuffer;
   }
@@ -114,11 +105,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   private static AddressableLEDBuffer setMovingColor(Color color1, Color color2, int every) {
     final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
     for (int i = 0; i < ledBuffer.getLength(); i++) {
-      if ((i + tick) % every == 0) {
-        ledBuffer.setLED(i, color2);
-      } else {
-        ledBuffer.setLED(i, color1);
-      }
+      ledBuffer.setLED(i, (i + tick) % every == 0 ? color2 : color1);
     }
     return ledBuffer;
   }
@@ -159,13 +146,6 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   private static Color[] raindrop = new Color[LEDLENGTH];
 
   private static AddressableLEDBuffer setRaindrop() {
-    // start on 2:26 PM speedrun, end speedrun on 4:51 PM
-    // (i spent an hour trying to fix something and learned that java lists in lists suck!)
-    // code is now changed, the fix was that java lists of lists apparently arent a list of LISTS
-    // why can we destroy faster than we create
-
-    // REQUIRES FINAL GRID SHAPE DIMENSIONS, ASSUMES FORTH AND FORTH ONLY LAYERING!
-    // (back and forth would be easy to do, edit some parts, add reverse list row code)
     AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
 
     if (Math.round(Math.random() * 2) == 0) {

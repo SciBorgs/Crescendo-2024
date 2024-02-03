@@ -145,7 +145,7 @@ public class Robot extends CommandRobot implements Logged {
     // operator.x().and(() -> !shooting.canShoot()).onTrue(rumble(RumbleType.kBothRumble, 0.5));
     operator.a().onTrue(led.setLEDTheme(LEDTheme.SCIBORGS));
     operator.b().onTrue(led.setLEDTheme(LEDTheme.RAINDROP));
-    operator.x().onTrue(led.setLEDTheme(LEDTheme.LIT));
+    operator.x().onTrue(led.setLEDTheme(LEDTheme.CHASE));
     operator.y().onTrue(led.setLEDTheme(LEDTheme.RAINBOW));
   }
 
