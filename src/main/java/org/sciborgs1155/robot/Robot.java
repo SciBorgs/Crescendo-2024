@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -97,7 +99,7 @@ public class Robot extends CommandRobot implements Logged {
 
   /** Registers all named commands, which will be used by pathplanner */
   private void registerCommands() {
-    // EX: NamedCommands.registerCommand(name, command);
+    NamedCommands.registerCommand("Lock", drive.lock());
   }
 
   /** Configures trigger -> command bindings */
