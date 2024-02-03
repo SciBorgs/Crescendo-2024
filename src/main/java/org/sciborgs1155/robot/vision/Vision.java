@@ -9,6 +9,8 @@ import edu.wpi.first.math.numbers.N3;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -17,7 +19,6 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.sciborgs1155.robot.Robot;
-
 public class Vision {
 
   private List<PhotonCamera> cameras = new ArrayList<PhotonCamera>();
@@ -82,6 +83,9 @@ public class Vision {
         .toArray(EstimatedRobotPose[]::new);
   }
 
+
+  
+
   /**
    * The standard deviations of the estimated pose from {@link #getEstimatedGlobalPose()}, for use
    * with {@link edu.wpi.first.math.estimator.SwerveDrivePoseEstimator SwerveDrivePoseEstimator}.
@@ -104,7 +108,7 @@ public class Vision {
     }
     if (numTags == 0) return estStdDevs;
     avgDist /= numTags;
-    // Decrease std devs if multiple targets are visible
+    // Decrease std devs if multiple targets are visibleX
     if (numTags > 1) estStdDevs = VisionConstants.MULTIPLE_TAG_STD_DEVS;
     // Increase std devs based on (average) distance
     if (numTags == 1 && avgDist > 4)
