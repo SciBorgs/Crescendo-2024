@@ -12,6 +12,7 @@ import edu.wpi.first.math.numbers.N3;
 
 public class VisionConstants {
   public static record CameraConfig(String name, Transform3d robotToCam) {}
+
   public static final AprilTagFieldLayout TAG_LAYOUT =
       AprilTagFields.kDefaultField.loadAprilTagLayoutField();
 

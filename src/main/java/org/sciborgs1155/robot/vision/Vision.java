@@ -9,8 +9,6 @@ import edu.wpi.first.math.numbers.N3;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
-
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -19,7 +17,9 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.sciborgs1155.robot.Robot;
+
 public class Vision {
+  public static record poseEstimate(EstimatedRobotPose estimatedPose, Matrix<N3, N1> standardDev) {}
 
   private List<PhotonCamera> cameras = new ArrayList<PhotonCamera>();
   private List<PhotonPoseEstimator> poseEstimators = new ArrayList<PhotonPoseEstimator>();
@@ -83,8 +83,21 @@ public class Vision {
         .toArray(EstimatedRobotPose[]::new);
   }
 
+  public poseEstimate[] getPoseEstimates(Pose2d estimatedDrivePose) {
+    EstimatedRobotPose[] curEstimatedPoses = getEstimatedGlobalPoses();
+    int length = cameras.size();
+    poseEstimate[] poseEstimates = new poseEstimate[length];
+    for (int i = 0; i < length; i++) {
+      // Fetch every indivdual camera along with its respective pose estimator
+      PhotonCamera curCamera = this.cameras.get(i);
+      PhotonPoseEstimator curEstimator = this.poseEstimators.get(i);
 
-  
+      Matrix<N3, N1> estimatedStdDev =
+          getEstimationStdDevs(estimatedDrivePose, curCamera, curEstimator);
+      poseEstimates[i] = new poseEstimate(curEstimatedPoses[i], estimatedStdDev);
+    }
+    return poseEstimates;
+  }
 
   /**
    * The standard deviations of the estimated pose from {@link #getEstimatedGlobalPose()}, for use
