@@ -1,13 +1,14 @@
 package org.sciborgs1155.robot.led;
 
-import static org.sciborgs1155.robot.Ports.Led.*;
-import static org.sciborgs1155.robot.led.LedConstants.*;
+import static org.sciborgs1155.robot.Ports.Led.LEDPORT;
+import static org.sciborgs1155.robot.led.LedConstants.LEDLENGTH;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import monologue.Logged;
 
@@ -85,29 +86,25 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     led.close();
   }
 
-  private static AddressableLEDBuffer setSolidColor(Color color) {
-    final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
-    for (int i = 0; i < ledBuffer.getLength(); i++) {
-      ledBuffer.setLED(i, color);
+  public static AddressableLEDBuffer gen(Function<Integer, Color> f) {
+    AddressableLEDBuffer buffer = new AddressableLEDBuffer(LEDLENGTH);
+    for (int i = 0; i < LEDLENGTH; i++) {
+      buffer.setLED(i, f.apply(i));
     }
-    return ledBuffer;
+    return buffer;
+  }
+
+  private static AddressableLEDBuffer setSolidColor(Color color) {
+    return gen(i -> color);
   }
 
   private static AddressableLEDBuffer setAlternatingColor(Color color1, Color color2) {
-    final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
-    for (int i = 0; i < ledBuffer.getLength(); i++) {
-      ledBuffer.setLED(i, i % 2 == 0 ? color1 : color2);
-    }
-    return ledBuffer;
+    return gen(i -> i % 2 == 0 ? color1 : color2);
   }
 
-  /** "every (every) LEDs, LED should be (color 2). everyting else is (color 1)." */
-  private static AddressableLEDBuffer setMovingColor(Color color1, Color color2, int every) {
-    final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
-    for (int i = 0; i < ledBuffer.getLength(); i++) {
-      ledBuffer.setLED(i, (i + tick) % every == 0 ? color2 : color1);
-    }
-    return ledBuffer;
+  /** "every (interval) LEDs, LED should be (color 2). everyting else is (color 1)." */
+  private static AddressableLEDBuffer setMovingColor(Color color1, Color color2, int interval) {
+    return gen(i -> (i + tick) % interval == 0 ? color2 : color1);
   }
 
   // A bunch of methoeds for the LEDThemes below!
@@ -115,40 +112,30 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
 
   private static AddressableLEDBuffer setRainbow() {
     AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
-    for (int i = 0; i < ledBuffer.getLength(); i++) {
-      final double constant = i / (ledBuffer.getLength() * (Math.PI / 2));
-      double green = Math.sin(((tick * 20) / 200) + (constant));
-      double blue = Math.cos(((tick * 20) / 200) + (constant));
-      double red = -Math.sin(((tick * 20) / 200) + (constant));
-      green *= 255 / 2;
-      blue *= 255 / 2;
-      red *= 255 / 2;
-      green += 255 / 2;
-      blue += 255 / 2;
-      red += 255 / 2;
-      ledBuffer.setRGB(i, (int) red, (int) green, (int) blue);
-    }
-    return ledBuffer;
+
+    final double scalar = 255 / 2;
+    return gen(
+        i -> {
+          final double theta = tick / 10 + i / (ledBuffer.getLength() * (Math.PI / 2));
+          return new Color(
+              (int) ((-Math.sin(theta) + 1) * scalar),
+              (int) ((Math.sin(theta) + 1) * scalar),
+              (int) ((Math.cos(theta) + 1) * scalar));
+        });
   }
 
   private static AddressableLEDBuffer setFire() {
     Color[] fireColors = {
       Color.kRed, Color.kOrange, Color.kYellow, Color.kOrangeRed, Color.kOrange
     };
-    AddressableLEDBuffer ledBuffer =
-        new AddressableLEDBuffer(LEDLENGTH); // the robot is lit! (but it should not burning)
-    for (int i = 0; i < ledBuffer.getLength(); i++) {
-      ledBuffer.setLED(i, fireColors[(int) (Math.floor((i + tick) % 5))]);
-    }
-    return ledBuffer;
+    return gen(i -> fireColors[(int) (Math.floor((i + tick) % 5))]);
   }
 
   private static Color[] raindrop = new Color[LEDLENGTH];
 
   private static AddressableLEDBuffer setRaindrop() {
     AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
-
-    if (Math.round(Math.random() * 2) == 0) {
+    if (Math.round(Math.random()) == 0) {
       raindrop[0] = Color.kBlack;
     } else {
       if (Math.round(Math.random()) == 0) {
@@ -161,12 +148,9 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     }
 
     for (int i = 0; i < raindrop.length; i++) {
-      if (raindrop[i] == null) {
-        ledBuffer.setLED(i, Color.kBlack);
-      } else {
-        ledBuffer.setLED(i, raindrop[i]);
-      }
+      ledBuffer.setLED(i, raindrop[i] == null ? Color.kBlack : raindrop[i]);
     }
+
     return ledBuffer;
   }
 
