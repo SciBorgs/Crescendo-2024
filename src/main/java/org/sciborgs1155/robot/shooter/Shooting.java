@@ -18,16 +18,16 @@ import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
 import org.sciborgs1155.robot.shooter.pivot.Pivot;
 
 public class Shooting extends SubsystemBase implements Logged {
-  
+
   @Log.NT private final Feeder feeder;
   @Log.NT private final Pivot pivot;
   @Log.NT private final Flywheel flywheel;
-  
+
   private final Hashtable<Translation2d, ShooterState> shootingData;
-  
+
   /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
   public static record ShooterState(Rotation2d angle, double speed) {}
-  
+
   public Shooting(Flywheel flywheel, Pivot pivot, Feeder feeder) {
     this(flywheel, pivot, feeder, new Hashtable<Translation2d, ShooterState>());
   }
