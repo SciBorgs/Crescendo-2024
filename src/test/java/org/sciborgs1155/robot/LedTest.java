@@ -4,8 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.sciborgs1155.lib.TestingUtil.*;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 import org.sciborgs1155.robot.led.LedStrip;
 import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 
@@ -22,21 +23,21 @@ public class LedTest {
     led = new LedStrip();
   }
 
-  @RepeatedTest(1)
+  @Test
   public void testThemeSet() {
-    run(led.setLEDTheme(LEDTheme.SCIBORGS));
-    fastForward();
     assertEquals(correct, LedStrip.getBufferDataString(LEDTheme.SCIBORGS.ledBuffer.get()));
-    led.close();
   }
 
-  @RepeatedTest(1)
+  @Test
   public void testRainbowTheme() {
-    run(led.setLEDTheme(LEDTheme.RAINBOW));
-    fastForward();
-    latest = LedStrip.getBufferDataString(LEDTheme.RAINBOW.ledBuffer.get());
-    assertNotEquals(temp,latest);
-    temp = latest;
+    var rainbow1 = LedStrip.getBufferDataString(LEDTheme.RAINBOW.ledBuffer.get());
+    fastForward(1);
+    var rainbow2 = LedStrip.getBufferDataString(LEDTheme.RAINBOW.ledBuffer.get());
+    assertNotEquals(rainbow1, rainbow2);
+  }
+
+  @AfterEach
+  public void destroy() {
     led.close();
   }
 }

@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
@@ -136,14 +135,14 @@ public class Robot extends CommandRobot implements Logged {
     // shooting into speaker when up to subwoofer
     operator
         .x()
-        .and(() -> shooting.canShoot())
+        // .and(() -> shooting.canShoot())
         .toggleOnTrue(
             shooting.pivotThenShoot(
                 () -> new Rotation2d(PRESET_SUBWOOFER_ANGLE),
                 () -> PRESET_SUBWOOFER_VELOCITY.in(RadiansPerSecond)));
 
     // assuming x is shoot button, will rumble if cant shoot
-    operator.x().and(() -> !shooting.canShoot()).onTrue(rumble(RumbleType.kBothRumble, 0.5));
+    // operator.x().and(() -> !shooting.canShoot()).onTrue(rumble(RumbleType.kBothRumble, 0.5));
     operator.a().onTrue(led.setLEDTheme(LEDTheme.SCIBORGS));
     operator.b().onTrue(led.setLEDTheme(LEDTheme.RAINDROP));
     operator.y().onTrue(led.setLEDTheme(LEDTheme.RAINBOW));

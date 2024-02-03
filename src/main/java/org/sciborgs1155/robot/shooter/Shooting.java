@@ -23,8 +23,6 @@ public class Shooting extends SubsystemBase implements Logged {
   @Log.NT private final Pivot pivot;
   @Log.NT private final Flywheel flywheel;
   
-  @Log.NT public boolean shootability;
-
   private final Hashtable<Translation2d, ShooterState> shootingData;
   
   /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
@@ -43,7 +41,6 @@ public class Shooting extends SubsystemBase implements Logged {
     this.flywheel = flywheel;
     this.pivot = pivot;
     this.feeder = feeder;
-    shootability = true;
   }
 
   // shooting commands
@@ -97,13 +94,5 @@ public class Shooting extends SubsystemBase implements Logged {
     } catch (Exception e) {
       throw (new Exception("cannot shoot from this position!"));
     }
-  }
-
-  public boolean canShoot() {
-    // please code real code here
-    return shootability;
-  }
-  public boolean cantShoot(){
-    return !canShoot();
   }
 }
