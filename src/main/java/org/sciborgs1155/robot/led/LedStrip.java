@@ -16,26 +16,24 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   private final AddressableLED led = new AddressableLED(LEDPORT); // led as a class
 
   public static enum LEDTheme {
-    RAINBOW(LedStrip::setRainbow), // RGB Gamer Robot
-    SCIBORGS(
-        () -> setAlternatingColor(Color.kDarkGray, Color.kYellow)), // Yellow 50%, Dark Grey 50%
-    FEMAIDENS(() -> setAlternatingColor(Color.kPurple, Color.kLime)), // Yellow 50%, Green 50%
-    BXSCIFLASH(
-        () -> setMovingColor(Color.kGreen, Color.kYellow, 5)), // Yellow ??%, Green ??%, moving
-    GREEN(() -> setSolidColor(Color.kGreen)),
-    RED(() -> setSolidColor(Color.kRed)),
+    RAINBOW(LedStrip::rainbow), // RGB Gamer Robot
+    SCIBORGS(() -> alternatingColor(Color.kDarkGray, Color.kYellow)), // Yellow 50%, Dark Grey 50%
+    FEMAIDENS(() -> alternatingColor(Color.kPurple, Color.kLime)), // Yellow 50%, Green 50%
+    BXSCIFLASH(() -> movingColor(Color.kGreen, Color.kYellow, 5)), // Yellow ??%, Green ??%, moving
+    GREEN(() -> solidColor(Color.kGreen)),
+    RED(() -> solidColor(Color.kRed)),
     AUTO(
         () ->
-            setMovingColor(
+            movingColor(
                 Color.kBlack, Color.kYellow, 3)), // Yellow Green 33%, Green 33%, Gold 33% , moving
-    LIT(LedStrip::setFire), // Suppose to look like fire
+    LIT(LedStrip::fire), // Suppose to look like fire
     CHASE(
         () ->
-            setMovingColor(
+            movingColor(
                 Color.kDeepSkyBlue,
                 Color.kDarkMagenta,
                 6)), // Looks like those store lights chasing eachother in a loop
-    RAINDROP(LedStrip::setRaindrop), // falling notes thing, random colors drop from the top
+    RAINDROP(LedStrip::raindrop), // falling notes thing, random colors drop from the top
     NONE(LedStrip::nothing); // does nothing
 
     public final Supplier<AddressableLEDBuffer> ledBuffer;
@@ -45,7 +43,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     }
   }
 
-  // 1 tick = 0.02 seconds (because periodic)   50 ticks = 1 second (minecraft gameticks x2.5 speed)
+  // 1 tick = 0.02 seconds (because periodic)   50 ticks = 1 second
   static double tick = 0; // needs to be double or else rainbow breaks
   static boolean inrange = false;
   static LEDTheme lastTheme = LEDTheme.NONE;
@@ -81,11 +79,6 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     return ("[" + String.join(",", ledBufferData) + "]");
   }
 
-  @Override
-  public void close() {
-    led.close();
-  }
-
   public static AddressableLEDBuffer gen(Function<Integer, Color> f) {
     AddressableLEDBuffer buffer = new AddressableLEDBuffer(LEDLENGTH);
     for (int i = 0; i < LEDLENGTH; i++) {
@@ -94,25 +87,24 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     return buffer;
   }
 
-  private static AddressableLEDBuffer setSolidColor(Color color) {
+  private static AddressableLEDBuffer solidColor(Color color) {
     return gen(i -> color);
   }
 
-  private static AddressableLEDBuffer setAlternatingColor(Color color1, Color color2) {
+  private static AddressableLEDBuffer alternatingColor(Color color1, Color color2) {
     return gen(i -> i % 2 == 0 ? color1 : color2);
   }
 
   /** "every (interval) LEDs, LED should be (color 2). everyting else is (color 1)." */
-  private static AddressableLEDBuffer setMovingColor(Color color1, Color color2, int interval) {
+  private static AddressableLEDBuffer movingColor(Color color1, Color color2, int interval) {
     return gen(i -> (i + tick) % interval == 0 ? color2 : color1);
   }
 
   // A bunch of methoeds for the LEDThemes below!
   // (the ones that can't be copy paste)
 
-  private static AddressableLEDBuffer setRainbow() {
+  private static AddressableLEDBuffer rainbow() {
     AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
-
     final double scalar = 255 / 2;
     return gen(
         i -> {
@@ -124,7 +116,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
         });
   }
 
-  private static AddressableLEDBuffer setFire() {
+  private static AddressableLEDBuffer fire() {
     Color[] fireColors = {
       Color.kRed, Color.kOrange, Color.kYellow, Color.kOrangeRed, Color.kOrange
     };
@@ -133,8 +125,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
 
   private static Color[] raindrop = new Color[LEDLENGTH];
 
-  private static AddressableLEDBuffer setRaindrop() {
-    AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
+  private static AddressableLEDBuffer raindrop() {
     if (Math.round(Math.random()) == 0) {
       raindrop[0] = Color.kBlack;
     } else {
@@ -147,11 +138,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
       raindrop[i] = raindrop[i - 1];
     }
 
-    for (int i = 0; i < raindrop.length; i++) {
-      ledBuffer.setLED(i, raindrop[i] == null ? Color.kBlack : raindrop[i]);
-    }
-
-    return ledBuffer;
+    return gen(i -> raindrop[i] == null ? Color.kBlack : raindrop[i]);
   }
 
   private static AddressableLEDBuffer nothing() {
@@ -161,5 +148,10 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   @Override
   public void periodic() {
     tick += 1;
+  }
+
+  @Override
+  public void close() {
+    led.close();
   }
 }
