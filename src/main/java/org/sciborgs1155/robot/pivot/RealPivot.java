@@ -6,6 +6,7 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -16,20 +17,24 @@ import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
 
 public class RealPivot implements PivotIO {
-  private final CANSparkFlex lead;
-  // FIX THESE NAMES!!!!!!!
-  private final CANSparkFlex followOne;
-  private final CANSparkFlex followTwo;
-  private final CANSparkFlex followThree;
+  private final CANSparkMax lead;
+  private final CANSparkMax leftBottom;
+  private final CANSparkMax rightTop;
+  private final CANSparkMax rightBottom;
   private final DutyCycleEncoder encoder;
 
   public RealPivot() {
 
-    lead = new CANSparkFlex(PIVOT_SPARK_ONE, MotorType.kBrushless);
-    followOne = SparkUtils.createSparkFlex(PIVOT_SPARK_TWO, false, IdleMode.kBrake, CURRENT_LIMIT);
-    followTwo = SparkUtils.createSparkFlex(PIVOT_SPARK_THREE, true, IdleMode.kBrake, CURRENT_LIMIT);
-    followThree =
-        SparkUtils.createSparkFlex(PIVOT_SPARK_FOUR, true, IdleMode.kBrake, CURRENT_LIMIT);
+    lead = SparkUtils.createSparkMax(SPARK_LEFT_TOP, false, IdleMode.kBrake, CURRENT_LIMIT);
+    leftBottom = SparkUtils.createSparkMax(SPARK_LEFT_BOTTOM, false, IdleMode.kBrake, CURRENT_LIMIT);
+    rightTop = SparkUtils.createSparkMax(SPARK_RIGHT_TOP, true, IdleMode.kBrake, CURRENT_LIMIT);
+    rightBottom = SparkUtils.createSparkMax(SPARK_RIGHT_BOTTOM, true, IdleMode.kBrake, CURRENT_LIMIT);
+
+    leftBottom.follow(lead,false);
+    rightTop.follow(lead,true);
+    rightBottom.follow(lead,true);
+
+
     encoder = new DutyCycleEncoder(PIVOT_THROUGHBORE);
 
     encoder.setDistancePerRotation(POSITION_FACTOR.in(Radians));
@@ -37,18 +42,14 @@ public class RealPivot implements PivotIO {
     SparkUtils.configureFrameStrategy(
         lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.INTEGRATED), true);
 
-    SparkUtils.configureFollowerFrameStrategy(followOne);
-    SparkUtils.configureFollowerFrameStrategy(followTwo);
-    SparkUtils.configureFollowerFrameStrategy(followThree);
-
-    followOne.follow(lead);
-    followTwo.follow(lead);
-    followThree.follow(lead);
+    SparkUtils.configureFollowerFrameStrategy(leftBottom);
+    SparkUtils.configureFollowerFrameStrategy(rightTop);
+    SparkUtils.configureFollowerFrameStrategy(rightBottom);
 
     lead.burnFlash();
-    followOne.burnFlash();
-    followTwo.burnFlash();
-    followThree.burnFlash();
+    leftBottom.burnFlash();
+    rightTop.burnFlash();
+    rightBottom.burnFlash();
   }
 
   @Override
@@ -65,9 +66,9 @@ public class RealPivot implements PivotIO {
   @Override
   public void close() throws Exception {
     lead.close();
-    followOne.close();
-    followTwo.close();
-    followThree.close();
+    leftBottom.close();
+    rightTop.close();
+    rightBottom.close();
     encoder.close();
   }
 }

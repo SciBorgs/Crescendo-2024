@@ -17,11 +17,11 @@ public class RealFeeder implements FeederIO {
   public RealFeeder() {
     motor = SparkUtils.createSparkFlex(FEEDER_SPARK, false, IdleMode.kBrake, CURRENT_LIMIT);
 
-    motor.burnFlash();
-
     SparkUtils.configureFrameStrategy(
-        motor, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.INTEGRATED), false);
-  }
+      motor, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.INTEGRATED), false);
+    
+    motor.burnFlash();
+    }
 
   @Override
   public void set(double voltage) {
