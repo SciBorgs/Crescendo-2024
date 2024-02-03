@@ -44,9 +44,8 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     }
   }
 
-  // 1 tick = 0.005 seconds    200 ticks = 1 second (minecraft gameticks x20 speed)
-  static double tick = 0;
-  static double temp = 0;
+  // 1 tick = 0.02 seconds (because periodic)   50 ticks = 1 second (minecraft gameticks x2.5 speed)
+  static double tick = 0; // needs to be double or else rainbow breaks
   static boolean inrange = false;
   static LEDTheme lastTheme = LEDTheme.NONE;
   public static final Color[] colorpool = {
@@ -125,7 +124,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   // A bunch of methoeds for the LEDThemes below!
-  // (the ones that can't be copy paste) (some exceptions)
+  // (the ones that can't be copy paste)
 
   private static AddressableLEDBuffer setRainbow() {
     AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
@@ -146,21 +145,13 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   private static AddressableLEDBuffer setFire() {
+    Color[] fireColors = {
+      Color.kRed, Color.kOrange, Color.kYellow, Color.kOrangeRed, Color.kOrange
+    };
     AddressableLEDBuffer ledBuffer =
         new AddressableLEDBuffer(LEDLENGTH); // the robot is lit! (but it should not burning)
     for (int i = 0; i < ledBuffer.getLength(); i++) {
-      temp = (i + tick) % 5;
-      if (temp < 1) {
-        ledBuffer.setLED(i, Color.kRed);
-      } else if (temp < 2) {
-        ledBuffer.setLED(i, Color.kOrange);
-      } else if (temp < 3) {
-        ledBuffer.setLED(i, Color.kYellow);
-      } else if (temp < 4) {
-        ledBuffer.setLED(i, Color.kOrangeRed);
-      } else if (temp < 5) {
-        ledBuffer.setLED(i, Color.kOrange);
-      }
+      ledBuffer.setLED(i, fireColors[(int) (Math.floor((i + tick) % 5))]);
     }
     return ledBuffer;
   }

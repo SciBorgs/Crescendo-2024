@@ -31,7 +31,7 @@ public class LedTest {
   @Test
   public void testRainbowTheme() {
     var rainbow1 = LedStrip.getBufferDataString(LEDTheme.RAINBOW.ledBuffer.get());
-    fastForward(1);
+    fastForward(2);
     var rainbow2 = LedStrip.getBufferDataString(LEDTheme.RAINBOW.ledBuffer.get());
     assertNotEquals(rainbow1, rainbow2);
   }
