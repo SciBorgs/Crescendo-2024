@@ -38,6 +38,6 @@ public final class Ports {
   }
 
   public static final class Led {
-    public static final int LEDPORT = 9; // led port
+    public static final int LED_PORT = 9; // led port
   }
 }

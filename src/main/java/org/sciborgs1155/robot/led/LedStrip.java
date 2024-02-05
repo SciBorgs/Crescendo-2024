@@ -1,6 +1,6 @@
 package org.sciborgs1155.robot.led;
 
-import static org.sciborgs1155.robot.Ports.Led.LEDPORT;
+import static org.sciborgs1155.robot.Ports.Led.LED_PORT;
 import static org.sciborgs1155.robot.led.LedConstants.LEDLENGTH;
 
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import monologue.Logged;
 
 public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
-  private final AddressableLED led = new AddressableLED(LEDPORT); // led as a class
+  private final AddressableLED led = new AddressableLED(LED_PORT); // led as a class
 
   // NOTE: THERE CAN ONLY BE ONE ADDRESABLELED (because roborio)
 
