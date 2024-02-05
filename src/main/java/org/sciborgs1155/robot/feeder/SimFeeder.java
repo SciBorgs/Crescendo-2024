@@ -20,5 +20,10 @@ public class SimFeeder implements FeederIO {
   }
 
   @Override
+  public double getVelocity() {
+    return sim.getAngularVelocityRadPerSec();
+  }
+
+  @Override
   public void close() throws Exception {}
 }
