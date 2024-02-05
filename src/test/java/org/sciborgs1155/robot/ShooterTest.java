@@ -84,7 +84,7 @@ public class ShooterTest {
   @Disabled
   @Test
   public void testPivotThenShoot() {
-    run(shooting.pivotThenShoot(() -> new Rotation2d(Radians.of(Math.PI / 4)), () -> 4));
+    run(shooting.pivotThenShoot(() -> new Rotation2d(Radians.of(Math.PI / 4)), () -> 4, () -> 4));
     fastForward();
 
     assertEquals(Math.PI / 4, pivot.getPosition().getRadians(), DELTA);

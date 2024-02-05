@@ -7,4 +7,6 @@ public interface PivotIO extends AutoCloseable, Logged {
   public void setVoltage(double voltage);
 
   public Rotation2d getPosition();
+
+  public double getVelocity();
 }

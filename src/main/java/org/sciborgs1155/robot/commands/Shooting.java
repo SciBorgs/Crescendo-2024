@@ -15,9 +15,8 @@ public class Shooting {
   private final Pivot pivot;
   private final Shooter shooter;
 
-  // TODO rename this record. maybe ShootingState?
   /** desired initial velocity of note, corresponds to pivot angle and shooter speed */
-  public static record ShooterState(Rotation2d angle, double speed) {}
+  public static record ShootingState(Rotation2d angle, double speed) {}
 
   public Shooting(Shooter shooter, Pivot pivot, Feeder feeder) {
     this.shooter = shooter;
@@ -28,13 +27,19 @@ public class Shooting {
   // shooting commands
   public Command shoot(DoubleSupplier desiredVelocity) {
     return shooter
-        .runShooter(() -> desiredVelocity.getAsDouble())
+        .runShooter(desiredVelocity)
         .alongWith(Commands.waitUntil(shooter::atSetpoint).andThen(feeder.runFeeder(1)));
   }
 
-  public Command pivotThenShoot(Supplier<Rotation2d> goalAngle, DoubleSupplier desiredVelocity) {
+  public Command pivotThenShoot(
+      Supplier<Rotation2d> goalAngle,
+      DoubleSupplier desiredVelocity,
+      DoubleSupplier feederVelocity) {
     return pivot
         .runPivot(goalAngle)
-        .alongWith(Commands.waitUntil(pivot::atSetpoint).andThen(shoot(desiredVelocity)));
+        .alongWith(shooter.runShooter(desiredVelocity))
+        .alongWith(
+            Commands.waitUntil(pivot::atGoal)
+                .andThen(feeder.runFeeder(feederVelocity.getAsDouble())));
   }
 }

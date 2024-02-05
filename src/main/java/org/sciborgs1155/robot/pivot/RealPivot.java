@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Timer;
 import java.util.Set;
 import monologue.Annotations.Log;
 import org.sciborgs1155.lib.SparkUtils;
@@ -20,6 +21,11 @@ public class RealPivot implements PivotIO {
   private final CANSparkMax rightTop;
   private final CANSparkMax rightBottom;
   private final DutyCycleEncoder encoder;
+
+  private final Timer timer;
+  private double lastPosition;
+  private double lastTime;
+  private double currentVelocity;
 
   public RealPivot() {
     lead = SparkUtils.createSparkMax(SPARK_LEFT_TOP, false, IdleMode.kBrake, CURRENT_LIMIT);
@@ -34,6 +40,10 @@ public class RealPivot implements PivotIO {
     rightBottom.follow(lead, true);
 
     encoder = new DutyCycleEncoder(PIVOT_THROUGHBORE);
+    timer = new Timer();
+
+    timer.reset();
+    timer.start();
 
     encoder.setDistancePerRotation(POSITION_FACTOR.in(Radians));
 
@@ -48,6 +58,9 @@ public class RealPivot implements PivotIO {
     leftBottom.burnFlash();
     rightTop.burnFlash();
     rightBottom.burnFlash();
+
+    lastPosition = encoder.getDistance();
+    lastTime = timer.get();
   }
 
   @Override
@@ -59,6 +72,26 @@ public class RealPivot implements PivotIO {
   @Override
   public Rotation2d getPosition() {
     return Rotation2d.fromRadians(encoder.getAbsolutePosition());
+  }
+
+  @Log.NT
+  @Override
+  /**
+   * SHOULD BE CALLED IN A LOOP IN PERIODIC TO GET THE ACTUAL CURRENT VELOCITY.
+   *
+   * <p>THIS GETS THE VELOCITY OVER THE INTERVAL SINCE THIS WAS LAST CALLED. THIS DOES NOT GET THE
+   * VELOCITY AT THE INSTANT CALLED.
+   *
+   * <p>USE OUTSIDE OF A LOOP FOR SYSID ONLY, IN WHICH IT IS CALLED REPEATEDLY.
+   */
+  public double getVelocity() {
+    double currentTime = timer.get();
+    double currentPosition = encoder.getDistance();
+    currentVelocity = (currentPosition - lastPosition) / (currentTime - lastTime);
+
+    lastPosition = currentPosition;
+    lastTime = currentTime;
+    return currentVelocity;
   }
 
   @Override

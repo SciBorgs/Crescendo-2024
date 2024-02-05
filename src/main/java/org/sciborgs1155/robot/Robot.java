@@ -137,6 +137,7 @@ public class Robot extends CommandRobot implements Logged {
         .toggleOnTrue(
             shooting.pivotThenShoot(
                 () -> new Rotation2d(PRESET_SUBWOOFER_ANGLE),
-                () -> PRESET_SUBWOOFER_VELOCITY.in(RadiansPerSecond)));
+                () -> PRESET_SUBWOOFER_VELOCITY.in(RadiansPerSecond),
+                () -> 1));
   }
 }

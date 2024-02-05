@@ -19,6 +19,7 @@ import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
+import org.sciborgs1155.robot.pivot.PivotConstants.ClimbConstants;
 
 public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   private final PivotIO pivot;
@@ -68,12 +69,22 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism(v -> pivot.setVoltage(v.in(Volts)), null, this, "pivot"));
+            new SysIdRoutine.Mechanism(
+                v -> pivot.setVoltage(v.in(Volts)),
+                log -> {
+                  log.motor("pivot")
+                      .angularPosition(Radians.of(pivot.getPosition().getRadians()))
+                      .angularVelocity(RadiansPerSecond.of(pivot.getVelocity()));
+                },
+                this,
+                "pivot"));
 
     SmartDashboard.putData("pivot quasistatic forward", quasistaticForward());
     SmartDashboard.putData("pivot quasistatic backward", quasistaticBack());
     SmartDashboard.putData("pivot dynamic forward", dynamicForward());
     SmartDashboard.putData("pivot dynamic backward", dynamicBack());
+
+    setDefaultCommand(runPivot(this::getSetpoint).repeatedly());
   }
 
   /**
@@ -90,6 +101,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
                         pivotPID.calculate(pivot.getPosition().getRadians())
                             + pivotFeedforward.calculate(
                                 pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity)))
+                .until(pivotPID::atGoal)
+                .asProxy()
                 .withName("running pivot"));
   }
 
@@ -115,6 +128,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
                         climbPID.calculate(pivot.getPosition().getRadians())
                             + climbFeedforward.calculate(
                                 climbPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
+                .until(climbPID::atGoal)
+                .asProxy()
                 .withName("running climb"));
   }
 
@@ -124,30 +139,38 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   @Log.NT
-  public boolean atSetpoint() {
-    return pivotPID.atSetpoint();
+  public boolean atGoal() {
+    return pivotPID.atGoal();
   }
 
   // ProfilePID doesn't log this stuff
   @Log.NT
-  private double setpointRadians() {
-    return pivotPID.getSetpoint().position;
+  private Rotation2d getSetpoint() {
+    return Rotation2d.fromRadians(pivotPID.getSetpoint().position);
   }
 
   public Command quasistaticForward() {
-    return sysIdRoutine.quasistatic(Direction.kForward);
+    return sysIdRoutine
+        .quasistatic(Direction.kForward)
+        .until(() -> pivot.getPosition().getRadians() > MAX_ANGLE.in(Radians));
   }
 
   public Command quasistaticBack() {
-    return sysIdRoutine.quasistatic(Direction.kReverse);
+    return sysIdRoutine
+        .quasistatic(Direction.kReverse)
+        .until(() -> pivot.getPosition().getRadians() > MAX_ANGLE.in(Radians));
   }
 
   public Command dynamicForward() {
-    return sysIdRoutine.dynamic(Direction.kForward);
+    return sysIdRoutine
+        .dynamic(Direction.kForward)
+        .until(() -> pivot.getPosition().getRadians() > MAX_ANGLE.in(Radians));
   }
 
   public Command dynamicBack() {
-    return sysIdRoutine.dynamic(Direction.kReverse);
+    return sysIdRoutine
+        .dynamic(Direction.kReverse)
+        .until(() -> pivot.getPosition().getRadians() > MAX_ANGLE.in(Radians));
   }
 
   @Override
