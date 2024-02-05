@@ -87,7 +87,7 @@ class Trajectory:
         self.NOTE_THICKNESS = 0.06 #m
         self.MAX_LAUNCH_SPEED = 40 #m/s
 
-    def getNewShooterState(self):
+    def getNewShooterState(self) -> dict:
         """
         Returns a dict of a new rotational speed, angle, and heading for the motor to be.
         """
@@ -172,7 +172,11 @@ class Trajectory:
             'heading' : round(solutions.value(deltaPhi) + self.phi , 3)
         }
 
-
+    def canShootWhileStationary(self) -> bool:
+        if (self.y < (self.OPENING_GAP / self.SPEAKER_WIDTH ) * (self.x) - (self.OPENING_GAP / 2)) and (self.y < -1 * (self.OPENING_GAP / self.SPEAKER_WIDTH ) * (self.x) - (self.OPENING_GAP / 2)):
+            return True
+        else:
+            return False
 
     
 
