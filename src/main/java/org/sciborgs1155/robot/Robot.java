@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
-import static org.sciborgs1155.robot.flywheel.FlywheelConstants.*;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,8 +28,8 @@ import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.feeder.Feeder;
-import org.sciborgs1155.robot.flywheel.Flywheel;
 import org.sciborgs1155.robot.pivot.Pivot;
+import org.sciborgs1155.robot.shooter.Shooter;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -46,14 +46,14 @@ public class Robot extends CommandRobot implements Logged {
   // SUBSYSTEMS
   @Log.NT private final Drive drive = Drive.create();
 
-  private final Flywheel flywheel = Flywheel.create();
-  private final Feeder feeder = Feeder.create();
-  private final Pivot pivot = Pivot.create();
+  @Log.NT private final Shooter shooter = Shooter.create();
+  @Log.NT private final Feeder feeder = Feeder.create();
+  @Log.NT private final Pivot pivot = Pivot.create();
 
   // COMMANDS
   @Log.NT private final SendableChooser<Command> autos = AutoBuilder.buildAutoChooser();
 
-  @Log.NT private final Shooting shooting = new Shooting(flywheel, pivot, feeder);
+  private final Shooting shooting = new Shooting(shooter, pivot, feeder);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 

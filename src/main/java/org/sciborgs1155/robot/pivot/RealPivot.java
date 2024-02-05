@@ -1,13 +1,11 @@
 package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.Radians;
-import static org.sciborgs1155.robot.Ports.Shooter.Pivot.*;
+import static org.sciborgs1155.robot.Ports.Pivot.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import java.util.Set;
@@ -24,16 +22,16 @@ public class RealPivot implements PivotIO {
   private final DutyCycleEncoder encoder;
 
   public RealPivot() {
-
     lead = SparkUtils.createSparkMax(SPARK_LEFT_TOP, false, IdleMode.kBrake, CURRENT_LIMIT);
-    leftBottom = SparkUtils.createSparkMax(SPARK_LEFT_BOTTOM, false, IdleMode.kBrake, CURRENT_LIMIT);
+    leftBottom =
+        SparkUtils.createSparkMax(SPARK_LEFT_BOTTOM, false, IdleMode.kBrake, CURRENT_LIMIT);
     rightTop = SparkUtils.createSparkMax(SPARK_RIGHT_TOP, true, IdleMode.kBrake, CURRENT_LIMIT);
-    rightBottom = SparkUtils.createSparkMax(SPARK_RIGHT_BOTTOM, true, IdleMode.kBrake, CURRENT_LIMIT);
+    rightBottom =
+        SparkUtils.createSparkMax(SPARK_RIGHT_BOTTOM, true, IdleMode.kBrake, CURRENT_LIMIT);
 
-    leftBottom.follow(lead,false);
-    rightTop.follow(lead,true);
-    rightBottom.follow(lead,true);
-
+    leftBottom.follow(lead, false);
+    rightTop.follow(lead, true);
+    rightBottom.follow(lead, true);
 
     encoder = new DutyCycleEncoder(PIVOT_THROUGHBORE);
 

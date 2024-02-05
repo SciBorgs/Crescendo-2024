@@ -1,8 +1,8 @@
-package org.sciborgs1155.robot.flywheel;
+package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.*;
-import static org.sciborgs1155.robot.Ports.Shooter.Flywheel.*;
-import static org.sciborgs1155.robot.flywheel.FlywheelConstants.*;
+import static org.sciborgs1155.robot.Ports.Shooter.*;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
@@ -12,12 +12,12 @@ import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
 
-public class RealFlywheel implements FlywheelIO {
+public class RealShooter implements ShooterIO {
   private final CANSparkFlex topMotor;
   private final CANSparkFlex bottomMotor;
   private final RelativeEncoder encoder;
 
-  public RealFlywheel() {
+  public RealShooter() {
 
     topMotor = SparkUtils.createSparkFlex(TOP_MOTOR, false, IdleMode.kBrake, CURRENT_LIMIT);
     bottomMotor = SparkUtils.createSparkFlex(BOTTOM_MOTOR, false, IdleMode.kBrake, CURRENT_LIMIT);

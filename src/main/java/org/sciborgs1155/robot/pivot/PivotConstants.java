@@ -34,6 +34,7 @@ public class PivotConstants {
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(6);
 
+  // TODO DO NOT RUN THESE VALUES ON THE REAL PIVOT DO NOT DO THAT PLEASE DONT
   public static final double kP = 70;
   public static final double kI = 0;
   public static final double kD = 0;

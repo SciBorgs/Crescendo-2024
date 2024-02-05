@@ -21,28 +21,32 @@ import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 
 public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
-  @Log.NT private final PivotIO pivot;
-  private final SysIdRoutine sysIdRoutine; //sysIdRoutineoogabooga
+  private final PivotIO pivot;
+  private final SysIdRoutine sysIdRoutine; // sysIdRoutineoogabooga
 
   // pivot control
-  @Log.NT 
-  final ProfiledPIDController pivotPID =
+  @Log.NT
+  private final ProfiledPIDController pivotPID =
       new ProfiledPIDController(
           PivotConstants.kP,
           PivotConstants.kI,
           PivotConstants.kD,
           new TrapezoidProfile.Constraints(PivotConstants.MAX_VELOCITY, PivotConstants.MAX_ACCEL));
-  @Log.NT private final ArmFeedforward pivotFeedforward =
+
+  @Log.NT
+  private final ArmFeedforward pivotFeedforward =
       new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
 
   // climb control
-  @Log.NT private final ProfiledPIDController climbPID =
+  @Log.NT
+  private final ProfiledPIDController climbPID =
       new ProfiledPIDController(
           ClimbConstants.kP,
           ClimbConstants.kI,
           ClimbConstants.kD,
           new TrapezoidProfile.Constraints(ClimbConstants.MAX_VELOCITY, ClimbConstants.MAX_ACCEL));
-  @Log.NT private final ArmFeedforward climbFeedforward =
+
+  private final ArmFeedforward climbFeedforward =
       new ArmFeedforward(ClimbConstants.kS, ClimbConstants.kG, ClimbConstants.kV);
 
   // visualization
@@ -64,13 +68,12 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism(
-                (v) -> pivot.setVoltage(v.in(Volts)), null, this, "pivotSysId"));
+            new SysIdRoutine.Mechanism(v -> pivot.setVoltage(v.in(Volts)), null, this, "pivot"));
 
-    SmartDashboard.putData("quasistaticForward", quasistaticForward());
-    SmartDashboard.putData("quasistaticBack", quasistaticBack());
-    SmartDashboard.putData("dynamicForward", dynamicForward());
-    SmartDashboard.putData("dynamicBack", dynamicBack());
+    SmartDashboard.putData("pivot quasistatic forward", quasistaticForward());
+    SmartDashboard.putData("pivot quasistatic backward", quasistaticBack());
+    SmartDashboard.putData("pivot dynamic forward", dynamicForward());
+    SmartDashboard.putData("pivot dynamic backward", dynamicBack());
   }
 
   /**
@@ -87,14 +90,14 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
                         pivotPID.calculate(pivot.getPosition().getRadians())
                             + pivotFeedforward.calculate(
                                 pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity)))
-                .withName("running Pivot"));
+                .withName("running pivot"));
   }
 
-  public Command manualPivot(Supplier<Double> joystick) {
+  public Command manualPivot(Supplier<Double> stickInput) {
     return run(
         () -> {
-          double velocity = joystick.get() * PivotConstants.MAX_VELOCITY.in(RadiansPerSecond);
-          double periodMovement = Constants.PERIOD.in(Second) * velocity;
+          double velocity = stickInput.get() * PivotConstants.MAX_VELOCITY.in(RadiansPerSecond);
+          double periodMovement = Constants.PERIOD.in(Seconds) * velocity;
           double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
           double setpoint =
               Math.max(Math.min(MAX_ANGLE.in(Radians), draftSetpoint), MIN_ANGLE.in(Radians));
@@ -112,7 +115,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
                         climbPID.calculate(pivot.getPosition().getRadians())
                             + climbFeedforward.calculate(
                                 climbPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
-                .withName("running Climb"));
+                .withName("running climb"));
   }
 
   @Log.NT
@@ -156,5 +159,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   @Override
   public void close() throws Exception {
     pivot.close();
+    measurement.close();
+    setpoint.close();
   }
 }

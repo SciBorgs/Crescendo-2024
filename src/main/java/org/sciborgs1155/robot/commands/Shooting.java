@@ -6,34 +6,35 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.sciborgs1155.robot.feeder.Feeder;
-import org.sciborgs1155.robot.flywheel.Flywheel;
 import org.sciborgs1155.robot.pivot.Pivot;
+import org.sciborgs1155.robot.shooter.Shooter;
 
 public class Shooting {
 
   private final Feeder feeder;
   private final Pivot pivot;
-  private final Flywheel flywheel;
+  private final Shooter shooter;
 
-  /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
+  // TODO rename this record. maybe ShootingState?
+  /** desired initial velocity of note, corresponds to pivot angle and shooter speed */
   public static record ShooterState(Rotation2d angle, double speed) {}
 
-  public Shooting(Flywheel flywheel, Pivot pivot, Feeder feeder) {
-    this.flywheel = flywheel;
+  public Shooting(Shooter shooter, Pivot pivot, Feeder feeder) {
+    this.shooter = shooter;
     this.pivot = pivot;
     this.feeder = feeder;
   }
 
   // shooting commands
-  public Command shootStoredNote(DoubleSupplier desiredVelocity) {
-    return Commands.parallel(
-        flywheel.runFlywheel(() -> desiredVelocity.getAsDouble()),
-        Commands.waitUntil(flywheel::atSetpoint).andThen(feeder.runFeeder(1)));
+  public Command shoot(DoubleSupplier desiredVelocity) {
+    return shooter
+        .runShooter(() -> desiredVelocity.getAsDouble())
+        .alongWith(Commands.waitUntil(shooter::atSetpoint).andThen(feeder.runFeeder(1)));
   }
 
   public Command pivotThenShoot(Supplier<Rotation2d> goalAngle, DoubleSupplier desiredVelocity) {
     return pivot
         .runPivot(goalAngle)
-        .alongWith(Commands.waitUntil(pivot::atSetpoint).andThen(shootStoredNote(desiredVelocity)));
+        .alongWith(Commands.waitUntil(pivot::atSetpoint).andThen(shoot(desiredVelocity)));
   }
 }
