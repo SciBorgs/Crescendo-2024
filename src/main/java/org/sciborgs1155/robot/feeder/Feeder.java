@@ -27,7 +27,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism(v -> feeder.set(v.in(Volts)), null, this, "Feeder"));
+            new SysIdRoutine.Mechanism(v -> feeder.setVoltage(v.in(Volts)), null, this, "Feeder"));
 
     SmartDashboard.putData("feeder quasistatic backward", quasistaticBack());
     SmartDashboard.putData("feeder quasistatic forward", quasistaticForward());
@@ -39,10 +39,11 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     return Robot.isReal() ? new Feeder(new RealFeeder()) : new Feeder(new SimFeeder());
   }
 
-  public Command runFeeder(double voltage) {
+  public Command runFeeder(double velocity) {
     return run(() ->
-            feeder.setVoltage(pid.calculate(feeder.getVelocity(), voltage) + ff.calculate(voltage)))
-        .withName("running feeder, " + voltage + " volts");
+            feeder.setVoltage(
+                pid.calculate(feeder.getVelocity(), velocity) + ff.calculate(velocity)))
+        .withName("running feeder");
   }
 
   public Command quasistaticBack() {

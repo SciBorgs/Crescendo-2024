@@ -23,16 +23,16 @@ public class RealFeeder implements FeederIO {
     SparkUtils.configureFrameStrategy(
         motor, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.INTEGRATED), false);
 
-    motor.burnFlash();
-
     encoder = motor.getEncoder();
     encoder.setVelocityConversionFactor(VELOCITY_CONVERSION.in(MetersPerSecond));
     encoder.setPositionConversionFactor(POSITION_CONVERSION.in(Meters));
+
+    motor.burnFlash();
   }
 
   @Override
   public void setVoltage(double voltage) {
-    motor.set(voltage);
+    motor.setVoltage(voltage);
   }
 
   @Override

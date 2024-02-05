@@ -25,6 +25,8 @@ public class RealShooter implements ShooterIO {
 
     encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
     encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
+    encoder.setMeasurementPeriod(10);
+    encoder.setAverageDepth(2);
 
     SparkUtils.configureFrameStrategy(
         topMotor,

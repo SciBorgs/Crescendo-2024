@@ -98,26 +98,22 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
         .andThen(
             run(() ->
                     pivot.setVoltage(
-                        pivotPID.calculate(pivot.getPosition().getRadians())
+                        pivotPID.calculate(
+                                pivot.getPosition().getRadians(), goalAngle.get().getRadians())
                             + pivotFeedforward.calculate(
                                 pivotPID.getSetpoint().position, pivotPID.getSetpoint().velocity)))
                 .until(pivotPID::atGoal)
-                .asProxy()
-                .withName("running pivot"));
+                .withName("running pivot"))
+        .asProxy();
   }
 
   public Command manualPivot(Supplier<Double> stickInput) {
-    return run(
-        () -> {
-          double velocity = stickInput.get() * PivotConstants.MAX_VELOCITY.in(RadiansPerSecond);
-          double periodMovement = Constants.PERIOD.in(Seconds) * velocity;
-          double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
-          double setpoint =
-              Math.max(Math.min(MAX_ANGLE.in(Radians), draftSetpoint), MIN_ANGLE.in(Radians));
-          pivot.setVoltage(
-              pivotPID.calculate(pivot.getPosition().getRadians(), setpoint)
-                  + pivotFeedforward.calculate(setpoint, 0));
-        });
+    double velocity = stickInput.get() * PivotConstants.MAX_VELOCITY.in(RadiansPerSecond);
+    double periodMovement = Constants.PERIOD.in(Seconds) * velocity;
+    double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
+    double setpoint =
+        Math.max(Math.min(MAX_ANGLE.in(Radians), draftSetpoint), MIN_ANGLE.in(Radians));
+    return runPivot(() -> Rotation2d.fromRadians(setpoint));
   }
 
   public Command climb(Supplier<Rotation2d> goalAngle) {
@@ -125,12 +121,13 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
         .andThen(
             run(() ->
                     pivot.setVoltage(
-                        climbPID.calculate(pivot.getPosition().getRadians())
+                        climbPID.calculate(
+                                pivot.getPosition().getRadians(), goalAngle.get().getRadians())
                             + climbFeedforward.calculate(
                                 climbPID.getSetpoint().position, climbPID.getSetpoint().velocity)))
                 .until(climbPID::atGoal)
-                .asProxy()
-                .withName("running climb"));
+                .withName("running climb"))
+        .asProxy();
   }
 
   @Log.NT
