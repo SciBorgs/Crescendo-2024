@@ -30,7 +30,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
       new SysIdRoutine(
         new SysIdRoutine.Config(),
         new SysIdRoutine.Mechanism(
-          v -> feeder.set(v.in(Volts)),
+          v -> feeder.setVoltage(v.in(Volts)),
           null, 
           this,
           "Feeder")
@@ -49,7 +49,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
 
   public Command runFeeder(double voltage) {
     return run(() ->
-            feeder.set(pid.calculate(feeder.getVelocity(), voltage) + ff.calculate(voltage)))
+            feeder.setVoltage(pid.calculate(feeder.getVelocity(), voltage) + ff.calculate(voltage)))
         .withName("running feeder, " + voltage + " volts");
   }
 

@@ -34,8 +34,8 @@ public class RealFeeder implements FeederIO {
   }
 
   @Override
-  public void set(double power) {
-    motor.set(power);
+  public void setVoltage(double voltage) {
+    motor.set(voltage);
   }
 
   @Override
