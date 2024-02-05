@@ -5,6 +5,7 @@ import static org.sciborgs1155.robot.led.LedConstants.LEDLENGTH;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,11 +20,12 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
 
   public static enum LEDTheme {
     BXSCIFLASH(() -> movingColor(Color.kGreen, Color.kYellow, 5)), // Yellow ??%, Green ??%, moving
+    CANSHOOT(() -> movingColor(Color.kGreen, Color.kLime, 5)),
     FIRE(LedStrip::fire), // Suppose to look like fire
-
     RAINBOW(LedStrip::rainbow), // RGB Gamer Robot
     SCIBORGS(() -> alternatingColor(Color.kDarkGray, Color.kYellow)), // Yellow 50%, Dark Grey 50%
     FEMAIDENS(() -> alternatingColor(Color.kPurple, Color.kLime)), // Yellow 50%, Green 50%
+    ALLIANCE(() -> allianceColor()),
     AUTO(
         () ->
             movingColor(
@@ -93,6 +95,19 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   /** "every (interval) LEDs, LED should be (color 2). everyting else is (color 1)." */
   private static AddressableLEDBuffer movingColor(Color color1, Color color2, int interval) {
     return gen(i -> (i + tick) % interval == 0 ? color2 : color1);
+  }
+
+  private static AddressableLEDBuffer allianceColor() {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      if (alliance.get() == DriverStation.Alliance.Blue) {
+        return gen(i -> (i + tick) % 2 == 0 ? Color.kBlue : Color.kDarkCyan);
+      }
+      if (alliance.get() == DriverStation.Alliance.Red) {
+        return gen(i -> (i + tick) % 2 == 0 ? Color.kRed : Color.kCrimson);
+      }
+    }
+    return gen(i -> (i + tick) % 2 == 0 ? Color.kOrange : Color.kYellow);
   }
 
   // A bunch of methoeds for the LEDThemes below!

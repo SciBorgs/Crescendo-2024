@@ -8,8 +8,8 @@ public class ShooterConstants {
   public static final Measure<Distance> DATA_INTERVAL = Meters.of(2);
 
   public static class FlywheelConstants {
-    public static final Measure<Angle> PRESET_SUBWOOFER_ANGLE = Radians.of(1.22173);
-    public static final Measure<Velocity<Angle>> PRESET_SUBWOOFER_VELOCITY = RadiansPerSecond.of(4);
+    public static final Measure<Angle> PRESET_SUBWOOFER_ANGLE = Radians.of(1.52173);
+    public static final Measure<Velocity<Angle>> PRESET_SUBWOOFER_VELOCITY = RadiansPerSecond.of(8);
 
     public static final double GEARING = 1;
     public static final double MOI = 1;

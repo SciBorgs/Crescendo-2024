@@ -99,6 +99,6 @@ public class Shooting extends SubsystemBase implements Logged {
 
   // TODO siggy needs to write this! (siggy was here)
   public Trigger canShoot() {
-    return new Trigger(() -> false);
+    return new Trigger(() -> true);
   }
 }
