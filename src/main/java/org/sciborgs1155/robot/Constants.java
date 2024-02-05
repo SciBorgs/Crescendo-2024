@@ -17,7 +17,7 @@ import org.sciborgs1155.robot.drive.DriveConstants;
  */
 public class Constants {
   public static final Measure<Time> PERIOD = Seconds.of(0.02); // roborio tickrate (s)
-  public static final double DEADBAND = 0.15;
+  public static final double DEADBAND = 0.1;
   public static final double MAX_RATE =
       DriveConstants.MAX_ACCEL.baseUnitMagnitude()
           / DriveConstants.MAX_ANGULAR_SPEED.baseUnitMagnitude();

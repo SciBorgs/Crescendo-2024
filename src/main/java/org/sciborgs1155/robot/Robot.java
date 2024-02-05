@@ -6,12 +6,12 @@ import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -105,8 +105,16 @@ public class Robot extends CommandRobot implements Logged {
   /** Configures trigger -> command bindings */
   private void configureBindings() {
     autonomous().whileTrue(new ProxyCommand(autos::getSelected));
-    FaultLogger.onFailing(f -> Commands.print(f.toString()));
-
+    FaultLogger.onFailing(
+        f ->
+            drive
+                .lock()
+                .alongWith(
+                    Commands.run(
+                            () ->
+                                DriverStation.reportError(
+                                    "pain and suffering and " + f.toString(), false))
+                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
     driver.b().whileTrue(drive.zeroHeading());
     driver
         .x()

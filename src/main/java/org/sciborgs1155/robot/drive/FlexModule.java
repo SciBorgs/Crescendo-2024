@@ -13,6 +13,7 @@ import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.Set;
 import org.sciborgs1155.lib.FaultLogger;
+import org.sciborgs1155.lib.FaultLogger.FaultType;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
@@ -67,6 +68,14 @@ public class FlexModule implements ModuleIO {
 
     FaultLogger.register(driveMotor);
     FaultLogger.register(turnMotor);
+
+    FaultLogger.register(
+        () ->
+            turningEncoder.getPosition() == 0
+                && turningEncoder.getVelocity() == 0
+                && turnMotor.getAppliedOutput() > 0.01,
+        "encoder unplugged!",
+        FaultType.ERROR);
 
     driveMotor.burnFlash();
     turnMotor.burnFlash();
