@@ -2,7 +2,6 @@ package org.sciborgs1155.robot.feeder;
 
 import static edu.wpi.first.units.Units.*;
 
-import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;

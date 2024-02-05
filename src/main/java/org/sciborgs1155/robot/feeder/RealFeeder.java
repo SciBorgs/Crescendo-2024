@@ -2,7 +2,6 @@ package org.sciborgs1155.robot.feeder;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.sciborgs1155.robot.Ports.Feeder.*;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
@@ -24,13 +23,11 @@ public class RealFeeder implements FeederIO {
     SparkUtils.configureFrameStrategy(
         motor, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.INTEGRATED), false);
 
-
     motor.burnFlash();
-    
+
     encoder = motor.getEncoder();
     encoder.setVelocityConversionFactor(VELOCITY_CONVERSION.in(MetersPerSecond));
     encoder.setPositionConversionFactor(POSITION_CONVERSION.in(Meters));
-
   }
 
   @Override

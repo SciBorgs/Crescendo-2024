@@ -10,37 +10,29 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import monologue.Logged;
 import monologue.Annotations.Log;
-
+import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
 
 public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   private final FeederIO feeder;
 
-  @Log.NT
-  private final PIDController pid = new PIDController(kP, kI, kD);
+  @Log.NT private final PIDController pid = new PIDController(kP, kI, kD);
   private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kV, kA);
 
   private final SysIdRoutine sysId;
 
   public Feeder(FeederIO feeder) {
     this.feeder = feeder;
-    sysId = 
-      new SysIdRoutine(
-        new SysIdRoutine.Config(),
-        new SysIdRoutine.Mechanism(
-          v -> feeder.setVoltage(v.in(Volts)),
-          null, 
-          this,
-          "Feeder")
-      );
+    sysId =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(v -> feeder.set(v.in(Volts)), null, this, "Feeder"));
 
     SmartDashboard.putData("feeder quasistatic backward", quasistaticBack());
     SmartDashboard.putData("feeder quasistatic forward", quasistaticForward());
     SmartDashboard.putData("feeder dynamic backward", dynamicBack());
     SmartDashboard.putData("feeder dynamic forward", dynamicForward());
-
   }
 
   public static Feeder create() {
