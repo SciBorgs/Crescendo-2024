@@ -2,6 +2,7 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.robot.led.LedStrip.LEDTheme.*;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.PRESET_SUBWOOFER_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.PRESET_SUBWOOFER_VELOCITY;
 
@@ -26,7 +27,6 @@ import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.led.LedStrip;
-import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 import org.sciborgs1155.robot.shooter.Shooting;
 import org.sciborgs1155.robot.shooter.feeder.Feeder;
 import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
@@ -113,6 +113,11 @@ public class Robot extends CommandRobot implements Logged {
                 driver::getRightX,
                 DriveConstants.MAX_ANGULAR_SPEED.in(RadiansPerSecond),
                 DriveConstants.MAX_ANGULAR_ACCEL.in(RadiansPerSecond.per(Second)))));
+
+    led.setDefaultCommand(
+        shooting.canShoot().getAsBoolean() == true
+            ? led.setLEDTheme(CANSHOOT)
+            : led.setLEDTheme(FIRE));
   }
 
   /** Registers all named commands, which will be used by pathplanner */
@@ -122,7 +127,9 @@ public class Robot extends CommandRobot implements Logged {
 
   /** Configures trigger -> command bindings */
   private void configureBindings() {
-    autonomous().whileTrue(new ProxyCommand(autos::getSelected));
+    autonomous()
+        .whileTrue(new ProxyCommand(autos::getSelected))
+        .whileTrue(led.setLEDTheme(RAINBOW));
     FaultLogger.onFailing(f -> Commands.print(f.toString()));
 
     driver
@@ -133,25 +140,22 @@ public class Robot extends CommandRobot implements Logged {
 
     operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
 
-    shooting
-        .canShoot()
-        .onTrue(led.setLEDTheme(LEDTheme.CANSHOOT))
-        .onFalse(led.setLEDTheme(LEDTheme.FIRE));
-
     // shooting into speaker when up to subwoofer
     operator
         .x()
-        .and(shooting.canShoot())
+        .and(() -> shooting.canShoot().getAsBoolean() == true)
         .toggleOnTrue(
             shooting.pivotThenShoot(
                 () -> new Rotation2d(PRESET_SUBWOOFER_ANGLE),
-                () -> PRESET_SUBWOOFER_VELOCITY.in(RadiansPerSecond)));
+                () -> PRESET_SUBWOOFER_VELOCITY.in(RadiansPerSecond)))
+        .toggleOnTrue(led.setLEDTheme(CHASE));
 
     // assuming x is shoot button, will rumble if cant shoot
     operator
         .x()
         .and(() -> shooting.canShoot().getAsBoolean() == false)
-        .toggleOnTrue(rumble(RumbleType.kBothRumble, 0.5));
+        .toggleOnTrue(rumble(RumbleType.kBothRumble, 0.5))
+        .toggleOnTrue(led.setLEDTheme(RAINDROP));
   }
 
   @Override

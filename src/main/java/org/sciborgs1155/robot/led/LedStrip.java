@@ -34,8 +34,8 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
         () ->
             movingColor(
                 Color.kDeepSkyBlue,
-                Color.kDarkMagenta,
-                6)), // Looks like those store lights chasing eachother in a loop
+                Color.kCrimson,
+                5)), // Looks like those store lights chasing eachother in a loop
     RAINDROP(LedStrip::raindrop), // falling notes thing, random colors drop from the top
     NONE(LedStrip::nothing); // does nothing
 
