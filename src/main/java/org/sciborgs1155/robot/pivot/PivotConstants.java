@@ -2,6 +2,7 @@ package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Distance;
@@ -27,12 +28,12 @@ public class PivotConstants {
   public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.5);
   public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
 
-  public static final Measure<Angle> MAX_ANGLE = Radians.of(Math.PI / 2);
-  public static final Measure<Angle> MIN_ANGLE = Radians.of(0);
+  public static final Rotation2d MAX_ANGLE = Rotation2d.fromRadians(0);
+  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(63.3);
 
-  public static final Measure<Angle> STARTING_ANGLE = Radians.of(0);
+  public static final Rotation2d STARTING_ANGLE = Rotation2d.fromDegrees(63.3);
 
-  public static final Measure<Current> CURRENT_LIMIT = Amps.of(6);
+  public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 
   // TODO DO NOT RUN THESE VALUES ON THE REAL PIVOT DO NOT DO THAT PLEASE DONT
   public static final double kP = 70;

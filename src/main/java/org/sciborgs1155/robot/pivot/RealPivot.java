@@ -74,8 +74,6 @@ public class RealPivot implements PivotIO {
     return Rotation2d.fromRadians(encoder.getAbsolutePosition());
   }
 
-  @Log.NT
-  @Override
   /**
    * SHOULD BE CALLED IN A LOOP IN PERIODIC TO GET THE ACTUAL CURRENT VELOCITY.
    *
@@ -84,6 +82,8 @@ public class RealPivot implements PivotIO {
    *
    * <p>USE OUTSIDE OF A LOOP FOR SYSID ONLY, IN WHICH IT IS CALLED REPEATEDLY.
    */
+  @Log.NT
+  @Override
   public double getVelocity() {
     double currentTime = timer.get();
     double currentPosition = encoder.getDistance();

@@ -20,10 +20,10 @@ public class SimPivot implements PivotIO {
           DCMotor.getNEO(2),
           GEARING,
           LENGTH.in(Meters),
-          MIN_ANGLE.in(Radians),
-          MAX_ANGLE.in(Radians),
+          MIN_ANGLE.getRadians(),
+          MAX_ANGLE.getRadians(),
           true,
-          STARTING_ANGLE.in(Radians));
+          STARTING_ANGLE.getRadians());
 
   @Override
   public void setVoltage(double voltage) {

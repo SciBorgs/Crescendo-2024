@@ -27,7 +27,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism(v -> feeder.setVoltage(v.in(Volts)), null, this, "Feeder"));
+            new SysIdRoutine.Mechanism(v -> feeder.setVoltage(v.in(Volts)), null, this, "feeder"));
 
     SmartDashboard.putData("feeder quasistatic backward", quasistaticBack());
     SmartDashboard.putData("feeder quasistatic forward", quasistaticForward());
