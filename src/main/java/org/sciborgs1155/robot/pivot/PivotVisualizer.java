@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import org.sciborgs1155.robot.Constants.Dimensions;
+import org.sciborgs1155.robot.shooter.ShooterConstants;
 
 public class PivotVisualizer {
   private final MechanismLigament2d arm;
@@ -16,13 +16,11 @@ public class PivotVisualizer {
   public PivotVisualizer(Mechanism2d mech, Color8Bit color) {
     MechanismRoot2d chassis =
         mech.getRoot(
-            "Chassis" + instance,
-            Dimensions.BASE_OFFSET.in(Meters),
-            Dimensions.BASE_HEIGHT.in(Meters));
+            "Chassis" + instance, PivotConstants.OFFSET.getX(), PivotConstants.OFFSET.getY());
     arm =
         chassis.append(
             new MechanismLigament2d(
-                "Arm" + instance, Dimensions.SHOOTER_ARM_LENGTH.in(Meters), 0, 4, color));
+                "Arm" + instance, ShooterConstants.LENGTH.in(Meters), 0, 4, color));
     instance++;
   }
 

@@ -24,20 +24,33 @@ public class Shooting {
     this.feeder = feeder;
   }
 
-  // shooting commands
+  /**
+   * Immediately shoot
+   *
+   * @param desiredVelocity
+   * @return
+   */
   public Command shoot(DoubleSupplier desiredVelocity) {
     return shooter
         .runShooter(desiredVelocity)
         .alongWith(Commands.waitUntil(shooter::atSetpoint).andThen(feeder.runFeeder(1)));
   }
 
+  /**
+   * Runs the pivot to an angle & runs the shooter before feeding it the note.
+   *
+   * @param goalAngle The desired angle of the pivot.
+   * @param shooterVelocity The desired velocity of the shooter.
+   * @param feederVelocity The desired velocity of the feeder.
+   * @return The command to run the pivot to its desired angle and then shoot.
+   */
   public Command pivotThenShoot(
       Supplier<Rotation2d> goalAngle,
-      DoubleSupplier desiredVelocity,
+      DoubleSupplier shooterVelocity,
       DoubleSupplier feederVelocity) {
     return pivot
         .runPivot(goalAngle)
-        .alongWith(shooter.runShooter(desiredVelocity))
+        .alongWith(shooter.runShooter(shooterVelocity))
         .alongWith(
             Commands.waitUntil(pivot::atGoal)
                 .andThen(feeder.runFeeder(feederVelocity.getAsDouble())));

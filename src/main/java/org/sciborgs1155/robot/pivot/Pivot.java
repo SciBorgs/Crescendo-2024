@@ -103,8 +103,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
           pivot.setVoltage(feedback + feedforward);
         })
         .until(pivotPID::atGoal)
-        .withName("running pivot")
-        .asProxy();
+        .withName("running pivot");
   }
 
   public Command manualPivot(InputStream stickInput) {
@@ -129,8 +128,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
           pivot.setVoltage(feedback + feedforward);
         })
         .until(pivotPID::atGoal)
-        .withName("climbing")
-        .asProxy();
+        .withName("climbing");
   }
 
   @Log.NT
