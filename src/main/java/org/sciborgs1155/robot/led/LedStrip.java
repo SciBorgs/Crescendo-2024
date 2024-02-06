@@ -1,6 +1,6 @@
 package org.sciborgs1155.robot.led;
 
-import static org.sciborgs1155.robot.Ports.Led.LEDPORT;
+import static org.sciborgs1155.robot.Ports.Led.LED_PORT;
 import static org.sciborgs1155.robot.led.LedConstants.LEDLENGTH;
 
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import monologue.Logged;
 
 public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
-  private final AddressableLED led = new AddressableLED(LEDPORT); // led as a class
+  private final AddressableLED led = new AddressableLED(LED_PORT); // led as a class
 
   // NOTE: THERE CAN ONLY BE ONE ADDRESABLELED (because roborio)
 
@@ -34,8 +34,8 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
         () ->
             movingColor(
                 Color.kDeepSkyBlue,
-                Color.kDarkMagenta,
-                6)), // Looks like those store lights chasing eachother in a loop
+                Color.kCrimson,
+                5)), // Looks like those store lights chasing eachother in a loop
     RAINDROP(LedStrip::raindrop), // falling notes thing, random colors drop from the top
     NONE(LedStrip::nothing); // does nothing
 
