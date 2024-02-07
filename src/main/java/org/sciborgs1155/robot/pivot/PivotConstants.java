@@ -29,6 +29,7 @@ public class PivotConstants {
 
   public static final Measure<Angle> POSITION_FACTOR =
       Rotations.of(GEARING).times(CIRCUMFERENCE.in(Meters));
+  public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
   public static final Measure<Angle> POSITION_OFFSET = Radians.of(0);
   public static final Measure<Angle> POSITION_TOLERANCE = Radians.of(0.1);
