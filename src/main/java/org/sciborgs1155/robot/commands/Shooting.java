@@ -10,10 +10,9 @@ import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
 
 public class Shooting {
-
-  private final Feeder feeder;
-  private final Pivot pivot;
   private final Shooter shooter;
+  private final Pivot pivot;
+  private final Feeder feeder;
 
   /** desired initial velocity of note, corresponds to pivot angle and shooter speed */
   public static record ShootingState(Rotation2d angle, double speed) {}
@@ -25,10 +24,10 @@ public class Shooting {
   }
 
   /**
-   * Immediately shoot
+   * Runs the shooter before feeding it the note.
    *
-   * @param desiredVelocity
-   * @return
+   * @param desiredVelocity The velocity to shoot at.
+   * @return The command to shoot at the desired velocity.
    */
   public Command shoot(DoubleSupplier desiredVelocity) {
     return shooter

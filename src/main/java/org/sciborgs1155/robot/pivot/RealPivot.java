@@ -40,10 +40,6 @@ public class RealPivot implements PivotIO {
     rightBottom.follow(lead, true);
 
     encoder = new DutyCycleEncoder(PIVOT_THROUGHBORE);
-    timer = new Timer();
-
-    timer.reset();
-    timer.start();
 
     encoder.setDistancePerRotation(POSITION_FACTOR.in(Radians));
 
@@ -54,13 +50,17 @@ public class RealPivot implements PivotIO {
     SparkUtils.configureFollowerFrameStrategy(rightTop);
     SparkUtils.configureFollowerFrameStrategy(rightBottom);
 
+    timer = new Timer();
+
+    timer.reset();
+    timer.start();
+    lastPosition = encoder.getDistance();
+    lastTime = timer.get();
+
     lead.burnFlash();
     leftBottom.burnFlash();
     rightTop.burnFlash();
     rightBottom.burnFlash();
-
-    lastPosition = encoder.getDistance();
-    lastTime = timer.get();
   }
 
   @Override

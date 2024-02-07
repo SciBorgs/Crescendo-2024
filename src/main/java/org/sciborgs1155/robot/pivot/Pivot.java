@@ -98,7 +98,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
           double feedback =
               pivotPID.calculate(pivot.getPosition().getRadians(), goalAngle.get().getRadians());
           double feedforward =
-              pivotFeedforward.calculate(
+              pivotFeedforward.calculate( // add pi to measurement to account for alternate angle
                   pivotPID.getSetpoint().position + Math.PI, pivotPID.getSetpoint().velocity);
           pivot.setVoltage(feedback + feedforward);
         })
@@ -123,7 +123,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
           double feedback =
               climbPID.calculate(pivot.getPosition().getRadians(), goalAngle.get().getRadians());
           double feedforward =
-              climbFeedforward.calculate(
+              climbFeedforward.calculate( // add pi to measurement to account for alternate angle
                   climbPID.getSetpoint().position + Math.PI, climbPID.getSetpoint().velocity);
           pivot.setVoltage(feedback + feedforward);
         })

@@ -15,10 +15,6 @@ import edu.wpi.first.units.Velocity;
 public class PivotConstants {
   public static final double GEARING = 12.0 / 64.0 * 20.0 / 70.0 * 36.0 / 56.0 * 16.0 / 54.0;
 
-  public static void main(String[] args) {
-    System.out.println(1 / GEARING);
-  }
-
   public static final Measure<Distance> RADIUS = Meters.of(1);
   public static final Measure<Distance> CIRCUMFERENCE = Meters.of(2 * Math.PI * RADIUS.in(Meters));
 
@@ -26,10 +22,11 @@ public class PivotConstants {
   public static final Translation2d OFFSET = new Translation2d(1, 0);
 
   // Height of the axis of rotation
-  public static final Translation2d HEIGHT = new Translation2d(1, 0);
+  public static final Translation2d HEIGHT = new Translation2d(0, 1);
 
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);
+
   public static final Measure<Angle> POSITION_FACTOR =
       Rotations.of(GEARING).times(CIRCUMFERENCE.in(Meters));
 
