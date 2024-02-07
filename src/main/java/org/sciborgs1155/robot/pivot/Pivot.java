@@ -80,6 +80,9 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
                 this,
                 "pivot"));
 
+    pivotPID.setTolerance(POSITION_TOLERANCE.in(Radians));
+    climbPID.setTolerance(POSITION_TOLERANCE.in(Radians));
+
     SmartDashboard.putData("pivot quasistatic forward", quasistaticForward());
     SmartDashboard.putData("pivot quasistatic backward", quasistaticBack());
     SmartDashboard.putData("pivot dynamic forward", dynamicForward());

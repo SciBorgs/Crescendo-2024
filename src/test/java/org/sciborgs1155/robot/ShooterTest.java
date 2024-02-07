@@ -75,7 +75,7 @@ public class ShooterTest {
 
   @Test
   public void testFeeder() {
-    run(feeder.runFeeder(() -> 4.0));
+    run(feeder.runFeeder(4));
     fastForward();
     assertEquals(4.0, feeder.getVelocity().in(RadiansPerSecond), DELTA);
   }
@@ -88,10 +88,9 @@ public class ShooterTest {
     assertEquals(4, shooter.getVelocity(), DELTA);
   }
 
-  // @Disabled
   @Test
   public void testPivotThenShoot() {
-    run(shooting.pivotThenShoot(() -> new Rotation2d(Radians.of(Math.PI / 4)), () -> 4, () -> 4));
+    run(shooting.pivotThenShoot(() -> new Rotation2d(Radians.of(Math.PI / 4)), () -> 4));
     fastForward();
 
     assertEquals(

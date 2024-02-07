@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.*;
+import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -18,11 +19,8 @@ public class PivotConstants {
   public static final Measure<Distance> RADIUS = Meters.of(1);
   public static final Measure<Distance> CIRCUMFERENCE = Meters.of(2 * Math.PI * RADIUS.in(Meters));
 
-  // Offset from the center of the robot
-  public static final Translation2d OFFSET = new Translation2d(1, 0);
-
-  // Height of the axis of rotation
-  public static final Translation2d HEIGHT = new Translation2d(0, 1);
+  // Offset from the center of the robot to the pivot's axis of rotation
+  public static final Translation2d OFFSET = new Translation2d(Inches.of(10.465), Inches.of(25));
 
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);
@@ -31,11 +29,10 @@ public class PivotConstants {
       Rotations.of(GEARING).times(CIRCUMFERENCE.in(Meters));
   public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
-  public static final Measure<Angle> POSITION_OFFSET = Radians.of(0);
   public static final Measure<Angle> POSITION_TOLERANCE = Radians.of(0.1);
 
   public static final Measure<Mass> MASS = Kilograms.of(1);
-  public static final Measure<Distance> LENGTH = Meters.of(3);
+  public static final Measure<Distance> LENGTH = Inches.of(16);
 
   public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.5);
   public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
@@ -44,6 +41,9 @@ public class PivotConstants {
   public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(63.3);
 
   public static final Rotation2d STARTING_ANGLE = Rotation2d.fromDegrees(63.3);
+
+  public static final Rotation2d PRESET_SUBWOOFER_ANGLE = STARTING_ANGLE;
+  public static final Rotation2d PRESET_AMP_ANGLE = Rotation2d.fromDegrees(-45.7);
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 

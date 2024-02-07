@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.Constants;
@@ -46,11 +45,10 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     return Robot.isReal() ? new Feeder(new RealFeeder()) : new Feeder(new SimFeeder());
   }
 
-  public Command runFeeder(DoubleSupplier velocity) {
+  public Command runFeeder(double velocity) {
     return run(() -> {
-          double ffOutput =
-              ff.calculate(pid.getSetpoint(), velocity.getAsDouble(), Constants.PERIOD.in(Seconds));
-          double pidOutput = pid.calculate(feeder.getVelocity(), velocity.getAsDouble());
+          double ffOutput = ff.calculate(pid.getSetpoint(), velocity, Constants.PERIOD.in(Seconds));
+          double pidOutput = pid.calculate(feeder.getVelocity(), velocity);
           feeder.setVoltage(pidOutput + ffOutput);
         })
         .withName("running feeder");

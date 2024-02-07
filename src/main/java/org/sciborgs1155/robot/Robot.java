@@ -5,10 +5,10 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_SUBWOOFER_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -132,12 +132,6 @@ public class Robot extends CommandRobot implements Logged {
     operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
 
     // shooting into speaker when up to subwoofer
-    operator
-        .x()
-        .toggleOnTrue(
-            shooting.pivotThenShoot(
-                () -> new Rotation2d(PRESET_SUBWOOFER_ANGLE),
-                () -> PRESET_SUBWOOFER_VELOCITY.in(RadiansPerSecond),
-                () -> 1));
+    operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2));
   }
 }

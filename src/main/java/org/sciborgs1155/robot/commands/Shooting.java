@@ -1,5 +1,8 @@
 package org.sciborgs1155.robot.commands;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static org.sciborgs1155.robot.feeder.FeederConstants.FEEDER_VELOCITY;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -33,7 +36,8 @@ public class Shooting {
     return shooter
         .runShooter(desiredVelocity)
         .alongWith(
-            Commands.waitUntil(shooter::atSetpoint).andThen(feeder.runFeeder(desiredVelocity)));
+            Commands.waitUntil(shooter::atSetpoint)
+                .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
   }
 
   /**
@@ -41,16 +45,14 @@ public class Shooting {
    *
    * @param goalAngle The desired angle of the pivot.
    * @param shooterVelocity The desired velocity of the shooter.
-   * @param feederVelocity The desired velocity of the feeder.
    * @return The command to run the pivot to its desired angle and then shoot.
    */
-  public Command pivotThenShoot(
-      Supplier<Rotation2d> goalAngle,
-      DoubleSupplier shooterVelocity,
-      DoubleSupplier feederVelocity) {
+  public Command pivotThenShoot(Supplier<Rotation2d> goalAngle, DoubleSupplier shooterVelocity) {
     return pivot
         .runPivot(goalAngle)
         .alongWith(shooter.runShooter(shooterVelocity))
-        .alongWith(Commands.waitUntil(pivot::atGoal).andThen(feeder.runFeeder(feederVelocity)));
+        .alongWith(
+            Commands.waitUntil(pivot::atGoal)
+                .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
   }
 }

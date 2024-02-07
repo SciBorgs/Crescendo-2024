@@ -19,6 +19,7 @@
       "/Robot/drive/rearLeft/turnFeedback": "PIDController",
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
+      "/Robot/feeder/pid": "PIDController",
       "/Robot/flywheel": "Subsystem",
       "/Robot/flywheel/flywheelPID": "PIDController",
       "/Robot/pivot/climbPID": "ProfiledPIDController",
@@ -30,6 +31,7 @@
       "/Robot/shooter/measurement": "Mechanism2d",
       "/Robot/shooter/mech": "Mechanism2d",
       "/Robot/shooter/mech2": "Mechanism2d",
+      "/Robot/shooter/pid": "PIDController",
       "/Robot/shooter/pivot/manualPID": "PIDController",
       "/Robot/shooter/pivot/manualSetpoint": "Mechanism2d",
       "/Robot/shooter/pivot/measurement": "Mechanism2d",
@@ -38,8 +40,20 @@
       "/SmartDashboard/drive quasistatic forward": "Command",
       "/SmartDashboard/dynamicBack": "Command",
       "/SmartDashboard/dynamicForward": "Command",
+      "/SmartDashboard/feeder dynamic backward": "Command",
+      "/SmartDashboard/feeder dynamic forward": "Command",
+      "/SmartDashboard/feeder quasistatic backward": "Command",
+      "/SmartDashboard/feeder quasistatic forward": "Command",
+      "/SmartDashboard/pivot dynamic backward": "Command",
+      "/SmartDashboard/pivot dynamic forward": "Command",
+      "/SmartDashboard/pivot quasistatic backward": "Command",
+      "/SmartDashboard/pivot quasistatic forward": "Command",
       "/SmartDashboard/quasistaticBack": "Command",
-      "/SmartDashboard/quasistaticForward": "Command"
+      "/SmartDashboard/quasistaticForward": "Command",
+      "/SmartDashboard/shooter dynamic backward": "Command",
+      "/SmartDashboard/shooter dynamic forward": "Command",
+      "/SmartDashboard/shooter quasistatic backward": "Command",
+      "/SmartDashboard/shooter quasistatic forward": "Command"
     },
     "windows": {
       "/Robot/autos": {
@@ -166,7 +180,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 80,
+          "height": 0,
           "series": [
             {
               "color": [

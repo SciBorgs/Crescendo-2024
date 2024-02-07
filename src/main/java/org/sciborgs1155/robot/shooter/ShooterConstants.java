@@ -9,15 +9,10 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
 
 public class ShooterConstants {
-  public static final Measure<Angle> PRESET_SUBWOOFER_ANGLE = Radians.of(1.22173);
-  public static final Measure<Velocity<Angle>> PRESET_SUBWOOFER_VELOCITY = RadiansPerSecond.of(4);
-
-  public static final Measure<Distance> LENGTH = Meters.of(1);
-
   public static final double GEARING = 1;
   public static final double MOI = 1;
 
-  public static final Measure<Distance> RADIUS = Meters.of(1);
+  public static final Measure<Distance> RADIUS = Inches.of(4);
   public static final Measure<Distance> CIRCUMFERENCE = Meters.of(2 * Math.PI * RADIUS.in(Meters));
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
