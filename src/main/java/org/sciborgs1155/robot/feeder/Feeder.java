@@ -3,8 +3,6 @@ package org.sciborgs1155.robot.feeder;
 import static edu.wpi.first.units.Units.Volts;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -12,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
@@ -43,11 +42,12 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
 
   public Command runFeeder(DoubleSupplier velocity) {
     return run(() -> {
-            double pidOutput = pid.calculate(feeder.getVelocity(), velocity.getAsDouble());
-            double ffOutput = ff.calculate(velocity.getAsDouble());
+          double pidOutput = pid.calculate(feeder.getVelocity(), velocity.getAsDouble());
+          double ffOutput = ff.calculate(velocity.getAsDouble());
 
-            feeder.setVoltage(pidOutput + ffOutput);
-    }).withName("running feeder, " + velocity + " volts");
+          feeder.setVoltage(pidOutput + ffOutput);
+        })
+        .withName("running feeder, " + velocity + " volts");
   }
 
   public Command quasistaticBack() {
