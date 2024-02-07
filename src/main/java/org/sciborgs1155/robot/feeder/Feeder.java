@@ -3,6 +3,8 @@ package org.sciborgs1155.robot.feeder;
 import static edu.wpi.first.units.Units.Volts;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,11 +41,13 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     return Robot.isReal() ? new Feeder(new RealFeeder()) : new Feeder(new SimFeeder());
   }
 
-  public Command runFeeder(double velocity) {
-    return run(() ->
-            feeder.setVoltage(
-                pid.calculate(feeder.getVelocity(), velocity) + ff.calculate(velocity)))
-        .withName("running feeder, " + velocity + " volts");
+  public Command runFeeder(DoubleSupplier velocity) {
+    return run(() -> {
+            double pidOutput = pid.calculate(feeder.getVelocity(), velocity.getAsDouble());
+            double ffOutput = ff.calculate(velocity.getAsDouble());
+
+            feeder.setVoltage(pidOutput + ffOutput);
+    }).withName("running feeder, " + velocity + " volts");
   }
 
   public Command quasistaticBack() {
