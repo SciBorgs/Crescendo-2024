@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.fastForward;
 import static org.sciborgs1155.lib.TestingUtil.run;
 import static org.sciborgs1155.lib.TestingUtil.setupHAL;
+import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -42,19 +44,21 @@ public class ShooterTest {
     assertEquals(3, shooter.getVelocity(), DELTA);
   }
 
-  @Disabled
+  // @Disabled
   @ParameterizedTest
   @ValueSource(doubles = {Math.PI / 4, 3 * Math.PI / 8})
   public void testPivot(double theta) {
     run((pivot.runPivot(() -> Rotation2d.fromRadians(theta))));
     // TODO make and use getter methods for these
-    // assertEquals(pivot.pivotPID.getGoal().position, theta);
     fastForward(3000);
-    // assertEquals(pivot.pivotPID.getGoal().position, theta);
-    // assertEquals(pivot.pivotPID.getGoal().velocity, 0);
-    // assertEquals(pivot.pivotPID.getSetpoint().position, theta);
-    // assertEquals(pivot.pivotPID.getSetpoint().velocity, 0);
-    assertEquals(theta, pivot.getPosition().getRadians(), 0.15);
+    assertEquals(0, pivot.getGoal().velocity, 0);
+    assertEquals(theta, pivot.getGoal().position, DELTA);
+    assertEquals(theta, pivot.getSetpoint().position, DELTA);
+    assertEquals(0, pivot.getSetpoint().velocity, DELTA);
+    assertEquals(
+        MathUtil.clamp(theta, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
+        pivot.getPosition().getRadians(),
+        0.15);
   }
 
   @Test
@@ -62,7 +66,10 @@ public class ShooterTest {
     run(pivot.climb(() -> new Rotation2d(Radians.of(Math.PI / 4))));
     fastForward();
 
-    assertEquals(Math.PI / 4, pivot.getPosition().getRadians(), DELTA);
+    assertEquals(
+        MathUtil.clamp(Math.PI / 4, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
+        pivot.getPosition().getRadians(),
+        DELTA);
   }
 
   @Test
@@ -81,13 +88,16 @@ public class ShooterTest {
     assertEquals(4, shooter.getVelocity(), DELTA);
   }
 
-  @Disabled
+  // @Disabled
   @Test
   public void testPivotThenShoot() {
     run(shooting.pivotThenShoot(() -> new Rotation2d(Radians.of(Math.PI / 4)), () -> 4, () -> 4));
     fastForward();
 
-    assertEquals(Math.PI / 4, pivot.getPosition().getRadians(), DELTA);
+    assertEquals(
+        MathUtil.clamp(Math.PI / 4, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
+        pivot.getPosition().getRadians(),
+        DELTA);
     assertEquals(4, shooter.getVelocity(), DELTA);
   }
 }

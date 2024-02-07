@@ -43,7 +43,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     return run(() ->
             feeder.setVoltage(
                 pid.calculate(feeder.getVelocity(), velocity) + ff.calculate(velocity)))
-        .withName("running feeder");
+        .withName("running feeder, " + velocity + " volts");
   }
 
   public Command quasistaticBack() {

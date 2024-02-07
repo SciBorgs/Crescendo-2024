@@ -7,6 +7,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -132,6 +133,11 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   @Log.NT
+  public State getGoal() {
+    return pivotPID.getGoal();
+  }
+
+  @Log.NT
   public Rotation2d getPosition() {
     return pivot.getPosition();
   }
@@ -141,9 +147,14 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     return pivotPID.atGoal();
   }
 
+  @Log.NT
+  public State getSetpoint() {
+    return pivotPID.getSetpoint();
+  }
+
   // ProfilePID doesn't log this stuff
   @Log.NT
-  private Rotation2d getSetpoint() {
+  public Rotation2d getSetpointRadians() {
     return Rotation2d.fromRadians(pivotPID.getSetpoint().position);
   }
 
