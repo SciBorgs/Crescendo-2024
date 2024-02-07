@@ -1,15 +1,18 @@
 package org.sciborgs1155.robot.pivot;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.sciborgs1155.robot.Ports.Pivot.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.geometry.Rotation2d;
+import java.util.List;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
@@ -23,13 +26,18 @@ public class RealPivot implements PivotIO {
   private final SparkAbsoluteEncoder encoder;
 
   public RealPivot() {
-    lead = SparkUtils.createSparkMax(SPARK_LEFT_TOP, false, IdleMode.kBrake, CURRENT_LIMIT);
-    leftBottom =
-        SparkUtils.createSparkMax(SPARK_LEFT_BOTTOM, false, IdleMode.kBrake, CURRENT_LIMIT);
-    rightTop = SparkUtils.createSparkMax(SPARK_RIGHT_TOP, true, IdleMode.kBrake, CURRENT_LIMIT);
-    rightBottom =
-        SparkUtils.createSparkMax(SPARK_RIGHT_BOTTOM, true, IdleMode.kBrake, CURRENT_LIMIT);
+    lead = new CANSparkMax(SPARK_LEFT_TOP, MotorType.kBrushless);
+    leftBottom = new CANSparkMax(SPARK_LEFT_BOTTOM, MotorType.kBrushless);
+    rightTop = new CANSparkMax(SPARK_RIGHT_TOP, MotorType.kBrushless);
+    rightBottom = new CANSparkMax(SPARK_RIGHT_BOTTOM, MotorType.kBrushless);
 
+    for (CANSparkMax spark : List.of(lead, leftBottom, rightTop, rightBottom)) {
+      spark.restoreFactoryDefaults();
+      spark.setIdleMode(IdleMode.kBrake);
+      spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
+    }
+
+    lead.setInverted(false);
     leftBottom.follow(lead, false);
     rightTop.follow(lead, true);
     rightBottom.follow(lead, true);
@@ -41,7 +49,6 @@ public class RealPivot implements PivotIO {
 
     SparkUtils.configureFrameStrategy(
         lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.DUTY_CYCLE), true);
-
     SparkUtils.configureFollowerFrameStrategy(leftBottom);
     SparkUtils.configureFollowerFrameStrategy(rightTop);
     SparkUtils.configureFollowerFrameStrategy(rightBottom);

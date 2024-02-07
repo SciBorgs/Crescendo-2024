@@ -1,17 +1,10 @@
 package org.sciborgs1155.lib;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-import com.revrobotics.CANSparkMax;
 import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Current;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units;
 import java.util.Set;
@@ -113,47 +106,5 @@ public class SparkUtils {
    */
   public static void configureFollowerFrameStrategy(CANSparkBase spark) {
     configureFrameStrategy(spark, Set.of(), Set.of(), false);
-  }
-
-  /**
-   * Creates a CANSparkMax in brushless mode with the given configuration.
-   *
-   * <p>This method restores the spark to factory defaults before applying configurations.
-   *
-   * @param id The CAN ID of the motor controller.
-   * @param inverted Whether the motor controller is inverted.
-   * @param idleMode The idle behavior of the motor.
-   * @param currentLimit The smart current limit of the motor controller.
-   * @return A new CANSparkMax object.
-   */
-  public static CANSparkMax createSparkMax(
-      int id, boolean inverted, IdleMode idleMode, Measure<Current> currentLimit) {
-    CANSparkMax spark = new CANSparkMax(id, MotorType.kBrushless);
-    spark.restoreFactoryDefaults();
-    spark.setInverted(inverted);
-    spark.setIdleMode(idleMode);
-    spark.setSmartCurrentLimit((int) currentLimit.in(Amps));
-    return spark;
-  }
-
-  /**
-   * Creates a CANSparkFlex in brushless mode with the given configuration.
-   *
-   * <p>This method restores the spark to factory defaults before applying configurations.
-   *
-   * @param id The CAN ID of the motor controller.
-   * @param inverted Whether the motor controller is inverted.
-   * @param idleMode The idle behavior of the motor.
-   * @param currentLimit The smart current limit of the motor controller.
-   * @return A new CANSparkFlex object.
-   */
-  public static CANSparkFlex createSparkFlex(
-      int id, boolean inverted, IdleMode idleMode, Measure<Current> currentLimit) {
-    CANSparkFlex spark = new CANSparkFlex(id, MotorType.kBrushless);
-    spark.restoreFactoryDefaults();
-    spark.setInverted(inverted);
-    spark.setIdleMode(idleMode);
-    spark.setSmartCurrentLimit((int) currentLimit.in(Amps));
-    return spark;
   }
 }

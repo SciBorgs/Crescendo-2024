@@ -6,6 +6,7 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
@@ -18,11 +19,17 @@ public class RealShooter implements ShooterIO {
   private final RelativeEncoder encoder;
 
   public RealShooter() {
+    topMotor = new CANSparkFlex(TOP_MOTOR, MotorType.kBrushless);
+    topMotor.restoreFactoryDefaults();
+    topMotor.setIdleMode(IdleMode.kBrake);
+    topMotor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
 
-    topMotor = SparkUtils.createSparkFlex(TOP_MOTOR, false, IdleMode.kBrake, CURRENT_LIMIT);
-    bottomMotor = SparkUtils.createSparkFlex(BOTTOM_MOTOR, false, IdleMode.kBrake, CURRENT_LIMIT);
+    bottomMotor = new CANSparkFlex(BOTTOM_MOTOR, MotorType.kBrushless);
+    bottomMotor.restoreFactoryDefaults();
+    bottomMotor.setIdleMode(IdleMode.kBrake);
+    bottomMotor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
+
     encoder = topMotor.getEncoder();
-
     encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
     encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
     encoder.setMeasurementPeriod(10);

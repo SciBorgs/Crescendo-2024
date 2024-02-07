@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot.feeder;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static org.sciborgs1155.robot.Ports.Feeder.*;
@@ -7,6 +8,7 @@ import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
@@ -18,7 +20,10 @@ public class RealFeeder implements FeederIO {
   private final RelativeEncoder encoder;
 
   public RealFeeder() {
-    motor = SparkUtils.createSparkFlex(FEEDER_SPARK, false, IdleMode.kBrake, CURRENT_LIMIT);
+    motor = new CANSparkFlex(FEEDER_SPARK, MotorType.kBrushless);
+    motor.restoreFactoryDefaults();
+    motor.setIdleMode(IdleMode.kBrake);
+    motor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
 
     SparkUtils.configureFrameStrategy(
         motor, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.INTEGRATED), false);
