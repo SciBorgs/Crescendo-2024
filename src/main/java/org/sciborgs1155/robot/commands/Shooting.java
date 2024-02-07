@@ -32,7 +32,8 @@ public class Shooting {
   public Command shoot(DoubleSupplier desiredVelocity) {
     return shooter
         .runShooter(desiredVelocity)
-        .alongWith(Commands.waitUntil(shooter::atSetpoint).andThen(feeder.runFeeder(1)));
+        .alongWith(
+            Commands.waitUntil(shooter::atSetpoint).andThen(feeder.runFeeder(desiredVelocity)));
   }
 
   /**
@@ -50,8 +51,6 @@ public class Shooting {
     return pivot
         .runPivot(goalAngle)
         .alongWith(shooter.runShooter(shooterVelocity))
-        .alongWith(
-            Commands.waitUntil(pivot::atGoal)
-                .andThen(feeder.runFeeder(feederVelocity.getAsDouble())));
+        .alongWith(Commands.waitUntil(pivot::atGoal).andThen(feeder.runFeeder(feederVelocity)));
   }
 }

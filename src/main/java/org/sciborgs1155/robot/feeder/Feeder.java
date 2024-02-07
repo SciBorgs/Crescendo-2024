@@ -1,10 +1,15 @@
 package org.sciborgs1155.robot.feeder;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 
 public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
@@ -28,7 +34,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism(v -> feeder.setVoltage(v.in(Volts)), null, this, "feeder"));
+            new SysIdRoutine.Mechanism(v -> feeder.setVoltage(v.in(Volts)), null, this));
 
     SmartDashboard.putData("feeder quasistatic backward", quasistaticBack());
     SmartDashboard.putData("feeder quasistatic forward", quasistaticForward());
@@ -42,12 +48,16 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
 
   public Command runFeeder(DoubleSupplier velocity) {
     return run(() -> {
+          double ffOutput =
+              ff.calculate(pid.getSetpoint(), velocity.getAsDouble(), Constants.PERIOD.in(Seconds));
           double pidOutput = pid.calculate(feeder.getVelocity(), velocity.getAsDouble());
-          double ffOutput = ff.calculate(velocity.getAsDouble());
-
           feeder.setVoltage(pidOutput + ffOutput);
         })
-        .withName("running feeder, " + velocity + " volts");
+        .withName("running feeder");
+  }
+
+  public Measure<Velocity<Angle>> getVelocity() {
+    return RadiansPerSecond.of(feeder.getVelocity());
   }
 
   public Command quasistaticBack() {

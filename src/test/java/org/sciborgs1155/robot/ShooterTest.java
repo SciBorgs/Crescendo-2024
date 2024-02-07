@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.fastForward;
 import static org.sciborgs1155.lib.TestingUtil.run;
@@ -74,10 +75,9 @@ public class ShooterTest {
 
   @Test
   public void testFeeder() {
-    // this is just making sure it doesn't kill itself
-    run(feeder.runFeeder(4));
+    run(feeder.runFeeder(() -> 4.0));
     fastForward();
-    assertEquals("running feeder, " + 4. + " volts", feeder.getCurrentCommand().getName());
+    assertEquals(4.0, feeder.getVelocity().in(RadiansPerSecond), DELTA);
   }
 
   @Test
