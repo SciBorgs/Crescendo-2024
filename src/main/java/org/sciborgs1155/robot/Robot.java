@@ -93,7 +93,7 @@ public class Robot extends CommandRobot implements Logged {
    * running on a subsystem.
    */
   private void configureSubsystemDefaults() {
-`    // drive.setDefaultCommand(
+    // drive.setDefaultCommand(
     //     drive.drive(
     //         createJoystickStream(
     //             driver::getLeftX,
@@ -147,7 +147,7 @@ public class Robot extends CommandRobot implements Logged {
     //     .and(() -> shooting.canShoot().getAsBoolean() == false)
     //     .toggleOnTrue(rumble(RumbleType.kBothRumble, 0.5));
 
-    operator.a().toggleOnTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+    operator.a().onTrue(led.setLEDTheme(LEDTheme.RAINBOW)).onTrue(Commands.print("lighitng"));
   }
 
   @Override
