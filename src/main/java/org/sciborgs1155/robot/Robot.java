@@ -44,6 +44,8 @@ public class Robot extends CommandRobot implements Logged {
   // SUBSYSTEMS
   @Log.NT private final Drive drive = Drive.create();
 
+  // @Log.NT private final Intake intake = Intake.create(true);
+
   @Log.NT
   private final Shooter shooter =
       switch (Constants.ROBOT_TYPE) {

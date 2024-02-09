@@ -48,12 +48,12 @@ public class RealFeeder implements FeederIO {
   }
 
   @Override
-  public boolean getFrontBeambreakValue() {
+  public boolean frontBeamBreak() {
     return frontBeambreak.get();
   }
 
   @Override
-  public boolean getEndBeambreakValue() {
+  public boolean backBeamBreak() {
     return endBeambreak.get();
   }
 

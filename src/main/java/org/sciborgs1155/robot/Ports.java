@@ -21,6 +21,8 @@ public final class Ports {
 
   public static final class Feeder {
     public static final int FEEDER_SPARK = -1;
+    public static final int FRONT_BEAMBREAK = -1;
+    public static final int END_BEAMBREAK = -1;
   }
 
   public static final class Drive {
@@ -33,5 +35,10 @@ public final class Ports {
     public static final int REAR_LEFT_TURNING = 14;
     public static final int FRONT_RIGHT_TURNING = 16;
     public static final int REAR_RIGHT_TURNING = 17;
+  }
+
+  public static final class Intake {
+    public static final int BEAMBREAK = -1;
+    public static final int INTAKE_DEVICE_ID = -1;
   }
 }

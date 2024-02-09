@@ -3,16 +3,17 @@ package org.sciborgs1155.robot.intake;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
+import org.sciborgs1155.robot.Ports;
 
 public interface IntakeIO extends AutoCloseable {
-  public void setPower(double percentage);
+  void setPower(double percentage);
 
-  public boolean getBeambreakValue();
+  boolean beamBreak();
 
   public static class RealIntake implements IntakeIO {
     private final CANSparkFlex spark =
-        new CANSparkFlex(IntakeConstants.INTAKE_DEVICE_ID, MotorType.kBrushless);
-    private final DigitalInput beambreak = new DigitalInput(IntakeConstants.BEAMBREAK);
+        new CANSparkFlex(Ports.Intake.INTAKE_DEVICE_ID, MotorType.kBrushless);
+    private final DigitalInput beambreak = new DigitalInput(Ports.Intake.BEAMBREAK);
 
     @Override
     public void setPower(double percentage) {
@@ -20,7 +21,7 @@ public interface IntakeIO extends AutoCloseable {
     }
 
     @Override
-    public boolean getBeambreakValue() {
+    public boolean beamBreak() {
       return beambreak.get();
     }
 
@@ -33,12 +34,10 @@ public interface IntakeIO extends AutoCloseable {
 
   public static class NoIntake implements IntakeIO {
     @Override
-    public void setPower(double percentage) {
-      // RoboRioSim.getVInVoltage() * percentage;
-    }
+    public void setPower(double percentage) {}
 
     @Override
-    public boolean getBeambreakValue() {
+    public boolean beamBreak() {
       return false;
     }
 

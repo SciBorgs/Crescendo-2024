@@ -4,10 +4,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import monologue.Logged;
+import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.intake.IntakeIO.NoIntake;
 import org.sciborgs1155.robot.intake.IntakeIO.RealIntake;
 
 public class Intake extends SubsystemBase implements Logged, AutoCloseable {
+  public static Intake create() {
+    return Robot.isReal() ? new Intake(new RealIntake()) : new Intake(new NoIntake());
+  }
+
+  public static Intake createNone() {
+    return new Intake(new NoIntake());
+  }
+
   private final IntakeIO intake;
 
   public Intake(IntakeIO intake) {
@@ -23,12 +32,8 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
     return run(() -> intake.setPower(-IntakeConstants.INTAKE_SPEED));
   }
 
-  public Trigger beambreakTrigger() {
-    return new Trigger(intake::getBeambreakValue);
-  }
-
-  public static Intake create(boolean isReal) {
-    return isReal ? new Intake(new RealIntake()) : new Intake(new NoIntake());
+  public Trigger hasNote() {
+    return new Trigger(intake::beamBreak);
   }
 
   @Override

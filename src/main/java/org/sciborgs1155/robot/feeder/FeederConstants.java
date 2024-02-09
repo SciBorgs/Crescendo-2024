@@ -25,7 +25,4 @@ public class FeederConstants {
   public static final double kS = 0;
   public static final double kV = 0.2;
   public static final double kA = 0.7;
-
-  public static final int FRONT_BEAMBREAK = -1;
-  public static final int END_BEAMBREAK = -1;
 }
