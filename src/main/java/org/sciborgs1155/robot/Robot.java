@@ -3,6 +3,7 @@ package org.sciborgs1155.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_SUBWOOFER_ANGLE;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -23,8 +24,12 @@ import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
+import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
+import org.sciborgs1155.robot.feeder.Feeder;
+import org.sciborgs1155.robot.pivot.Pivot;
+import org.sciborgs1155.robot.shooter.Shooter;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -33,18 +38,40 @@ import org.sciborgs1155.robot.drive.DriveConstants;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class Robot extends CommandRobot implements Logged {
-
   // INPUT DEVICES
   private final CommandXboxController operator = new CommandXboxController(OI.OPERATOR);
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
   // SUBSYSTEMS
-  private final Drive drive = Drive.create();
+  @Log.NT private final Drive drive = Drive.create();
+
+  @Log.NT
+  private final Shooter shooter =
+      switch (Constants.ROBOT_TYPE) {
+        case CHASSIS -> Shooter.createNone();
+        default -> Shooter.create();
+      };
+
+  @Log.NT
+  private final Feeder feeder =
+      switch (Constants.ROBOT_TYPE) {
+        case CHASSIS -> Feeder.createNone();
+        default -> Feeder.create();
+      };
+
+  @Log.NT
+  private final Pivot pivot =
+      switch (Constants.ROBOT_TYPE) {
+        case COMPLETE -> Pivot.create();
+        default -> Pivot.createNone();
+      };
 
   // COMMANDS
   @Log.NT private final SendableChooser<Command> autos;
 
-  @Log.NT private double speedMultiplier = Constants.FULL_SPEED;
+  private final Shooting shooting = new Shooting(shooter, pivot, feeder);
+
+  @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
@@ -135,7 +162,12 @@ public class Robot extends CommandRobot implements Logged {
     driver
         .leftBumper()
         .or(driver.rightBumper())
-        .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED))
-        .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED));
+        .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
+        .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
+
+    operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
+
+    // shooting into speaker when up to subwoofer
+    operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2));
   }
 }
