@@ -1,16 +1,15 @@
-package org.sciborgs1155.robot.shooter.flywheel;
+package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.Seconds;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.GEARING;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.MOI;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import org.sciborgs1155.robot.Constants;
 
-/** A simulated {@link FlywheelIO} using {@link FlywheelSim} */
-public class SimFlywheel implements FlywheelIO {
+/** A simulated {@link ShooterIO} using {@link FlywheelSim} */
+public class SimShooter implements ShooterIO {
   private final FlywheelSim sim =
       new FlywheelSim(
           LinearSystemId.createFlywheelSystem(DCMotor.getNeoVortex(2), MOI, GEARING),

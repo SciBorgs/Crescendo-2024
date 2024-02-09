@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_SUBWOOFER_ANGLE;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -22,12 +23,12 @@ import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
+import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
-import org.sciborgs1155.robot.shooter.Shooting;
-import org.sciborgs1155.robot.shooter.feeder.Feeder;
-import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
-import org.sciborgs1155.robot.shooter.pivot.Pivot;
+import org.sciborgs1155.robot.feeder.Feeder;
+import org.sciborgs1155.robot.pivot.Pivot;
+import org.sciborgs1155.robot.shooter.Shooter;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -36,7 +37,6 @@ import org.sciborgs1155.robot.shooter.pivot.Pivot;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class Robot extends CommandRobot implements Logged {
-
   // INPUT DEVICES
   private final CommandXboxController operator = new CommandXboxController(OI.OPERATOR);
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
@@ -44,14 +44,31 @@ public class Robot extends CommandRobot implements Logged {
   // SUBSYSTEMS
   @Log.NT private final Drive drive = Drive.create();
 
-  private final Flywheel flywheel = Flywheel.create();
-  private final Feeder feeder = Feeder.create();
-  private final Pivot pivot = Pivot.create();
+  @Log.NT
+  private final Shooter shooter =
+      switch (Constants.ROBOT_TYPE) {
+        case CHASSIS -> Shooter.createNone();
+        default -> Shooter.create();
+      };
+
+  @Log.NT
+  private final Feeder feeder =
+      switch (Constants.ROBOT_TYPE) {
+        case CHASSIS -> Feeder.createNone();
+        default -> Feeder.create();
+      };
+
+  @Log.NT
+  private final Pivot pivot =
+      switch (Constants.ROBOT_TYPE) {
+        case COMPLETE -> Pivot.create();
+        default -> Pivot.createNone();
+      };
 
   // COMMANDS
   @Log.NT private final SendableChooser<Command> autos = AutoBuilder.buildAutoChooser();
 
-  @Log.NT private final Shooting shooter = new Shooting(flywheel, pivot, feeder);
+  private final Shooting shooting = new Shooting(shooter, pivot, feeder);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
@@ -128,5 +145,8 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.run(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER));
 
     operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
+
+    // shooting into speaker when up to subwoofer
+    operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2));
   }
 }

@@ -6,23 +6,9 @@
   "configurations": [
     {
       "type": "java",
-      "name": "InterpolationTest",
+      "name": "PivotConstants",
       "request": "launch",
-      "mainClass": "org.sciborgs1155.robot.InterpolationTest",
-      "projectName": "Crescendo-2024"
-    },
-    {
-      "type": "java",
-      "name": "Cache",
-      "request": "launch",
-      "mainClass": "org.sciborgs1155.robot.shooter.Cache",
-      "projectName": "Crescendo-2024"
-    },
-    {
-      "type": "java",
-      "name": "ReadFromCache",
-      "request": "launch",
-      "mainClass": "org.sciborgs1155.robot.shooter.ReadFromCache",
+      "mainClass": "org.sciborgs1155.robot.pivot.PivotConstants",
       "projectName": "Crescendo-2024"
     },
     {

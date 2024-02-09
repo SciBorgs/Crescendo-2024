@@ -7,22 +7,20 @@ public final class Ports {
   }
 
   public static final class Shooter {
-    public static final class Flywheel {
-      public static final int LEFT_MOTOR = -1;
-      public static final int RIGHT_MOTOR = -1;
-    }
+    public static final int TOP_MOTOR = -1;
+    public static final int BOTTOM_MOTOR = -1;
+  }
 
-    public static final class Pivot {
-      public static final int PIVOT_SPARK_ONE = -1;
-      public static final int PIVOT_SPARK_TWO = -1;
-      public static final int PIVOT_SPARK_THREE = -1;
-      public static final int PIVOT_SPARK_FOUR = -1;
-      public static final int PIVOT_THROUGHBORE = -1;
-    }
+  public static final class Pivot {
+    public static final int SPARK_LEFT_TOP = -1;
+    public static final int SPARK_RIGHT_TOP = -1;
+    public static final int SPARK_LEFT_BOTTOM = -1;
+    public static final int SPARK_RIGHT_BOTTOM = -1;
+    public static final int PIVOT_THROUGHBORE = -1;
+  }
 
-    public static final class Feeder {
-      public static final int FEEDER_SPARK = -1;
-    }
+  public static final class Feeder {
+    public static final int FEEDER_SPARK = -1;
   }
 
   public static final class Drive {

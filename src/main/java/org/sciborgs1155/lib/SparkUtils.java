@@ -1,14 +1,10 @@
 package org.sciborgs1155.lib;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Current;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units;
 import java.util.Set;
@@ -38,7 +34,8 @@ public class SparkUtils {
     POSITION,
     VELOCITY,
     CURRENT,
-    VOLTAGE;
+    OUTPUT,
+    INPUT;
   }
 
   /**
@@ -63,9 +60,11 @@ public class SparkUtils {
     int status5 = FRAME_STRATEGY_DISABLED; // duty cycle position | default 200
     int status6 = FRAME_STRATEGY_DISABLED; // duty cycle velocity | default 200
 
-    if (data.contains(Data.VELOCITY)
-        || data.contains(Data.VOLTAGE)
-        || data.contains(Data.CURRENT)) {
+    if (!data.contains(Data.OUTPUT) && !withFollower) {
+      status0 = FRAME_STRATEGY_SLOW;
+    }
+
+    if (data.contains(Data.VELOCITY) || data.contains(Data.INPUT) || data.contains(Data.CURRENT)) {
       status1 = FRAME_STRATEGY_FAST;
     }
 
@@ -90,10 +89,6 @@ public class SparkUtils {
       }
     }
 
-    if (!withFollower) {
-      status0 = FRAME_STRATEGY_SLOW;
-    }
-
     spark.setPeriodicFramePeriod(PeriodicFrame.kStatus0, status0);
     spark.setPeriodicFramePeriod(PeriodicFrame.kStatus1, status1);
     spark.setPeriodicFramePeriod(PeriodicFrame.kStatus2, status2);
@@ -111,37 +106,5 @@ public class SparkUtils {
    */
   public static void configureFollowerFrameStrategy(CANSparkBase spark) {
     configureFrameStrategy(spark, Set.of(), Set.of(), false);
-  }
-
-  /**
-   * Configures a CANSpark motor.
-   *
-   * @param spark The motor object. This is either a CANSparkMax object or a CANSparkFlex object.
-   * @param inverted The state of inversion. True if inverted.
-   * @param idleMode Idle mode setting (either kCoast or kBrake).
-   * @param limit current limit.
-   */
-  public static void configureSettings(
-      boolean inverted, IdleMode idleMode, Measure<Current> limit, CANSparkBase spark) {
-    spark.restoreFactoryDefaults();
-    spark.setInverted(inverted);
-    spark.setIdleMode(idleMode);
-    spark.setSmartCurrentLimit((int) limit.in(Amps));
-  }
-
-  /**
-   * Configures multiple CANSpark motors.
-   *
-   * @param sparks The spark objects. These can either be a CANSparkMax object or a CANSparkFlex
-   *     object.
-   * @param inverted The state of inversion. True if inverted.
-   * @param idleMode Idle mode setting (either kCoast or kBrake).
-   * @param limit current limit.
-   */
-  public static void configureSettings(
-      boolean inverted, IdleMode idleMode, Measure<Current> limit, CANSparkBase... sparks) {
-    for (var spark : sparks) {
-      configureSettings(inverted, idleMode, limit, spark);
-    }
   }
 }
