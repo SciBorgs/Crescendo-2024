@@ -28,7 +28,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   // pivot control
   @Log.NT
-  public final ProfiledPIDController pid =
+  private final ProfiledPIDController pid =
       new ProfiledPIDController(
           PivotConstants.kP,
           PivotConstants.kI,
