@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import java.util.function.Supplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
@@ -73,7 +72,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("pivot dynamic forward", dynamicForward());
     SmartDashboard.putData("pivot dynamic backward", dynamicBack());
 
-    setDefaultCommand(run(this::update).repeatedly());
+    setDefaultCommand(run(() -> update(STARTING_ANGLE)).repeatedly());
   }
 
   /**
@@ -83,61 +82,47 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    * @param goalAngle The position to move the pivot to.
    * @return The command to set the pivot's angle.
    */
-  public Command runPivot(Supplier<Rotation2d> goalAngle) {
+  public Command runPivot(Rotation2d goalAngle) {
+    return update(goalAngle).asProxy();
+  }
+
+  /**
+   * Smoothly angle the pivot to a desired position using a {@link ProfiledPIDController}.
+   *
+   * @param goalAngle The position to move the pivot to.
+   * @return The command to set the pivot's angle.
+   */
+  private Command update(Rotation2d goalAngle) {
     return run(() -> {
-          double feedback =
-              pid.calculate(pivot.getPosition().getRadians(), goalAngle.get().getRadians());
+          double feedback = pid.calculate(pivot.getPosition().getRadians(), goalAngle.getRadians());
           double feedforward =
               ff.calculate( // add pi to measurement to account for alternate angle
                   pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
           pivot.setVoltage(feedback + feedforward);
         })
         .until(pid::atGoal)
-        .withName("running pivot")
-        .asProxy();
+        .withName("running pivot");
   }
 
   /**
-   * Smoothly angle the pivot to its starting position using a {@link ProfiledPIDController}.
+   * Smoothly angle the pivot to a desired angle using a separately tuned {@link
+   * ProfiledPIDController} for climbing.
    *
    * @return The command to set the pivot's angle.
    */
-  private Command update() {
-    return run(() -> {
-          double feedback =
-              pid.calculate(pivot.getPosition().getRadians(), STARTING_ANGLE.getRadians());
-          System.out.println(feedback);
-          double feedforward =
-              ff.calculate( // add pi to measurement to account for alternate angle
-                  pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
-          pivot.setVoltage(feedback + feedforward);
-        })
-        .until(pid::atGoal)
-        .withName("running pivot to start");
-  }
-
-  /**
-   * Smoothly angle the pivot to its starting position (from an extended, preconfigured position)
-   * using a separately tuned {@link ProfiledPIDController} for climbing.
-   *
-   * @return The command to set the pivot's angle.
-   */
-  public Command climb() {
+  public Command climb(Rotation2d goalAngle) {
     return runOnce(() -> pid.setPID(ClimbConstants.kP, ClimbConstants.kI, ClimbConstants.kD))
-        .andThen(update())
+        .andThen(update(goalAngle))
         .finallyDo(() -> pid.setPID(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD));
   }
 
   public Command manualPivot(InputStream stickInput) {
-    return runPivot(
-        () -> {
-          double velocity = stickInput.get() * PivotConstants.MAX_VELOCITY.in(RadiansPerSecond);
-          double periodMovement = Constants.PERIOD.in(Seconds) * velocity;
-          double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
-          double setpoint =
-              Math.max(Math.min(MAX_ANGLE.getRadians(), draftSetpoint), MIN_ANGLE.getRadians());
-          return Rotation2d.fromRadians(setpoint);
-        });
+    double velocity = stickInput.get() * PivotConstants.MAX_VELOCITY.in(RadiansPerSecond);
+    double periodMovement = Constants.PERIOD.in(Seconds) * velocity;
+    double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
+    double setpoint =
+        Math.max(Math.min(MAX_ANGLE.getRadians(), draftSetpoint), MIN_ANGLE.getRadians());
+    return runPivot(Rotation2d.fromRadians(setpoint));
   }
 
   @Log.NT

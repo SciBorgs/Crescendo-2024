@@ -51,7 +51,7 @@ public class ShooterTest {
   @ParameterizedTest
   @ValueSource(doubles = {1.104793, 3 * Math.PI / 8})
   public void testPivot(double theta) {
-    run((pivot.runPivot(() -> Rotation2d.fromRadians(theta))));
+    run((pivot.runPivot(Rotation2d.fromRadians(theta))));
     fastForward(3000);
     assertEquals(theta, pivot.getGoal().getRadians(), DELTA);
     assertEquals(theta, pivot.getSetpoint().getRadians(), DELTA);
@@ -61,9 +61,10 @@ public class ShooterTest {
         0.15);
   }
 
-  @Test
-  public void testClimb() {
-    run(pivot.climb());
+  @ParameterizedTest
+  @ValueSource(doubles = {1.104793, 3 * Math.PI / 8})
+  public void testClimb(double theta) {
+    run(pivot.climb(Rotation2d.fromRadians(theta)));
     fastForward(1000);
 
     assertEquals(STARTING_ANGLE.getRadians(), pivot.getPosition().getRadians(), DELTA);
