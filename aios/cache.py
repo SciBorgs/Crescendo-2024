@@ -12,6 +12,7 @@ for i in range(-15, 15):
 
 results = {}
 
+# TODO test this!!!
 def angle_to_origin(x, y):
     dist = (x**2 + y**2)**0.5
     return asin(- x / dist)
@@ -19,16 +20,15 @@ def angle_to_origin(x, y):
 failures = []
 
 for x, y in points:
-    # these numbers are almost entirely random
     if Trajectory.canShootWhileStationary(x, y):
-        t = Trajectory(x, y, 0, 0, angle_to_origin(x, y), 0, 1.104793, 2, 1, 3)
+        t = Trajectory(x, y, 0, 0, angle_to_origin(x, y), 0, 1.104793, 0.33, 0.33, 0.33)
         try:
             results[f"{x},{y}"] = t.getNewShooterState()
         except:
             failures += [(x, y)]
 
 
-print("\nfailures2: " + str(failures) + "\nyesses: ")
+print("\nfailures2: " + str(failures))
 
 json_results = json.dumps(results, indent=4)
 
