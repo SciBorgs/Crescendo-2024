@@ -3,7 +3,6 @@ package org.sciborgs1155.robot;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -20,6 +19,14 @@ import org.sciborgs1155.robot.drive.DriveConstants;
  * @see Units
  */
 public class Constants {
+  public static enum RobotType {
+    COMPLETE,
+    CHASSIS,
+    NO_PIVOT
+  }
+
+  public static final RobotType ROBOT_TYPE = RobotType.COMPLETE;
+
   public static final Measure<Time> PERIOD = Seconds.of(0.02); // roborio tickrate (s)
   public static final double DEADBAND = 0.1;
   public static final double MAX_RATE =
@@ -27,16 +34,6 @@ public class Constants {
           / DriveConstants.MAX_ANGULAR_SPEED.baseUnitMagnitude();
   public static final double SLOW_SPEED_MULTIPLIER = 0.33;
   public static final double FULL_SPEED_MULTIPLIER = 1.0;
-
-  public static final class Dimensions {
-    public static final Measure<Distance> BASE_OFFSET = Meters.of(1);
-    // Distance from the center of the robot to the center of the elevator
-
-    public static final Measure<Distance> BASE_HEIGHT = Meters.of(1);
-    // Distance from the ground to the lowest possible elbow position
-
-    public static final Measure<Distance> SHOOTER_ARM_LENGTH = Meters.of(1);
-  }
 
   public static class Field {
     public static final Translation2d BLUE_SPEAKER_POSE = new Translation2d(-0.086473, 5.757474);

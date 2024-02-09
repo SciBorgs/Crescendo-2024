@@ -1,7 +1,7 @@
-package org.sciborgs1155.robot.shooter.feeder;
+package org.sciborgs1155.robot.feeder;
 
 import static edu.wpi.first.units.Units.Seconds;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.FeederConstants.*;
+import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -14,9 +14,14 @@ public class SimFeeder implements FeederIO {
       new DCMotorSim(LinearSystemId.createDCMotorSystem(kV, kA), DCMotor.getNeoVortex(1), GEARING);
 
   @Override
-  public void set(double voltage) {
+  public void setVoltage(double voltage) {
     sim.setInputVoltage(voltage);
     sim.update(Constants.PERIOD.in(Seconds));
+  }
+
+  @Override
+  public double getVelocity() {
+    return sim.getAngularVelocityRadPerSec();
   }
 
   @Override
