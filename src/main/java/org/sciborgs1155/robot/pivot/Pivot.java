@@ -28,18 +28,15 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   // pivot control
   @Log.NT
-  private final ProfiledPIDController pid =
+  public final ProfiledPIDController pid =
       new ProfiledPIDController(
           PivotConstants.kP,
           PivotConstants.kI,
           PivotConstants.kD,
           new TrapezoidProfile.Constraints(PivotConstants.MAX_VELOCITY, PivotConstants.MAX_ACCEL));
 
-  private final ArmFeedforward pivotFeedforward =
+  private final ArmFeedforward ff =
       new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
-
-  private final ArmFeedforward climbFeedforward =
-      new ArmFeedforward(ClimbConstants.kS, ClimbConstants.kG, ClimbConstants.kV);
 
   // visualization
   @Log.NT final Mechanism2d measurement = new Mechanism2d(3, 4);
@@ -67,8 +64,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
                       .angularPosition(Radians.of(pivot.getPosition().getRadians()))
                       .angularVelocity(RadiansPerSecond.of(pivot.getVelocity()));
                 },
-                this,
-                "pivot"));
+                this));
 
     pid.setTolerance(POSITION_TOLERANCE.in(Radians));
 
@@ -81,7 +77,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   /**
-   * Smoothly angle the pivot to a desired goal using a {@link ProfiledPIDController}.
+   * Smoothly angle the pivot to a desired goal using a {@link ProfiledPIDController} as a proxy to
+   * avoid command composition requirement conflicts.
    *
    * @param goalAngle The position to move the pivot to.
    * @return The command to set the pivot's angle.
@@ -91,7 +88,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
           double feedback =
               pid.calculate(pivot.getPosition().getRadians(), goalAngle.get().getRadians());
           double feedforward =
-              pivotFeedforward.calculate( // add pi to measurement to account for alternate angle
+              ff.calculate( // add pi to measurement to account for alternate angle
                   pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
           pivot.setVoltage(feedback + feedforward);
         })
@@ -103,17 +100,15 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   /**
    * Smoothly angle the pivot to its starting position using a {@link ProfiledPIDController}.
    *
-   * <p>Sole use case as the pivot's default command due to proxying not directly exposing subsystem
-   * requirements.
-   *
    * @return The command to set the pivot's angle.
    */
   private Command update() {
     return run(() -> {
           double feedback =
               pid.calculate(pivot.getPosition().getRadians(), STARTING_ANGLE.getRadians());
+          System.out.println(feedback);
           double feedforward =
-              pivotFeedforward.calculate( // add pi to measurement to account for alternate angle
+              ff.calculate( // add pi to measurement to account for alternate angle
                   pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
           pivot.setVoltage(feedback + feedforward);
         })
@@ -129,7 +124,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    */
   public Command climb() {
     return runOnce(() -> pid.setPID(ClimbConstants.kP, ClimbConstants.kI, ClimbConstants.kD))
-        .andThen(this::update)
+        .andThen(update())
         .finallyDo(() -> pid.setPID(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD));
   }
 

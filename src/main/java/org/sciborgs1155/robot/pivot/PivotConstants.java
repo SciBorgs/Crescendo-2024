@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.*;
-import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -37,7 +36,7 @@ public class PivotConstants {
   public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.5);
   public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
 
-  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(-60);
+  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(-180);
   public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(63.3);
 
   public static final Rotation2d STARTING_ANGLE = Rotation2d.fromDegrees(63.3);

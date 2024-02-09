@@ -33,8 +33,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism(
-                v -> shooter.setVoltage(v.in(Volts)), null, this, "shooter"));
+            new SysIdRoutine.Mechanism(v -> shooter.setVoltage(v.in(Volts)), null, this));
 
     SmartDashboard.putData("shooter quasistatic backward", quasistaticBack());
     SmartDashboard.putData("shooter quasistatic forward", quasistaticForward());
