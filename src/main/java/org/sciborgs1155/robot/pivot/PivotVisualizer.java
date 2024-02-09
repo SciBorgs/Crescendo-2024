@@ -14,8 +14,7 @@ public class PivotVisualizer {
   private static int instance = 0;
 
   public PivotVisualizer(Mechanism2d mech, Color8Bit color) {
-    MechanismRoot2d chassis =
-        mech.getRoot("Chassis" + instance, OFFSET.getX(), PivotConstants.OFFSET.getY());
+    MechanismRoot2d chassis = mech.getRoot("Chassis" + instance, OFFSET.getX(), OFFSET.getY());
     arm = chassis.append(new MechanismLigament2d("Arm" + instance, LENGTH.in(Meters), 0, 4, color));
     instance++;
   }

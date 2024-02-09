@@ -8,6 +8,7 @@ import static org.sciborgs1155.lib.TestingUtil.run;
 import static org.sciborgs1155.lib.TestingUtil.setupHAL;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -50,12 +51,10 @@ public class ShooterTest {
   @ValueSource(doubles = {Math.PI / 4, 3 * Math.PI / 8})
   public void testPivot(double theta) {
     run((pivot.runPivot(() -> Rotation2d.fromRadians(theta))));
-    // TODO make and use getter methods for these
+
     fastForward(3000);
-    assertEquals(0, pivot.getGoal().velocity, 0);
-    assertEquals(theta, pivot.getGoal().position, DELTA);
-    assertEquals(theta, pivot.getSetpoint().position, DELTA);
-    assertEquals(0, pivot.getSetpoint().velocity, DELTA);
+    assertEquals(theta, pivot.getGoal().getRadians(), DELTA);
+    assertEquals(theta, pivot.getSetpoint().getRadians(), DELTA);
     assertEquals(
         MathUtil.clamp(theta, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
         pivot.getPosition().getRadians(),
@@ -64,11 +63,11 @@ public class ShooterTest {
 
   @Test
   public void testClimb() {
-    run(pivot.climb(() -> new Rotation2d(Radians.of(Math.PI / 4))));
+    run(pivot.climb());
     fastForward();
 
     assertEquals(
-        MathUtil.clamp(Math.PI / 4, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
+        MathUtil.clamp(STARTING_ANGLE.getRadians(), MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
         pivot.getPosition().getRadians(),
         DELTA);
   }

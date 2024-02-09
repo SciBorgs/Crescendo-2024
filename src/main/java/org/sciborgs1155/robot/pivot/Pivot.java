@@ -7,7 +7,6 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -29,7 +28,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   // pivot control
   @Log.NT
-  private final ProfiledPIDController pivotPID =
+  private final ProfiledPIDController pid =
       new ProfiledPIDController(
           PivotConstants.kP,
           PivotConstants.kI,
@@ -38,15 +37,6 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   private final ArmFeedforward pivotFeedforward =
       new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
-
-  // climb control
-  @Log.NT
-  private final ProfiledPIDController climbPID =
-      new ProfiledPIDController(
-          ClimbConstants.kP,
-          ClimbConstants.kI,
-          ClimbConstants.kD,
-          new TrapezoidProfile.Constraints(ClimbConstants.MAX_VELOCITY, ClimbConstants.MAX_ACCEL));
 
   private final ArmFeedforward climbFeedforward =
       new ArmFeedforward(ClimbConstants.kS, ClimbConstants.kG, ClimbConstants.kV);
@@ -80,15 +70,14 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
                 this,
                 "pivot"));
 
-    pivotPID.setTolerance(POSITION_TOLERANCE.in(Radians));
-    climbPID.setTolerance(POSITION_TOLERANCE.in(Radians));
+    pid.setTolerance(POSITION_TOLERANCE.in(Radians));
 
     SmartDashboard.putData("pivot quasistatic forward", quasistaticForward());
     SmartDashboard.putData("pivot quasistatic backward", quasistaticBack());
     SmartDashboard.putData("pivot dynamic forward", dynamicForward());
     SmartDashboard.putData("pivot dynamic backward", dynamicBack());
 
-    setDefaultCommand(runPivot(() -> STARTING_ANGLE).repeatedly());
+    setDefaultCommand(run(this::update).repeatedly());
   }
 
   /**
@@ -100,14 +89,48 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   public Command runPivot(Supplier<Rotation2d> goalAngle) {
     return run(() -> {
           double feedback =
-              pivotPID.calculate(pivot.getPosition().getRadians(), goalAngle.get().getRadians());
+              pid.calculate(pivot.getPosition().getRadians(), goalAngle.get().getRadians());
           double feedforward =
               pivotFeedforward.calculate( // add pi to measurement to account for alternate angle
-                  pivotPID.getSetpoint().position + Math.PI, pivotPID.getSetpoint().velocity);
+                  pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
           pivot.setVoltage(feedback + feedforward);
         })
-        .until(pivotPID::atGoal)
-        .withName("running pivot");
+        .until(pid::atGoal)
+        .withName("running pivot")
+        .asProxy();
+  }
+
+  /**
+   * Smoothly angle the pivot to its starting position using a {@link ProfiledPIDController}.
+   *
+   * <p>Sole use case as the pivot's default command due to proxying not directly exposing subsystem
+   * requirements.
+   *
+   * @return The command to set the pivot's angle.
+   */
+  private Command update() {
+    return run(() -> {
+          double feedback =
+              pid.calculate(pivot.getPosition().getRadians(), STARTING_ANGLE.getRadians());
+          double feedforward =
+              pivotFeedforward.calculate( // add pi to measurement to account for alternate angle
+                  pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
+          pivot.setVoltage(feedback + feedforward);
+        })
+        .until(pid::atGoal)
+        .withName("running pivot to start");
+  }
+
+  /**
+   * Smoothly angle the pivot to its starting position (from an extended, preconfigured position)
+   * using a separately tuned {@link ProfiledPIDController} for climbing.
+   *
+   * @return The command to set the pivot's angle.
+   */
+  public Command climb() {
+    return runOnce(() -> pid.setPID(ClimbConstants.kP, ClimbConstants.kI, ClimbConstants.kD))
+        .andThen(this::update)
+        .finallyDo(() -> pid.setPID(PivotConstants.kP, PivotConstants.kI, PivotConstants.kD));
   }
 
   public Command manualPivot(InputStream stickInput) {
@@ -122,43 +145,24 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
         });
   }
 
-  public Command climb(Supplier<Rotation2d> goalAngle) {
-    return run(() -> {
-          double feedback =
-              climbPID.calculate(pivot.getPosition().getRadians(), goalAngle.get().getRadians());
-          double feedforward =
-              climbFeedforward.calculate( // add pi to measurement to account for alternate angle
-                  climbPID.getSetpoint().position + Math.PI, climbPID.getSetpoint().velocity);
-          pivot.setVoltage(feedback + feedforward);
-        })
-        .until(pivotPID::atGoal)
-        .withName("climbing");
-  }
-
-  @Log.NT
-  public State getGoal() {
-    return pivotPID.getGoal();
-  }
-
   @Log.NT
   public Rotation2d getPosition() {
     return pivot.getPosition();
   }
 
   @Log.NT
+  public Rotation2d getGoal() {
+    return Rotation2d.fromRadians(pid.getGoal().position);
+  }
+
+  @Log.NT
+  public Rotation2d getSetpoint() {
+    return Rotation2d.fromRadians(pid.getSetpoint().position);
+  }
+
+  @Log.NT
   public boolean atGoal() {
-    return pivotPID.atGoal();
-  }
-
-  @Log.NT
-  public State getSetpoint() {
-    return pivotPID.getSetpoint();
-  }
-
-  // ProfilePID doesn't log this stuff
-  @Log.NT
-  public Rotation2d getSetpointRadians() {
-    return Rotation2d.fromRadians(pivotPID.getSetpoint().position);
+    return pid.atGoal();
   }
 
   public Command quasistaticForward() {
@@ -170,7 +174,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   public Command quasistaticBack() {
     return sysIdRoutine
         .quasistatic(Direction.kReverse)
-        .until(() -> pivot.getPosition().getRadians() > MAX_ANGLE.getRadians());
+        .until(() -> pivot.getPosition().getRadians() < MIN_ANGLE.getRadians());
   }
 
   public Command dynamicForward() {
@@ -182,13 +186,13 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   public Command dynamicBack() {
     return sysIdRoutine
         .dynamic(Direction.kReverse)
-        .until(() -> pivot.getPosition().getRadians() > MAX_ANGLE.getRadians());
+        .until(() -> pivot.getPosition().getRadians() < MIN_ANGLE.getRadians());
   }
 
   @Override
   public void periodic() {
-    positionVisualizer.setState(pivot.getPosition());
-    setpointVisualizer.setState(Rotation2d.fromRadians(pivotPID.getSetpoint().position));
+    positionVisualizer.setState(getPosition());
+    setpointVisualizer.setState(getSetpoint());
   }
 
   @Override

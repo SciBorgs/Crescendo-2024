@@ -37,8 +37,8 @@ public class PivotConstants {
   public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.5);
   public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
 
-  public static final Rotation2d MAX_ANGLE = Rotation2d.fromRadians(0);
-  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(63.3);
+  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(-60);
+  public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(63.3);
 
   public static final Rotation2d STARTING_ANGLE = Rotation2d.fromDegrees(63.3);
 
@@ -47,7 +47,6 @@ public class PivotConstants {
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 
-  // TODO DO NOT RUN THESE VALUES ON THE REAL PIVOT DO NOT DO THAT PLEASE DONT
   public static final double kP = 70;
   public static final double kI = 0;
   public static final double kD = 0;

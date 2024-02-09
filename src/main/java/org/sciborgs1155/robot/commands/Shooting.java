@@ -53,6 +53,7 @@ public class Shooting {
         .alongWith(shooter.runShooter(shooterVelocity))
         .alongWith(
             Commands.waitUntil(pivot::atGoal)
+                .alongWith(Commands.waitUntil(shooter::atSetpoint))
                 .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
   }
 }

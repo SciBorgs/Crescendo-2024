@@ -17,7 +17,6 @@ public class ShooterConstants {
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 
-  // TODO nearly all of the position conversion factors (they're all wrong)
   public static final Measure<Angle> POSITION_FACTOR =
       Rotations.of(GEARING).times(CIRCUMFERENCE.in(Meters));
   public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
