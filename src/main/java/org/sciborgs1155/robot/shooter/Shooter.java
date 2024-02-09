@@ -23,9 +23,14 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kV, kA);
 
-  /** Creates real or simulated flywheel based on {@link Robot#isReal()} */
+  /** Creates real or simulated shooter based on {@link Robot#isReal()}. */
   public static Shooter create() {
     return Robot.isReal() ? new Shooter(new RealShooter()) : new Shooter(new SimShooter());
+  }
+
+  /** Creates a fake shooter. */
+  public static Shooter createNone() {
+    return new Shooter(new NoShooter());
   }
 
   public Shooter(ShooterIO shooter) {

@@ -41,8 +41,14 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("feeder dynamic forward", dynamicForward());
   }
 
+  /** Creates a real or simulated feeder based on {@link Robot#isReal()}. */
   public static Feeder create() {
     return Robot.isReal() ? new Feeder(new RealFeeder()) : new Feeder(new SimFeeder());
+  }
+
+  /** Creates a fake feeder. */
+  public static Feeder createNone() {
+    return new Feeder(new NoFeeder());
   }
 
   public Command runFeeder(double velocity) {

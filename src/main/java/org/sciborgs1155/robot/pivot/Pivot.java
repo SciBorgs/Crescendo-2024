@@ -47,9 +47,14 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   private final PivotVisualizer setpointVisualizer =
       new PivotVisualizer(setpoint, new Color8Bit(0, 0, 255));
 
-  /** Creates a real or simulated pivot based on {@link Robot#isReal()} */
+  /** Creates a real or simulated pivot based on {@link Robot#isReal()}. */
   public static Pivot create() {
     return Robot.isReal() ? new Pivot(new RealPivot()) : new Pivot(new SimPivot());
+  }
+
+  /** Creates a fake pivot. */
+  public static Pivot createNone() {
+    return new Pivot(new NoPivot());
   }
 
   public Pivot(PivotIO pivot) {

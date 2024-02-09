@@ -37,7 +37,6 @@ import org.sciborgs1155.robot.shooter.Shooter;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class Robot extends CommandRobot implements Logged {
-
   // INPUT DEVICES
   private final CommandXboxController operator = new CommandXboxController(OI.OPERATOR);
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
@@ -45,9 +44,26 @@ public class Robot extends CommandRobot implements Logged {
   // SUBSYSTEMS
   @Log.NT private final Drive drive = Drive.create();
 
-  @Log.NT private final Shooter shooter = Shooter.create();
-  @Log.NT private final Feeder feeder = Feeder.create();
-  @Log.NT private final Pivot pivot = Pivot.create();
+  @Log.NT
+  private final Shooter shooter =
+      switch (Constants.ROBOT_TYPE) {
+        case CHASSIS -> Shooter.createNone();
+        default -> Shooter.create();
+      };
+
+  @Log.NT
+  private final Feeder feeder =
+      switch (Constants.ROBOT_TYPE) {
+        case CHASSIS -> Feeder.createNone();
+        default -> Feeder.create();
+      };
+
+  @Log.NT
+  private final Pivot pivot =
+      switch (Constants.ROBOT_TYPE) {
+        case COMPLETE -> Pivot.create();
+        default -> Pivot.createNone();
+      };
 
   // COMMANDS
   @Log.NT private final SendableChooser<Command> autos = AutoBuilder.buildAutoChooser();
