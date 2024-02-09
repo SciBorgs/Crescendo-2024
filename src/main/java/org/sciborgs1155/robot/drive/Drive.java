@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
 
-import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
@@ -66,7 +65,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   private final SysIdRoutine driveRoutine;
   private final SysIdRoutine turnRoutine;
 
-  private final AHRS gyro = new AHRS();
+  private final GyroIO gyro;
 
   @Log.NT
   private final ProfiledPIDController rotationController =
@@ -83,30 +82,27 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   public static Drive create() {
     return Robot.isReal()
         ? new Drive(
+            new GyroIO.NavX(),
             new FlexModule(FRONT_LEFT_DRIVE, FRONT_LEFT_TURNING, ANGULAR_OFFSETS.get(0)),
             new FlexModule(FRONT_RIGHT_DRIVE, FRONT_RIGHT_TURNING, ANGULAR_OFFSETS.get(1)),
             new FlexModule(REAR_LEFT_DRIVE, REAR_LEFT_TURNING, ANGULAR_OFFSETS.get(2)),
-            new FlexModule(REAR_RIGHT_DRIVE, REAR_RIGHT_TURNING, ANGULAR_OFFSETS.get(3))
-            // new GyroIO.NavX()
-            )
+            new FlexModule(REAR_RIGHT_DRIVE, REAR_RIGHT_TURNING, ANGULAR_OFFSETS.get(3)))
         : new Drive(
-            new SimModule(), new SimModule(), new SimModule(), new SimModule()
-            // new GyroIO.NoGyro()
-            );
+            new GyroIO.NoGyro(),
+            new SimModule(),
+            new SimModule(),
+            new SimModule(),
+            new SimModule());
   }
 
   /** A swerve drive subsystem containing four {@link ModuleIO} modules. */
   public Drive(
-      ModuleIO frontLeft,
-      ModuleIO frontRight,
-      ModuleIO rearLeft,
-      ModuleIO rearRight // , GyroIO gyro
-      ) {
+      GyroIO gyro, ModuleIO frontLeft, ModuleIO frontRight, ModuleIO rearLeft, ModuleIO rearRight) {
+    this.gyro = gyro;
     this.frontLeft = new SwerveModule(frontLeft, ANGULAR_OFFSETS.get(0), " FL");
     this.frontRight = new SwerveModule(frontRight, ANGULAR_OFFSETS.get(1), "FR");
     this.rearLeft = new SwerveModule(rearLeft, ANGULAR_OFFSETS.get(2), "RL");
     this.rearRight = new SwerveModule(rearRight, ANGULAR_OFFSETS.get(3), " RR");
-    // this.gyro = gyro;
 
     modules = List.of(this.frontLeft, this.frontRight, this.rearLeft, this.rearRight);
     modules2d = new FieldObject2d[modules.size()];
@@ -175,6 +171,14 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     odometry.resetPosition(getHeading(), getModulePositions(), pose);
   }
 
+  /**
+   * Drives the robot while facing a target pose.
+   * 
+   * @param vx A supplier for the absolute x velocity of the robot.
+   * @param vy A supplier for the absolute y velocity of the robot.
+   * @param translation A supplier for the translation2d to face on the field.
+   * @return A command to drive while facing a target.
+   */
   public Command driveFacingTarget(
       InputStream vx, InputStream vy, Supplier<Translation2d> translation) {
     return drive(vx, vy, () -> translation.get().minus(getPose().getTranslation()).getAngle());
