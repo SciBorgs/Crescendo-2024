@@ -49,7 +49,7 @@ public class Shooting {
    */
   public Command pivotThenShoot(Supplier<Rotation2d> goalAngle, DoubleSupplier shooterVelocity) {
     return pivot
-        .runPivot(goalAngle.get())
+        .runPivot(goalAngle)
         .alongWith(shooter.runShooter(shooterVelocity))
         .alongWith(
             Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
