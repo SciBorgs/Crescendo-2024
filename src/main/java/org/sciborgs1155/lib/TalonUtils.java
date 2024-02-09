@@ -45,9 +45,7 @@ public class TalonUtils {
    * @return Whether loading the file was successful.
    */
   public static boolean loadOrchestraFile(String fileName) {
-    var success = orchestra.loadMusic(fileName);
-    fileLoaded = success.isOK();
-
+    fileLoaded = orchestra.loadMusic(fileName).isOK();
     if (!fileLoaded) {
       fileNotFound();
     }
@@ -62,8 +60,7 @@ public class TalonUtils {
    */
   public static boolean play() {
     if (fileLoaded) {
-      var success = orchestra.play();
-      return success.isOK();
+      return orchestra.play().isOK();
     }
     fileNotFound();
     return false;
@@ -76,8 +73,7 @@ public class TalonUtils {
    */
   public static boolean stop() {
     if (fileLoaded) {
-      var success = orchestra.stop();
-      return success.isOK();
+      return orchestra.stop().isOK();
     }
     fileNotFound();
     return false;
@@ -90,14 +86,14 @@ public class TalonUtils {
    */
   public static boolean pause() {
     if (fileLoaded) {
-      var success = orchestra.play();
-      return success.isOK();
+      return orchestra.pause().isOK();
     }
     fileNotFound();
     return false;
   }
 
   private static void fileNotFound() {
+    fileLoaded = false;
     DriverStation.reportError(
         "CHRP file not loaded. Check that it is in the deploy directory & includes file extension.",
         true);

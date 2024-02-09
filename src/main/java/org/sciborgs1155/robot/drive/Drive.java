@@ -171,7 +171,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   /**
    * Drives the robot while facing a target pose.
-   * 
+   *
    * @param vx A supplier for the absolute x velocity of the robot.
    * @param vy A supplier for the absolute y velocity of the robot.
    * @param translation A supplier for the translation2d to face on the field.

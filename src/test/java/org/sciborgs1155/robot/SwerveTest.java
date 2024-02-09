@@ -6,8 +6,8 @@ import static org.sciborgs1155.lib.TestingUtil.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.GyroIO;
@@ -36,8 +36,7 @@ public class SwerveTest {
     drive.resetEncoders();
   }
 
-  @ParameterizedTest
-  @MethodSource()
+  @Test
   public void reachesRobotVelocity() {
     double xVelocitySetpoint = -2;
     double yVelocitySetpoint = 4;
@@ -60,8 +59,7 @@ public class SwerveTest {
     assertEquals(omegaRadiansPerSecond, chassisSpeed.omegaRadiansPerSecond, DELTA);
   }
 
-  @ParameterizedTest
-  @MethodSource()
+  @Test
   public void testModuleDistance() {
     double xVelocitySetpoint = 2.265;
     double yVelocitySetpoint = 0;
