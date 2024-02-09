@@ -73,14 +73,6 @@ public class FlexModule implements ModuleIO {
     FaultLogger.register(driveMotor);
     FaultLogger.register(turnMotor);
 
-    FaultLogger.register(
-        () ->
-            turningEncoder.getPosition() == 0
-                && turningEncoder.getVelocity() == 0
-                && turnMotor.getAppliedOutput() > 0.01,
-        "encoder unplugged!",
-        FaultType.ERROR);
-
     driveMotor.burnFlash();
     turnMotor.burnFlash();
 
