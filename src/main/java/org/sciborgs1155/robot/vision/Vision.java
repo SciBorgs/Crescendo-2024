@@ -7,8 +7,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -19,11 +21,13 @@ import org.photonvision.simulation.VisionSystemSim;
 import org.sciborgs1155.robot.Robot;
 
 public class Vision {
-  public static record poseEstimate(EstimatedRobotPose estimatedPose, Matrix<N3, N1> standardDev) {}
+  public static record PoseEstimate(EstimatedRobotPose estimatedPose, Matrix<N3, N1> standardDev) {}
 
   private List<PhotonCamera> cameras = new ArrayList<PhotonCamera>();
   private List<PhotonPoseEstimator> poseEstimators = new ArrayList<PhotonPoseEstimator>();
   private List<PhotonCameraSim> simCameras = new ArrayList<PhotonCameraSim>();
+
+  private Set<Double> timeStamps = new HashSet<>();
   private VisionSystemSim visionSim;
 
   public Vision(VisionConstants.CameraConfig... cameras) {
@@ -77,16 +81,28 @@ public class Vision {
    *     used for estimation.
    */
   public EstimatedRobotPose[] getEstimatedGlobalPoses() {
-    return poseEstimators.stream()
-        .map(PhotonPoseEstimator::update)
-        .flatMap(Optional::stream)
-        .toArray(EstimatedRobotPose[]::new);
+    EstimatedRobotPose[] poseEstimations =
+        poseEstimators.stream()
+            .map(PhotonPoseEstimator::update)
+            .flatMap(Optional::stream)
+            .filter(
+                (curPose) ->
+                    timeStamps.contains(
+                        curPose.timestampSeconds)) // Filters out all duplicate positions
+            .toArray(EstimatedRobotPose[]::new);
+
+    for (EstimatedRobotPose curPose : poseEstimations) {
+      // Once all duplicate positions are been removed, current timestamp is cached
+      timeStamps.add(curPose.timestampSeconds);
+    }
+    ;
+    return poseEstimations;
   }
 
-  public poseEstimate[] getPoseEstimates(Pose2d estimatedDrivePose) {
+  public PoseEstimate[] getPoseEstimates(Pose2d estimatedDrivePose) {
     EstimatedRobotPose[] curEstimatedPoses = getEstimatedGlobalPoses();
     int length = cameras.size();
-    poseEstimate[] poseEstimates = new poseEstimate[length];
+    PoseEstimate[] poseEstimates = new PoseEstimate[length];
     for (int i = 0; i < length; i++) {
       // Fetch every indivdual camera along with its respective pose estimator
       PhotonCamera curCamera = this.cameras.get(i);
@@ -94,7 +110,7 @@ public class Vision {
 
       Matrix<N3, N1> estimatedStdDev =
           getEstimationStdDevs(estimatedDrivePose, curCamera, curEstimator);
-      poseEstimates[i] = new poseEstimate(curEstimatedPoses[i], estimatedStdDev);
+      poseEstimates[i] = new PoseEstimate(curEstimatedPoses[i], estimatedStdDev);
     }
     return poseEstimates;
   }
