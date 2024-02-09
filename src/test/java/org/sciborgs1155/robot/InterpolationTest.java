@@ -51,11 +51,11 @@ public class InterpolationTest {
 
   @Test
   public void lookupWithCasadiData() throws Exception {
-    var state1 = shootingReal.desiredState(new Translation2d(2, 2));
+    var state1 = shootingReal.desiredState(new Translation2d(2, -2));
     assertEquals(0.963, state1.angle().getRadians());
     assertEquals(7.692, state1.speed());
 
-    var state2 = shootingReal.desiredState(new Translation2d(0.5, 0.5));
+    var state2 = shootingReal.desiredState(new Translation2d(0.5, -0.5));
     assertEquals(1.298, state2.angle().getRadians());
     assertEquals(6.479, state2.speed());
   }

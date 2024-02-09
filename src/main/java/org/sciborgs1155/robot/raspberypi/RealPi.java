@@ -4,7 +4,7 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sciborgs1155.robot.shooter.Cache.ShooterState;
+import org.sciborgs1155.robot.shooter.Cache.NoteTrajectory;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
@@ -38,7 +38,7 @@ public class RealPi implements PiIO {
 
     }
     @Override
-    public void updateModelState(ShooterState currentShooter, Translation2d currentPosition) {
+    public void updateModelState(NoteTrajectory currentShooter, Translation2d currentPosition) {
        
     }
 
