@@ -32,7 +32,7 @@ public class SwerveTest {
     rearLeft = new SimModule();
     rearRight = new SimModule();
     gyro = new GyroIO.NoGyro();
-    drive = new Drive(frontLeft, frontRight, rearLeft, rearRight);
+    drive = new Drive(gyro, frontLeft, frontRight, rearLeft, rearRight);
     drive.resetEncoders();
   }
 

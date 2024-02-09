@@ -50,7 +50,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   @IgnoreLogged private final List<SwerveModule> modules;
 
-  // private final GyroIO gyro;
+  private final GyroIO gyro;
   private static Rotation2d simRotation = new Rotation2d();
 
   public final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_OFFSET);
@@ -64,8 +64,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   // SysId
   private final SysIdRoutine driveRoutine;
   private final SysIdRoutine turnRoutine;
-
-  private final GyroIO gyro;
 
   @Log.NT
   private final ProfiledPIDController rotationController =
@@ -114,7 +112,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                 volts -> modules.forEach(m -> m.setDriveVoltage(volts.in(Volts))),
                 null,
                 this,
-                new String("drive routine")));
+                "drive routine"));
 
     turnRoutine =
         new SysIdRoutine(
@@ -124,7 +122,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                 volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))),
                 null,
                 this,
-                new String("turn routine")));
+                "turn routine"));
 
     odometry =
         new SwerveDrivePoseEstimator(kinematics, getHeading(), getModulePositions(), new Pose2d());
