@@ -39,6 +39,7 @@
       "/Robot/shooter/pivot/measurement": "Mechanism2d",
       "/Robot/shooter/pivot/setpoint": "Mechanism2d",
       "/Robot/shooter/setpoint": "Mechanism2d",
+      "/SmartDashboard/Scheduler": "Scheduler",
       "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",
@@ -143,12 +144,12 @@
           "visible": true
         }
       },
-      "/Robot/shooter/pivot/measurement": {
+      "/Robot/pivot/measurement": {
         "window": {
           "visible": true
         }
       },
-      "/Robot/shooter/pivot/setpoint": {
+      "/Robot/pivot/setpoint": {
         "window": {
           "visible": true
         }
@@ -203,6 +204,9 @@
             "open": true
           },
           "open": true,
+          "pid": {
+            "open": true
+          },
           "pivot": {
             "Rotation2d##v_/Robot/pivot/pivot/getPosition": {
               "open": true
@@ -215,6 +219,9 @@
             "open": true
           },
           "open": true,
+          "pid": {
+            "open": true
+          },
           "pivot": {
             "open": true,
             "pivot": {
@@ -250,7 +257,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 219,
+          "height": 0,
           "series": [
             {
               "color": [

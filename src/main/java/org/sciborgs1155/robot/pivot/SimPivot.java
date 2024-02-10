@@ -16,7 +16,7 @@ public class SimPivot implements PivotIO {
               DCMotor.getNEO(4), MOI.in((Meters).mult(Meters).mult(Kilograms)), MOTOR_GEARING),
           DCMotor.getNEO(4),
           MOTOR_GEARING,
-          LENGTH.in(Meters),
+          -LENGTH.in(Meters),
           MIN_ANGLE.getRadians(),
           MAX_ANGLE.getRadians(),
           true,
@@ -30,7 +30,7 @@ public class SimPivot implements PivotIO {
 
   @Override
   public Rotation2d getPosition() {
-    return new Rotation2d(sim.getAngleRads());
+    return Rotation2d.fromRadians(sim.getAngleRads());
   }
 
   @Override

@@ -29,7 +29,7 @@ public class PivotConstants {
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);
 
-  public static final Measure<Angle> POSITION_TOLERANCE = Radians.of(0.1);
+  public static final Measure<Angle> POSITION_TOLERANCE = Degrees.of(1.0);
 
   public static final Measure<Mass> MASS = Kilograms.of(1);
   public static final Measure<Distance> LENGTH = Inches.of(16);
@@ -37,23 +37,23 @@ public class PivotConstants {
   public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.5);
   public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
 
-  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(-180);
+  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(-45.7);
   public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(63.3);
 
   public static final Rotation2d STARTING_ANGLE = Rotation2d.fromDegrees(63.3);
 
   public static final Rotation2d PRESET_SUBWOOFER_ANGLE = STARTING_ANGLE;
-  public static final Rotation2d PRESET_AMP_ANGLE = Rotation2d.fromDegrees(-45.7);
+  public static final Rotation2d PRESET_AMP_ANGLE = MIN_ANGLE;
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 
-  public static final double kP = 70;
+  public static final double kP = 1000;
   public static final double kI = 0;
   public static final double kD = 0;
 
-  public static final double kS = 5;
+  public static final double kS = 0;
   public static final double kV = 10;
-  public static final double kG = 10;
+  public static final double kG = 200;
 
   public static final class ClimbConstants {
     public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.2);

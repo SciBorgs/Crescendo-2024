@@ -8,5 +8,8 @@ public interface PivotIO extends AutoCloseable, Logged {
 
   public Rotation2d getPosition();
 
+  /**
+   * @return Velocity of pivot in radians per second
+   */
   public double getVelocity();
 }
