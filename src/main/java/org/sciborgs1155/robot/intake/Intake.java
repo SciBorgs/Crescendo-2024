@@ -13,7 +13,7 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
     return Robot.isReal() ? new Intake(new RealIntake()) : new Intake(new NoIntake());
   }
 
-  public static Intake createNone() {
+  public static Intake none() {
     return new Intake(new NoIntake());
   }
 

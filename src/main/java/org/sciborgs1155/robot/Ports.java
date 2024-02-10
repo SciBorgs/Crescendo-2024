@@ -39,6 +39,6 @@ public final class Ports {
 
   public static final class Intake {
     public static final int BEAMBREAK = -1;
-    public static final int INTAKE_DEVICE_ID = -1;
+    public static final int INTAKE_SPARK = -1;
   }
 }

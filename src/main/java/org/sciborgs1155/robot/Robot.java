@@ -27,6 +27,7 @@ import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.feeder.Feeder;
+import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
 
@@ -44,19 +45,24 @@ public class Robot extends CommandRobot implements Logged {
   // SUBSYSTEMS
   @Log.NT private final Drive drive = Drive.create();
 
-  // @Log.NT private final Intake intake = Intake.create(true);
+  @Log.NT
+  private final Intake intake =
+      switch (Constants.ROBOT_TYPE) {
+        case CHASSIS -> Intake.none();
+        default -> Intake.create();
+      };
 
   @Log.NT
   private final Shooter shooter =
       switch (Constants.ROBOT_TYPE) {
-        case CHASSIS -> Shooter.createNone();
+        case CHASSIS -> Shooter.none();
         default -> Shooter.create();
       };
 
   @Log.NT
   private final Feeder feeder =
       switch (Constants.ROBOT_TYPE) {
-        case CHASSIS -> Feeder.createNone();
+        case CHASSIS -> Feeder.none();
         default -> Feeder.create();
       };
 
@@ -64,7 +70,7 @@ public class Robot extends CommandRobot implements Logged {
   private final Pivot pivot =
       switch (Constants.ROBOT_TYPE) {
         case COMPLETE -> Pivot.create();
-        default -> Pivot.createNone();
+        default -> Pivot.none();
       };
 
   // COMMANDS

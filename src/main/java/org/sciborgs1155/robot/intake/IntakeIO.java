@@ -1,5 +1,8 @@
 package org.sciborgs1155.robot.intake;
 
+import static edu.wpi.first.units.Units.*;
+
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -12,8 +15,14 @@ public interface IntakeIO extends AutoCloseable {
 
   public static class RealIntake implements IntakeIO {
     private final CANSparkFlex spark =
-        new CANSparkFlex(Ports.Intake.INTAKE_DEVICE_ID, MotorType.kBrushless);
+        new CANSparkFlex(Ports.Intake.INTAKE_SPARK, MotorType.kBrushless);
     private final DigitalInput beambreak = new DigitalInput(Ports.Intake.BEAMBREAK);
+
+    public RealIntake() {
+      spark.restoreFactoryDefaults();
+      spark.setIdleMode(IdleMode.kBrake);
+      spark.setSmartCurrentLimit((int) IntakeConstants.CURRENT_LIMIT.in(Amps));
+    }
 
     @Override
     public void setPower(double percentage) {

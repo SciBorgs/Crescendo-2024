@@ -29,7 +29,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   /** Creates a fake shooter. */
-  public static Shooter createNone() {
+  public static Shooter none() {
     return new Shooter(new NoShooter());
   }
 
