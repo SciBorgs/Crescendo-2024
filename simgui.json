@@ -62,19 +62,67 @@
         }
       },
       "/Robot/drive/field2d": {
+        "Robot": {
+          "arrows": false,
+          "color": [
+            1.0,
+            0.9705882668495178,
+            0.0,
+            255.0
+          ],
+          "length": 0.5715000033378601,
+          "weight": 5.0,
+          "width": 0.5715000033378601
+        },
         "bottom": 1476,
         "height": 8.210550308227539,
         "left": 150,
         "module- FL": {
+          "arrowColor": [
+            0.0,
+            0.0,
+            1.0,
+            255.0
+          ],
+          "arrowSize": 33,
+          "arrowWeight": 3.0,
+          "selectable": false,
           "style": "Line"
         },
         "module- RR": {
+          "arrowColor": [
+            0.0,
+            0.0,
+            1.0,
+            255.0
+          ],
+          "arrowSize": 33,
+          "arrowWeight": 3.0,
+          "selectable": false,
           "style": "Line"
         },
         "module-FR": {
+          "arrowColor": [
+            0.0,
+            0.0,
+            1.0,
+            255.0
+          ],
+          "arrowSize": 33,
+          "arrowWeight": 3.0,
+          "selectable": false,
           "style": "Line"
         },
         "module-RL": {
+          "arrowColor": [
+            0.0,
+            0.0,
+            1.0,
+            255.0
+          ],
+          "arrowSize": 33,
+          "arrowWeight": 3.0,
+          "selectable": false,
           "style": "Line"
         },
         "right": 2961,
