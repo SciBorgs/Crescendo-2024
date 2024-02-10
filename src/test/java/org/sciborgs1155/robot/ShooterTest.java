@@ -53,8 +53,8 @@ public class ShooterTest {
   public void testPivot(double theta) {
     run((pivot.runPivot(() -> Rotation2d.fromRadians(theta))));
     fastForward(3000);
-    assertEquals(theta, pivot.getGoal().getRadians(), DELTA);
-    assertEquals(theta, pivot.getSetpoint().getRadians(), DELTA);
+    assertEquals(theta, pivot.goal().getRadians(), DELTA);
+    assertEquals(theta, pivot.setpoint().getRadians(), DELTA);
     assertEquals(
         MathUtil.clamp(theta, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
         pivot.getPosition().getRadians(),

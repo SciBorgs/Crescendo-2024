@@ -56,7 +56,7 @@ public class PivotConstants {
 
   public static final class ClimbConstants {
     public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.2);
-    public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
+    public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second); // TODO give meaningful valuet
 
     public static final double kP = 100;
     public static final double kI = 0;
