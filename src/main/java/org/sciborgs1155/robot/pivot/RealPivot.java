@@ -11,9 +11,18 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
+
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.system.LinearSystem;
+
 import java.util.List;
 import java.util.Set;
+
+import org.ejml.simple.SimpleMatrix;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
@@ -23,7 +32,30 @@ public class RealPivot implements PivotIO {
   private final CANSparkMax leftBottom;
   private final CANSparkMax rightTop;
   private final CANSparkMax rightBottom;
-  private final SparkAbsoluteEncoder encoder;
+  private final SparkAbsoluteEncoder encoderLT;
+  private final SparkAbsoluteEncoder encoderLB;
+  private final SparkAbsoluteEncoder encoderRT;
+  private final SparkAbsoluteEncoder encoderRB;
+  // idk where the 5th encoder is
+  private final LinearSystem<N1, N1, N1> pivotModelPosition = new LinearSystem<>(null, null, null, null);
+  private final KalmanFilter<N1, N1, N1> sharedMotorsKalmanPosition =
+    new KalmanFilter<>(
+        Nat.N1(),
+        Nat.N1(),
+        pivotModelPosition,
+        VecBuilder.fill(3.0), // starting estimate? (position)
+        VecBuilder.fill(0.01), // noise estimate (poition)
+        0.020);
+
+  private final LinearSystem<N1, N1, N1> pivotModelVelocity = new LinearSystem<>(null, null, null, null);
+  private final KalmanFilter<N1, N1, N1> sharedMotorsKalmanVelocity =
+    new KalmanFilter<>(
+        Nat.N1(),
+        Nat.N1(),
+        pivotModelVelocity,
+        VecBuilder.fill(3.0), // starting estimate? (position)
+        VecBuilder.fill(0.01), // noise estimate (poition)
+        0.020);
 
   public RealPivot() {
     lead = new CANSparkMax(SPARK_LEFT_TOP, MotorType.kBrushless);
@@ -42,10 +74,15 @@ public class RealPivot implements PivotIO {
     rightTop.follow(lead, true);
     rightBottom.follow(lead, true);
 
-    encoder = lead.getAbsoluteEncoder(Type.kDutyCycle);
+    encoderLT = lead.getAbsoluteEncoder(Type.kDutyCycle);
+    encoderLB = leftBottom.getAbsoluteEncoder(Type.kDutyCycle);
+    encoderRT = rightTop.getAbsoluteEncoder(Type.kDutyCycle);
+    encoderRB = rightBottom.getAbsoluteEncoder(Type.kDutyCycle);
 
-    encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
-    encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
+    for (SparkAbsoluteEncoder encoder : List.of(encoderLT, encoderLB, encoderRT, encoderRB)) {
+      encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
+      encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
+    }
 
     SparkUtils.configureFrameStrategy(
         lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.DUTY_CYCLE), true);
@@ -66,12 +103,26 @@ public class RealPivot implements PivotIO {
 
   @Override
   public Rotation2d getPosition() {
-    return Rotation2d.fromRadians(encoder.getPosition());
+    double[][] array = {{encoderLT.getPosition() + encoderLB.getPosition() + encoderRT.getPosition() + encoderRB.getPosition()}};
+    SimpleMatrix matrix = new SimpleMatrix(array);
+        
+    sharedMotorsKalmanPosition.predict(matrix.getMatrix(), 0.02);
+    double[][] measurement = {{1}};
+    sharedMotorsKalmanPosition.correct(matrix.getMatrix(), (new SimpleMatrix(measurement)).getMatrix());
+
+    return Rotation2d.fromRadians(sharedMotorsKalmanPosition.getP(0, 0)/4);
   }
 
   @Override
   public double getVelocity() {
-    return encoder.getVelocity();
+    double[][] array = {{encoderLT.getVelocity() + encoderLB.getVelocity() + encoderRT.getVelocity() + encoderRB.getVelocity()}};
+    SimpleMatrix matrix = new SimpleMatrix(array);
+
+    sharedMotorsKalmanVelocity.predict(matrix.getMatrix(), 0.02);
+    double[][] measurement = {{1}};
+    sharedMotorsKalmanVelocity.correct(matrix.getMatrix(), (new SimpleMatrix(measurement)).getMatrix());
+
+    return sharedMotorsKalmanVelocity.getP(0, 0)/4;
   }
 
   @Override
