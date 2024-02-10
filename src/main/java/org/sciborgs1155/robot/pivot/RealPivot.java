@@ -9,8 +9,7 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkAbsoluteEncoder;
-import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +22,7 @@ public class RealPivot implements PivotIO {
   private final CANSparkMax leftBottom;
   private final CANSparkMax rightTop;
   private final CANSparkMax rightBottom;
-  private final SparkAbsoluteEncoder encoder;
+  private final RelativeEncoder encoder;
 
   public RealPivot() {
     lead = new CANSparkMax(SPARK_LEFT_TOP, MotorType.kBrushless);
@@ -42,13 +41,13 @@ public class RealPivot implements PivotIO {
     rightTop.follow(lead, true);
     rightBottom.follow(lead, true);
 
-    encoder = lead.getAbsoluteEncoder(Type.kDutyCycle);
+    encoder = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
 
     encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
     encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
 
     SparkUtils.configureFrameStrategy(
-        lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.DUTY_CYCLE), true);
+        lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.QUADRATURE), true);
     SparkUtils.configureNothingFrameStrategy(leftBottom);
     SparkUtils.configureNothingFrameStrategy(rightTop);
     SparkUtils.configureNothingFrameStrategy(rightBottom);
