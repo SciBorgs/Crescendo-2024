@@ -42,9 +42,10 @@ public class RealPivot implements PivotIO {
     rightBottom.follow(lead, true);
 
     encoder = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
-
+    encoder.setInverted(true);
     encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
     encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
+    encoder.setPosition(STARTING_ANGLE.getRadians());
 
     SparkUtils.configureFrameStrategy(
         lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.QUADRATURE), true);

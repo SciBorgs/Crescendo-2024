@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import edu.wpi.first.wpilibj.DigitalInput;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.robot.Ports;
 
@@ -17,6 +16,7 @@ public interface IntakeIO extends AutoCloseable {
   public static class RealIntake implements IntakeIO {
     private final CANSparkFlex spark =
         new CANSparkFlex(Ports.Intake.INTAKE_SPARK, MotorType.kBrushless);
+
     // private final DigitalInput beambreak = new DigitalInput(Ports.Intake.BEAMBREAK);
 
     public RealIntake() {

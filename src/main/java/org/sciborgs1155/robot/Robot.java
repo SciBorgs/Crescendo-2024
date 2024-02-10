@@ -32,8 +32,6 @@ import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
-import org.sciborgs1155.robot.vision.Vision;
-import org.sciborgs1155.robot.vision.VisionConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -47,10 +45,10 @@ public class Robot extends CommandRobot implements Logged {
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
   // SUBSYSTEMS
-  private final Vision vision =
-      new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
+  // private final Vision vision =
+  //     new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
 
-  @Log.NT private final Drive drive = Drive.create();
+  @Log.NT private final Drive drive = Drive.none();
 
   @Log.NT(key = "intake subsystem")
   private final Intake intake =
@@ -108,14 +106,14 @@ public class Robot extends CommandRobot implements Logged {
     addPeriodic(FaultLogger::update, 1);
 
     // Configure pose estimation updates every half-tick
-    addPeriodic(
-        () -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), kDefaultPeriod / 2.0);
+    // addPeriodic(
+    //     () -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), kDefaultPeriod / 2.0);
 
     if (isReal()) {
       URCL.start();
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
-      addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
+      // addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
     }
   }
 

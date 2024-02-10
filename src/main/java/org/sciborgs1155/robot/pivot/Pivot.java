@@ -56,7 +56,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     this.pivot = pivot;
     sysIdRoutine =
         new SysIdRoutine(
-            new SysIdRoutine.Config(),
+            new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(3), Seconds.of(6)),
             new SysIdRoutine.Mechanism(v -> pivot.setVoltage(v.in(Volts)), null, this));
 
     // pid.setTolerance(POSITION_TOLERANCE.in(Radians));
@@ -66,7 +66,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("pivot dynamic forward", dynamicForward());
     SmartDashboard.putData("pivot dynamic backward", dynamicBack());
 
-    setDefaultCommand(run(() -> update(STARTING_ANGLE)).withName("default position"));
+    // setDefaultCommand(run(() -> update(STARTING_ANGLE)).withName("default position"));
   }
 
   /**
@@ -125,27 +125,23 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command quasistaticForward() {
-    return sysIdRoutine
-        .quasistatic(Direction.kForward)
-        .until(() -> pivot.getPosition().getRadians() > 0.8 * MAX_ANGLE.getRadians());
+    return sysIdRoutine.quasistatic(Direction.kForward);
+    // .until(() -> pivot.getPosition().getRadians() > 0.8 * MAX_ANGLE.getRadians());
   }
 
   public Command quasistaticBack() {
-    return sysIdRoutine
-        .quasistatic(Direction.kReverse)
-        .until(() -> pivot.getPosition().getRadians() < 1.2 * MIN_ANGLE.getRadians());
+    return sysIdRoutine.quasistatic(Direction.kReverse);
+    // .until(() -> pivot.getPosition().getRadians() < 0.8 * MIN_ANGLE.getRadians());
   }
 
   public Command dynamicForward() {
-    return sysIdRoutine
-        .dynamic(Direction.kForward)
-        .until(() -> pivot.getPosition().getRadians() > 0.8 * MAX_ANGLE.getRadians());
+    return sysIdRoutine.dynamic(Direction.kForward);
+    // .until(() -> pivot.getPosition().getRadians() > 0.8 * MAX_ANGLE.getRadians());
   }
 
   public Command dynamicBack() {
-    return sysIdRoutine
-        .dynamic(Direction.kReverse)
-        .until(() -> pivot.getPosition().getRadians() < 1.2 * MIN_ANGLE.getRadians());
+    return sysIdRoutine.dynamic(Direction.kReverse);
+    // .until(() -> pivot.getPosition().getRadians() < 0.8 * MIN_ANGLE.getRadians());
   }
 
   @Override
