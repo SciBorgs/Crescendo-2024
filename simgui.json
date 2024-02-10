@@ -132,12 +132,12 @@
           "visible": true
         }
       },
-      "/Robot/shooter/pivot/measurement": {
+      "/Robot/pivot/measurement": {
         "window": {
           "visible": true
         }
       },
-      "/Robot/shooter/pivot/setpoint": {
+      "/Robot/pivot/setpoint": {
         "window": {
           "visible": true
         }
@@ -181,6 +181,9 @@
             "open": true
           },
           "open": true,
+          "pid": {
+            "open": true
+          },
           "pivot": {
             "Rotation2d##v_/Robot/pivot/pivot/getPosition": {
               "open": true
@@ -193,6 +196,9 @@
             "open": true
           },
           "open": true,
+          "pid": {
+            "open": true
+          },
           "pivot": {
             "open": true,
             "pivot": {

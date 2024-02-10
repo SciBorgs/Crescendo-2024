@@ -7,12 +7,18 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_SUBWOOFER_ANGLE
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+<<<<<<< Updated upstream
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+=======
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+>>>>>>> Stashed changes
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -45,21 +51,32 @@ public class Robot extends CommandRobot implements Logged {
   // SUBSYSTEMS
   @Log.NT private final Drive drive = Drive.create();
 
+<<<<<<< Updated upstream
   @Log.NT
+=======
+  @Log.NT(key = "intake subsystem")
+  private final Intake intake =
+      switch (Constants.ROBOT_TYPE) {
+        case CHASSIS -> Intake.none();
+        default -> Intake.create();
+      };
+
+  @Log.NT(key = "intake subsystem")
+>>>>>>> Stashed changes
   private final Shooter shooter =
       switch (Constants.ROBOT_TYPE) {
         case CHASSIS -> Shooter.createNone();
         default -> Shooter.create();
       };
 
-  @Log.NT
+  @Log.NT(key = "feeder subsystem")
   private final Feeder feeder =
       switch (Constants.ROBOT_TYPE) {
         case CHASSIS -> Feeder.createNone();
         default -> Feeder.create();
       };
 
-  @Log.NT
+  @Log.NT(key = "pivot subsystem")
   private final Pivot pivot =
       switch (Constants.ROBOT_TYPE) {
         case COMPLETE -> Pivot.create();
@@ -132,6 +149,7 @@ public class Robot extends CommandRobot implements Logged {
   /** Configures trigger -> command bindings */
   private void configureBindings() {
     autonomous().whileTrue(new ProxyCommand(autos::getSelected));
+<<<<<<< Updated upstream
     FaultLogger.onFailing(
         f ->
             drive
@@ -142,6 +160,9 @@ public class Robot extends CommandRobot implements Logged {
                                 DriverStation.reportError(
                                     "pain and suffering and " + f.toString(), false))
                         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
+=======
+
+>>>>>>> Stashed changes
     driver.b().whileTrue(drive.zeroHeading());
     driver
         .x()
@@ -165,9 +186,11 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
-    operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
+    // operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
+    operator.a().toggleOnTrue(pivot.runPivot(() -> Rotation2d.fromDegrees(15)));
+    // operator.b().onTrue(pivot.runPivot(() -> )))
 
     // shooting into speaker when up to subwoofer
-    operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2));
+    // operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2));
   }
 }

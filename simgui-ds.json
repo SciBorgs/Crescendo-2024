@@ -9,9 +9,9 @@
       "visible": true
     }
   },
-  "System Joysticks": {
+  "Keyboard 1 Settings": {
     "window": {
-      "visible": false
+      "visible": true
     }
   },
   "keyboardJoysticks": [
@@ -74,10 +74,10 @@
       "axisCount": 4,
       "buttonCount": 4,
       "buttonKeys": [
-        77,
-        44,
-        46,
-        47
+        49,
+        50,
+        51,
+        52
       ],
       "povCount": 0
     },
@@ -111,6 +111,12 @@
     }
   ],
   "robotJoysticks": [
+<<<<<<< Updated upstream
+=======
+    {
+      "guid": "Keyboard1"
+    },
+>>>>>>> Stashed changes
     {
       "guid": "Keyboard0"
     }

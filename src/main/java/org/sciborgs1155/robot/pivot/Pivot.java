@@ -39,8 +39,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
       new ArmFeedforward(PivotConstants.kS, PivotConstants.kG, PivotConstants.kV);
 
   // visualization
-  @Log.NT final Mechanism2d measurement = new Mechanism2d(3, 4);
-  @Log.NT final Mechanism2d setpoint = new Mechanism2d(3, 4);
+  @Log.NT final Mechanism2d measurement = new Mechanism2d(2, 2);
+  @Log.NT final Mechanism2d setpoint = new Mechanism2d(2, 2);
 
   private final PivotVisualizer positionVisualizer =
       new PivotVisualizer(measurement, new Color8Bit(255, 0, 0));
@@ -82,7 +82,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    * @return The command to set the pivot's angle.
    */
   public Command runPivot(Supplier<Rotation2d> goalAngle) {
-    return run(() -> update(goalAngle.get())).asProxy();
+    return run(() -> update(goalAngle.get())).until(this::atGoal).withName("go to").asProxy();
   }
 
   /**
