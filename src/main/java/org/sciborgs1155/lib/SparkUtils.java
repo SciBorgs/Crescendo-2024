@@ -104,7 +104,7 @@ public class SparkUtils {
    *
    * @param spark The follower spark.
    */
-  public static void configureFollowerFrameStrategy(CANSparkBase spark) {
+  public static void configureNothingFrameStrategy(CANSparkBase spark) {
     configureFrameStrategy(spark, Set.of(), Set.of(), false);
   }
 }

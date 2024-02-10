@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
+import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.robot.Ports;
 
 public interface IntakeIO extends AutoCloseable {
@@ -22,6 +23,8 @@ public interface IntakeIO extends AutoCloseable {
       spark.restoreFactoryDefaults();
       spark.setIdleMode(IdleMode.kBrake);
       spark.setSmartCurrentLimit((int) IntakeConstants.CURRENT_LIMIT.in(Amps));
+
+      SparkUtils.configureNothingFrameStrategy(spark);
       spark.burnFlash();
     }
 
