@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -92,13 +91,14 @@ public class Robot extends CommandRobot implements Logged {
 
   /** Configures basic behavior during different parts of the game. */
   private void configureGameBehavior() {
-    // Configure logging with DataLogManager, Monologue, FailureManagement, and URCL
+    // Configure logging with DataLogManager, Monologue, and FailureManagement
     DataLogManager.start();
     Monologue.setupMonologue(this, "/Robot", false, true);
     addPeriodic(Monologue::updateAll, kDefaultPeriod);
     FaultLogger.setupLogging();
     addPeriodic(FaultLogger::update, 1);
 
+    // Configure pose estimation updates every half-tick
     addPeriodic(
         () -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), kDefaultPeriod / 2.0);
 
@@ -106,7 +106,6 @@ public class Robot extends CommandRobot implements Logged {
       URCL.start();
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
-
       addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
     }
   }
@@ -144,16 +143,16 @@ public class Robot extends CommandRobot implements Logged {
   /** Configures trigger -> command bindings */
   private void configureBindings() {
     autonomous().whileTrue(new ProxyCommand(autos::getSelected));
-    FaultLogger.onFailing(
-        f ->
-            drive
-                .lock()
-                .alongWith(
-                    Commands.run(
-                            () ->
-                                DriverStation.reportError(
-                                    "pain and suffering and " + f.toString(), false))
-                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
+    // FaultLogger.onFailing(
+    //     f ->
+    //         drive
+    //             .lock()
+    //             .alongWith(
+    //                 Commands.run(
+    //                         () ->
+    //                             DriverStation.reportError(
+    //                                 "pain and suffering and " + f.toString(), false))
+    //                     .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
     driver.b().whileTrue(drive.zeroHeading());
     driver
         .x()

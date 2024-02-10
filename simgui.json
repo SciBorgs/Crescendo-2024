@@ -19,6 +19,7 @@
       "/Robot/drive/rearLeft/turnFeedback": "PIDController",
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
+      "/Robot/drive/rotationController": "ProfiledPIDController",
       "/Robot/feeder/pid": "PIDController",
       "/Robot/flywheel": "Subsystem",
       "/Robot/flywheel/flywheelPID": "PIDController",
@@ -26,6 +27,7 @@
       "/Robot/pivot/manualPID": "PIDController",
       "/Robot/pivot/manualSetpoint": "Mechanism2d",
       "/Robot/pivot/measurement": "Mechanism2d",
+      "/Robot/pivot/pid": "ProfiledPIDController",
       "/Robot/pivot/pivotPID": "ProfiledPIDController",
       "/Robot/pivot/setpoint": "Mechanism2d",
       "/Robot/shooter/measurement": "Mechanism2d",
@@ -37,9 +39,14 @@
       "/Robot/shooter/pivot/measurement": "Mechanism2d",
       "/Robot/shooter/pivot/setpoint": "Mechanism2d",
       "/Robot/shooter/setpoint": "Mechanism2d",
+      "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
+      "/SmartDashboard/drive dynamic backward": "Command",
+      "/SmartDashboard/drive dynamic forward": "Command",
+      "/SmartDashboard/drive quasistatic backward": "Command",
       "/SmartDashboard/drive quasistatic forward": "Command",
       "/SmartDashboard/dynamicBack": "Command",
       "/SmartDashboard/dynamicForward": "Command",
+      "/SmartDashboard/face same direction": "Command",
       "/SmartDashboard/feeder dynamic backward": "Command",
       "/SmartDashboard/feeder dynamic forward": "Command",
       "/SmartDashboard/feeder quasistatic backward": "Command",
@@ -53,7 +60,11 @@
       "/SmartDashboard/shooter dynamic backward": "Command",
       "/SmartDashboard/shooter dynamic forward": "Command",
       "/SmartDashboard/shooter quasistatic backward": "Command",
-      "/SmartDashboard/shooter quasistatic forward": "Command"
+      "/SmartDashboard/shooter quasistatic forward": "Command",
+      "/SmartDashboard/turn dynamic backward": "Command",
+      "/SmartDashboard/turn dynamic forward": "Command",
+      "/SmartDashboard/turn quasistatic backward": "Command",
+      "/SmartDashboard/turn quasistatic forward": "Command"
     },
     "windows": {
       "/Robot/autos": {
@@ -138,6 +149,17 @@
         }
       },
       "/Robot/shooter/pivot/setpoint": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/VisionSystemSim-main/Sim Field": {
+        "bottom": 1476,
+        "height": 8.210550308227539,
+        "left": 150,
+        "right": 2961,
+        "top": 79,
+        "width": 16.541748046875,
         "window": {
           "visible": true
         }
@@ -228,7 +250,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 0,
+          "height": 219,
           "series": [
             {
               "color": [

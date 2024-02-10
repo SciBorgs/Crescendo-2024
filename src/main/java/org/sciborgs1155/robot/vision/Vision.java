@@ -5,11 +5,16 @@ import static org.sciborgs1155.robot.vision.VisionConstants.*;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import monologue.Annotations.Log;
+import monologue.Logged;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -18,9 +23,12 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 import org.sciborgs1155.robot.Robot;
 
-public class Vision {
+public class Vision implements Logged {
+  public static record CameraConfig(String name, Transform3d robotToCam) {}
+
   public static record PoseEstimate(EstimatedRobotPose estimatedPose, Matrix<N3, N1> standardDev) {}
 
   private final PhotonCamera[] cameras;
@@ -29,7 +37,7 @@ public class Vision {
 
   private VisionSystemSim visionSim;
 
-  public Vision(VisionConstants.CameraConfig... configs) {
+  public Vision(CameraConfig... configs) {
     cameras = new PhotonCamera[configs.length];
     estimators = new PhotonPoseEstimator[configs.length];
     simCameras = new PhotonCameraSim[configs.length];
@@ -55,13 +63,16 @@ public class Vision {
 
       for (int i = 0; i < cameras.length; i++) {
         var prop = new SimCameraProperties();
-        prop.setCalibration(960, 720, Rotation2d.fromDegrees(90));
+        prop.setCalibration(WIDTH, HEIGHT, FOV);
         prop.setCalibError(0.35, 0.10);
-        prop.setFPS(15);
-        prop.setAvgLatencyMs(50);
-        prop.setLatencyStdDevMs(15);
+        prop.setFPS(45);
+        prop.setAvgLatencyMs(12);
+        prop.setLatencyStdDevMs(3.5);
 
         PhotonCameraSim cameraSim = new PhotonCameraSim(cameras[i], prop);
+        cameraSim.setMaxSightRange(7);
+        cameraSim.enableRawStream(true);
+        cameraSim.enableProcessedStream(true);
         cameraSim.enableDrawWireframe(true);
 
         visionSim.addCamera(cameraSim, configs[i].robotToCam());
@@ -87,6 +98,21 @@ public class Vision {
                   new PoseEstimate(e, getEstimationStdDevs(e.estimatedPose.toPose2d(), result))));
     }
     return estimates.toArray(PoseEstimate[]::new);
+  }
+
+  /**
+   * Returns the poses of all currently visible tags.
+   *
+   * @return An array of Pose3ds.
+   */
+  @Log.NT
+  public Pose3d[] getSeenTags() {
+    return Arrays.stream(cameras)
+        .flatMap(c -> c.getLatestResult().targets.stream())
+        .map(PhotonTrackedTarget::getFiducialId)
+        .map(TAG_LAYOUT::getTagPose)
+        .map(Optional::get)
+        .toArray(Pose3d[]::new);
   }
 
   /**
