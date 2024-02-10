@@ -47,7 +47,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   /** Creates a fake feeder. */
-  public static Feeder createNone() {
+  public static Feeder none() {
     return new Feeder(new NoFeeder());
   }
 
