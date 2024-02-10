@@ -14,12 +14,12 @@ public class PivotVisualizer {
   private static int instance = 0;
 
   public PivotVisualizer(Mechanism2d mech, Color8Bit color) {
-    MechanismRoot2d chassis = mech.getRoot("Chassis" + instance, OFFSET.getX(), OFFSET.getY());
+    MechanismRoot2d chassis = mech.getRoot("Chassis" + instance, 1 + OFFSET.getX(), OFFSET.getY());
     arm = chassis.append(new MechanismLigament2d("Arm" + instance, LENGTH.in(Meters), 0, 4, color));
     instance++;
   }
 
   public void setState(Rotation2d angle) {
-    arm.setAngle(angle);
+    arm.setAngle(angle.rotateBy(Rotation2d.fromRadians(Math.PI)));
   }
 }
