@@ -4,4 +4,8 @@ public interface FeederIO extends AutoCloseable {
   public void setVoltage(double voltage);
 
   public double getVelocity();
+
+  public boolean frontBeamBreak();
+
+  public boolean backBeamBreak();
 }
