@@ -34,7 +34,8 @@ public class SparkUtils {
     POSITION,
     VELOCITY,
     CURRENT,
-    VOLTAGE;
+    OUTPUT,
+    INPUT;
   }
 
   /**
@@ -59,9 +60,11 @@ public class SparkUtils {
     int status5 = FRAME_STRATEGY_DISABLED; // duty cycle position | default 200
     int status6 = FRAME_STRATEGY_DISABLED; // duty cycle velocity | default 200
 
-    if (data.contains(Data.VELOCITY)
-        || data.contains(Data.VOLTAGE)
-        || data.contains(Data.CURRENT)) {
+    if (!data.contains(Data.OUTPUT) && !withFollower) {
+      status0 = FRAME_STRATEGY_SLOW;
+    }
+
+    if (data.contains(Data.VELOCITY) || data.contains(Data.INPUT) || data.contains(Data.CURRENT)) {
       status1 = FRAME_STRATEGY_FAST;
     }
 
@@ -84,10 +87,6 @@ public class SparkUtils {
       if (data.contains(Data.VELOCITY)) {
         status6 = FRAME_STRATEGY_FAST;
       }
-    }
-
-    if (!withFollower) {
-      status0 = FRAME_STRATEGY_SLOW;
     }
 
     spark.setPeriodicFramePeriod(PeriodicFrame.kStatus0, status0);

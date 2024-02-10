@@ -6,6 +6,23 @@ public final class Ports {
     public static final int DRIVER = 1;
   }
 
+  public static final class Shooter {
+    public static final int TOP_MOTOR = -1;
+    public static final int BOTTOM_MOTOR = -1;
+  }
+
+  public static final class Pivot {
+    public static final int SPARK_LEFT_TOP = -1;
+    public static final int SPARK_RIGHT_TOP = -1;
+    public static final int SPARK_LEFT_BOTTOM = -1;
+    public static final int SPARK_RIGHT_BOTTOM = -1;
+    public static final int PIVOT_THROUGHBORE = -1;
+  }
+
+  public static final class Feeder {
+    public static final int FEEDER_SPARK = -1;
+  }
+
   public static final class Drive {
     public static final int FRONT_LEFT_DRIVE = 11;
     public static final int REAR_LEFT_DRIVE = 10;
