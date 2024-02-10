@@ -164,6 +164,16 @@
         "window": {
           "visible": true
         }
+      },
+      "/SmartDashboard/pivot quasistatic backward": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/pivot quasistatic forward": {
+        "window": {
+          "visible": true
+        }
       }
     }
   },
@@ -244,8 +254,10 @@
   "NetworkTables Info": {
     "Server": {
       "open": true
-    },
-    "visible": true
+    }
+  },
+  "NetworkTables View": {
+    "visible": false
   },
   "Plot": {
     "Plot <0>": {
@@ -281,7 +293,8 @@
         }
       ],
       "window": {
-        "name": "Pivot"
+        "name": "Pivot",
+        "visible": false
       }
     }
   }

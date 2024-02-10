@@ -33,9 +33,9 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
     return run(() -> intake.setPower(-IntakeConstants.INTAKE_SPEED));
   }
 
-  public Trigger hasNote() {
-    return new Trigger(intake::beamBreak);
-  }
+  // public Trigger hasNote() {
+  //   return new Trigger(intake::beamBreak);
+  // }
 
   @Override
   public void close() throws Exception {

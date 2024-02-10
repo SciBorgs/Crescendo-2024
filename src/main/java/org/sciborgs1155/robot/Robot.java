@@ -59,7 +59,7 @@ public class Robot extends CommandRobot implements Logged {
         default -> Intake.create();
       };
 
-  @Log.NT(key = "intake subsystem")
+  @Log.NT(key = "shooter subsystem")
   private final Shooter shooter =
       switch (Constants.ROBOT_TYPE) {
         case CHASSIS -> Shooter.none();
