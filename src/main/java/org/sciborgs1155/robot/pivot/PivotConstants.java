@@ -36,7 +36,7 @@ public class PivotConstants {
   public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.5);
   public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
 
-  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(-180);
+  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(-60); // TODO
   public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(63.3);
 
   public static final Rotation2d STARTING_ANGLE = Rotation2d.fromDegrees(63.3);
@@ -56,7 +56,8 @@ public class PivotConstants {
 
   public static final class ClimbConstants {
     public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.2);
-    public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second); // TODO give meaningful valuet
+    public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL =
+        MAX_VELOCITY.per(Second); // TODO
 
     public static final double kP = 100;
     public static final double kI = 0;

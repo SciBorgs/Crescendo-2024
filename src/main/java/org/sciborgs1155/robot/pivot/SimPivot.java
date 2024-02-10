@@ -30,7 +30,7 @@ public class SimPivot implements PivotIO {
 
   @Override
   public Rotation2d getPosition() {
-    return new Rotation2d(sim.getAngleRads());
+    return Rotation2d.fromRadians(sim.getAngleRads());
   }
 
   @Override

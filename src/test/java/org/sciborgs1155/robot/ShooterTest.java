@@ -52,7 +52,7 @@ public class ShooterTest {
   @ValueSource(doubles = {1.104793, 3 * Math.PI / 8})
   public void testPivot(double theta) {
     run((pivot.runPivot(() -> Rotation2d.fromRadians(theta))));
-    fastForward(3000);
+    fastForward(200);
     assertEquals(theta, pivot.goal().getRadians(), DELTA);
     assertEquals(theta, pivot.setpoint().getRadians(), DELTA);
     assertEquals(

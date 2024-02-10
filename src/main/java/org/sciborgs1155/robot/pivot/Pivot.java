@@ -29,13 +29,9 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   @Log.NT
   private final ProfiledPIDController pid =
       new ProfiledPIDController(
-          kP,
-          kI,
-          kD,
-          new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCEL));
+          kP, kI, kD, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCEL));
 
-  private final ArmFeedforward ff =
-      new ArmFeedforward(kS, kG, kV);
+  private final ArmFeedforward ff = new ArmFeedforward(kS, kG, kV);
 
   // visualization
   @Log.NT final Mechanism2d measurement = new Mechanism2d(3, 4);
