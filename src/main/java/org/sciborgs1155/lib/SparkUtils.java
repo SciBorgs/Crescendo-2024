@@ -1,7 +1,5 @@
 package org.sciborgs1155.lib;
 
-import static edu.wpi.first.units.Units.Rotations;
-
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import edu.wpi.first.units.Angle;
