@@ -1,4 +1,4 @@
-package org.sciborgs1155.robot.shooter;
+package org.sciborgs1155.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
