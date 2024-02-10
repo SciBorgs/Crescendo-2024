@@ -13,10 +13,15 @@ import edu.wpi.first.units.Mult;
 import edu.wpi.first.units.Velocity;
 
 public class PivotConstants {
-  public static final double GEARING = 12.0 / 64.0 * 20.0 / 70.0 * 36.0 / 56.0 * 16.0 / 54.0;
+  public static final double MOTOR_GEARING = 12.0 / 64.0 * 20.0 / 70.0 * 36.0 / 56.0 * 16.0 / 54.0;
+  public static final double THROUGBORE_GEARING = 16.0 / 54.0;
 
   public static final Measure<Distance> RADIUS = Meters.of(1);
   public static final Measure<Distance> CIRCUMFERENCE = Meters.of(2 * Math.PI * RADIUS.in(Meters));
+
+  public static final Measure<Angle> POSITION_FACTOR =
+      Rotations.of(THROUGBORE_GEARING).times(CIRCUMFERENCE.in(Meters));
+  public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
   // Offset from the center of the robot to the pivot's axis of rotation
   public static final Translation2d OFFSET = new Translation2d(Inches.of(10.465), Inches.of(25));
@@ -24,11 +29,7 @@ public class PivotConstants {
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);
 
-  public static final Measure<Angle> POSITION_FACTOR =
-      Rotations.of(GEARING).times(CIRCUMFERENCE.in(Meters));
-  public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
-
-  public static final Measure<Angle> POSITION_TOLERANCE = Radians.of(0.1);
+  public static final Measure<Angle> POSITION_TOLERANCE = Degrees.of(1.0);
 
   public static final Measure<Mass> MASS = Kilograms.of(1);
   public static final Measure<Distance> LENGTH = Inches.of(16);

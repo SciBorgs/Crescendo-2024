@@ -59,14 +59,14 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(v -> pivot.setVoltage(v.in(Volts)), null, this));
 
-    pid.setTolerance(POSITION_TOLERANCE.in(Radians));
+    // pid.setTolerance(POSITION_TOLERANCE.in(Radians));
 
     SmartDashboard.putData("pivot quasistatic forward", quasistaticForward());
     SmartDashboard.putData("pivot quasistatic backward", quasistaticBack());
     SmartDashboard.putData("pivot dynamic forward", dynamicForward());
     SmartDashboard.putData("pivot dynamic backward", dynamicBack());
 
-    setDefaultCommand(run(() -> update(STARTING_ANGLE)));
+    setDefaultCommand(run(() -> update(STARTING_ANGLE)).withName("default position"));
   }
 
   /**

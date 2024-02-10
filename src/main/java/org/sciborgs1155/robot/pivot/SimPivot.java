@@ -13,7 +13,7 @@ public class SimPivot implements PivotIO {
   private final SingleJointedArmSim sim =
       new SingleJointedArmSim(
           LinearSystemId.createSingleJointedArmSystem(
-              DCMotor.getNEO(4), MOI.in((Meters).mult(Meters).mult(Kilograms)), GEARING),
+              DCMotor.getNEO(4), MOI.in((Meters).mult(Meters).mult(Kilograms)), MOTOR_GEARING),
           DCMotor.getNEO(4),
           MOTOR_GEARING,
           -LENGTH.in(Meters),

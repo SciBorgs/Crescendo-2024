@@ -11,7 +11,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -97,6 +99,7 @@ public class Robot extends CommandRobot implements Logged {
 
   /** Configures basic behavior during different parts of the game. */
   private void configureGameBehavior() {
+    SmartDashboard.putData(CommandScheduler.getInstance());
     // Configure logging with DataLogManager, Monologue, and FailureManagement
     DataLogManager.start();
     Monologue.setupMonologue(this, "/Robot", false, true);
@@ -175,6 +178,7 @@ public class Robot extends CommandRobot implements Logged {
 
     // operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
     operator.a().toggleOnTrue(pivot.runPivot(() -> Rotation2d.fromDegrees(15)));
+
     // operator.b().onTrue(pivot.runPivot(() -> )))
 
     // shooting into speaker when up to subwoofer
