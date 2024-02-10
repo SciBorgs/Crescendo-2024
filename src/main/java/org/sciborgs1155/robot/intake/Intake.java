@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import monologue.Logged;
@@ -21,7 +22,7 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
 
   public Intake(IntakeIO intake) {
     this.intake = intake;
-    setDefaultCommand(run(() -> intake.setPower(0)));
+    setDefaultCommand(runOnce(() -> intake.setPower(0)).andThen(Commands.idle()));
   }
 
   public Command intake() {
