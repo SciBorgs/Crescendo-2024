@@ -1,5 +1,7 @@
 package org.sciborgs1155.robot.vision;
 
+import static org.sciborgs1155.robot.vision.VisionConstants.*;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -7,10 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -18,101 +17,76 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.sciborgs1155.robot.Robot;
 
 public class Vision {
   public static record PoseEstimate(EstimatedRobotPose estimatedPose, Matrix<N3, N1> standardDev) {}
 
-  private List<PhotonCamera> cameras = new ArrayList<PhotonCamera>();
-  private List<PhotonPoseEstimator> poseEstimators = new ArrayList<PhotonPoseEstimator>();
-  private List<PhotonCameraSim> simCameras = new ArrayList<PhotonCameraSim>();
+  private final PhotonCamera[] cameras;
+  private final PhotonPoseEstimator[] estimators;
+  private final PhotonCameraSim[] simCameras;
 
-  private Set<Double> timeStamps = new HashSet<>();
   private VisionSystemSim visionSim;
 
-  public Vision(VisionConstants.CameraConfig... cameras) {
-    // this.frontCamera = new PhotonCamera(VisionConstants.FRONT_CAMERA_NAME);
-    // this.rearCamera = new PhotonCamera(VisionConstants.REAR_CAMERA_NAME);
-    boolean isSimulation = Robot.isSimulation();
-    if (isSimulation) {
-      this.visionSim = new VisionSystemSim("main");
-      this.visionSim.addAprilTags(VisionConstants.TAG_LAYOUT);
-    }
+  public Vision(VisionConstants.CameraConfig... configs) {
+    cameras = new PhotonCamera[configs.length];
+    estimators = new PhotonPoseEstimator[configs.length];
+    simCameras = new PhotonCameraSim[configs.length];
 
-    for (int i = 0; i < cameras.length; i++) {
-      PhotonCamera curCamera = new PhotonCamera(cameras[i].name());
-      PhotonPoseEstimator curPoseEstimator =
+    for (int i = 0; i < configs.length; i++) {
+      PhotonCamera camera = new PhotonCamera(configs[i].name());
+      PhotonPoseEstimator estimator =
           new PhotonPoseEstimator(
               VisionConstants.TAG_LAYOUT,
               PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-              curCamera,
-              cameras[i].robotToCam());
+              camera,
+              configs[i].robotToCam());
 
-      curPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+      estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
-      // Adding cameras and pose estimators to respective lists
-      this.cameras.add(curCamera);
-      this.poseEstimators.add(curPoseEstimator);
+      cameras[i] = camera;
+      estimators[i] = estimator;
+    }
 
-      if (isSimulation) {
-        // If robot is in simulation, cameraSims will be instantiated and added to respective list
-        PhotonCameraSim cameraSim;
-        var cameraProp = new SimCameraProperties();
-        cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(90));
-        cameraProp.setCalibError(0.35, 0.10);
-        cameraProp.setFPS(15);
-        cameraProp.setAvgLatencyMs(50);
-        cameraProp.setLatencyStdDevMs(15);
+    if (Robot.isSimulation()) {
+      visionSim = new VisionSystemSim("main");
+      visionSim.addAprilTags(VisionConstants.TAG_LAYOUT);
 
-        cameraSim = new PhotonCameraSim(curCamera, cameraProp);
-        // Add the simulated camera to view the targets on this simulated field.
-        this.visionSim.addCamera(cameraSim, cameras[i].robotToCam());
-        this.simCameras.add(cameraSim);
+      for (int i = 0; i < cameras.length; i++) {
+        var prop = new SimCameraProperties();
+        prop.setCalibration(960, 720, Rotation2d.fromDegrees(90));
+        prop.setCalibError(0.35, 0.10);
+        prop.setFPS(15);
+        prop.setAvgLatencyMs(50);
+        prop.setLatencyStdDevMs(15);
+
+        PhotonCameraSim cameraSim = new PhotonCameraSim(cameras[i], prop);
         cameraSim.enableDrawWireframe(true);
+
+        visionSim.addCamera(cameraSim, configs[i].robotToCam());
+        simCameras[i] = cameraSim;
       }
     }
   }
 
   /**
-   * The latest estimated robot pose on the field from vision data. This may be empty. This should
-   * only be called once per loop.
+   * Returns a list of all currently visible pose estimates and their standard deviation vectors.
    *
    * @return An {@link EstimatedRobotPose} with an estimated pose, estimate timestamp, and targets
    *     used for estimation.
    */
-  public EstimatedRobotPose[] getEstimatedGlobalPoses() {
-    EstimatedRobotPose[] poseEstimations =
-        poseEstimators.stream()
-            .map(PhotonPoseEstimator::update)
-            .flatMap(Optional::stream)
-            .filter(
-                (curPose) ->
-                    timeStamps.contains(
-                        curPose.timestampSeconds)) // Filters out all duplicate positions
-            .toArray(EstimatedRobotPose[]::new);
-
-    for (EstimatedRobotPose curPose : poseEstimations) {
-      // Once all duplicate positions are been removed, current timestamp is cached
-      timeStamps.add(curPose.timestampSeconds);
+  public PoseEstimate[] getEstimatedGlobalPoses() {
+    List<PoseEstimate> estimates = new ArrayList<>();
+    for (int i = 0; i < estimators.length; i++) {
+      var result = cameras[i].getLatestResult();
+      var estimate = estimators[i].update(result);
+      estimate.ifPresent(
+          e ->
+              estimates.add(
+                  new PoseEstimate(e, getEstimationStdDevs(e.estimatedPose.toPose2d(), result))));
     }
-    ;
-    return poseEstimations;
-  }
-
-  public PoseEstimate[] getPoseEstimates(Pose2d estimatedDrivePose) {
-    EstimatedRobotPose[] curEstimatedPoses = getEstimatedGlobalPoses();
-    int length = cameras.size();
-    PoseEstimate[] poseEstimates = new PoseEstimate[length];
-    for (int i = 0; i < length; i++) {
-      // Fetch every indivdual camera along with its respective pose estimator
-      PhotonCamera curCamera = this.cameras.get(i);
-      PhotonPoseEstimator curEstimator = this.poseEstimators.get(i);
-
-      Matrix<N3, N1> estimatedStdDev =
-          getEstimationStdDevs(estimatedDrivePose, curCamera, curEstimator);
-      poseEstimates[i] = new PoseEstimate(curEstimatedPoses[i], estimatedStdDev);
-    }
-    return poseEstimates;
+    return estimates.toArray(PoseEstimate[]::new);
   }
 
   /**
@@ -123,13 +97,13 @@ public class Vision {
    * @param estimatedPose The estimated pose to guess standard deviations for.
    */
   public Matrix<N3, N1> getEstimationStdDevs(
-      Pose2d estimatedPose, PhotonCamera camera, PhotonPoseEstimator estimator) {
+      Pose2d estimatedPose, PhotonPipelineResult pipelineResult) {
     var estStdDevs = VisionConstants.SINGLE_TAG_STD_DEVS;
-    var targets = camera.getLatestResult().getTargets();
+    var targets = pipelineResult.getTargets();
     int numTags = 0;
     double avgDist = 0;
     for (var tgt : targets) {
-      var tagPose = estimator.getFieldTags().getTagPose(tgt.getFiducialId());
+      var tagPose = TAG_LAYOUT.getTagPose(tgt.getFiducialId());
       if (tagPose.isEmpty()) continue;
       numTags++;
       avgDist +=
@@ -147,14 +121,11 @@ public class Vision {
     return estStdDevs;
   }
 
-  // ----- Simulation
-
+  /**
+   * Updates the vision field simulation. This method should not be called when code is running on
+   * the robot.
+   */
   public void simulationPeriodic(Pose2d robotSimPose) {
     visionSim.update(robotSimPose);
-  }
-
-  /** Reset pose history of the robot in the vision system simulation. */
-  public void resetSimPose(Pose2d pose) {
-    if (Robot.isSimulation()) visionSim.resetRobotPose(pose);
   }
 }

@@ -65,15 +65,14 @@ public class Robot extends CommandRobot implements Logged {
     FaultLogger.setupLogging();
     addPeriodic(FaultLogger::update, 1);
 
+    addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), kDefaultPeriod / 2.0);
+
     if (isReal()) {
       URCL.start();
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
 
-      addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), 0.02);
-
-      // addPeriodic((simPosition)->vision::simulationPeriodic, kDefaultPeriod);
-
+      addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
     }
   }
 
