@@ -3,28 +3,14 @@ package org.sciborgs1155.robot;
 import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.led.LedStrip.LEDTheme.*;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.PRESET_SUBWOOFER_ANGLE;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.FlywheelConstants.PRESET_SUBWOOFER_VELOCITY;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import monologue.Logged;
 import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.led.LedStrip;
 import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
-import org.sciborgs1155.robot.shooter.Shooting;
-import org.sciborgs1155.robot.shooter.feeder.Feeder;
-import org.sciborgs1155.robot.shooter.flywheel.Flywheel;
-import org.sciborgs1155.robot.shooter.pivot.Pivot;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
