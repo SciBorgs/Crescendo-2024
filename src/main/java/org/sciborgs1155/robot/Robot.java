@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -28,8 +27,11 @@ import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.feeder.Feeder;
+import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
+import org.sciborgs1155.robot.vision.Vision;
+import org.sciborgs1155.robot.vision.VisionConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -43,19 +45,29 @@ public class Robot extends CommandRobot implements Logged {
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
   // SUBSYSTEMS
+  private final Vision vision =
+      new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
+
   @Log.NT private final Drive drive = Drive.create();
+
+  @Log.NT
+  private final Intake intake =
+      switch (Constants.ROBOT_TYPE) {
+        case CHASSIS -> Intake.none();
+        default -> Intake.create();
+      };
 
   @Log.NT
   private final Shooter shooter =
       switch (Constants.ROBOT_TYPE) {
-        case CHASSIS -> Shooter.createNone();
+        case CHASSIS -> Shooter.none();
         default -> Shooter.create();
       };
 
   @Log.NT
   private final Feeder feeder =
       switch (Constants.ROBOT_TYPE) {
-        case CHASSIS -> Feeder.createNone();
+        case CHASSIS -> Feeder.none();
         default -> Feeder.create();
       };
 
@@ -63,7 +75,7 @@ public class Robot extends CommandRobot implements Logged {
   private final Pivot pivot =
       switch (Constants.ROBOT_TYPE) {
         case COMPLETE -> Pivot.create();
-        default -> Pivot.createNone();
+        default -> Pivot.none();
       };
 
   // COMMANDS
@@ -72,6 +84,8 @@ public class Robot extends CommandRobot implements Logged {
   private final Shooting shooting = new Shooting(shooter, pivot, feeder);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
+
+  // @Log.NT private double simPosition = 0;
 
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
@@ -85,17 +99,22 @@ public class Robot extends CommandRobot implements Logged {
 
   /** Configures basic behavior during different parts of the game. */
   private void configureGameBehavior() {
-    // Configure logging with DataLogManager, Monologue, FailureManagement, and URCL
+    // Configure logging with DataLogManager, Monologue, and FailureManagement
     DataLogManager.start();
     Monologue.setupMonologue(this, "/Robot", false, true);
     addPeriodic(Monologue::updateAll, kDefaultPeriod);
     FaultLogger.setupLogging();
     addPeriodic(FaultLogger::update, 1);
 
+    // Configure pose estimation updates every half-tick
+    addPeriodic(
+        () -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), kDefaultPeriod / 2.0);
+
     if (isReal()) {
       URCL.start();
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
+      addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
     }
   }
 
@@ -132,16 +151,16 @@ public class Robot extends CommandRobot implements Logged {
   /** Configures trigger -> command bindings */
   private void configureBindings() {
     autonomous().whileTrue(new ProxyCommand(autos::getSelected));
-    FaultLogger.onFailing(
-        f ->
-            drive
-                .lock()
-                .alongWith(
-                    Commands.run(
-                            () ->
-                                DriverStation.reportError(
-                                    "pain and suffering and " + f.toString(), false))
-                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
+    // FaultLogger.onFailing(
+    //     f ->
+    //         drive
+    //             .lock()
+    //             .alongWith(
+    //                 Commands.run(
+    //                         () ->
+    //                             DriverStation.reportError(
+    //                                 "pain and suffering and " + f.toString(), false))
+    //                     .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
     driver.b().whileTrue(drive.zeroHeading());
     driver
         .x()

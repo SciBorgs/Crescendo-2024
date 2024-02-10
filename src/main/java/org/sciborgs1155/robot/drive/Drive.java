@@ -39,6 +39,7 @@ import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 import org.sciborgs1155.robot.drive.DriveConstants.Translation;
+import org.sciborgs1155.robot.vision.Vision.PoseEstimate;
 
 public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
@@ -313,10 +314,15 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   /** Updates pose estimation based on provided {@link EstimatedRobotPose} */
-  public void updateEstimates(EstimatedRobotPose... poses) {
+  public void updateEstimates(PoseEstimate... poses) {
     for (int i = 0; i < poses.length; i++) {
-      odometry.addVisionMeasurement(poses[i].estimatedPose.toPose2d(), poses[i].timestampSeconds);
-      field2d.getObject("Cam-" + i + " Est Pose").setPose(poses[i].estimatedPose.toPose2d());
+      odometry.addVisionMeasurement(
+          poses[i].estimatedPose().estimatedPose.toPose2d(),
+          poses[i].estimatedPose().timestampSeconds,
+          poses[i].standardDev());
+      field2d
+          .getObject("Cam " + i + " Est Pose")
+          .setPose(poses[i].estimatedPose().estimatedPose.toPose2d());
     }
   }
 

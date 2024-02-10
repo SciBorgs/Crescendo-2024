@@ -26,4 +26,14 @@ public class SimFeeder implements FeederIO {
 
   @Override
   public void close() throws Exception {}
+
+  @Override
+  public boolean frontBeamBreak() {
+    return false;
+  }
+
+  @Override
+  public boolean backBeamBreak() {
+    return false;
+  }
 }

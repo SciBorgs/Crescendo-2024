@@ -52,7 +52,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   /** Creates a fake pivot. */
-  public static Pivot createNone() {
+  public static Pivot none() {
     return new Pivot(new NoPivot());
   }
 

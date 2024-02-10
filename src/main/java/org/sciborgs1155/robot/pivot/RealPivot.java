@@ -49,9 +49,9 @@ public class RealPivot implements PivotIO {
 
     SparkUtils.configureFrameStrategy(
         lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.DUTY_CYCLE), true);
-    SparkUtils.configureFollowerFrameStrategy(leftBottom);
-    SparkUtils.configureFollowerFrameStrategy(rightTop);
-    SparkUtils.configureFollowerFrameStrategy(rightBottom);
+    SparkUtils.configureNothingFrameStrategy(leftBottom);
+    SparkUtils.configureNothingFrameStrategy(rightTop);
+    SparkUtils.configureNothingFrameStrategy(rightBottom);
 
     lead.burnFlash();
     leftBottom.burnFlash();
