@@ -15,13 +15,8 @@ public class SimPivot implements PivotIO {
           LinearSystemId.createSingleJointedArmSystem(
               DCMotor.getNEO(4), MOI.in((Meters).mult(Meters).mult(Kilograms)), GEARING),
           DCMotor.getNEO(4),
-<<<<<<< Updated upstream
-          GEARING,
-          LENGTH.in(Meters),
-=======
           MOTOR_GEARING,
           -LENGTH.in(Meters),
->>>>>>> Stashed changes
           MIN_ANGLE.getRadians(),
           MAX_ANGLE.getRadians(),
           true,
@@ -35,7 +30,7 @@ public class SimPivot implements PivotIO {
 
   @Override
   public Rotation2d getPosition() {
-    return new Rotation2d(sim.getAngleRads());
+    return Rotation2d.fromRadians(sim.getAngleRads());
   }
 
   @Override

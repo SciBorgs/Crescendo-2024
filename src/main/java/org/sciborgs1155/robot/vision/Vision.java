@@ -64,7 +64,7 @@ public class Vision implements Logged {
       for (int i = 0; i < cameras.length; i++) {
         var prop = new SimCameraProperties();
         prop.setCalibration(WIDTH, HEIGHT, FOV);
-        prop.setCalibError(0, 0);
+        prop.setCalibError(0.35, 0.10);
         prop.setFPS(45);
         prop.setAvgLatencyMs(12);
         prop.setLatencyStdDevMs(3.5);

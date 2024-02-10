@@ -3,22 +3,15 @@ package org.sciborgs1155.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
-import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_SUBWOOFER_ANGLE;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-<<<<<<< Updated upstream
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-=======
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
->>>>>>> Stashed changes
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -34,8 +27,11 @@ import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.feeder.Feeder;
+import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
+import org.sciborgs1155.robot.vision.Vision;
+import org.sciborgs1155.robot.vision.VisionConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -49,11 +45,11 @@ public class Robot extends CommandRobot implements Logged {
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
   // SUBSYSTEMS
+  private final Vision vision =
+      new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
+
   @Log.NT private final Drive drive = Drive.create();
 
-<<<<<<< Updated upstream
-  @Log.NT
-=======
   @Log.NT(key = "intake subsystem")
   private final Intake intake =
       switch (Constants.ROBOT_TYPE) {
@@ -62,17 +58,16 @@ public class Robot extends CommandRobot implements Logged {
       };
 
   @Log.NT(key = "intake subsystem")
->>>>>>> Stashed changes
   private final Shooter shooter =
       switch (Constants.ROBOT_TYPE) {
-        case CHASSIS -> Shooter.createNone();
+        case CHASSIS -> Shooter.none();
         default -> Shooter.create();
       };
 
   @Log.NT(key = "feeder subsystem")
   private final Feeder feeder =
       switch (Constants.ROBOT_TYPE) {
-        case CHASSIS -> Feeder.createNone();
+        case CHASSIS -> Feeder.none();
         default -> Feeder.create();
       };
 
@@ -80,7 +75,7 @@ public class Robot extends CommandRobot implements Logged {
   private final Pivot pivot =
       switch (Constants.ROBOT_TYPE) {
         case COMPLETE -> Pivot.create();
-        default -> Pivot.createNone();
+        default -> Pivot.none();
       };
 
   // COMMANDS
@@ -102,17 +97,22 @@ public class Robot extends CommandRobot implements Logged {
 
   /** Configures basic behavior during different parts of the game. */
   private void configureGameBehavior() {
-    // Configure logging with DataLogManager, Monologue, FailureManagement, and URCL
+    // Configure logging with DataLogManager, Monologue, and FailureManagement
     DataLogManager.start();
     Monologue.setupMonologue(this, "/Robot", false, true);
     addPeriodic(Monologue::updateAll, kDefaultPeriod);
     FaultLogger.setupLogging();
     addPeriodic(FaultLogger::update, 1);
 
+    // Configure pose estimation updates every half-tick
+    addPeriodic(
+        () -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), kDefaultPeriod / 2.0);
+
     if (isReal()) {
       URCL.start();
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
+      addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
     }
   }
 
@@ -149,20 +149,7 @@ public class Robot extends CommandRobot implements Logged {
   /** Configures trigger -> command bindings */
   private void configureBindings() {
     autonomous().whileTrue(new ProxyCommand(autos::getSelected));
-<<<<<<< Updated upstream
-    FaultLogger.onFailing(
-        f ->
-            drive
-                .lock()
-                .alongWith(
-                    Commands.run(
-                            () ->
-                                DriverStation.reportError(
-                                    "pain and suffering and " + f.toString(), false))
-                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
-=======
 
->>>>>>> Stashed changes
     driver.b().whileTrue(drive.zeroHeading());
     driver
         .x()
