@@ -29,7 +29,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   /** Creates a fake shooter. */
-  public static Shooter createNone() {
+  public static Shooter none() {
     return new Shooter(new NoShooter());
   }
 
@@ -49,7 +49,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   /**
    * Run the shooter at a specified velocity.
    *
-   * @param velocity The desired velocity.
+   * @param velocity The desired velocity in radians per second.
    * @return The command to set the shooter's velocity.
    */
   public Command runShooter(DoubleSupplier velocity) {
@@ -61,6 +61,9 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   @Log.NT
+  /**
+   * @return Shooter velocity in radians per second
+   */
   public double getVelocity() {
     return shooter.getVelocity();
   }

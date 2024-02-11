@@ -9,8 +9,7 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkAbsoluteEncoder;
-import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.KalmanFilter;
@@ -29,10 +28,10 @@ public class RealPivot implements PivotIO {
   private final CANSparkMax leftBottom;
   private final CANSparkMax rightTop;
   private final CANSparkMax rightBottom;
-  private final SparkAbsoluteEncoder encoderLT;
-  private final SparkAbsoluteEncoder encoderLB;
-  private final SparkAbsoluteEncoder encoderRT;
-  private final SparkAbsoluteEncoder encoderRB;
+  private final RelativeEncoder encoderLT;
+  private final RelativeEncoder encoderLB;
+  private final RelativeEncoder encoderRT;
+  private final RelativeEncoder encoderRB;
   // idk where the 5th encoder is
   private final LinearSystem<N1, N1, N1> pivotModelPosition =
       new LinearSystem<>(null, null, null, null);
@@ -73,21 +72,21 @@ public class RealPivot implements PivotIO {
     rightTop.follow(lead, true);
     rightBottom.follow(lead, true);
 
-    encoderLT = lead.getAbsoluteEncoder(Type.kDutyCycle);
-    encoderLB = leftBottom.getAbsoluteEncoder(Type.kDutyCycle);
-    encoderRT = rightTop.getAbsoluteEncoder(Type.kDutyCycle);
-    encoderRB = rightBottom.getAbsoluteEncoder(Type.kDutyCycle);
+    encoderLT = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
+    encoderLB = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
+    encoderRT = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
+    encoderRB = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
 
-    for (SparkAbsoluteEncoder encoder : List.of(encoderLT, encoderLB, encoderRT, encoderRB)) {
+    for (RelativeEncoder encoder : List.of(encoderLT, encoderLB, encoderRT, encoderRB)) {
       encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
       encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
     }
 
     SparkUtils.configureFrameStrategy(
-        lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.DUTY_CYCLE), true);
-    SparkUtils.configureFollowerFrameStrategy(leftBottom);
-    SparkUtils.configureFollowerFrameStrategy(rightTop);
-    SparkUtils.configureFollowerFrameStrategy(rightBottom);
+        lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.QUADRATURE), true);
+    SparkUtils.configureNothingFrameStrategy(leftBottom);
+    SparkUtils.configureNothingFrameStrategy(rightTop);
+    SparkUtils.configureNothingFrameStrategy(rightBottom);
 
     lead.burnFlash();
     leftBottom.burnFlash();
