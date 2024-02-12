@@ -21,6 +21,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import monologue.Monologue;
+
+import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
+
 import org.littletonrobotics.urcl.URCL;
 import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
@@ -183,8 +186,14 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     // operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
-    operator.a().toggleOnTrue(pivot.runPivot(() -> Rotation2d.fromDegrees(15)));
-
+    operator.a().toggleOnTrue(pivot.runPivot(()->STARTING_ANGLE));
+    //TODO: do it right
+    operator.b().toggleOnTrue(shooting.pivotThenShoot(() -> Rotation2d.fromDegrees(50), ()->0.8));
+    operator.x().toggleOnTrue(shooting.shoot(()-> 1));
+    operator.y().toggleOnTrue(pivot.runPivot(()-> PivotConstants.PRESET_AMP_ANGLE));
+    pivot.runPivot(() -> Rotation2d.fromDegrees(operator.getLeftY()));
+    operator.leftBumper().toggleOnTrue(intake.outtake());
+    operator.rightBumper().toggleOnTrue(intake.intake());
     // operator.b().onTrue(pivot.runPivot(() -> )))
 
     // shooting into speaker when up to subwoofer
