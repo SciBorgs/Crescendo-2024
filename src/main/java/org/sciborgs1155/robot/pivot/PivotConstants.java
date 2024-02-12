@@ -3,7 +3,7 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Distance;
@@ -24,7 +24,8 @@ public class PivotConstants {
   public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
   // Offset from the center of the robot to the pivot's axis of rotation
-  public static final Translation2d OFFSET = new Translation2d(Inches.of(10.465), Inches.of(25));
+  public static final Translation3d OFFSET =
+      new Translation3d(Inches.of(10.465), Inches.of(0), Inches.of(25));
 
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);

@@ -2,7 +2,7 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.*;
 
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -36,10 +36,12 @@ public class Constants {
   public static final double FULL_SPEED_MULTIPLIER = 1.0;
 
   public static class Field {
-    public static final Translation2d BLUE_SPEAKER_POSE = new Translation2d(-0.086473, 5.757474);
-    public static final Translation2d RED_SPEAKER_POSE = new Translation2d(16.389722, 5.757474);
+    public static final Translation3d BLUE_SPEAKER_POSE =
+        new Translation3d(-0.086473, 5.757474, 2.1);
+    public static final Translation3d RED_SPEAKER_POSE =
+        new Translation3d(16.389722, 5.757474, 2.1);
 
-    public static Translation2d getSpeaker() {
+    public static Translation3d getSpeaker() {
       if (DriverStation.getAlliance().isPresent()) {
         return DriverStation.getAlliance().get() == Alliance.Red
             ? RED_SPEAKER_POSE
