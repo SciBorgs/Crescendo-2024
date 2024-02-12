@@ -54,6 +54,17 @@ public final class DriveConstants {
     public static final double D = 0.0;
   }
 
+  public static final class DriveToConstants {
+
+    public static final double ANGULAR_RADIUS = 0;
+
+    public static final class PID {
+      public static final double P = 0.0;
+      public static final double I = 0.0;
+      public static final double D = 0.0;
+    }
+  }
+
   public static final PathConstraints CONSTRAINTS =
       new PathConstraints(
           MAX_SPEED.in(MetersPerSecond),

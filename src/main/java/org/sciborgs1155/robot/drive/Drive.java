@@ -201,6 +201,39 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                         getPose().getRotation().getRadians(), heading.get().getRadians()))));
   }
 
+  public Command goTo(Pose2d targetPose) {
+    // store current position to calculate nessesary components
+    Pose2d initialPose = getPose();
+
+    // calculates components of 3D vector
+    double deltaX = targetPose.getX() - initialPose.getX();
+    double deltaY = targetPose.getY() - initialPose.getY();
+    double deltaTheta =
+        targetPose.getRotation().getRadians() - initialPose.getRotation().getRadians();
+
+    // calulates magninutde of vector
+    // sqrt((x)^2 + (y)^2 + (w*r)^2)
+    double magnitude =
+        Math.sqrt(
+            Math.pow(deltaX, 2)
+                + Math.pow(deltaY, 2)
+                + Math.pow(deltaTheta * DriveToConstants.ANGULAR_RADIUS, 2));
+
+    var pid =
+        new ProfiledPIDController(
+            DriveToConstants.PID.P,
+            DriveToConstants.PID.I,
+            DriveToConstants.PID.D,
+            new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
+    double output = pid.calculate(magnitude);
+    double vx, vy, theta;
+    // Scaling every individual component
+    vx = output * (deltaX / magnitude);
+    vy = output * (deltaY / magnitude);
+    theta = output * (deltaTheta / magnitude);
+    return run(() -> driveFieldRelative(new ChassisSpeeds(vx, vy, theta)));
+  }
+
   /**
    * Drives the robot relative to field based on provided {@link ChassisSpeeds} and current heading.
    *
