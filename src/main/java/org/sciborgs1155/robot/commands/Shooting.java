@@ -4,10 +4,14 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static org.sciborgs1155.robot.feeder.FeederConstants.FEEDER_VELOCITY;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+
+import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
@@ -16,14 +20,16 @@ public class Shooting {
   private final Shooter shooter;
   private final Pivot pivot;
   private final Feeder feeder;
+  private final Drive drive;
 
   /** desired initial velocity of note, corresponds to pivot angle and shooter speed */
   public static record ShootingState(Rotation2d angle, double speed) {}
 
-  public Shooting(Shooter shooter, Pivot pivot, Feeder feeder) {
+  public Shooting(Shooter shooter, Pivot pivot, Feeder feeder, Drive drive) {
     this.shooter = shooter;
     this.pivot = pivot;
     this.feeder = feeder;
+    this.drive = drive;
   }
 
   /**
@@ -53,6 +59,14 @@ public class Shooting {
         .alongWith(shooter.runShooter(shooterVelocity))
         .alongWith(
             Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
+                .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
+  }
+  public Command fullShootingOpti(InputStream inputx, InputStream inputy, DoubleSupplier desiredVelocity, Supplier<Translation2d> translation, Supplier<Rotation2d> goalAngle) {
+    return shooter
+        .runShooter(desiredVelocity)
+        .alongWith(pivot.runPivot(goalAngle))
+        .alongWith(drive.driveFacingTarget(inputx, inputy, translation))
+        .alongWith(Commands.waitUntil(shooter::atSetpoint)
                 .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
   }
 }

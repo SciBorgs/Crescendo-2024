@@ -139,4 +139,3 @@ def returnFunctions(self):
     return launch_speed_coefficients, angle_coefficents #Launch speed function coefficients, angle function coefficents.
 
 
-

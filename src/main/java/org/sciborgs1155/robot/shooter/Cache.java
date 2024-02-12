@@ -15,6 +15,7 @@ import org.json.simple.parser.JSONParser;
 public class Cache {
   private static final String cacheFilename = "src/main/deploy/shooter_trajectories_cache.json";
   private static final File cacheFile = new File(Filesystem.getLaunchDirectory(), cacheFilename);
+
   // new File(Filesystem.getDeployDirectory(), cacheFilename);
 
   /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
@@ -36,8 +37,7 @@ public class Cache {
 
   private static NoteTrajectory dictToTrajectory(JSONObject dict) {
     return new NoteTrajectory(
-        Rotation2d.fromRadians((double) dict.get("angle")),
-        (double) dict.get("speed"));
+        Rotation2d.fromRadians((double) dict.get("angle")), (double) dict.get("speed"));
   }
 
   /** the loading is not type safe, if it doesn't work a blank table will be generated */
