@@ -3,7 +3,6 @@ package org.sciborgs1155.robot.drive;
 import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.COUPLING_RATIO;
 
-import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -22,8 +21,8 @@ import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Turning;
 
 public class FlexModule implements ModuleIO {
 
-  private final CANSparkBase driveMotor; // Neo Vortex
-  private final CANSparkBase turnMotor; // Neo 550
+  private final CANSparkFlex driveMotor; // Neo Vortex
+  private final CANSparkMax turnMotor; // Neo 550
 
   private final RelativeEncoder driveEncoder;
   private final SparkAbsoluteEncoder turningEncoder;
@@ -38,28 +37,35 @@ public class FlexModule implements ModuleIO {
    */
   public FlexModule(int drivePort, int turnPort, Rotation2d angularOffset) {
     driveMotor = new CANSparkFlex(drivePort, MotorType.kBrushless);
-    SparkUtils.configureSettings(false, IdleMode.kBrake, Driving.CURRENT_LIMIT, driveMotor);
+    driveMotor.restoreFactoryDefaults();
+    driveMotor.setIdleMode(IdleMode.kBrake);
+    driveMotor.setSmartCurrentLimit((int) Driving.CURRENT_LIMIT.in(Amps));
 
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
-    SparkUtils.configureSettings(false, IdleMode.kBrake, Turning.CURRENT_LIMIT, turnMotor);
+    turnMotor.restoreFactoryDefaults();
+    turnMotor.setIdleMode(IdleMode.kBrake);
+    turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps));
 
     driveEncoder = driveMotor.getEncoder();
-    driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Radians));
-    driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(RadiansPerSecond));
+    driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Meters));
+    driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(MetersPerSecond));
+    driveEncoder.setMeasurementPeriod(10);
+    driveEncoder.setAverageDepth(2);
 
     turningEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);
     turningEncoder.setInverted(Turning.ENCODER_INVERTED);
     turningEncoder.setPositionConversionFactor(Turning.POSITION_FACTOR.in(Radians));
     turningEncoder.setVelocityConversionFactor(Turning.VELOCITY_FACTOR.in(RadiansPerSecond));
+    turningEncoder.setAverageDepth(2);
 
     SparkUtils.configureFrameStrategy(
         driveMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE),
+        Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
         Set.of(Sensor.INTEGRATED),
         false);
     SparkUtils.configureFrameStrategy(
         turnMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE),
+        Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
         Set.of(Sensor.DUTY_CYCLE),
         false);
 

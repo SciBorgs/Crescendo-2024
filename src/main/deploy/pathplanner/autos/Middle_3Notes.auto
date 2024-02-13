@@ -26,6 +26,12 @@
         {
           "type": "named",
           "data": {
+            "name": "Reset"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Intake"
           }
         },
@@ -33,6 +39,12 @@
           "type": "named",
           "data": {
             "name": "Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Reset"
           }
         },
         {
@@ -54,9 +66,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Reset"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "M-2-6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Lock"
           }
         }
       ]

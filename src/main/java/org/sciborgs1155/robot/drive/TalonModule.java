@@ -15,6 +15,7 @@ import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
+import org.sciborgs1155.lib.TalonUtils;
 import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Turning;
 
 /** Class to encapsulate a CTRE Talon Swerve module */
@@ -27,9 +28,10 @@ public class TalonModule implements ModuleIO {
   public TalonModule(int drivePort, int turnPort) {
     driveMotor = new TalonFX(drivePort);
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
-    SparkUtils.configureSettings(false, IdleMode.kBrake, Turning.CURRENT_LIMIT, turnMotor);
 
-    resetEncoders();
+    turnMotor.restoreFactoryDefaults();
+    turnMotor.setIdleMode(IdleMode.kBrake);
+    turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps));
 
     driveMotor.getPosition().setUpdateFrequency(100);
     driveMotor.getVelocity().setUpdateFrequency(100);
@@ -41,7 +43,7 @@ public class TalonModule implements ModuleIO {
 
     SparkUtils.configureFrameStrategy(
         turnMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.VOLTAGE),
+        Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
         Set.of(Sensor.DUTY_CYCLE),
         false);
 
@@ -49,6 +51,11 @@ public class TalonModule implements ModuleIO {
     toApply.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     toApply.CurrentLimits.SupplyCurrentLimit = 50;
     driveMotor.getConfigurator().apply(toApply);
+
+    TalonUtils.addMotor(driveMotor);
+    resetEncoders();
+
+    turnMotor.burnFlash();
   }
 
   @Override
