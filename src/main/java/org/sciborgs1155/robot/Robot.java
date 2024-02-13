@@ -3,6 +3,9 @@ package org.sciborgs1155.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_AMP_ANGLE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_SUBWOOFER_ANGLE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -17,13 +20,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import monologue.Monologue;
-
-import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
-
 import org.littletonrobotics.urcl.URCL;
 import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
@@ -35,7 +34,6 @@ import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
-import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
 import org.sciborgs1155.robot.vision.Vision;
 import org.sciborgs1155.robot.vision.VisionConstants;
@@ -152,10 +150,14 @@ public class Robot extends CommandRobot implements Logged {
   /** Registers all named commands, which will be used by pathplanner */
   private void registerCommands() {
     NamedCommands.registerCommand("Lock", drive.lock());
-    // needs to end when command is done
-    NamedCommands.registerCommand("Shoot", shooting.pivotThenShoot(()-> Rotation2d.fromDegrees(55), () -> 0.8));
-    NamedCommands.registerCommand("Intake", intake.intake().until(intake.hasNote()));
-    NamedCommands.registerCommand("Reset", shooting.pivotThenShoot(() -> PivotConstants.STARTING_ANGLE, () -> 0).withTimeout(1));
+    NamedCommands.registerCommand(
+        "Shoot",
+        shooting
+            .pivotThenShoot(() -> Rotation2d.fromDegrees(55), () -> 2)
+            .withTimeout(1.5)
+            .andThen(pivot.runPivot(() -> STARTING_ANGLE).withTimeout(1)));
+    NamedCommands.registerCommand(
+        "Intake", intake.intake().until(intake.hasNote()).withTimeout(0.7));
   }
 
   /** Configures trigger -> command bindings */
@@ -185,18 +187,19 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
-    // operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
-    operator.a().toggleOnTrue(pivot.runPivot(()->STARTING_ANGLE));
-    //TODO: do it right
-    operator.b().toggleOnTrue(shooting.pivotThenShoot(() -> Rotation2d.fromDegrees(50), ()->0.8));
-    operator.x().toggleOnTrue(shooting.shoot(()-> 1));
-    operator.y().toggleOnTrue(pivot.runPivot(()-> PivotConstants.PRESET_AMP_ANGLE));
-    pivot.runPivot(() -> Rotation2d.fromDegrees(operator.getLeftY()));
+    // TODO: do it right
+    operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> Rotation2d.fromDegrees(27), () -> 2));
+    // shooting into speaker when up to subwoofer.
+    operator.y().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2));
+    // shooting into speaker when up to amp.
+    operator.a().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE, () -> 2));
+    // moving pivot to starting config.
+    operator.b().toggleOnTrue(pivot.runPivot(() -> STARTING_ANGLE));
+    // outtake
     operator.leftBumper().toggleOnTrue(intake.outtake());
+    // intake
     operator.rightBumper().toggleOnTrue(intake.intake());
-    // operator.b().onTrue(pivot.runPivot(() -> )))
-
-    // shooting into speaker when up to subwoofer
-    // operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2));
+    // manually control the pivot
+    operator.povUp().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
   }
 }

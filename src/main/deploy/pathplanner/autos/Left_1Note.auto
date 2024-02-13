@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7993888854980469,
-      "y": 4.013235092163086
+      "x": 0.990736484527588,
+      "y": 7.013880252838135
     },
-    "rotation": 1.3364580342345409e-30
+    "rotation": -3.8397122684331095e-34
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "M_3"
+            "pathName": "L_0(1)"
           }
         },
         {
@@ -24,15 +24,9 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
+            "pathName": "L_0(2)"
           }
         },
         {
@@ -44,6 +38,6 @@
       ]
     }
   },
-  "folder": "Middle Autos",
+  "folder": "Left Autos",
   "choreoAuto": true
 }

@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7993888854980469,
-      "y": 4.013235092163086
+      "x": 0.9481438398361206,
+      "y": 6.971286773681641
     },
-    "rotation": 1.3364580342345409e-30
+    "rotation": 0.0
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "M_3"
+            "pathName": "L_1"
           }
         },
         {
@@ -44,6 +44,6 @@
       ]
     }
   },
-  "folder": "Middle Autos",
+  "folder": "Left Autos",
   "choreoAuto": true
 }

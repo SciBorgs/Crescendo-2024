@@ -76,6 +76,12 @@
           "data": {
             "pathName": "M_1-5"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Lock"
+          }
         }
       ]
     }

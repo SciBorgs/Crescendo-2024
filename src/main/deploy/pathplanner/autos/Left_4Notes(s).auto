@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7235912084579468,
-      "y": 2.5081095695495605
+      "x": 0.9481438398361206,
+      "y": 6.971286773681641
     },
     "rotation": 0.0
   },
@@ -14,7 +14,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R_8(1)"
+            "pathName": "L_1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
           }
         },
         {
@@ -26,7 +38,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R_8(2)"
+            "pathName": "L_1-4(1)"
           }
         },
         {
@@ -38,7 +50,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R_8(3)"
+            "pathName": "L_1-4(2)"
           }
         },
         {
@@ -50,7 +62,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R_7(1)"
+            "pathName": "L_4-5(1)"
           }
         },
         {
@@ -62,7 +74,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R_7(2)"
+            "pathName": "L_4-5(2)"
           }
         },
         {
@@ -80,6 +92,6 @@
       ]
     }
   },
-  "folder": "Right Autos",
+  "folder": "Left Autos",
   "choreoAuto": true
 }
