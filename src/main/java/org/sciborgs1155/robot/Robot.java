@@ -155,9 +155,9 @@ public class Robot extends CommandRobot implements Logged {
         shooting
             .pivotThenShoot(() -> Rotation2d.fromDegrees(55), () -> 2)
             .withTimeout(1.5)
-            .andThen(pivot.runPivot(() -> STARTING_ANGLE).withTimeout(1)));
+            .andThen(pivot.runPivot(() -> STARTING_ANGLE).withTimeout(1.3)));
     NamedCommands.registerCommand(
-        "Intake", intake.intake().until(intake.hasNote()).withTimeout(0.7));
+        "Intake", intake.intake().until(intake.hasNote()).withTimeout(0.8));
   }
 
   /** Configures trigger -> command bindings */
@@ -187,11 +187,11 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
-    // TODO: do it right
-    operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> Rotation2d.fromDegrees(27), () -> 2));
+    // shooting into speaker by moving pivot based on angle
+    operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> Rotation2d.fromDegrees(40), () -> 2));
     // shooting into speaker when up to subwoofer.
     operator.y().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2));
-    // shooting into speaker when up to amp.
+    // shooting into amp when up to amp.
     operator.a().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE, () -> 2));
     // moving pivot to starting config.
     operator.b().toggleOnTrue(pivot.runPivot(() -> STARTING_ANGLE));
@@ -199,7 +199,7 @@ public class Robot extends CommandRobot implements Logged {
     operator.leftBumper().toggleOnTrue(intake.outtake());
     // intake
     operator.rightBumper().toggleOnTrue(intake.intake());
-    // manually control the pivot
+    // manually control the pivot(climb)
     operator.povUp().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
   }
 }
