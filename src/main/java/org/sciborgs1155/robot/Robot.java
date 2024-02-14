@@ -233,6 +233,7 @@ public class Robot extends CommandRobot implements Logged {
   }
 
   public Command rumble(RumbleType RumbleType, double strength) {
-    return Commands.run(() -> operator.getHID().setRumble(RumbleType, strength));
+    return Commands.run(() -> operator.getHID().setRumble(RumbleType, strength))
+        .alongWith(Commands.run(() -> driver.getHID().setRumble(RumbleType, strength)));
   }
 }
