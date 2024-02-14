@@ -154,7 +154,8 @@ public class Robot extends CommandRobot implements Logged {
     NamedCommands.registerCommand(
         "Shoot",
         shooting
-            .pivotThenShoot(() -> Rotation2d.fromDegrees(55), () -> 2)
+            .pivotThenShoot(() -> Rotation2d.fromDegrees(40), () -> 2)
+            .until(() -> !feeder.topBB().getAsBoolean())
             .withTimeout(1.5)
             .andThen(pivot.runPivot(() -> STARTING_ANGLE).withTimeout(1.3)));
     NamedCommands.registerCommand(
