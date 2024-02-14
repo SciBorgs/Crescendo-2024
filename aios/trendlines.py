@@ -60,7 +60,7 @@ def objectiveTheta(params, x, y, z):
 def objectiveV(params, x, y, z):
     return fV(params, x, y) - z
 
-def returnFunctions(self):
+def returnFunctions():
     # Sample points
     xv_data = np.array([])
     yv_data = np.array([])
@@ -78,12 +78,12 @@ def returnFunctions(self):
     bt = np.array([])
     ct = np.array([])
     k = 0
-    while k < self.N:
+    while k < N:
         #Add sample points.
         j = 0
     while j <= 1:
         i = 0
-        while i <= self.n:
+        while i <= n:
             if j == 0:
                 x = random.randrange(MIN_X, MAX_X)
                 y = random.randrange(MIN_Y, MAX_Y)
@@ -108,8 +108,8 @@ def returnFunctions(self):
     initial_guess = [1, 1, 1]
 
     # Least squares optimization
-    resultV = least_squares(self.objectiveV, initial_guess, args=(xv_data, yv_data, zv_data))
-    resultTheta = least_squares(self.objectiveTheta, initial_guess, args=(xt_data, yt_data, zt_data))
+    resultV = least_squares(objectiveV, initial_guess, args=(xv_data, yv_data, zv_data))
+    resultTheta = least_squares(objectiveTheta, initial_guess, args=(xt_data, yt_data, zt_data))
 
 
     optimized_paramsv = resultV.x
@@ -137,5 +137,3 @@ def returnFunctions(self):
     angle_coefficents = np.array([returnAt, returnBt, returnCt])
 
     return launch_speed_coefficients, angle_coefficents #Launch speed function coefficients, angle function coefficents.
-
-

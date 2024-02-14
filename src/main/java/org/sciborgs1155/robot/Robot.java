@@ -83,7 +83,7 @@ public class Robot extends CommandRobot implements Logged {
   // COMMANDS
   @Log.NT private final SendableChooser<Command> autos;
 
-  private final Shooting shooting = new Shooting(shooter, pivot, feeder);
+  private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 

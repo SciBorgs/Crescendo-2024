@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
@@ -61,12 +60,19 @@ public class Shooting {
             Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
                 .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
   }
-  public Command fullShootingOpti(InputStream inputx, InputStream inputy, DoubleSupplier desiredVelocity, Supplier<Translation2d> translation, Supplier<Rotation2d> goalAngle) {
+
+  public Command fullShootingOpti(
+      InputStream inputx,
+      InputStream inputy,
+      DoubleSupplier desiredVelocity,
+      Supplier<Translation2d> translation,
+      Supplier<Rotation2d> goalAngle) {
     return shooter
         .runShooter(desiredVelocity)
         .alongWith(pivot.runPivot(goalAngle))
         .alongWith(drive.driveFacingTarget(inputx, inputy, translation))
-        .alongWith(Commands.waitUntil(shooter::atSetpoint)
+        .alongWith(
+            Commands.waitUntil(shooter::atSetpoint)
                 .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
   }
 }

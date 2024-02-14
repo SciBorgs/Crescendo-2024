@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sciborgs1155.robot.commands.Shooting;
+import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
@@ -36,7 +37,7 @@ public class ShooterTest {
     pivot = Pivot.create();
     shooter = Shooter.create();
     feeder = Feeder.create();
-    shooting = new Shooting(shooter, pivot, feeder);
+    shooting = new Shooting(shooter, pivot, feeder, Drive.create());
   }
 
   @Test
