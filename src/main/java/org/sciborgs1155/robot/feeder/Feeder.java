@@ -65,11 +65,11 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     return RadiansPerSecond.of(feeder.getVelocity());
   }
 
-  public Trigger frontBB() {
+  public Trigger topBB() {
     return new Trigger(feeder::frontBeamBreak);
   }
 
-  public Trigger backBB() {
+  public Trigger bottomBB() {
     return new Trigger(feeder::backBeamBreak);
   }
 

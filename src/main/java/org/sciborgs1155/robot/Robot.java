@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -201,5 +202,18 @@ public class Robot extends CommandRobot implements Logged {
     operator.rightBumper().toggleOnTrue(intake.intake());
     // manually control the pivot(climb)
     operator.povUp().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
+
+    intake.hasNote().onTrue(rumble(RumbleType.kBothRumble, 0.5));
+
+    intake
+        .hasNote()
+        .onTrue(
+            pivot
+                .runPivot(() -> STARTING_ANGLE)
+                .andThen(feeder.runFeeder(1).until(feeder.topBB())));
+  }
+
+  public Command rumble(RumbleType RumbleType, double strength) {
+    return Commands.run(() -> operator.getHID().setRumble(RumbleType, strength));
   }
 }
