@@ -3,6 +3,7 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -99,7 +100,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
           double periodMovement = Constants.PERIOD.in(Seconds) * velocity;
           double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
           double setpoint =
-              Math.max(Math.min(MAX_ANGLE.getRadians(), draftSetpoint), MIN_ANGLE.getRadians());
+              MathUtil.clamp(draftSetpoint, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians());
           return Rotation2d.fromRadians(setpoint);
         });
   }

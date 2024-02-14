@@ -12,7 +12,7 @@ public class SparkUtils {
 
   public static final int FRAME_STRATEGY_DISABLED = 65535;
   public static final int FRAME_STRATEGY_SLOW = 500;
-  public static final int FRAME_STRATEGY_FAST = 15;
+  public static final int FRAME_STRATEGY_FAST = 20;
 
   public static final Angle ANGLE_UNIT = Units.Rotations;
   public static final Time TIME_UNIT = Units.Minutes;

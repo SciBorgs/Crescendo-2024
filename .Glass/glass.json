@@ -48,9 +48,17 @@
           "Rotation2d##v_/Robot/pivot/setpoint": {
             "open": true
           }
+        },
+        "subsystems": {
+          "Shooter[2]": {
+            "open": true
+          }
         }
       },
       "SmartDashboard": {
+        "Pivot": {
+          "open": true
+        },
         "open": true,
         "turn quasistatic forward": {
           "open": true
@@ -74,7 +82,26 @@
       "/Robot/pivot/pid": "ProfiledPIDController",
       "/Robot/pivot/setpoint": "Mechanism2d",
       "/Robot/shooter/pid": "PIDController",
+      "/Robot/subsystems/Drive[0]/field2d": "Field2d",
+      "/Robot/subsystems/Drive[0]/frontLeft/driveFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/frontLeft/turnFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/frontRight/driveFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/frontRight/turnFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/rearLeft/driveFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/rearLeft/turnFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/rearRight/driveFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/rearRight/turnFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/rotationController": "ProfiledPIDController",
+      "/Robot/subsystems/Pivot[4]/measurement": "Mechanism2d",
+      "/Robot/subsystems/Pivot[4]/pid": "ProfiledPIDController",
+      "/Robot/subsystems/Pivot[4]/setpoint": "Mechanism2d",
+      "/Robot/subsystems/Shooter[2]/pid": "PIDController",
+      "/SmartDashboard/Drive": "Subsystem",
+      "/SmartDashboard/Feeder": "Subsystem",
+      "/SmartDashboard/Intake": "Subsystem",
+      "/SmartDashboard/Pivot": "Subsystem",
       "/SmartDashboard/Scheduler": "Scheduler",
+      "/SmartDashboard/Shooter": "Subsystem",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",
       "/SmartDashboard/drive quasistatic backward": "Command",
@@ -142,7 +169,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 332,
+          "height": 0,
           "series": [
             {
               "color": [
