@@ -189,11 +189,29 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     // shooting into speaker by moving pivot based on angle
-    operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> Rotation2d.fromDegrees(40), () -> 2));
+    operator
+        .x()
+        .toggleOnTrue(
+            shooting
+                .pivotThenShoot(() -> Rotation2d.fromDegrees(40), () -> 2)
+                .until(() -> !feeder.topBB().getAsBoolean())
+                .withTimeout(1.5));
     // shooting into speaker when up to subwoofer.
-    operator.y().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2));
+    operator
+        .y()
+        .toggleOnTrue(
+            shooting
+                .pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2)
+                .until(() -> !feeder.topBB().getAsBoolean())
+                .withTimeout(1.5));
     // shooting into amp when up to amp.
-    operator.a().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE, () -> 2));
+    operator
+        .a()
+        .toggleOnTrue(
+            shooting
+                .pivotThenShoot(() -> PRESET_AMP_ANGLE, () -> 2)
+                .until(() -> !feeder.topBB().getAsBoolean())
+                .withTimeout(1.5));
     // moving pivot to starting config.
     operator.b().toggleOnTrue(pivot.runPivot(() -> STARTING_ANGLE));
     // outtake
