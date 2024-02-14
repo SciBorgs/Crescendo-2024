@@ -46,14 +46,14 @@ public class PivotConstants {
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(30);
 
-  public static final double kP = 0;
+  public static final double kP = 2.5;
   public static final double kI = 0;
   public static final double kD = 0;
 
   public static final double kS = 0.19945;
   public static final double kV = 0.0017622;
   public static final double kA = 0.00040123;
-  public static final double kG = 0.0091097;
+  public static final double kG = 0.043992;
 
   public static final class ClimbConstants {
     public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.2);

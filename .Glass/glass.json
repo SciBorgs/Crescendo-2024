@@ -47,7 +47,8 @@
           },
           "Rotation2d##v_/Robot/pivot/setpoint": {
             "open": true
-          }
+          },
+          "open": true
         },
         "subsystems": {
           "Shooter[2]": {
@@ -57,6 +58,9 @@
       },
       "SmartDashboard": {
         "Pivot": {
+          "open": true
+        },
+        "Shooter": {
           "open": true
         },
         "open": true,

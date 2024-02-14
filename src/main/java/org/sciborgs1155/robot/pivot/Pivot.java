@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -21,6 +22,7 @@ import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
+import org.sciborgs1155.robot.pivot.PivotConstants.ClimbConstants;
 
 public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   private final PivotIO pivot;
@@ -60,14 +62,15 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
             new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(3), Seconds.of(6)),
             new SysIdRoutine.Mechanism(v -> pivot.setVoltage(v.in(Volts)), null, this));
 
-    // pid.setTolerance(POSITION_TOLERANCE.in(Radians));
+    pid.setTolerance(POSITION_TOLERANCE.in(Radians));
+    pid.setGoal(new State(STARTING_ANGLE.getRadians(), 0));
 
     SmartDashboard.putData("pivot quasistatic forward", quasistaticForward());
     SmartDashboard.putData("pivot quasistatic backward", quasistaticBack());
     SmartDashboard.putData("pivot dynamic forward", dynamicForward());
     SmartDashboard.putData("pivot dynamic backward", dynamicBack());
 
-    // setDefaultCommand(run(() -> update(STARTING_ANGLE)).withName("default position"));
+    setDefaultCommand(run(() -> update(STARTING_ANGLE)).withName("default position"));
   }
 
   /**

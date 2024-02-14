@@ -1,6 +1,7 @@
 package org.sciborgs1155.lib;
 
 import com.revrobotics.CANSparkBase;
+import com.revrobotics.REVLibError;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Time;
@@ -86,13 +87,17 @@ public class SparkUtils {
       }
     }
 
-    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus0, status0);
-    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus1, status1);
-    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus2, status2);
-    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus3, status3);
-    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus4, status4);
-    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus5, status5);
-    spark.setPeriodicFramePeriod(PeriodicFrame.kStatus6, status6);
+    REVLibError e0 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus0, status0);
+    REVLibError e1 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus1, status1);
+    REVLibError e2 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus2, status2);
+    REVLibError e3 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus3, status3);
+    REVLibError e4 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus4, status4);
+    REVLibError e5 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus5, status5);
+    REVLibError e6 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus6, status6);
+
+    // if (e0 != REVLibError.kOk) {
+    //   System.out.println("failed to set status frame 0");
+    // }
   }
 
   /**

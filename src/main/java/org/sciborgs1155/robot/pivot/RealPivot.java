@@ -32,6 +32,7 @@ public class RealPivot implements PivotIO {
 
     for (CANSparkMax spark : List.of(lead, leftBottom, rightTop, rightBottom)) {
       spark.restoreFactoryDefaults();
+      spark.setCANTimeout(50);
       spark.setIdleMode(IdleMode.kBrake);
       spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
     }
