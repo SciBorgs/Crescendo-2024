@@ -65,12 +65,12 @@ public class Shooting {
       InputStream inputx,
       InputStream inputy,
       DoubleSupplier desiredVelocity,
-      Supplier<Translation2d> translation,
+      Supplier<Rotation2d> desiredHeading,
       Supplier<Rotation2d> goalAngle) {
     return shooter
         .runShooter(desiredVelocity)
         .alongWith(pivot.runPivot(goalAngle))
-        .alongWith(drive.driveFacingTarget(inputx, inputy, translation))
+        .alongWith(drive.drive(inputx, inputy, desiredHeading))
         .alongWith(
             Commands.waitUntil(shooter::atSetpoint)
                 .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
