@@ -2,12 +2,27 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.robot.pivot.PivotConstants.ACCEL_GAIN;
+import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_VOLTAGE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.VELOCITY_GAIN;
+import static org.sciborgs1155.robot.pivot.PivotConstants.kQ;
+import static org.sciborgs1155.robot.pivot.PivotConstants.kR;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.LinearQuadraticRegulator;
+import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.LinearSystemLoop;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -79,6 +94,34 @@ public class Robot extends CommandRobot implements Logged {
         case COMPLETE -> Pivot.create();
         default -> Pivot.none();
       };
+
+  private final LinearSystem pivotPlant =
+      LinearSystemId.createDCMotorSystem(VELOCITY_GAIN, ACCEL_GAIN);
+
+  // KALMAN FILTERS
+  private final KalmanFilter<N1, N1, N1> pivotObserver =
+      new KalmanFilter<>(
+          Nat.N1(),
+          Nat.N1(),
+          pivotPlant,
+          VecBuilder.fill(3.0), // accuracy of model
+          VecBuilder.fill(0.01), // accuracy of encoder data
+          Constants.PERIOD.in(Seconds));
+
+  private final LinearQuadraticRegulator pivotController =
+      new LinearQuadraticRegulator<>(
+          pivotPlant,
+          VecBuilder.fill(kQ), // q -> penalization of error
+          VecBuilder.fill(kR), // r -> larger values = less energy expendage
+          Constants.PERIOD.in(Seconds));
+
+  private final LinearSystemLoop pivotLoop =
+      new LinearSystemLoop(
+          pivotPlant,
+          pivotController,
+          pivotObserver,
+          MAX_VOLTAGE.in(Volts),
+          Constants.PERIOD.in(Seconds));
 
   // COMMANDS
   @Log.NT private final SendableChooser<Command> autos;
@@ -178,9 +221,8 @@ public class Robot extends CommandRobot implements Logged {
 
     // operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
     operator.a().toggleOnTrue(pivot.runPivot(() -> Rotation2d.fromDegrees(15)));
-
     // operator.b().onTrue(pivot.runPivot(() -> )))
-
+    operator.a().toggleOnTrue(Commands.runOnce(() -> pivotLoop.setNextR(15)));
     // shooting into speaker when up to subwoofer
     // operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2));
   }

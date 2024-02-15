@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.sciborgs1155.robot.Ports.Pivot.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.VELOCITY_FACTOR;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;

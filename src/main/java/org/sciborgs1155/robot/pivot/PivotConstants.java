@@ -11,6 +11,7 @@ import edu.wpi.first.units.Mass;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Mult;
 import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 
 public class PivotConstants {
   public static final double MOTOR_GEARING = 12.0 / 64.0 * 20.0 / 70.0 * 36.0 / 56.0 * 16.0 / 54.0;
@@ -54,6 +55,14 @@ public class PivotConstants {
   public static final double kS = 0;
   public static final double kV = 10;
   public static final double kG = 200;
+
+  public static final double VELOCITY_GAIN = 1;
+  public static final double ACCEL_GAIN = 1;
+
+  public static final Measure<Voltage> MAX_VOLTAGE = Volts.of(12.);
+
+  public static final double kQ = 0.6;
+  public static final double kR = 1.2;
 
   public static final class ClimbConstants {
     public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.2);
