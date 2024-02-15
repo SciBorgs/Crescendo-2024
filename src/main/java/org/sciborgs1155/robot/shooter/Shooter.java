@@ -60,6 +60,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
         .withName("running shooter");
   }
 
+
   @Log.NT
   /**
    * @return Shooter velocity in radians per second

@@ -1,7 +1,10 @@
 package org.sciborgs1155.robot;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N2;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -25,15 +28,15 @@ public class Cache {
 
   /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
   public static record NoteTrajectory(
-      Rotation2d pivotAngle, double speed, Rotation2d chassisAngle) {
+      Rotation2d pivotAngle, double speed, Rotation2d heading) {
     @Override
     public String toString() {
       return "{pivotAngle: "
           + pivotAngle.getRadians()
           + "; speed: "
           + speed
-          + "; chassisAngle: "
-          + chassisAngle
+          + "; heading: "
+          + heading
           + "}";
     }
   }
@@ -87,30 +90,30 @@ public class Cache {
     return coeffs.waitFor();
   }
 
-  public static double getVelocity(Translation2d pos) {
+  private static double getVelocity(Translation2d pos) {
     return av * pos.getX() + bv * pos.getY() + cv;
   }
 
-  public static Rotation2d getPivotAngle(Translation2d pos) {
+  private static Rotation2d getPivotAngle(Translation2d pos) {
     return Rotation2d.fromRadians(at * Math.pow(pos.getX(), 2) + bt * Math.pow(pos.getY(), 2) + ct);
   }
 
-  public static Rotation2d getHeading(Translation2d pos) {
+  private static Rotation2d getHeading(Translation2d pos) {
     return Rotation2d.fromRadians(
         pos.getX() == 0 ? Math.PI / 2 : Math.atan(pos.getY() / pos.getX()));
   }
 
   // TODO have someone make better names
-  public static NoteTrajectory getTrajectory(Translation2d pos, Translation2d vel) {
+  public static NoteTrajectory getTrajectory(Translation2d pos, Vector<N2> vel) {
     double v = getVelocity(pos);
     Rotation2d theta = getPivotAngle(pos);
     Rotation2d alpha = getHeading(pos);
-    double deltaVx = v * Math.cos(alpha.getRadians()) - vel.getX();
-    double deltaVy = v * Math.sin(alpha.getRadians()) - vel.getY();
+    double deltaVx = v * Math.cos(alpha.getRadians()) - vel.get(0, 0);
+    double deltaVy = v * Math.sin(alpha.getRadians()) - vel.get(0, 1);
     Rotation2d returnAlpha =
         Rotation2d.fromRadians(deltaVx == 0 ? Math.PI / 2 : Math.atan(deltaVy / deltaVx));
-    Translation2d returnV =
-        new Translation2d(deltaVx, deltaVy).times(Math.cos(returnAlpha.getRadians()));
-    return new NoteTrajectory(theta, v + returnV.getNorm(), returnAlpha);
+    Vector<N2> returnV =
+        VecBuilder.fill(deltaVx, deltaVy).times(Math.cos(returnAlpha.getRadians()));
+    return new NoteTrajectory(theta, v + returnV.norm(), returnAlpha);
   }
 }

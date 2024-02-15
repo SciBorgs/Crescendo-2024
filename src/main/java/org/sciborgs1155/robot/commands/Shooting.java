@@ -3,12 +3,18 @@ package org.sciborgs1155.robot.commands;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static org.sciborgs1155.robot.feeder.FeederConstants.FEEDER_VELOCITY;
 
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.robot.Cache;
+import org.sciborgs1155.robot.Cache.NoteTrajectory;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -60,16 +66,18 @@ public class Shooting {
                 .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
   }
 
+  public Command fullShooting(InputStream vx, InputStream vy, Translation2d pos, Vector<N2> vel) {
+    return fullShooting(vx, vy, () -> Cache.getTrajectory(pos, vel));
+  }
+  
   public Command fullShooting(
       InputStream vx,
       InputStream vy,
-      DoubleSupplier desiredVelocity,
-      Supplier<Rotation2d> desiredHeading,
-      Supplier<Rotation2d> goalAngle) {
+      Supplier<NoteTrajectory> traj) {
     return shooter
-        .runShooter(desiredVelocity)
-        .alongWith(pivot.runPivot(goalAngle))
-        .alongWith(drive.drive(vx, vy, desiredHeading))
+        .runShooter(() -> traj.get().speed())
+        .alongWith(pivot.runPivot(() -> traj.get().pivotAngle()))
+        .alongWith(drive.drive(vx, vy, () -> traj.get().heading()))
         .alongWith(
             Commands.waitUntil(shooter::atSetpoint)
                 .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
