@@ -60,16 +60,16 @@ public class Shooting {
                 .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
   }
 
-  public Command fullShootingOpti(
-      InputStream inputx,
-      InputStream inputy,
+  public Command fullShooting(
+      InputStream vx,
+      InputStream vy,
       DoubleSupplier desiredVelocity,
       Supplier<Rotation2d> desiredHeading,
       Supplier<Rotation2d> goalAngle) {
     return shooter
         .runShooter(desiredVelocity)
         .alongWith(pivot.runPivot(goalAngle))
-        .alongWith(drive.drive(inputx, inputy, desiredHeading))
+        .alongWith(drive.drive(vx, vy, desiredHeading))
         .alongWith(
             Commands.waitUntil(shooter::atSetpoint)
                 .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
