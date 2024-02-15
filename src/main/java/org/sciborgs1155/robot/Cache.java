@@ -2,22 +2,23 @@ package org.sciborgs1155.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public class Cache {
-  private static Coeffs launchCoeffs = new Coeffs(0.001062497903615323, 0.7471887693867607, 5.478684772893152);
-  private static Coeffs angleCoeffs = new Coeffs(7.752605287137327e-5, -0.007477191156019437, 1.0663329616679225);
+  private static Coeffs launchCoeffs =
+      new Coeffs(0.001062497903615323, 0.7471887693867607, 5.478684772893152);
+  private static Coeffs angleCoeffs =
+      new Coeffs(7.752605287137327e-5, -0.007477191156019437, 1.0663329616679225);
 
   public static void main(String[] args) throws Exception {
     System.exit(reloadCoeffs());
   }
+
   /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
   public static record NoteTrajectory(
       Rotation2d pivotAngle, double speed, Rotation2d chassisAngle) {
@@ -53,20 +54,24 @@ public class Cache {
     return (JSONObject) (new JSONParser().parse(jsonValue));
   }
 
-  /** @return exit status */
+  /**
+   * @return exit status
+   */
   private static int reloadCoeffs() {
     try {
       int n = reloadCoeffsThrows();
       System.out.println("reloaded coeffs");
       return n;
-    }
-    catch (Exception e) {
-      System.out.println("couldn't load coeffs from script!! using defaults. error: " + e.getMessage());
+    } catch (Exception e) {
+      System.out.println(
+          "couldn't load coeffs from script!! using defaults. error: " + e.getMessage());
       return 0;
     }
   }
 
-  /** @return python process exit status */
+  /**
+   * @return python process exit status
+   */
   private static int reloadCoeffsThrows() throws Exception {
     String pythonPath =
         System.getProperty("os.name").startsWith("Windows") ? "python" : "./venv/bin/python";
@@ -74,7 +79,7 @@ public class Cache {
     builder.redirectError(ProcessBuilder.Redirect.INHERIT);
     Process coeffs = builder.start();
     var in = new BufferedReader(new InputStreamReader(coeffs.getInputStream()));
-    
+
     String output;
     while ((output = in.readLine()) == null) {}
 
