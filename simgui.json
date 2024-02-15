@@ -168,17 +168,24 @@
     }
   },
   "NetworkTables": {
-    "transitory": {
-      "FMSInfo": {
+    "Persistent Values": {
+      "open": false
+    },
+    "retained": {
+      "Robot": {
+        "autos": {
+          "open": true
+        },
         "open": true
-      },
+      }
+    },
+    "transitory": {
       "Robot": {
         "drive": {
           "Pose2d##v_/Robot/drive/getPose": {
             "Rotation2d##v_rotation": {
               "open": true
-            },
-            "open": true
+            }
           },
           "frontRight": {
             "SwerveModulePosition##v_/Robot/drive/frontRight/position": {
@@ -200,13 +207,6 @@
         },
         "open": true,
         "pivot": {
-          "measurement": {
-            "open": true
-          },
-          "open": true,
-          "pid": {
-            "open": true
-          },
           "pivot": {
             "Rotation2d##v_/Robot/pivot/pivot/getPosition": {
               "open": true
@@ -216,10 +216,6 @@
         },
         "shooter": {
           "mech": {
-            "open": true
-          },
-          "open": true,
-          "pid": {
             "open": true
           },
           "pivot": {
@@ -234,10 +230,12 @@
           "setpoint": {
             "open": true
           }
+        },
+        "vision": {
+          "Pose3d[]##v_/Robot/vision/getSeenTags": {
+            "open": true
+          }
         }
-      },
-      "Shuffleboard": {
-        "open": true
       }
     }
   },
@@ -257,7 +255,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 0,
+          "height": 127,
           "series": [
             {
               "color": [
@@ -281,7 +279,8 @@
         }
       ],
       "window": {
-        "name": "Pivot"
+        "name": "Pivot",
+        "visible": false
       }
     }
   }

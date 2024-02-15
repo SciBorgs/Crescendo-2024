@@ -6,7 +6,6 @@ import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -25,12 +24,14 @@ import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
+import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
+import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
 import org.sciborgs1155.robot.vision.Vision;
 import org.sciborgs1155.robot.vision.VisionConstants;
@@ -116,6 +117,7 @@ public class Robot extends CommandRobot implements Logged {
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
       addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
+      addPeriodic(NoteVisualizer::logNotes, kDefaultPeriod);
     }
   }
 
@@ -177,11 +179,14 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     // operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
-    operator.a().toggleOnTrue(pivot.runPivot(() -> Rotation2d.fromDegrees(15)));
+    // operator.a().toggleOnTrue(pivot.runPivot(() -> Rotation2d.fromDegrees(30)));
+    // operator.x().toggleOnTrue(shooter.runShooter(() -> 2));
 
     // operator.b().onTrue(pivot.runPivot(() -> )))
 
     // shooting into speaker when up to subwoofer
-    // operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2));
+    operator
+        .x()
+        .onTrue(shooting.pivotThenShoot(() -> PivotConstants.PRESET_SUBWOOFER_ANGLE, () -> 2));
   }
 }
