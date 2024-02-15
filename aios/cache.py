@@ -1,20 +1,16 @@
-# import json
 # from trendlines import returnFunctions
 
 # launch_coeffs, angle_coeffs = returnFunctions()
 
 # coeffs = {
-#     "launch": {
-#         "a": launch_coeffs[0],
-#         "b": launch_coeffs[1],
-#         "c": launch_coeffs[2]
-#     },
-#     "angle": {
-#         "a": angle_coeffs[0],
-#         "b": angle_coeffs[1],
-#         "c": angle_coeffs[2]
-#     }
+#     "av": launch_coeffs[0],
+#     "bv": launch_coeffs[1],
+#     "cv": launch_coeffs[2],
+#     "at": angle_coeffs[0],
+#     "bt": angle_coeffs[1],
+#     "ct": angle_coeffs[2]
 # }
+
 
 coeffs = {
     "av": 0.001062497903615323,
