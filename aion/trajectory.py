@@ -43,8 +43,8 @@ class Trajectory:
         delta_theta = optimizer.variable()
         delta_v = optimizer.variable()
         
-        initial_v = max_launch_speed / 2
-        initial_theta = np.pi / 4
+        initial_v = 0.0001
+        initial_theta = 0.0001
         heading = abs(np.arctan(self.posY / self.posX)) if self.posX != 0 else np.pi / 2
         
         t_1 = (self.posY) / ( (initial_v + delta_v) * casadi.cos(initial_theta + delta_theta) * np.sin(heading) )
@@ -84,7 +84,6 @@ class Trajectory:
         except:
             return [0, 0]
         return [(solutions.value(delta_v) + initial_v), (solutions.value(delta_theta) + initial_theta)]
-
 
 
 
