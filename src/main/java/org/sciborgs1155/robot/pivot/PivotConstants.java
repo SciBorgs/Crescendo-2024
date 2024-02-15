@@ -30,7 +30,7 @@ public class PivotConstants {
 
   public static final Measure<Angle> POSITION_TOLERANCE = Degrees.of(1.0);
 
-  public static final Measure<Mass> MASS = Kilograms.of(1);
+  public static final Measure<Mass> MASS = Pounds.of(14.973);
   public static final Measure<Distance> LENGTH = Inches.of(16);
 
   public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.5);

@@ -37,10 +37,10 @@ public class RealPivot implements PivotIO {
       spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
     }
 
-    lead.setInverted(false);
-    leftBottom.follow(lead, false);
-    rightTop.follow(lead, true);
-    rightBottom.follow(lead, true);
+    lead.setInverted(true);
+    leftBottom.follow(lead, true);
+    rightTop.follow(lead, false);
+    rightBottom.follow(lead, false);
 
     encoder = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
     encoder.setInverted(true);

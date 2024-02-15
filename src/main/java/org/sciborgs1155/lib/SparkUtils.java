@@ -1,8 +1,8 @@
 package org.sciborgs1155.lib;
 
 import com.revrobotics.CANSparkBase;
-import com.revrobotics.REVLibError;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
+import com.revrobotics.REVLibError;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units;

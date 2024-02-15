@@ -180,7 +180,7 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
-    operator.b().toggleOnTrue(pivot.runPivot(() -> Rotation2d.fromDegrees(15)));
+    operator.b().onTrue(pivot.runPivot(() -> Rotation2d.fromDegrees(15)));
 
     // operator.b().onTrue(pivot.runPivot(() -> )))
 

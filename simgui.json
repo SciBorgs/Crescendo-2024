@@ -39,7 +39,11 @@
       "/Robot/shooter/pivot/measurement": "Mechanism2d",
       "/Robot/shooter/pivot/setpoint": "Mechanism2d",
       "/Robot/shooter/setpoint": "Mechanism2d",
+      "/SmartDashboard/Drive": "Subsystem",
+      "/SmartDashboard/Intake": "Subsystem",
+      "/SmartDashboard/Pivot": "Subsystem",
       "/SmartDashboard/Scheduler": "Scheduler",
+      "/SmartDashboard/Shooter": "Subsystem",
       "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",
@@ -248,6 +252,12 @@
       },
       "Shuffleboard": {
         "open": true
+      },
+      "SmartDashboard": {
+        "Pivot": {
+          "open": true
+        },
+        "open": true
       }
     }
   },
@@ -256,9 +266,6 @@
       "open": true
     },
     "visible": true
-  },
-  "NetworkTables View": {
-    "visible": false
   },
   "Plot": {
     "Plot <0>": {
