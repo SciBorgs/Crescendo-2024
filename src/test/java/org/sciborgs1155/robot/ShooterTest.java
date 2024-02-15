@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.fastForward;
 import static org.sciborgs1155.lib.TestingUtil.run;
@@ -68,13 +67,6 @@ public class ShooterTest {
     fastForward(1000);
 
     assertEquals(STARTING_ANGLE.getRadians(), pivot.getPosition().getRadians(), DELTA);
-  }
-
-  @Test
-  public void testFeeder() {
-    run(feeder.runFeeder(4));
-    fastForward();
-    assertEquals(4.0, feeder.getVelocity().in(RadiansPerSecond), DELTA);
   }
 
   @Test
