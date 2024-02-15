@@ -10,10 +10,14 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public class Cache {
-  private static Coeffs launchCoeffs =
-      new Coeffs(0.001062497903615323, 0.7471887693867607, 5.478684772893152);
-  private static Coeffs angleCoeffs =
-      new Coeffs(7.752605287137327e-5, -0.007477191156019437, 1.0663329616679225);
+  // launch coefficients
+  private static double av = 0.001062497903615323;
+  private static double bv = 0.7471887693867607;
+  private static double cv = 5.478684772893152;
+  // angle coefficients
+  private static double at = 7.752605287137327e-5;
+  private static double bt = -0.007477191156019437;
+  private static double ct = 1.0663329616679225;
 
   public static void main(String[] args) throws Exception {
     System.exit(reloadCoeffs());
@@ -32,17 +36,6 @@ public class Cache {
           + chassisAngle
           + "}";
     }
-  }
-
-  private static record Coeffs(double a, double b, double c) {
-    @Override
-    public String toString() {
-      return "a: " + a + "; b: " + b + "; c: " + c;
-    }
-  }
-
-  public static Coeffs loadCoeffsThrows(JSONObject obj) throws Exception {
-    return new Coeffs((Double) obj.get("a"), (Double) obj.get("b"), (Double) obj.get("c"));
   }
 
   private static JSONObject parseString(String s) throws ParseException {
@@ -84,21 +77,22 @@ public class Cache {
     while ((output = in.readLine()) == null) {}
 
     var obj = parseString(output);
-    launchCoeffs = loadCoeffsThrows((JSONObject) obj.get("launch"));
-    angleCoeffs = loadCoeffsThrows((JSONObject) obj.get("angle"));
+    av = (Double) obj.get("av");
+    bv = (Double) obj.get("bv");
+    cv = (Double) obj.get("cv");
+    at = (Double) obj.get("at");
+    bt = (Double) obj.get("bt");
+    ct = (Double) obj.get("ct");
 
     return coeffs.waitFor();
   }
 
   public static double getVelocity(Translation2d pos) {
-    return launchCoeffs.a * pos.getX() + launchCoeffs.b * pos.getY() + launchCoeffs.c;
+    return av * pos.getX() + bv * pos.getY() + cv;
   }
 
   public static Rotation2d getPivotAngle(Translation2d pos) {
-    return Rotation2d.fromRadians(
-        angleCoeffs.a * Math.pow(pos.getX(), 2)
-            + angleCoeffs.b * Math.pow(pos.getY(), 2)
-            + angleCoeffs.c);
+    return Rotation2d.fromRadians(at * Math.pow(pos.getX(), 2) + bt * Math.pow(pos.getY(), 2) + ct);
   }
 
   public static Rotation2d getHeading(Translation2d pos) {
