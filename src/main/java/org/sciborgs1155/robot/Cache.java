@@ -27,8 +27,7 @@ public class Cache {
   }
 
   /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
-  public static record NoteTrajectory(
-      Rotation2d pivotAngle, double speed, Rotation2d heading) {
+  public static record NoteTrajectory(Rotation2d pivotAngle, double speed, Rotation2d heading) {
     @Override
     public String toString() {
       return "{pivotAngle: "
@@ -71,7 +70,7 @@ public class Cache {
   private static int reloadCoeffsThrows() throws Exception {
     String pythonPath =
         System.getProperty("os.name").startsWith("Windows") ? "python" : "./venv/bin/python";
-    var builder = new ProcessBuilder(pythonPath, "aios" + File.separator + "cache.py");
+    var builder = new ProcessBuilder(pythonPath, "aion" + File.separator + "cache.py");
     builder.redirectError(ProcessBuilder.Redirect.INHERIT);
     Process coeffs = builder.start();
     var in = new BufferedReader(new InputStreamReader(coeffs.getInputStream()));

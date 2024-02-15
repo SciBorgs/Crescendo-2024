@@ -4,11 +4,8 @@ from trajectory import Trajectory
 from scipy.optimize import curve_fit
 
 """
-Finds the coefficents for a quadratic function approximating the needed launch speed as a function of position (x,y)
+Finds the coefficents for a quadratic function approximating the needed launch angle as a function of position (x,y)
 """
-
-
-
 
 speaker_length = 1.05 #m
 station_length = 1.75 #m
@@ -29,21 +26,21 @@ def return_coefficients():
     # Sample points
     x_positions = np.array([])
     y_positions = np.array([])
-    launch_speeds = np.array([])
+    launch_angles = np.array([])
   
     x = min_x
     while x < max_x:
         y = min_y
         while y < max_y:
-            launch_speed = Trajectory(x, y).get_optimal_settings()[0]
-            if launch_speed != 0:
+            launch_angle = Trajectory(x, y).get_optimal_settings()[1]
+            if launch_angle != 0:
                 x_positions = np.append(x_positions, x)
                 y_positions = np.append(y_positions, y)
-                launch_speeds = np.append(launch_speeds, launch_speed)
+                launch_angles = np.append(launch_angles, launch_angle)
             y += 0.1
         x += 0.1
 
-    popt, pcov = curve_fit(f, (x_positions, y_positions), launch_speeds) 
+    popt, _ = curve_fit(f, (x_positions, y_positions), launch_angles) 
     return popt
 
 

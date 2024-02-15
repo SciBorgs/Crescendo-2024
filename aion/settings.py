@@ -14,9 +14,3 @@ def get_shooter_state(x, y, vx, vy):
     delta_vy = target_v_stationary * np.sin(alpha) * np.cos(target_theta) - vy
     launch_speed = np.sqrt( (delta_vx ** 2 + delta_vy ** 2 + (target_v_stationary*np.sin(target_theta)) ** 2) )
     return launch_speed, target_theta
-
-
-
-
-
-

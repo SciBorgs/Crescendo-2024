@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.sciborgs1155.lib.InputStream;
@@ -69,11 +68,8 @@ public class Shooting {
   public Command fullShooting(InputStream vx, InputStream vy, Translation2d pos, Vector<N2> vel) {
     return fullShooting(vx, vy, () -> Cache.getTrajectory(pos, vel));
   }
-  
-  public Command fullShooting(
-      InputStream vx,
-      InputStream vy,
-      Supplier<NoteTrajectory> traj) {
+
+  public Command fullShooting(InputStream vx, InputStream vy, Supplier<NoteTrajectory> traj) {
     return shooter
         .runShooter(() -> traj.get().speed())
         .alongWith(pivot.runPivot(() -> traj.get().pivotAngle()))
