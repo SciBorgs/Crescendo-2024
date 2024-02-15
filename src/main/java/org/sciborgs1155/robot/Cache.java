@@ -2,23 +2,22 @@ package org.sciborgs1155.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
+
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.InputStreamReader;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class Cache {
-  private static final String cacheFilename = "src/main/deploy/cached_shooter_coeffs.json";
-  private static final File cacheFile = new File(Filesystem.getLaunchDirectory(), cacheFilename);
+  private static Coeffs launchCoeffs = new Coeffs(0.001062497903615323, 0.7471887693867607, 5.478684772893152);
+  private static Coeffs angleCoeffs = new Coeffs(7.752605287137327e-5, -0.007477191156019437, 1.0663329616679225);
 
-  private static Coeffs coeffs =
-      new Coeffs(
-          new CoeffsLil(0.001062497903615323, 0.7471887693867607, 5.478684772893152),
-          new CoeffsLil(7.752605287137327e-5, -0.007477191156019437, 1.0663329616679225));
-
+  public static void main(String[] args) throws Exception {
+    System.exit(reloadCoeffs());
+  }
   /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
   public static record NoteTrajectory(
       Rotation2d pivotAngle, double speed, Rotation2d chassisAngle) {
@@ -34,60 +33,67 @@ public class Cache {
     }
   }
 
-  public static void main(String[] args) throws Exception {
-    System.exit(runGenCoeffs().exitValue());
-  }
-
-  public static Coeffs loadCoeffs() {
-    try {
-      return loadCoeffsThrows();
-    } catch (Exception e) {
-      DriverStation.reportError("unable to load coefficients", false);
-      return coeffs;
+  private static record Coeffs(double a, double b, double c) {
+    @Override
+    public String toString() {
+      return "a: " + a + "; b: " + b + "; c: " + c;
     }
   }
 
-  public static record CoeffsLil(double a, double b, double c) {}
-
-  public static record Coeffs(CoeffsLil launch, CoeffsLil angle) {}
-
-  public static CoeffsLil loadLilCoeffsThrows(JSONObject obj) throws Exception {
-    return new CoeffsLil((Double) obj.get("a"), (Double) obj.get("b"), (Double) obj.get("c"));
+  public static Coeffs loadCoeffsThrows(JSONObject obj) throws Exception {
+    return new Coeffs((Double) obj.get("a"), (Double) obj.get("b"), (Double) obj.get("c"));
   }
 
-  public static Coeffs loadCoeffsThrows() throws Exception {
-    FileReader reader = new FileReader(cacheFile);
-    JSONParser parser = new JSONParser();
-    JSONObject obj = (JSONObject) parser.parse(reader);
-
-    return new Coeffs(
-        loadLilCoeffsThrows((JSONObject) obj.get("launch")),
-        loadLilCoeffsThrows((JSONObject) obj.get("angle")));
+  private static JSONObject parseString(String s) throws ParseException {
+    String jsonValue = "";
+    for (int i = 0; i < s.length(); i++) {
+      var c = s.charAt(i);
+      jsonValue += (c == '\'') ? "\"" : c;
+    }
+    return (JSONObject) (new JSONParser().parse(jsonValue));
   }
 
-  private static Process runGenCoeffs() throws IOException, InterruptedException {
+  /** @return exit status */
+  private static int reloadCoeffs() {
+    try {
+      int n = reloadCoeffsThrows();
+      System.out.println("reloaded coeffs");
+      return n;
+    }
+    catch (Exception e) {
+      System.out.println("couldn't load coeffs from script!! using defaults. error: " + e.getMessage());
+      return 0;
+    }
+  }
+
+  /** @return python process exit status */
+  private static int reloadCoeffsThrows() throws Exception {
     String pythonPath =
         System.getProperty("os.name").startsWith("Windows") ? "python" : "./venv/bin/python";
     var builder = new ProcessBuilder(pythonPath, "aios" + File.separator + "cache.py");
-    builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
     builder.redirectError(ProcessBuilder.Redirect.INHERIT);
-
     Process coeffs = builder.start();
-    System.out.println("generating coefficients...");
-    coeffs.waitFor();
-    System.out.println("done");
-    return coeffs;
+    var in = new BufferedReader(new InputStreamReader(coeffs.getInputStream()));
+    
+    String output;
+    while ((output = in.readLine()) == null) {}
+
+    var obj = parseString(output);
+    launchCoeffs = loadCoeffsThrows((JSONObject) obj.get("launch"));
+    angleCoeffs = loadCoeffsThrows((JSONObject) obj.get("angle"));
+
+    return coeffs.waitFor();
   }
 
   public static double getVelocity(Translation2d pos) {
-    return coeffs.launch.a * pos.getX() + coeffs.launch.b * pos.getY() + coeffs.launch.c;
+    return launchCoeffs.a * pos.getX() + launchCoeffs.b * pos.getY() + launchCoeffs.c;
   }
 
   public static Rotation2d getPivotAngle(Translation2d pos) {
     return Rotation2d.fromRadians(
-        coeffs.angle.a * Math.pow(pos.getX(), 2)
-            + coeffs.angle.b * Math.pow(pos.getY(), 2)
-            + coeffs.angle.c);
+        angleCoeffs.a * Math.pow(pos.getX(), 2)
+            + angleCoeffs.b * Math.pow(pos.getY(), 2)
+            + angleCoeffs.c);
   }
 
   public static Rotation2d getHeading(Translation2d pos) {

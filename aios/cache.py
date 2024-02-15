@@ -1,4 +1,4 @@
-import json
+# import json
 # from trendlines import returnFunctions
 
 # launch_coeffs, angle_coeffs = returnFunctions()
@@ -29,6 +29,4 @@ coeffs = {
     }
 }
 
-
-with open("src/main/deploy/cached_shooter_coeffs.json", "w") as file:
-    json.dump(coeffs, file, indent=4)
+print(coeffs)
