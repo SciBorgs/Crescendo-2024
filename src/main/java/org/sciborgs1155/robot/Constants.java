@@ -19,13 +19,21 @@ import org.sciborgs1155.robot.drive.DriveConstants;
  * @see Units
  */
 public class Constants {
+  public static enum RobotType {
+    COMPLETE,
+    CHASSIS,
+    NO_PIVOT
+  }
+
+  public static final RobotType ROBOT_TYPE = RobotType.COMPLETE;
+
   public static final Measure<Time> PERIOD = Seconds.of(0.02); // roborio tickrate (s)
   public static final double DEADBAND = 0.1;
   public static final double MAX_RATE =
       DriveConstants.MAX_ACCEL.baseUnitMagnitude()
           / DriveConstants.MAX_ANGULAR_SPEED.baseUnitMagnitude();
-  public static final double SLOW_SPEED = 0.33;
-  public static final double FULL_SPEED = 1.0;
+  public static final double SLOW_SPEED_MULTIPLIER = 0.33;
+  public static final double FULL_SPEED_MULTIPLIER = 1.0;
 
   public static class Field {
     public static final Translation2d BLUE_SPEAKER_POSE = new Translation2d(-0.086473, 5.757474);
