@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Velocity;
 
 public class FeederConstants {
@@ -17,6 +18,8 @@ public class FeederConstants {
       RADIUS.times(2 * Math.PI).times(GEARING);
   public static final Measure<Velocity<Distance>> VELOCITY_CONVERSION =
       POSITION_CONVERSION.per(Minute);
+
+  public static final Measure<Time> TIMEOUT = Seconds.of(0.2);
 
   public static final double kP = 0.6;
   public static final double kI = 0;

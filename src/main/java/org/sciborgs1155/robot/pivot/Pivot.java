@@ -3,6 +3,7 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,6 +21,7 @@ import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
+import org.sciborgs1155.robot.pivot.PivotConstants.ClimbConstants;
 
 public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   private final PivotIO pivot;
@@ -78,6 +80,10 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    */
   public Command runPivot(Supplier<Rotation2d> goalAngle) {
     return run(() -> update(goalAngle.get())).withName("go to").asProxy();
+  }
+
+  public Command setGoal(Supplier<Rotation2d> goalAngle) {
+    return runOnce(() -> pid.setGoal(goalAngle.get().getRadians())).withName("set goal").asProxy();
   }
 
   /**
@@ -160,10 +166,11 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    * @param goalAngle The position to move the pivot to.
    */
   private void update(Rotation2d goalAngle) {
-    double feedback = pid.calculate(pivot.getPosition().getRadians(), goalAngle.getRadians());
+    double goal =
+        MathUtil.clamp(goalAngle.getRadians(), MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians());
+    double feedback = pid.calculate(pivot.getPosition().getRadians(), goal);
     double feedforward =
-        ff.calculate( // add pi to measurement to account for alternate angle
-            pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
+        ff.calculate(pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
     pivot.setVoltage(feedback + feedforward);
   }
 

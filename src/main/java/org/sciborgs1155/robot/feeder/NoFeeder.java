@@ -10,12 +10,7 @@ public class NoFeeder implements FeederIO {
   }
 
   @Override
-  public boolean frontBeamBreak() {
-    return false;
-  }
-
-  @Override
-  public boolean backBeamBreak() {
+  public boolean beamBreak() {
     return false;
   }
 

@@ -192,7 +192,7 @@ public class Robot extends CommandRobot implements Logged {
     // operator.b().onTrue(pivot.runPivot(() -> )))
 
     // shooting into speaker when up to subwoofer
-    operator.x().onTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE, () -> 4));
+    operator.x().onTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE, () -> -4));
 
     operator.y().onTrue(shooting.pivotThenShoot(() -> STARTING_ANGLE, () -> 10));
     // operator.x().onTrue(shooter.runShooter(() -> 100));

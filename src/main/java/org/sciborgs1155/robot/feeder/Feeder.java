@@ -9,12 +9,14 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
+import org.sciborgs1155.robot.commands.NoteVisualizer;
 
 public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   private final FeederIO feeder;
@@ -53,7 +55,16 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
           double pidOutput = pid.calculate(feeder.getVelocity(), velocity);
           feeder.setVoltage(pidOutput + ffOutput);
         })
+        .alongWith(NoteVisualizer.shoot())
         .withName("running feeder");
+  }
+
+  public Command eject(double velocity) {
+    return runFeeder(velocity).withTimeout(TIMEOUT.in(Seconds));
+  }
+
+  public Trigger atShooter() {
+    return new Trigger(feeder::beamBreak);
   }
 
   @Log.NT

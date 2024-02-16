@@ -64,7 +64,8 @@ public class NoteVisualizer implements Logged {
                               new Transform3d(
                                   OFFSET, new Rotation3d(0, angle.get().getRadians(), 0)));
 
-                  final double xVelocity = Math.abs(velocity.getAsDouble() * angle.get().getCos());
+                  final double xVelocity =
+                      Math.abs(velocity.getAsDouble() * angle.get().times(-1).getCos());
                   yVelocity = velocity.getAsDouble() * angle.get().getSin();
 
                   return Commands.run(

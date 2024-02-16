@@ -48,12 +48,14 @@ public class Shooting {
    * @return The command to run the pivot to its desired angle and then shoot.
    */
   public Command pivotThenShoot(Supplier<Rotation2d> goalAngle, DoubleSupplier shooterVelocity) {
+
     return pivot
-        .runPivot(goalAngle)
-        .alongWith(shooter.runShooter(shooterVelocity))
-        .alongWith(
-            Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
-                .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond)))
-                .andThen(NoteVisualizer.shoot()));
+        .setGoal(goalAngle)
+        .andThen(
+            Commands.deadline(
+                Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
+                    .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))),
+                pivot.runPivot(goalAngle),
+                shooter.runShooter(shooterVelocity)));
   }
 }
