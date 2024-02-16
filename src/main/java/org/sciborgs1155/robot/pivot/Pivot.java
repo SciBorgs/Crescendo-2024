@@ -25,8 +25,8 @@ import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.pivot.PivotConstants.ClimbConstants;
 
 public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
-  private final PivotIO pivot;
-  private final SysIdRoutine sysIdRoutine; // sysIdRoutineoogabooga
+  private final PivotIO hardware;
+  private final SysIdRoutine sysIdRoutine;
 
   // pivot control
   @Log.NT
@@ -50,13 +50,18 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     return Robot.isReal() ? new Pivot(new RealPivot()) : new Pivot(new SimPivot());
   }
 
-  /** Creates a fake pivot. */
+  /** Creates a nonexistent pivot. */
   public static Pivot none() {
     return new Pivot(new NoPivot());
   }
 
+  /**
+   * Constructs a new pivot subsystem.
+   *
+   * @param pivot The hardware implementation to use.
+   */
   public Pivot(PivotIO pivot) {
-    this.pivot = pivot;
+    this.hardware = pivot;
     sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(3), Seconds.of(6)),
@@ -81,7 +86,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    * @return The command to set the pivot's angle.
    */
   public Command runPivot(Supplier<Rotation2d> goalAngle) {
-    return run(() -> update(goalAngle.get())).until(this::atGoal).withName("go to").asProxy();
+    return run(() -> update(goalAngle.get())).withName("go to").asProxy();
   }
 
   /**
@@ -101,16 +106,14 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
         () -> {
           double velocity = stickInput.get() * MAX_VELOCITY.in(RadiansPerSecond);
           double periodMovement = Constants.PERIOD.in(Seconds) * velocity;
-          double draftSetpoint = periodMovement + pivot.getPosition().getRadians();
-          double setpoint =
-              MathUtil.clamp(draftSetpoint, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians());
+          double setpoint = periodMovement + pid.getSetpoint().position;
           return Rotation2d.fromRadians(setpoint);
         });
   }
 
   @Log.NT
-  public Rotation2d getPosition() {
-    return pivot.getPosition();
+  public Rotation2d rotation() {
+    return Rotation2d.fromRadians(hardware.getPosition());
   }
 
   @Log.NT
@@ -129,29 +132,27 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command quasistaticForward() {
-    return sysIdRoutine.quasistatic(Direction.kForward);
-    // .until(() -> pivot.getPosition().getRadians() > 0.8 * MAX_ANGLE.getRadians());
+    return sysIdRoutine
+        .quasistatic(Direction.kForward)
+        .until(() -> hardware.getPosition() > MAX_ANGLE.getRadians() - 0.2);
   }
 
   public Command quasistaticBack() {
-    return sysIdRoutine.quasistatic(Direction.kReverse);
-    // .until(() -> pivot.getPosition().getRadians() < 0.8 * MIN_ANGLE.getRadians());
+    return sysIdRoutine
+        .quasistatic(Direction.kReverse)
+        .until(() -> hardware.getPosition() < MIN_ANGLE.getRadians() + 0.2);
   }
 
   public Command dynamicForward() {
-    return sysIdRoutine.dynamic(Direction.kForward);
-    // .until(() -> pivot.getPosition().getRadians() > 0.8 * MAX_ANGLE.getRadians());
+    return sysIdRoutine
+        .dynamic(Direction.kForward)
+        .until(() -> hardware.getPosition() > MAX_ANGLE.getRadians() - 0.2);
   }
 
   public Command dynamicBack() {
-    return sysIdRoutine.dynamic(Direction.kReverse);
-    // .until(() -> pivot.getPosition().getRadians() < 0.8 * MIN_ANGLE.getRadians());
-  }
-
-  @Override
-  public void periodic() {
-    positionVisualizer.setState(getPosition());
-    setpointVisualizer.setState(setpoint());
+    return sysIdRoutine
+        .dynamic(Direction.kReverse)
+        .until(() -> hardware.getPosition() < MIN_ANGLE.getRadians() + 0.2);
   }
 
   /**
@@ -160,16 +161,25 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    * @param goalAngle The position to move the pivot to.
    */
   private void update(Rotation2d goalAngle) {
-    double feedback = pid.calculate(pivot.getPosition().getRadians(), goalAngle.getRadians());
+    double goal =
+        MathUtil.clamp(goalAngle.getRadians(), MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians());
+    double feedback = pid.calculate(hardware.getPosition(), goal);
     double feedforward =
-        ff.calculate( // add pi to measurement to account for alternate angle
-            pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
-    pivot.setVoltage(feedback + feedforward);
+        ff.calculate(pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
+    log("feedback output", feedback);
+    log("feedforward output", feedforward);
+    hardware.setVoltage(feedback + feedforward);
+  }
+
+  @Override
+  public void periodic() {
+    positionVisualizer.setState(rotation());
+    setpointVisualizer.setState(setpoint());
   }
 
   @Override
   public void close() throws Exception {
-    pivot.close();
+    hardware.close();
     measurement.close();
     setpoint.close();
   }

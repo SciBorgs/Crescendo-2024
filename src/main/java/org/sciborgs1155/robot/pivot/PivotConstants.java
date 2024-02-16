@@ -33,7 +33,7 @@ public class PivotConstants {
   public static final Measure<Mass> MASS = Pounds.of(14.973);
   public static final Measure<Distance> LENGTH = Inches.of(16);
 
-  public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.5);
+  public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(1.0);
   public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
 
   public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(-45.7);

@@ -52,28 +52,24 @@ public class Robot extends CommandRobot implements Logged {
 
   private final Drive drive = Drive.none();
 
-  // @Log.NT(key = "intake subsystem")
   private final Intake intake =
       switch (Constants.ROBOT_TYPE) {
         case CHASSIS -> Intake.none();
         default -> Intake.create();
       };
 
-  // @Log.NT(key = "shooter subsystem")
   private final Shooter shooter =
       switch (Constants.ROBOT_TYPE) {
         case CHASSIS -> Shooter.none();
         default -> Shooter.create();
       };
 
-  // @Log.NT(key = "feeder subsystem")
   private final Feeder feeder =
       switch (Constants.ROBOT_TYPE) {
         case CHASSIS -> Feeder.none();
         default -> Feeder.create();
       };
 
-  // @Log.NT(key = "pivot subsystem")
   private final Pivot pivot =
       switch (Constants.ROBOT_TYPE) {
         case COMPLETE -> Pivot.create();

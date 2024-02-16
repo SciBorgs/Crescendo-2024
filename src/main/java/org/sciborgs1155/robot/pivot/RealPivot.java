@@ -10,7 +10,6 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.List;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
@@ -66,8 +65,8 @@ public class RealPivot implements PivotIO {
   }
 
   @Override
-  public Rotation2d getPosition() {
-    return Rotation2d.fromRadians(encoder.getPosition());
+  public double getPosition() {
+    return encoder.getPosition();
   }
 
   @Override

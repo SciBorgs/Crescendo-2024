@@ -1,14 +1,12 @@
 package org.sciborgs1155.robot.pivot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-
 public class NoPivot implements PivotIO {
   @Override
   public void setVoltage(double voltage) {}
 
   @Override
-  public Rotation2d getPosition() {
-    return new Rotation2d();
+  public double getPosition() {
+    return 0;
   }
 
   @Override

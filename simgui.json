@@ -183,9 +183,6 @@
   },
   "NetworkTables": {
     "transitory": {
-      "FMSInfo": {
-        "open": true
-      },
       "Robot": {
         "drive": {
           "Pose2d##v_/Robot/drive/getPose": {
@@ -214,13 +211,7 @@
         },
         "open": true,
         "pivot": {
-          "measurement": {
-            "open": true
-          },
           "open": true,
-          "pid": {
-            "open": true
-          },
           "pivot": {
             "Rotation2d##v_/Robot/pivot/pivot/getPosition": {
               "open": true

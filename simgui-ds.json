@@ -4,11 +4,19 @@
       "visible": false
     }
   },
+  "Keyboard 0 Settings": {
+    "window": {
+      "visible": true
+    }
+  },
   "keyboardJoysticks": [
     {
       "axisConfig": [
         {},
-        {},
+        {
+          "decKey": 72,
+          "incKey": 89
+        },
         {
           "decKey": 69,
           "decayRate": 0.0,
