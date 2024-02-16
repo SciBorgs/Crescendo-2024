@@ -31,7 +31,6 @@ import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
-import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
 import org.sciborgs1155.robot.vision.Vision;
 import org.sciborgs1155.robot.vision.VisionConstants;
@@ -117,6 +116,8 @@ public class Robot extends CommandRobot implements Logged {
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
       addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
+      NoteVisualizer.setSuppliers(drive::getPose, pivot::getPosition, shooter::getVelocity);
+      NoteVisualizer.startPublishing();
       addPeriodic(NoteVisualizer::logNotes, kDefaultPeriod);
     }
   }
@@ -185,8 +186,14 @@ public class Robot extends CommandRobot implements Logged {
     // operator.b().onTrue(pivot.runPivot(() -> )))
 
     // shooting into speaker when up to subwoofer
-    operator
-        .x()
-        .onTrue(shooting.pivotThenShoot(() -> PivotConstants.PRESET_SUBWOOFER_ANGLE, () -> 2));
+    // operator
+    //     .x()
+    //     .onTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE, () -> 2));
+
+    //     operator
+    //     .y()
+    //     .onTrue(shooting.pivotThenShoot(() -> STARTING_ANGLE, () -> 0));
+    operator.x().onTrue(shooter.runShooter(() -> 3));
+    operator.y().onTrue(shooter.runShooter(() -> 0));
   }
 }

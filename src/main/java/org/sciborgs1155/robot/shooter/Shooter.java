@@ -14,7 +14,6 @@ import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
-import org.sciborgs1155.robot.commands.NoteVisualizer;
 
 public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   private final ShooterIO shooter;
@@ -58,7 +57,6 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
             shooter.setVoltage(
                 pid.calculate(shooter.getVelocity(), velocity.getAsDouble())
                     + ff.calculate(velocity.getAsDouble())))
-        .andThen(NoteVisualizer.shoot())
         .withName("running shooter");
   }
 
