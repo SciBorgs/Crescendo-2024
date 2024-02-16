@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Twist3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructArrayTopic;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
@@ -63,22 +62,10 @@ public class NoteVisualizer implements Logged {
                       new Pose3d(pose.get())
                           .plus(
                               new Transform3d(
-                                  OFFSET,
-                                  new Rotation3d(
-                                      0,
-                                      angle.get().getRadians(),
-                                      pose.get().getRotation().getRadians())));
+                                  OFFSET, new Rotation3d(0, angle.get().getRadians(), 0)));
 
-                  final double xVelocity =
-                      velocity.getAsDouble() * Math.cos(angle.get().getRadians());
-                  yVelocity = velocity.getAsDouble() * Math.sin(angle.get().getRadians());
-
-                  // time for note to reach initial height after arc
-                  final double time =
-                      Math.abs(2.0 * velocity.getAsDouble() * angle.get().getSin() / g);
-                  final Timer timer = new Timer();
-
-                  timer.start();
+                  final double xVelocity = Math.abs(velocity.getAsDouble() * angle.get().getCos());
+                  yVelocity = velocity.getAsDouble() * angle.get().getSin();
 
                   return Commands.run(
                           () -> {
@@ -94,7 +81,7 @@ public class NoteVisualizer implements Logged {
                             firedNotes = new Pose3d[] {currentNotePose};
                             yVelocity -= g * PERIOD.in(Seconds);
                           })
-                      .until(() -> timer.hasElapsed(time))
+                      .until(() -> currentNotePose.getZ() < 0.0)
                       .finallyDo(
                           () -> {
                             firedNotes = new Pose3d[] {};

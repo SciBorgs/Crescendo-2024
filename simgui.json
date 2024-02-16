@@ -68,11 +68,6 @@
       "/SmartDashboard/turn quasistatic forward": "Command"
     },
     "windows": {
-      "/Robot/autos": {
-        "window": {
-          "visible": true
-        }
-      },
       "/Robot/drive/field2d": {
         "Robot": {
           "arrows": false,
@@ -180,12 +175,21 @@
       }
     },
     "transitory": {
+      "Pose3d[]##v_poses": {
+        "Pose3d##v_[0]": {
+          "open": true
+        },
+        "open": true
+      },
       "Robot": {
         "drive": {
           "Pose2d##v_/Robot/drive/getPose": {
             "Rotation2d##v_rotation": {
               "open": true
             }
+          },
+          "field2d": {
+            "open": true
           },
           "frontRight": {
             "SwerveModulePosition##v_/Robot/drive/frontRight/position": {
@@ -205,8 +209,18 @@
             }
           }
         },
+        "feeder": {
+          "open": true
+        },
         "open": true,
         "pivot": {
+          "Rotation2d##v_/Robot/pivot/getPosition": {
+            "open": true
+          },
+          "Rotation2d##v_/Robot/pivot/goal": {
+            "open": true
+          },
+          "open": true,
           "pivot": {
             "Rotation2d##v_/Robot/pivot/pivot/getPosition": {
               "open": true
@@ -218,6 +232,7 @@
           "mech": {
             "open": true
           },
+          "open": true,
           "pivot": {
             "open": true,
             "pivot": {
@@ -242,8 +257,7 @@
   "NetworkTables Info": {
     "Server": {
       "open": true
-    },
-    "visible": true
+    }
   },
   "Plot": {
     "Plot <0>": {

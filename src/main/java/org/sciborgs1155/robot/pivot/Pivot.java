@@ -77,7 +77,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    * @return The command to set the pivot's angle.
    */
   public Command runPivot(Supplier<Rotation2d> goalAngle) {
-    return run(() -> update(goalAngle.get())).until(this::atGoal).withName("go to").asProxy();
+    return run(() -> update(goalAngle.get())).withName("go to").asProxy();
   }
 
   /**
