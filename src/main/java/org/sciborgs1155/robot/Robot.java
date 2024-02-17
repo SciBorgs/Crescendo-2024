@@ -125,9 +125,6 @@ public class Robot extends CommandRobot implements Logged {
           pivot::getPosition,
           () -> shooter.getVelocity() * Meters.convertFrom(4, Inches) * 2.0 * Math.PI);
       NoteVisualizer.startPublishing();
-      addPeriodic(NoteVisualizer::logNotes, kDefaultPeriod);
-      PivotVisualizer.startPublishing();
-      addPeriodic(PivotVisualizer::logPivot, kDefaultPeriod);
     }
   }
 
