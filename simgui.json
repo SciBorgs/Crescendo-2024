@@ -177,6 +177,9 @@
     "transitory": {
       "Pose3d[]##v_poses": {
         "Pose3d##v_[0]": {
+          "Translation3d##v_translation": {
+            "open": true
+          },
           "open": true
         },
         "open": true

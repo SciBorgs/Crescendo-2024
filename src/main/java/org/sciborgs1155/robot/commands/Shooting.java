@@ -34,10 +34,12 @@ public class Shooting {
    */
   public Command shoot(DoubleSupplier desiredVelocity) {
     return shooter
-        .runShooter(desiredVelocity)
-        .alongWith(
-            Commands.waitUntil(shooter::atSetpoint)
-                .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
+        .setSetpoint(desiredVelocity)
+        .andThen(
+            Commands.deadline(
+                Commands.waitUntil(shooter::atSetpoint)
+                    .andThen(feeder.eject(FEEDER_VELOCITY.in(MetersPerSecond))),
+                shooter.runShooter(desiredVelocity)));
   }
 
   /**
@@ -48,13 +50,13 @@ public class Shooting {
    * @return The command to run the pivot to its desired angle and then shoot.
    */
   public Command pivotThenShoot(Supplier<Rotation2d> goalAngle, DoubleSupplier shooterVelocity) {
-
     return pivot
         .setGoal(goalAngle)
+        .alongWith(shooter.setSetpoint(shooterVelocity))
         .andThen(
             Commands.deadline(
                 Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
-                    .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))),
+                    .andThen(feeder.eject(FEEDER_VELOCITY.in(MetersPerSecond))),
                 pivot.runPivot(goalAngle),
                 shooter.runShooter(shooterVelocity)));
   }

@@ -1,7 +1,5 @@
 package org.sciborgs1155.robot;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
@@ -119,10 +117,7 @@ public class Robot extends CommandRobot implements Logged {
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
       addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
-      NoteVisualizer.setSuppliers(
-          drive::getPose,
-          pivot::getPosition,
-          () -> shooter.getVelocity() * Meters.convertFrom(4, Inches) * 2.0 * Math.PI);
+      NoteVisualizer.setSuppliers(drive::getPose, pivot::getPosition, shooter::getVelocity);
       NoteVisualizer.startPublishing();
       addPeriodic(NoteVisualizer::logNotes, kDefaultPeriod);
     }
@@ -192,9 +187,9 @@ public class Robot extends CommandRobot implements Logged {
     // operator.b().onTrue(pivot.runPivot(() -> )))
 
     // shooting into speaker when up to subwoofer
-    operator.x().onTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE, () -> -4));
+    operator.x().onTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE, () -> 5));
 
-    operator.y().onTrue(shooting.pivotThenShoot(() -> STARTING_ANGLE, () -> 10));
+    operator.y().onTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 4));
     // operator.x().onTrue(shooter.runShooter(() -> 100));
     // operator.y().onTrue(shooter.runShooter(() -> 0));
   }

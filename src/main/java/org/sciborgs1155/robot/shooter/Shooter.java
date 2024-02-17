@@ -44,6 +44,8 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("shooter quasistatic forward", quasistaticForward());
     SmartDashboard.putData("shooter dynamic backward", dynamicBack());
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
+
+    setDefaultCommand(runShooter(() -> 0));
   }
 
   /**
@@ -57,13 +59,18 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
             shooter.setVoltage(
                 pid.calculate(shooter.getVelocity(), velocity.getAsDouble())
                     + ff.calculate(velocity.getAsDouble())))
-        .withName("running shooter");
+        .withName("running shooter")
+        .finallyDo(() -> shooter.setVoltage(0));
   }
 
-  @Log.NT
+  public Command setSetpoint(DoubleSupplier velocity) {
+    return runOnce(() -> pid.setSetpoint(velocity.getAsDouble()));
+  }
+
   /**
    * @return Shooter velocity in radians per second
    */
+  @Log.NT
   public double getVelocity() {
     return shooter.getVelocity();
   }

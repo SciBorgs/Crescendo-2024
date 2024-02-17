@@ -60,11 +60,13 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command eject(double velocity) {
-    return runFeeder(velocity).withTimeout(TIMEOUT.in(Seconds));
+    return runFeeder(velocity)
+        .withTimeout(TIMEOUT.in(Seconds))
+        .finallyDo(() -> feeder.setVoltage(0));
   }
 
   public Trigger atShooter() {
-    return new Trigger(feeder::beamBreak);
+    return new Trigger(feeder::beambreak);
   }
 
   @Log.NT

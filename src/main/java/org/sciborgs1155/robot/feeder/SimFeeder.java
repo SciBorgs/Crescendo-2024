@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import org.sciborgs1155.robot.Constants;
 
 public class SimFeeder implements FeederIO {
-
   private final DCMotorSim sim =
       new DCMotorSim(LinearSystemId.createDCMotorSystem(kV, kA), DCMotor.getNeoVortex(1), GEARING);
 
@@ -25,10 +24,10 @@ public class SimFeeder implements FeederIO {
   }
 
   @Override
-  public void close() throws Exception {}
-
-  @Override
-  public boolean beamBreak() {
+  public boolean beambreak() {
     return false;
   }
+
+  @Override
+  public void close() throws Exception {}
 }
