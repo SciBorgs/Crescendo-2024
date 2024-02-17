@@ -3,7 +3,6 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.Meters;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -19,7 +18,7 @@ public class PivotVisualizer {
     instance++;
   }
 
-  public void setState(Rotation2d angle) {
-    arm.setAngle(angle.rotateBy(Rotation2d.fromRadians(Math.PI)));
+  public void setState(double angle) {
+    arm.setAngle(angle + Math.PI);
   }
 }

@@ -52,11 +52,11 @@ public class ShooterTest {
   public void testPivot(double theta) {
     run((pivot.runPivot(() -> Rotation2d.fromRadians(theta))));
     fastForward(200);
-    assertEquals(theta, pivot.goal().getRadians(), DELTA);
-    assertEquals(theta, pivot.setpoint().getRadians(), DELTA);
+    assertEquals(theta, pivot.goal().getY(), DELTA);
+    assertEquals(theta, pivot.setpoint().getY(), DELTA);
     assertEquals(
         MathUtil.clamp(theta, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
-        pivot.rotation().getRadians(),
+        pivot.rotation().getY(),
         0.15);
   }
 
@@ -66,7 +66,7 @@ public class ShooterTest {
     run(pivot.climb(Rotation2d.fromRadians(theta)));
     fastForward(1000);
 
-    assertEquals(STARTING_ANGLE.getRadians(), pivot.rotation().getRadians(), DELTA);
+    assertEquals(STARTING_ANGLE.getRadians(), pivot.rotation().getY(), DELTA);
   }
 
   @Test
@@ -85,7 +85,7 @@ public class ShooterTest {
 
     assertEquals(
         MathUtil.clamp(Math.PI / 4, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
-        pivot.rotation().getRadians(),
+        pivot.rotation().getY(),
         DELTA);
     assertEquals(4, shooter.getVelocity(), DELTA);
   }

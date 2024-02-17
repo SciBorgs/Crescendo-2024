@@ -7,6 +7,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -112,18 +113,18 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   @Log.NT
-  public Rotation2d rotation() {
-    return Rotation2d.fromRadians(hardware.getPosition());
+  public Rotation3d rotation() {
+    return new Rotation3d(0.0, hardware.getPosition(), 0.0);
   }
 
   @Log.NT
-  public Rotation2d goal() {
-    return Rotation2d.fromRadians(pid.getGoal().position);
+  public Rotation3d goal() {
+    return new Rotation3d(0.0, pid.getGoal().position, 0.0);
   }
 
   @Log.NT
-  public Rotation2d setpoint() {
-    return Rotation2d.fromRadians(pid.getSetpoint().position);
+  public Rotation3d setpoint() {
+    return new Rotation3d(0.0, pid.getSetpoint().position, 0.0);
   }
 
   @Log.NT
@@ -173,8 +174,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
-    positionVisualizer.setState(rotation());
-    setpointVisualizer.setState(setpoint());
+    positionVisualizer.setState(rotation().getY());
+    setpointVisualizer.setState(setpoint().getY());
   }
 
   @Override
