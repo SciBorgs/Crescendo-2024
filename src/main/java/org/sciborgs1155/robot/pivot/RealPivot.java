@@ -12,24 +12,25 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import java.util.List;
 import java.util.Set;
+import monologue.Annotations.Log;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
 
 public class RealPivot implements PivotIO {
   private final CANSparkMax lead;
-  private final CANSparkMax leftBottom;
+  private final CANSparkMax leftTop;
   private final CANSparkMax rightTop;
   private final CANSparkMax rightBottom;
   private final RelativeEncoder encoder;
 
   public RealPivot() {
-    lead = new CANSparkMax(SPARK_LEFT_TOP, MotorType.kBrushless);
-    leftBottom = new CANSparkMax(SPARK_LEFT_BOTTOM, MotorType.kBrushless);
+    lead = new CANSparkMax(SPARK_LEFT_BOTTOM, MotorType.kBrushless);
+    leftTop = new CANSparkMax(SPARK_LEFT_TOP, MotorType.kBrushless);
     rightTop = new CANSparkMax(SPARK_RIGHT_TOP, MotorType.kBrushless);
     rightBottom = new CANSparkMax(SPARK_RIGHT_BOTTOM, MotorType.kBrushless);
 
-    for (CANSparkMax spark : List.of(lead, leftBottom, rightTop, rightBottom)) {
+    for (CANSparkMax spark : List.of(lead, leftTop, rightTop, rightBottom)) {
       spark.restoreFactoryDefaults();
       spark.setCANTimeout(50);
       spark.setIdleMode(IdleMode.kBrake);
@@ -37,9 +38,9 @@ public class RealPivot implements PivotIO {
     }
 
     lead.setInverted(true);
-    leftBottom.follow(lead, true);
-    rightTop.follow(lead, false);
-    rightBottom.follow(lead, false);
+    leftTop.follow(lead, false);
+    rightTop.follow(lead, true);
+    rightBottom.follow(lead, true);
 
     encoder = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
     encoder.setInverted(true);
@@ -49,14 +50,14 @@ public class RealPivot implements PivotIO {
 
     SparkUtils.configureFrameStrategy(
         lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.QUADRATURE), true);
-    SparkUtils.configureNothingFrameStrategy(leftBottom);
+    SparkUtils.configureNothingFrameStrategy(leftTop);
     SparkUtils.configureNothingFrameStrategy(rightTop);
     SparkUtils.configureNothingFrameStrategy(rightBottom);
 
-    lead.burnFlash();
-    leftBottom.burnFlash();
-    rightTop.burnFlash();
-    rightBottom.burnFlash();
+    for (CANSparkMax spark : List.of(lead, leftTop, rightTop, rightBottom)) {
+      spark.setCANTimeout(20);
+      spark.burnFlash();
+    }
   }
 
   @Override
@@ -65,6 +66,7 @@ public class RealPivot implements PivotIO {
   }
 
   @Override
+  @Log.NT
   public double getPosition() {
     return encoder.getPosition();
   }
@@ -77,7 +79,7 @@ public class RealPivot implements PivotIO {
   @Override
   public void close() throws Exception {
     lead.close();
-    leftBottom.close();
+    leftTop.close();
     rightTop.close();
     rightBottom.close();
   }

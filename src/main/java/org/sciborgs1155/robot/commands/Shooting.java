@@ -1,8 +1,5 @@
 package org.sciborgs1155.robot.commands;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static org.sciborgs1155.robot.feeder.FeederConstants.FEEDER_VELOCITY;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -35,9 +32,7 @@ public class Shooting {
   public Command shoot(DoubleSupplier desiredVelocity) {
     return shooter
         .runShooter(desiredVelocity)
-        .alongWith(
-            Commands.waitUntil(shooter::atSetpoint)
-                .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
+        .alongWith(Commands.waitUntil(shooter::atSetpoint).andThen(feeder.forwards()));
   }
 
   /**
@@ -53,6 +48,6 @@ public class Shooting {
         .alongWith(shooter.runShooter(shooterVelocity))
         .alongWith(
             Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
-                .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
+                .andThen(feeder.forwards()));
   }
 }

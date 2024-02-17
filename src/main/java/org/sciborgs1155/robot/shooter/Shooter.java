@@ -1,5 +1,8 @@
 package org.sciborgs1155.robot.shooter;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
@@ -37,13 +40,17 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     this.shooter = shooter;
     sysId =
         new SysIdRoutine(
-            new SysIdRoutine.Config(),
+            new SysIdRoutine.Config(Volts.per(Second).of(1), Volts.of(11.0), Seconds.of(11)),
             new SysIdRoutine.Mechanism(v -> shooter.setVoltage(v.in(Volts)), null, this));
+
+    pid.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
 
     SmartDashboard.putData("shooter quasistatic backward", quasistaticBack());
     SmartDashboard.putData("shooter quasistatic forward", quasistaticForward());
     SmartDashboard.putData("shooter dynamic backward", dynamicBack());
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
+
+    setDefaultCommand(run(() -> shooter.setVoltage(0)).withName("stopping default"));
   }
 
   /**
@@ -57,13 +64,18 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
             shooter.setVoltage(
                 pid.calculate(shooter.getVelocity(), velocity.getAsDouble())
                     + ff.calculate(velocity.getAsDouble())))
+        .finallyDo(
+            () -> {
+              pid.reset();
+              pid.setSetpoint(0);
+            })
         .withName("running shooter");
   }
 
-  @Log.NT
   /**
    * @return Shooter velocity in radians per second
    */
+  @Log.NT
   public double getVelocity() {
     return shooter.getVelocity();
   }

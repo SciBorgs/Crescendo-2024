@@ -7,16 +7,13 @@ import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
 
 public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   private final FeederIO feeder;
-
-  public Feeder(FeederIO feeder) {
-    this.feeder = feeder;
-  }
 
   /** Creates a real or non-existent feeder based on {@link Robot#isReal()}. */
   public static Feeder create() {
@@ -28,8 +25,17 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     return new Feeder(new NoFeeder());
   }
 
-  public Command runFeeder(double power) {
-    return run(() -> feeder.set(power));
+  public Feeder(FeederIO feeder) {
+    this.feeder = feeder;
+    setDefaultCommand(runOnce(() -> feeder.set(0)).andThen(Commands.idle()));
+  }
+
+  public Command forwards() {
+    return run(() -> feeder.set(POWER));
+  }
+
+  public Command backwards() {
+    return run(() -> feeder.set(-POWER / 2));
   }
 
   public Measure<Velocity<Angle>> getVelocity() {

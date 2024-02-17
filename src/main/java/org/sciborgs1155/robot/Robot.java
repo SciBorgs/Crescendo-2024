@@ -50,7 +50,7 @@ public class Robot extends CommandRobot implements Logged {
   // private final Vision vision =
   //     new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
 
-  private final Drive drive = Drive.none();
+  private final Drive drive = Drive.create();
 
   private final Intake intake =
       switch (Constants.ROBOT_TYPE) {
@@ -175,8 +175,13 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
-    operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
-    operator.b().onTrue(pivot.runPivot(() -> Rotation2d.fromDegrees(15)));
+    operator.a().toggleOnTrue(pivot.manualPivot(InputStream.of(operator::getLeftY).negate()));
+    operator.b().whileTrue(pivot.runPivot(() -> Rotation2d.fromRadians(0.6)));
+
+    operator.leftBumper().whileTrue(intake.intake().alongWith(feeder.forwards()));
+    operator.rightBumper().whileTrue(feeder.backwards());
+    operator.povUp().whileTrue(shooter.runShooter(() -> 300));
+    operator.povDown().whileTrue(shooter.runShooter(() -> 200));
 
     // operator.b().onTrue(pivot.runPivot(() -> )))
 

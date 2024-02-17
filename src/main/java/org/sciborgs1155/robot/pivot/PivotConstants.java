@@ -33,8 +33,9 @@ public class PivotConstants {
   public static final Measure<Mass> MASS = Pounds.of(14.973);
   public static final Measure<Distance> LENGTH = Inches.of(16);
 
-  public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(1.0);
-  public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
+  public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(8.0);
+  public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL =
+      RadiansPerSecond.per(Second).of(12.0);
 
   public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(-45.7);
   public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(63.3);
@@ -46,14 +47,14 @@ public class PivotConstants {
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(30);
 
-  public static final double kP = 2.5;
+  public static final double kP = 8;
   public static final double kI = 0;
-  public static final double kD = 0;
+  public static final double kD = 1;
 
-  public static final double kS = 0.19945;
-  public static final double kV = 0.0017622;
-  public static final double kA = 0.00040123;
-  public static final double kG = 0.043992;
+  public static final double kS = 0.14296;
+  public static final double kV = 1.7305;
+  public static final double kA = 0.12055;
+  public static final double kG = 0.12055;
 
   public static final class ClimbConstants {
     public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.2);

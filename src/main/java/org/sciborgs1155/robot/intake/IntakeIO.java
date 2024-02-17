@@ -21,6 +21,7 @@ public interface IntakeIO extends AutoCloseable {
 
     public RealIntake() {
       spark.restoreFactoryDefaults();
+      spark.setInverted(true);
       spark.setIdleMode(IdleMode.kBrake);
       spark.setSmartCurrentLimit((int) IntakeConstants.CURRENT_LIMIT.in(Amps));
 
