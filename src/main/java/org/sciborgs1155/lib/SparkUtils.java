@@ -1,11 +1,20 @@
 package org.sciborgs1155.lib;
 
 import com.revrobotics.CANSparkBase;
+import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.REVLibError;
+import com.revrobotics.CANSparkBase.IdleMode;
+
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units;
+
+import static edu.wpi.first.units.Units.Amps;
+import static org.sciborgs1155.robot.pivot.PivotConstants.CURRENT_LIMIT;
+
 import java.util.Set;
 
 /** Utility class for configuration of Spark motor controllers */
@@ -94,7 +103,6 @@ public class SparkUtils {
     REVLibError e4 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus4, status4);
     REVLibError e5 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus5, status5);
     REVLibError e6 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus6, status6);
-
     // if (e0 != REVLibError.kOk) {
     //   System.out.println("failed to set status frame 0");
     // }
@@ -108,5 +116,53 @@ public class SparkUtils {
    */
   public static void configureNothingFrameStrategy(CANSparkBase spark) {
     configureFrameStrategy(spark, Set.of(), Set.of(), false);
+  }
+  
+  /**
+   * creates a CANSparkMax
+   * 
+   * @param deviceId The port number of the spark
+   * @param motortype The motortype (kBrushed/kBrushless)
+   * @param idlemode The idlemode (kBrake/kCoast) - pass in via IdleMode class
+   * @param currentLimit The current limit in int quantity in amperes
+   */
+
+  public static void createSparkMax(int deviceId, MotorType motortype, IdleMode idlemode, int currentLimit){
+    CANSparkMax spark = new CANSparkMax(deviceId, motortype);
+    spark.restoreFactoryDefaults();
+    spark.setCANTimeout(50);
+    spark.setIdleMode(idlemode);
+    spark.setSmartCurrentLimit(currentLimit);
+
+    // spark.getLastError();
+
+    spark.setCANTimeout(20);
+    spark.burnFlash();
+
+    spark.getLastError();
+  }
+
+  /**
+   * creates a CANSparkFlex
+   * 
+   * @param deviceId The port number of the spark
+   * @param motortype The motortype (kBrushed/kBrushless)
+   * @param idlemode The idlemode (kBrake/kCoast) - pass in via IdleMode class
+   * @param currentLimit The current limit in int quantity in amperes
+   */
+
+  public static void createSparkFlex(int deviceId, MotorType motortype, IdleMode idlemode, int currentLimit){
+    CANSparkFlex spark = new CANSparkFlex(deviceId, motortype);
+    spark.restoreFactoryDefaults();
+    spark.setCANTimeout(50);
+    spark.setIdleMode(idlemode);
+    spark.setSmartCurrentLimit(currentLimit);
+
+    // spark.getLastError();
+
+    spark.setCANTimeout(20);
+    spark.burnFlash();
+
+    spark.getLastError();
   }
 }
