@@ -123,8 +123,7 @@ public class Robot extends CommandRobot implements Logged {
       addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
       NoteVisualizer.setSuppliers(drive::getPose, pivot::getPosition, shooter::getVelocity);
       NoteVisualizer.startPublishing();
-      addPeriodic(NoteVisualizer::logNotes, kDefaultPeriod);
-      // addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
+      addPeriodic(NoteVisualizer::log, kDefaultPeriod);
     }
   }
 
@@ -190,9 +189,9 @@ public class Robot extends CommandRobot implements Logged {
     // operator.b().onTrue(pivot.runPivot(() -> )))
 
     // shooting into speaker when up to subwoofer
-    operator.x().onTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE.getRadians(), () -> 5));
+    operator.x().onTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE.getRadians(), () -> 10));
 
-    operator.y().onTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE.getRadians(), () -> 4));
+    operator.y().onTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE.getRadians(), () -> 11));
     // operator.x().onTrue(shooter.runShooter(() -> 100));
     // operator.y().onTrue(shooter.runShooter(() -> 0));
   }
