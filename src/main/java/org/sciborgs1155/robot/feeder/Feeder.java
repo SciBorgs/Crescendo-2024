@@ -6,9 +6,8 @@ import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import monologue.Logged;
 import monologue.Annotations.Log;
-
+import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
 
 public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
@@ -33,9 +32,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command eject(double velocity) {
-    return runFeeder(velocity)
-        .withTimeout(TIMEOUT.in(Seconds))
-        .finallyDo(() -> feeder.set(0));
+    return runFeeder(velocity).withTimeout(TIMEOUT.in(Seconds)).finallyDo(() -> feeder.set(0));
   }
 
   public Trigger atShooter() {

@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -47,7 +46,6 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
       new PivotVisualizer(measurement, new Color8Bit(255, 0, 0));
   private final PivotVisualizer setpointVisualizer =
       new PivotVisualizer(setpoint, new Color8Bit(0, 0, 255));
-
 
   /** Creates a real or simulated pivot based on {@link Robot#isReal()}. */
   public static Pivot create() {
@@ -131,12 +129,12 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   @Log.NT
-  public Pose3d pose(){
-    return new Pose3d(OFFSET , rotation());
+  public Pose3d pose() {
+    return new Pose3d(OFFSET, rotation());
   }
 
   @Log.NT
-  public Rotation2d getPosition(){
+  public Rotation2d getPosition() {
     return Rotation2d.fromRadians(hardware.getPosition());
   }
 
@@ -154,7 +152,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   public Command quasistaticBack() {
     return sysIdRoutine
         .quasistatic(Direction.kReverse)
-        .until(() -> hardware.getPosition() < MIN_ANGLE.getRadians()  + 0.2);
+        .until(() -> hardware.getPosition() < MIN_ANGLE.getRadians() + 0.2);
   }
 
   public Command dynamicForward() {
@@ -175,8 +173,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    * @param goalAngle The position to move the pivot to.
    */
   private void update(double goalAngle) {
-    double goal =
-        MathUtil.clamp(goalAngle, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians());
+    double goal = MathUtil.clamp(goalAngle, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians());
     double feedback = pid.calculate(hardware.getPosition(), goal);
     double feedforward =
         ff.calculate(pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);

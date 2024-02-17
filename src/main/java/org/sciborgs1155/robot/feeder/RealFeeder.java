@@ -9,10 +9,8 @@ import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-
-import edu.wpi.first.wpilibj.DigitalInput;
-
 import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.wpilibj.DigitalInput;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;

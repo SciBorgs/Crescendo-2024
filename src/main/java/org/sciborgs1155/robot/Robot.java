@@ -7,7 +7,6 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -53,7 +52,7 @@ public class Robot extends CommandRobot implements Logged {
   // SUBSYSTEMS
   // private final Vision vision =
   //     new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
-   private final Vision vision =
+  private final Vision vision =
       new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
 
   private final Drive drive = Drive.create();
@@ -191,7 +190,9 @@ public class Robot extends CommandRobot implements Logged {
     // shooting into speaker when up to subwoofer
     operator.x().onTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE.getRadians(), () -> 10));
 
-    operator.y().onTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE.getRadians(), () -> 11));
+    operator
+        .y()
+        .onTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE.getRadians(), () -> 11));
     // operator.x().onTrue(shooter.runShooter(() -> 100));
     // operator.y().onTrue(shooter.runShooter(() -> 0));
   }
