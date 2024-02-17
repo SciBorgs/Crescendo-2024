@@ -38,12 +38,32 @@
               },
               "open": true
             }
+          }
+        },
+        "open": true,
+        "pivot": {
+          "Rotation2d##v_/Robot/pivot/getPosition": {
+            "open": true
+          },
+          "Rotation2d##v_/Robot/pivot/setpoint": {
+            "open": true
           },
           "open": true
         },
-        "open": true
+        "subsystems": {
+          "Shooter[2]": {
+            "open": true
+          }
+        }
       },
       "SmartDashboard": {
+        "Pivot": {
+          "open": true
+        },
+        "Shooter": {
+          "open": true
+        },
+        "open": true,
         "turn quasistatic forward": {
           "open": true
         }
@@ -62,22 +82,49 @@
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
       "/Robot/drive/rotationController": "ProfiledPIDController",
+      "/Robot/pivot/measurement": "Mechanism2d",
+      "/Robot/pivot/pid": "ProfiledPIDController",
+      "/Robot/pivot/setpoint": "Mechanism2d",
+      "/Robot/shooter/pid": "PIDController",
+      "/Robot/subsystems/Drive[0]/field2d": "Field2d",
+      "/Robot/subsystems/Drive[0]/frontLeft/driveFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/frontLeft/turnFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/frontRight/driveFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/frontRight/turnFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/rearLeft/driveFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/rearLeft/turnFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/rearRight/driveFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/rearRight/turnFeedback": "PIDController",
+      "/Robot/subsystems/Drive[0]/rotationController": "ProfiledPIDController",
+      "/Robot/subsystems/Pivot[4]/measurement": "Mechanism2d",
+      "/Robot/subsystems/Pivot[4]/pid": "ProfiledPIDController",
+      "/Robot/subsystems/Pivot[4]/setpoint": "Mechanism2d",
+      "/Robot/subsystems/Shooter[2]/pid": "PIDController",
+      "/SmartDashboard/Drive": "Subsystem",
+      "/SmartDashboard/Feeder": "Subsystem",
+      "/SmartDashboard/Intake": "Subsystem",
+      "/SmartDashboard/Pivot": "Subsystem",
+      "/SmartDashboard/Scheduler": "Scheduler",
+      "/SmartDashboard/Shooter": "Subsystem",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",
       "/SmartDashboard/drive quasistatic backward": "Command",
       "/SmartDashboard/drive quasistatic forward": "Command",
       "/SmartDashboard/face same direction": "Command",
+      "/SmartDashboard/pivot dynamic backward": "Command",
+      "/SmartDashboard/pivot dynamic forward": "Command",
+      "/SmartDashboard/pivot quasistatic backward": "Command",
+      "/SmartDashboard/pivot quasistatic forward": "Command",
+      "/SmartDashboard/shooter dynamic backward": "Command",
+      "/SmartDashboard/shooter dynamic forward": "Command",
+      "/SmartDashboard/shooter quasistatic backward": "Command",
+      "/SmartDashboard/shooter quasistatic forward": "Command",
       "/SmartDashboard/turn dynamic backward": "Command",
       "/SmartDashboard/turn dynamic forward": "Command",
       "/SmartDashboard/turn quasistatic backward": "Command",
       "/SmartDashboard/turn quasistatic forward": "Command"
     },
     "windows": {
-      "/Robot/autos": {
-        "window": {
-          "visible": true
-        }
-      },
       "/Robot/drive/field2d": {
         "bottom": 1476,
         "height": 8.210550308227539,
@@ -85,6 +132,16 @@
         "right": 2961,
         "top": 79,
         "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
+      },
+      "/Robot/pivot/measurement": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/Robot/pivot/setpoint": {
         "window": {
           "visible": true
         }
@@ -116,7 +173,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 332,
+          "height": 0,
           "series": [
             {
               "color": [

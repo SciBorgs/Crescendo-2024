@@ -2,7 +2,6 @@ package org.sciborgs1155.robot.commands;
 
 import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.Constants.*;
-import static org.sciborgs1155.robot.Constants.Field.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.OFFSET;
 
 import edu.wpi.first.math.geometry.Pose2d;

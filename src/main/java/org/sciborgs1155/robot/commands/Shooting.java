@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
@@ -47,10 +46,10 @@ public class Shooting {
    * @param shooterVelocity The desired velocity of the shooter.
    * @return The command to run the pivot to its desired angle and then shoot.
    */
-  public Command pivotThenShoot(Supplier<Rotation2d> goalAngle, DoubleSupplier shooterVelocity) {
+  public Command pivotThenShoot(DoubleSupplier goalAngle, DoubleSupplier shooterVelocity) {
 
     return pivot
-        .setGoal(goalAngle)
+        .runPivot(goalAngle)
         .andThen(
             Commands.deadline(
                 Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
