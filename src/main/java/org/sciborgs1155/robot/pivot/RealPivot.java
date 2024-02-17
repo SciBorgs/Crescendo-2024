@@ -3,6 +3,7 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.robot.Ports.Pivot.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
@@ -15,13 +16,17 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+
 import java.util.List;
 import java.util.Set;
 import org.ejml.simple.SimpleMatrix;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
+import org.sciborgs1155.robot.Constants;
 
 public class RealPivot implements PivotIO {
   private final CANSparkMax lead;
@@ -33,25 +38,14 @@ public class RealPivot implements PivotIO {
   private final RelativeEncoder encoderRT;
   private final RelativeEncoder encoderRB;
   // idk where the 5th encoder is
-  private final LinearSystem<N1, N1, N1> pivotModelPosition =
-      new LinearSystem<>(null, null, null, null);
-  private final KalmanFilter<N1, N1, N1> sharedMotorsKalmanPosition =
-      new KalmanFilter<>(
-          Nat.N1(),
+  private final LinearSystem<N2, N1, N1> pivotModelPosition =
+      LinearSystemId.identifyPositionSystem(kV, 0);
+  private final KalmanFilter<N2, N1, N1> kalmanPivotPosition =
+      new KalmanFilter<N2, N1, N1>(
+          Nat.N2(),
           Nat.N1(),
           pivotModelPosition,
-          VecBuilder.fill(3.0), // starting estimate? (position)
-          VecBuilder.fill(0.01), // noise estimate (poition)
-          0.020);
-
-  private final LinearSystem<N1, N1, N1> pivotModelVelocity =
-      new LinearSystem<>(null, null, null, null);
-  private final KalmanFilter<N1, N1, N1> sharedMotorsKalmanVelocity =
-      new KalmanFilter<>(
-          Nat.N1(),
-          Nat.N1(),
-          pivotModelVelocity,
-          VecBuilder.fill(3.0), // starting estimate? (position)
+          VecBuilder.fill(3.0, 3.0), // starting estimate? (position)
           VecBuilder.fill(0.01), // noise estimate (poition)
           0.020);
 
@@ -73,9 +67,9 @@ public class RealPivot implements PivotIO {
     rightBottom.follow(lead, true);
 
     encoderLT = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
-    encoderLB = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
-    encoderRT = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
-    encoderRB = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
+    encoderLB = leftBottom.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
+    encoderRT = rightBottom.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
+    encoderRB = rightTop.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
 
     for (RelativeEncoder encoder : List.of(encoderLT, encoderLB, encoderRT, encoderRB)) {
       encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
@@ -92,53 +86,47 @@ public class RealPivot implements PivotIO {
     leftBottom.burnFlash();
     rightTop.burnFlash();
     rightBottom.burnFlash();
+
+    kalmanPivotPosition.reset();
   }
 
   @Override
   public void setVoltage(double voltage) {
+    double[][] measurement =
+      {
+        {encoderLT.getPosition(), encoderLB.getPosition()},
+        {encoderRT.getPosition(), encoderRB.getPosition()}
+      };
+
+    double[][] controllerVoltage = {{voltage}};
+    SimpleMatrix inputMatrix = new SimpleMatrix(measurement);
+    SimpleMatrix inputVoltage = new SimpleMatrix(controllerVoltage);
+
+    kalmanPivotPosition.predict(VecBuilder.fill(voltage), Constants.PERIOD.in(Seconds));
+    kalmanPivotPosition.correct(
+      VecBuilder.fill(voltage), 
+      // inputMatrix.getMatrix()
+      VecBuilder.fill(
+        
+          encoderLT.getPosition(), 
+          encoderLB.getPosition(), 
+          encoderRT.getPosition(), 
+          encoderRB.getPosition()
+        
+        )
+    );
+
     lead.setVoltage(voltage);
   }
 
   @Override
   public Rotation2d getPosition() {
-    double[][] array = {
-      {
-        encoderLT.getPosition()
-            + encoderLB.getPosition()
-            + encoderRT.getPosition()
-            + encoderRB.getPosition()
-      }
-    };
-    SimpleMatrix matrix = new SimpleMatrix(array); // total of positions as a matrix
-
-    sharedMotorsKalmanPosition.predict(matrix.getMatrix(), 0.02);
-    // https://docs.wpilib.org/en/stable/docs/software/advanced-controls/state-space/state-space-observers.html#correct-step
-    double[][] measurement = {{0.5}};
-    sharedMotorsKalmanPosition.correct(
-        matrix.getMatrix(), (new SimpleMatrix(measurement)).getMatrix());
-
-    return Rotation2d.fromRadians(sharedMotorsKalmanPosition.getP(0, 0) / 4);
+    return Rotation2d.fromRadians(encoderLT.getPosition());
   }
 
   @Override
   public double getVelocity() {
-    double[][] array = {
-      {
-        encoderLT.getVelocity()
-            + encoderLB.getVelocity()
-            + encoderRT.getVelocity()
-            + encoderRB.getVelocity()
-      }
-    };
-    SimpleMatrix matrix = new SimpleMatrix(array); // total of velocities as a matrix
-
-    sharedMotorsKalmanVelocity.predict(matrix.getMatrix(), 0.02);
-    // https://docs.wpilib.org/en/stable/docs/software/advanced-controls/state-space/state-space-observers.html#correct-step
-    double[][] measurement = {{0.2}};
-    sharedMotorsKalmanVelocity.correct(
-        matrix.getMatrix(), (new SimpleMatrix(measurement)).getMatrix());
-
-    return sharedMotorsKalmanVelocity.getP(0, 0) / 4;
+    return encoderLT.getVelocity();
   }
 
   @Override
