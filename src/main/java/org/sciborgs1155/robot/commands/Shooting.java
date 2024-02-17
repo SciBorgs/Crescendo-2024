@@ -49,9 +49,9 @@ public class Shooting {
    * @return The command to run the pivot to its desired angle and then shoot.
    */
   public Command pivotThenShoot(DoubleSupplier goalAngle, DoubleSupplier shooterVelocity) {
-
     return pivot
-        .runPivot(goalAngle)
+        .setGoal(goalAngle)
+        .alongWith(shooter.setSetpoint(shooterVelocity))
         .andThen(
             Commands.deadline(
                 Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())

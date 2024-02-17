@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -25,8 +26,12 @@ import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.ShooterConstants;
 
 public class NoteVisualizer implements Logged {
+  // notes
+  private static LinkedList<Pose3d> notes = new LinkedList<>();
   private static ArrayList<Pose3d> pathPosition = new ArrayList<>();
   private static Pose3d[] firedNotes = new Pose3d[1];
+
+  // suppliers
   private static Supplier<Pose2d> pose = Pose2d::new;
   private static Supplier<Rotation2d> angle = () -> PivotConstants.STARTING_ANGLE;
   private static DoubleSupplier velocity = () -> 1;
@@ -37,8 +42,7 @@ public class NoteVisualizer implements Logged {
   private static Pose3d currentNotePose = new Pose3d();
   private static Pose3d lastNotePose = new Pose3d();
 
-  private static final double g = 9.81;
-
+  // publishers
   private static StructArrayPublisher<Pose3d> posePub;
   private static StructArrayPublisher<Pose3d> pathPub;
 
@@ -86,8 +90,9 @@ public class NoteVisualizer implements Logged {
   }
 
   private static void generatePath() {
+    double g = 9.81;
     double linearVelocity = velocity.getAsDouble() * ShooterConstants.CIRCUMFERENCE.in(Meters);
-    // Rotation2d armPosition = angle.get().plus(Rotation2d.fromDegrees(180));
+    Rotation2d armPosition = angle.get().plus(Rotation2d.fromDegrees(180));
 
     // replace LENGTH with real translate to shooter
     // Translation3d shooterTranslation =
@@ -96,7 +101,7 @@ public class NoteVisualizer implements Logged {
     // LENGTH.in(Meters));
     lastNotePose =
         new Pose3d(pose.get())
-            .plus(new Transform3d(OFFSET, new Rotation3d(0, angle.get().getRadians(), 0)));
+            .plus(new Transform3d(OFFSET, new Rotation3d(0, armPosition.getRadians(), 0)));
     Rotation2d robot = pose.get().getRotation();
 
     final double xVelocity = linearVelocity * robot.getCos() * angle.get().getCos();

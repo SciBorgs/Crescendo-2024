@@ -113,6 +113,10 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
         });
   }
 
+  public Command setGoal(DoubleSupplier goal) {
+    return runOnce(() -> pid.setGoal(goal.getAsDouble())).asProxy();
+  }
+
   @Log.NT
   public Rotation3d rotation() {
     return new Rotation3d(0.0, hardware.getPosition(), 0.0);

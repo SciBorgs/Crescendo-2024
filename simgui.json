@@ -229,6 +229,12 @@
           "Pose3d##v_/Robot/pivot/pose": {
             "open": true
           },
+          "Rotation2d##v_/Robot/pivot/getPosition": {
+            "open": true
+          },
+          "Rotation3d##v_/Robot/pivot/goal": {
+            "open": true
+          },
           "open": true,
           "pivot": {
             "Rotation2d##v_/Robot/pivot/pivot/getPosition": {
@@ -242,6 +248,9 @@
             "open": true
           },
           "open": true,
+          "pid": {
+            "open": true
+          },
           "pivot": {
             "open": true,
             "pivot": {

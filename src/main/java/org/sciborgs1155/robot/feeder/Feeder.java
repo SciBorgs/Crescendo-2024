@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
+import org.sciborgs1155.robot.commands.NoteVisualizer;
 
 public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   private final FeederIO feeder;
@@ -28,7 +29,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command runFeeder(double power) {
-    return run(() -> feeder.set(power));
+    return run(() -> feeder.set(power)).alongWith(NoteVisualizer.shoot());
   }
 
   public Command eject(double velocity) {
