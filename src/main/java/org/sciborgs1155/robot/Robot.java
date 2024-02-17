@@ -36,6 +36,8 @@ import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
+import org.sciborgs1155.robot.vision.Vision;
+import org.sciborgs1155.robot.vision.VisionConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -51,6 +53,8 @@ public class Robot extends CommandRobot implements Logged {
   // SUBSYSTEMS
   // private final Vision vision =
   //     new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
+   private final Vision vision =
+      new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
 
   private final Drive drive = Drive.create();
 
@@ -116,7 +120,8 @@ public class Robot extends CommandRobot implements Logged {
       URCL.start();
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
-       NoteVisualizer.setSuppliers(drive::getPose, pivot::getPosition, shooter::getVelocity);
+      addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
+      NoteVisualizer.setSuppliers(drive::getPose, pivot::getPosition, shooter::getVelocity);
       NoteVisualizer.startPublishing();
       addPeriodic(NoteVisualizer::logNotes, kDefaultPeriod);
       // addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
@@ -185,9 +190,9 @@ public class Robot extends CommandRobot implements Logged {
     // operator.b().onTrue(pivot.runPivot(() -> )))
 
     // shooting into speaker when up to subwoofer
-    // operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE.getRadians(), () -> -4));
+    operator.x().onTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE.getRadians(), () -> 5));
 
-    operator.y().toggleOnTrue(shooting.shoot(()-> 2));
+    operator.y().onTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE.getRadians(), () -> 4));
     // operator.x().onTrue(shooter.runShooter(() -> 100));
     // operator.y().onTrue(shooter.runShooter(() -> 0));
   }

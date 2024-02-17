@@ -137,7 +137,6 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   @Log.NT
   public Rotation2d getPosition(){
-    new Rotation2d();
     return Rotation2d.fromRadians(hardware.getPosition());
   }
 
