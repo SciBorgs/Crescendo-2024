@@ -34,6 +34,7 @@ import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
+import org.sciborgs1155.robot.pivot.PivotVisualizer;
 import org.sciborgs1155.robot.shooter.Shooter;
 import org.sciborgs1155.robot.vision.Vision;
 import org.sciborgs1155.robot.vision.VisionConstants;
@@ -125,6 +126,8 @@ public class Robot extends CommandRobot implements Logged {
           () -> shooter.getVelocity() * Meters.convertFrom(4, Inches) * 2.0 * Math.PI);
       NoteVisualizer.startPublishing();
       addPeriodic(NoteVisualizer::logNotes, kDefaultPeriod);
+      PivotVisualizer.startPublishing();
+      addPeriodic(PivotVisualizer::logPivot, kDefaultPeriod);
     }
   }
 

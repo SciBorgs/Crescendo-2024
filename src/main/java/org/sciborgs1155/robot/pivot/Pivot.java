@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -38,11 +37,6 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   // visualization
   @Log.NT final Mechanism2d measurement = new Mechanism2d(2, 2);
   @Log.NT final Mechanism2d setpoint = new Mechanism2d(2, 2);
-
-  private final PivotVisualizer positionVisualizer =
-      new PivotVisualizer(measurement, new Color8Bit(255, 0, 0));
-  private final PivotVisualizer setpointVisualizer =
-      new PivotVisualizer(setpoint, new Color8Bit(0, 0, 255));
 
   /** Creates a real or simulated pivot based on {@link Robot#isReal()}. */
   public static Pivot create() {
@@ -152,12 +146,6 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     return sysIdRoutine
         .dynamic(Direction.kReverse)
         .until(() -> pivot.getPosition().getRadians() < 1.2 * MIN_ANGLE.getRadians());
-  }
-
-  @Override
-  public void periodic() {
-    positionVisualizer.setState(getPosition());
-    setpointVisualizer.setState(setpoint());
   }
 
   /**
