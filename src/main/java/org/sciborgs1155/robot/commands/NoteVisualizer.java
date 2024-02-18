@@ -2,7 +2,6 @@ package org.sciborgs1155.robot.commands;
 
 import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.Constants.*;
-import static org.sciborgs1155.robot.pivot.PivotConstants.OFFSET;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -101,11 +100,14 @@ public class NoteVisualizer implements Logged {
     // LENGTH.in(Meters));
     lastNotePose =
         new Pose3d(pose.get())
-            .plus(new Transform3d(OFFSET, new Rotation3d(0, armPosition.getRadians(), 0)));
+            .plus(
+                new Transform3d(
+                    new Translation3d(Inches.of(-10.465), Inches.of(0), Inches.of(25)),
+                    new Rotation3d(0, armPosition.getRadians(), 0)));
     Rotation2d robot = pose.get().getRotation();
 
-    final double xVelocity = linearVelocity * robot.getCos() * angle.get().getCos();
-    final double yVelocity = linearVelocity * robot.getSin() * angle.get().getCos();
+    final double xVelocity = -linearVelocity * robot.getCos() * angle.get().getCos();
+    final double yVelocity = -linearVelocity * robot.getSin() * angle.get().getCos();
     zVelocity = linearVelocity * angle.get().getSin();
 
     pathPosition = new ArrayList<>();
