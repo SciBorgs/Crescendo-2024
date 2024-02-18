@@ -5,7 +5,5 @@ public interface FeederIO extends AutoCloseable {
 
   public double getVelocity();
 
-  // public boolean frontBeamBreak();
-
-  // public boolean backBeamBreak();
+  public boolean beambreak();
 }

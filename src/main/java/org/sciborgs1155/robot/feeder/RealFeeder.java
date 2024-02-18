@@ -19,8 +19,7 @@ public class RealFeeder implements FeederIO {
   private final CANSparkFlex motor;
   private final RelativeEncoder encoder;
 
-  // private final DigitalInput frontBeambreak;
-  // private final DigitalInput endBeambreak;
+  // private final DigitalInput beamBreak;
 
   public RealFeeder() {
     motor = new CANSparkFlex(FEEDER_SPARK, MotorType.kBrushless);
@@ -28,8 +27,7 @@ public class RealFeeder implements FeederIO {
     motor.setIdleMode(IdleMode.kBrake);
     motor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
 
-    // frontBeambreak = new DigitalInput(FRONT_BEAMBREAK);
-    // endBeambreak = new DigitalInput(END_BEAMBREAK);
+    // beamBreak = new DigitalInput(BEAMBREAK);
 
     SparkUtils.configureFrameStrategy(
         motor, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.INTEGRATED), false);
@@ -46,15 +44,11 @@ public class RealFeeder implements FeederIO {
     motor.set(power);
   }
 
-  // @Override
-  // public boolean frontBeamBreak() {
-  //   return frontBeambreak.get();
-  // }
-
-  // @Override
-  // public boolean backBeamBreak() {
-  //   return endBeambreak.get();
-  // }
+  @Override
+  public boolean beambreak() {
+    // TODO add beambreak
+    return false;
+  }
 
   @Override
   public void close() throws Exception {

@@ -20,8 +20,7 @@ public final class Ports {
 
   public static final class Feeder {
     public static final int FEEDER_SPARK = 10;
-    public static final int FRONT_BEAMBREAK = -1;
-    public static final int END_BEAMBREAK = -1;
+    public static final int BEAMBREAK = -1;
   }
 
   public static final class Drive {
