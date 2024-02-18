@@ -14,14 +14,13 @@ public final class Ports {
   public static final class Pivot {
     public static final int SPARK_LEFT_TOP = 23;
     public static final int SPARK_RIGHT_TOP = 39;
-    public static final int SPARK_LEFT_BOTTOM = 7;
+    public static final int SPARK_LEFT_BOTTOM = 51;
     public static final int SPARK_RIGHT_BOTTOM = 55;
   }
 
   public static final class Feeder {
     public static final int FEEDER_SPARK = 10;
-    public static final int FRONT_BEAMBREAK = -1;
-    public static final int END_BEAMBREAK = -1;
+    public static final int BEAMBREAK = -1;
   }
 
   public static final class Drive {

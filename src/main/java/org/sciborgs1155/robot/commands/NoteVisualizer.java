@@ -32,7 +32,7 @@ public class NoteVisualizer implements Logged {
 
   // suppliers
   private static Supplier<Pose2d> pose = Pose2d::new;
-  private static Supplier<Rotation2d> angle = () -> PivotConstants.STARTING_ANGLE;
+  private static Supplier<Rotation3d> angle = () -> PivotConstants.STARTING_ANGLE;
   private static DoubleSupplier velocity = () -> 1;
 
   private static double zVelocity;
@@ -46,7 +46,7 @@ public class NoteVisualizer implements Logged {
   private static StructArrayPublisher<Pose3d> pathPub;
 
   public static void setSuppliers(
-      Supplier<Pose2d> robotPose, Supplier<Rotation2d> pivotAngle, DoubleSupplier shotVelocity) {
+      Supplier<Pose2d> robotPose, Supplier<Rotation3d> pivotAngle, DoubleSupplier shotVelocity) {
     pose = robotPose;
     angle = pivotAngle;
     velocity = shotVelocity;

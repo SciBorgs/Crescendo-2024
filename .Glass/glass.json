@@ -48,6 +48,12 @@
           "Rotation2d##v_/Robot/pivot/setpoint": {
             "open": true
           },
+          "Rotation3d##v_/Robot/pivot/rotation": {
+            "Quaternion##v_q": {
+              "open": true
+            },
+            "open": true
+          },
           "open": true
         },
         "subsystems": {
@@ -84,7 +90,9 @@
       "/Robot/drive/rotationController": "ProfiledPIDController",
       "/Robot/pivot/measurement": "Mechanism2d",
       "/Robot/pivot/pid": "ProfiledPIDController",
+      "/Robot/pivot/positionVisualizer": "Mechanism2d",
       "/Robot/pivot/setpoint": "Mechanism2d",
+      "/Robot/pivot/setpointVisualizer": "Mechanism2d",
       "/Robot/shooter/pid": "PIDController",
       "/Robot/subsystems/Drive[0]/field2d": "Field2d",
       "/Robot/subsystems/Drive[0]/frontLeft/driveFeedback": "PIDController",

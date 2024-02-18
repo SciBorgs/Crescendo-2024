@@ -7,11 +7,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,7 +27,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   private final PivotIO hardware;
   private final SysIdRoutine sysIdRoutine;
 
-  // pivot control
+  // Control
   @Log.NT
   private final ProfiledPIDController pid =
       new ProfiledPIDController(
@@ -38,14 +35,12 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   private final ArmFeedforward ff = new ArmFeedforward(kS, kG, kV);
 
-  // visualization
-  @Log.NT final Mechanism2d measurement = new Mechanism2d(2, 2);
-  @Log.NT final Mechanism2d setpoint = new Mechanism2d(2, 2);
+  // Visualization
+  @Log.NT
+  private final PivotVisualizer positionVisualizer = new PivotVisualizer(new Color8Bit(255, 0, 0));
 
-  private final PivotVisualizer positionVisualizer =
-      new PivotVisualizer(measurement, new Color8Bit(255, 0, 0));
-  private final PivotVisualizer setpointVisualizer =
-      new PivotVisualizer(setpoint, new Color8Bit(0, 0, 255));
+  @Log.NT
+  private final PivotVisualizer setpointVisualizer = new PivotVisualizer(new Color8Bit(0, 0, 255));
 
   /** Creates a real or simulated pivot based on {@link Robot#isReal()}. */
   public static Pivot create() {
@@ -69,8 +64,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
             new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(3), Seconds.of(6)),
             new SysIdRoutine.Mechanism(v -> pivot.setVoltage(v.in(Volts)), null, this));
 
+    pid.reset(hardware.getPosition());
     pid.setTolerance(POSITION_TOLERANCE.in(Radians));
-    pid.setGoal(new State(STARTING_ANGLE.getRadians(), 0));
 
     SmartDashboard.putData("pivot quasistatic forward", quasistaticForward());
     SmartDashboard.putData("pivot quasistatic backward", quasistaticBack());
@@ -138,11 +133,6 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   @Log.NT
-  public Rotation2d getPosition() {
-    return Rotation2d.fromRadians(hardware.getPosition());
-  }
-
-  @Log.NT
   public boolean atGoal() {
     return pid.atGoal();
   }
@@ -188,14 +178,14 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
-    positionVisualizer.setState(Rotation2d.fromRadians(hardware.getPosition()));
-    setpointVisualizer.setState(Rotation2d.fromRadians(pid.getSetpoint().position));
+    positionVisualizer.setState(rotation().getY());
+    setpointVisualizer.setState(setpoint().getY());
   }
 
   @Override
   public void close() throws Exception {
     hardware.close();
-    measurement.close();
-    setpoint.close();
+    positionVisualizer.close();
+    setpointVisualizer.close();
   }
 }

@@ -11,7 +11,7 @@ import org.sciborgs1155.robot.Ports;
 public interface IntakeIO extends AutoCloseable {
   void setPower(double percentage);
 
-  // boolean beamBreak();
+  boolean beambreak();
 
   public static class RealIntake implements IntakeIO {
     private final CANSparkFlex spark =
@@ -21,6 +21,7 @@ public interface IntakeIO extends AutoCloseable {
 
     public RealIntake() {
       spark.restoreFactoryDefaults();
+      spark.setInverted(true);
       spark.setIdleMode(IdleMode.kBrake);
       spark.setSmartCurrentLimit((int) IntakeConstants.CURRENT_LIMIT.in(Amps));
 
@@ -33,10 +34,11 @@ public interface IntakeIO extends AutoCloseable {
       spark.set(percentage);
     }
 
-    // @Override
-    // public boolean beamBreak() {
-    //   return beambreak.get();
-    // }
+    @Override
+    public boolean beambreak() {
+      return false;
+      // return beambreak.get();
+    }
 
     @Override
     public void close() {
@@ -49,10 +51,10 @@ public interface IntakeIO extends AutoCloseable {
     @Override
     public void setPower(double percentage) {}
 
-    // @Override
-    // public boolean beamBreak() {
-    //   return false;
-    // }
+    @Override
+    public boolean beambreak() {
+      return false;
+    }
 
     @Override
     public void close() {}

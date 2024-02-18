@@ -183,7 +183,13 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
-    operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
+    operator.a().toggleOnTrue(pivot.manualPivot(InputStream.of(operator::getLeftY).negate()));
+    operator.b().whileTrue(pivot.runPivot(() -> 0.6));
+
+    operator.leftBumper().whileTrue(intake.intake().alongWith(feeder.eject()));
+    operator.rightBumper().whileTrue(feeder.eject());
+    operator.povUp().whileTrue(shooter.runShooter(() -> 300));
+    operator.povDown().whileTrue(shooter.runShooter(() -> 200));
 
     // operator.b().onTrue(pivot.runPivot(() -> )))
 
