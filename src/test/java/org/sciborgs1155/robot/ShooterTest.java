@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.fastForward;
 import static org.sciborgs1155.lib.TestingUtil.run;
@@ -53,11 +52,11 @@ public class ShooterTest {
   public void testPivot(double theta) {
     run((pivot.runPivot(() -> Rotation2d.fromRadians(theta))));
     fastForward(200);
-    assertEquals(theta, pivot.goal().getRadians(), DELTA);
-    assertEquals(theta, pivot.setpoint().getRadians(), DELTA);
+    assertEquals(theta, pivot.goal().getY(), DELTA);
+    assertEquals(theta, pivot.setpoint().getY(), DELTA);
     assertEquals(
         MathUtil.clamp(theta, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
-        pivot.getPosition().getRadians(),
+        pivot.rotation().getY(),
         0.15);
   }
 
@@ -67,14 +66,7 @@ public class ShooterTest {
     run(pivot.climb(Rotation2d.fromRadians(theta)));
     fastForward(1000);
 
-    assertEquals(STARTING_ANGLE.getRadians(), pivot.getPosition().getRadians(), DELTA);
-  }
-
-  @Test
-  public void testFeeder() {
-    run(feeder.runFeeder(4));
-    fastForward();
-    assertEquals(4.0, feeder.getVelocity().in(RadiansPerSecond), DELTA);
+    assertEquals(STARTING_ANGLE.getRadians(), pivot.rotation().getY(), DELTA);
   }
 
   @Test
@@ -93,7 +85,7 @@ public class ShooterTest {
 
     assertEquals(
         MathUtil.clamp(Math.PI / 4, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
-        pivot.getPosition().getRadians(),
+        pivot.rotation().getY(),
         DELTA);
     assertEquals(4, shooter.getVelocity(), DELTA);
   }

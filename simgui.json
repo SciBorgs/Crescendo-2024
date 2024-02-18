@@ -39,7 +39,11 @@
       "/Robot/shooter/pivot/measurement": "Mechanism2d",
       "/Robot/shooter/pivot/setpoint": "Mechanism2d",
       "/Robot/shooter/setpoint": "Mechanism2d",
+      "/SmartDashboard/Drive": "Subsystem",
+      "/SmartDashboard/Intake": "Subsystem",
+      "/SmartDashboard/Pivot": "Subsystem",
       "/SmartDashboard/Scheduler": "Scheduler",
+      "/SmartDashboard/Shooter": "Subsystem",
       "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",
@@ -164,14 +168,21 @@
         "window": {
           "visible": true
         }
+      },
+      "/SmartDashboard/pivot quasistatic backward": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/pivot quasistatic forward": {
+        "window": {
+          "visible": true
+        }
       }
     }
   },
   "NetworkTables": {
     "transitory": {
-      "FMSInfo": {
-        "open": true
-      },
       "Robot": {
         "drive": {
           "Pose2d##v_/Robot/drive/getPose": {
@@ -200,13 +211,7 @@
         },
         "open": true,
         "pivot": {
-          "measurement": {
-            "open": true
-          },
           "open": true,
-          "pid": {
-            "open": true
-          },
           "pivot": {
             "Rotation2d##v_/Robot/pivot/pivot/getPosition": {
               "open": true
@@ -237,6 +242,12 @@
         }
       },
       "Shuffleboard": {
+        "open": true
+      },
+      "SmartDashboard": {
+        "Pivot": {
+          "open": true
+        },
         "open": true
       }
     }
@@ -281,7 +292,8 @@
         }
       ],
       "window": {
-        "name": "Pivot"
+        "name": "Pivot",
+        "visible": false
       }
     }
   }

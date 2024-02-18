@@ -10,52 +10,54 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.List;
 import java.util.Set;
+import monologue.Annotations.Log;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
 
 public class RealPivot implements PivotIO {
   private final CANSparkMax lead;
-  private final CANSparkMax leftBottom;
+  private final CANSparkMax leftTop;
   private final CANSparkMax rightTop;
   private final CANSparkMax rightBottom;
   private final RelativeEncoder encoder;
 
   public RealPivot() {
-    lead = new CANSparkMax(SPARK_LEFT_TOP, MotorType.kBrushless);
-    leftBottom = new CANSparkMax(SPARK_LEFT_BOTTOM, MotorType.kBrushless);
+    lead = new CANSparkMax(SPARK_LEFT_BOTTOM, MotorType.kBrushless);
+    leftTop = new CANSparkMax(SPARK_LEFT_TOP, MotorType.kBrushless);
     rightTop = new CANSparkMax(SPARK_RIGHT_TOP, MotorType.kBrushless);
     rightBottom = new CANSparkMax(SPARK_RIGHT_BOTTOM, MotorType.kBrushless);
 
-    for (CANSparkMax spark : List.of(lead, leftBottom, rightTop, rightBottom)) {
+    for (CANSparkMax spark : List.of(lead, leftTop, rightTop, rightBottom)) {
       spark.restoreFactoryDefaults();
+      spark.setCANTimeout(50);
       spark.setIdleMode(IdleMode.kBrake);
       spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
     }
 
-    lead.setInverted(false);
-    leftBottom.follow(lead, false);
+    lead.setInverted(true);
+    leftTop.follow(lead, false);
     rightTop.follow(lead, true);
     rightBottom.follow(lead, true);
 
     encoder = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
-
+    encoder.setInverted(true);
     encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
     encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
+    encoder.setPosition(STARTING_ANGLE.getRadians());
 
     SparkUtils.configureFrameStrategy(
         lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.QUADRATURE), true);
-    SparkUtils.configureNothingFrameStrategy(leftBottom);
+    SparkUtils.configureNothingFrameStrategy(leftTop);
     SparkUtils.configureNothingFrameStrategy(rightTop);
     SparkUtils.configureNothingFrameStrategy(rightBottom);
 
-    lead.burnFlash();
-    leftBottom.burnFlash();
-    rightTop.burnFlash();
-    rightBottom.burnFlash();
+    for (CANSparkMax spark : List.of(lead, leftTop, rightTop, rightBottom)) {
+      spark.setCANTimeout(20);
+      spark.burnFlash();
+    }
   }
 
   @Override
@@ -64,8 +66,9 @@ public class RealPivot implements PivotIO {
   }
 
   @Override
-  public Rotation2d getPosition() {
-    return Rotation2d.fromRadians(encoder.getPosition());
+  @Log.NT
+  public double getPosition() {
+    return encoder.getPosition();
   }
 
   @Override
@@ -76,7 +79,7 @@ public class RealPivot implements PivotIO {
   @Override
   public void close() throws Exception {
     lead.close();
-    leftBottom.close();
+    leftTop.close();
     rightTop.close();
     rightBottom.close();
   }

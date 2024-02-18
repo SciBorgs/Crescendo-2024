@@ -94,6 +94,11 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
             new SimModule());
   }
 
+  public static Drive none() {
+    return new Drive(
+        new GyroIO.NoGyro(), new NoModule(), new NoModule(), new NoModule(), new NoModule());
+  }
+
   /** A swerve drive subsystem containing four {@link ModuleIO} modules. */
   public Drive(
       GyroIO gyro, ModuleIO frontLeft, ModuleIO frontRight, ModuleIO rearLeft, ModuleIO rearRight) {

@@ -21,13 +21,17 @@ public class RealShooter implements ShooterIO {
   public RealShooter() {
     topMotor = new CANSparkFlex(TOP_MOTOR, MotorType.kBrushless);
     topMotor.restoreFactoryDefaults();
-    topMotor.setIdleMode(IdleMode.kBrake);
+    topMotor.setCANTimeout(50);
+    topMotor.setIdleMode(IdleMode.kCoast);
     topMotor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
+    topMotor.setInverted(true);
 
     bottomMotor = new CANSparkFlex(BOTTOM_MOTOR, MotorType.kBrushless);
     bottomMotor.restoreFactoryDefaults();
-    bottomMotor.setIdleMode(IdleMode.kBrake);
+    bottomMotor.setCANTimeout(50);
+    bottomMotor.setIdleMode(IdleMode.kCoast);
     bottomMotor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
+    bottomMotor.follow(topMotor, true);
 
     encoder = topMotor.getEncoder();
     encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
@@ -42,9 +46,9 @@ public class RealShooter implements ShooterIO {
         true);
     SparkUtils.configureNothingFrameStrategy(bottomMotor);
 
-    bottomMotor.follow(topMotor);
-
+    topMotor.setCANTimeout(20);
     topMotor.burnFlash();
+    bottomMotor.setCANTimeout(20);
     bottomMotor.burnFlash();
   }
 
