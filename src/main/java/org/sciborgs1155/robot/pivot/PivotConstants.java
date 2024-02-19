@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Distance;
@@ -26,6 +27,9 @@ public class PivotConstants {
   // Offset from the center of the robot to the pivot's axis of rotation
   public static final Translation2d OFFSET = new Translation2d(Inches.of(10.465), Inches.of(25));
 
+  public static final Translation3d PIVOTOFFSET =
+      new Translation3d(0, 0, 0); // TODO his ass is NOT at (0,0,0)
+
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);
 
@@ -35,7 +39,8 @@ public class PivotConstants {
   public static final Measure<Distance> LENGTH = Inches.of(16);
 
   public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.5);
-  public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
+  public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL =
+      MAX_VELOCITY.per(Second); // TODO what the frick
 
   public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(-45.7);
   public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(63.3);

@@ -244,7 +244,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     AutoBuilder.configureHolonomic(
         this::getPose,
         this::resetOdometry,
-        this::getChassisSpeed,
+        this::getRobotRelativeChassisSpeeds,
         this::driveRobotRelative,
         new HolonomicPathFollowerConfig(
             new PIDConstants(Translation.P, Translation.I, Translation.D),
@@ -307,10 +307,15 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
   }
 
-  /** Returns the chassis speed. */
+  /** Returns the robot relative chassis speeds. */
   @Log.NT
-  public ChassisSpeeds getChassisSpeed() {
+  public ChassisSpeeds getRobotRelativeChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
+  }
+
+  /** Returns the field relative chassis speeds. */
+  public ChassisSpeeds getChassisSpeeds() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(getRobotRelativeChassisSpeeds(), getHeading());
   }
 
   /** Updates pose estimation based on provided {@link EstimatedRobotPose} */
@@ -344,7 +349,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     simRotation =
         simRotation.rotateBy(
             Rotation2d.fromRadians(
-                getChassisSpeed().omegaRadiansPerSecond * Constants.PERIOD.in(Seconds)));
+                getRobotRelativeChassisSpeeds().omegaRadiansPerSecond
+                    * Constants.PERIOD.in(Seconds)));
   }
 
   /** Stops drivetrain */

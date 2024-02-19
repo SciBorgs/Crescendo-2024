@@ -5,6 +5,7 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.numbers.N3;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -27,16 +28,45 @@ public class Cache {
   }
 
   /** desired initial velocity of note, corresponds to pivot angle and flywheel speed */
-  public static record NoteTrajectory(Rotation2d pivotAngle, double speed, Rotation2d heading) {
+  public static record ShooterState(Rotation2d pivotAngle, double speed) {
     @Override
     public String toString() {
-      return "{pivotAngle: "
-          + pivotAngle.getRadians()
+      return "{pivotAngle: " + pivotAngle.getRadians() + "; speed: " + speed + "}";
+    }
+  }
+
+  public static record NoteTrajectory(Rotation2d heading, ShooterState shooterState) {
+    public NoteTrajectory(Rotation2d heading, Rotation2d pivotAngle, double speed) {
+      this(heading, new ShooterState(pivotAngle, speed));
+    }
+
+    @Override
+    public String toString() {
+      return "{heading: "
+          + heading.getRadians()
+          + "; pivotAngle: "
+          + shooterState.pivotAngle.getRadians()
           + "; speed: "
-          + speed
-          + "; heading: "
-          + heading
+          + shooterState.speed
           + "}";
+    }
+
+    public static NoteTrajectory fromVelocityVector(Vector<N3> velocity) {
+      double x = velocity.get(0, 0);
+      double y = velocity.get(1, 0);
+      double z = velocity.get(2, 0);
+      var pivotAngle = Rotation2d.fromRadians(Math.atan(z / VecBuilder.fill(x, y).norm()));
+      double speed = velocity.norm();
+      Rotation2d heading = new Rotation2d(x, y);
+      return new NoteTrajectory(heading, new ShooterState(pivotAngle, speed));
+    }
+
+    public Vector<N3> toVelocityVector() {
+      double z = shooterState.speed * shooterState.pivotAngle.getSin();
+      double xyNorm = shooterState.speed * shooterState.pivotAngle.getCos();
+      double x = xyNorm * heading.getCos();
+      double y = xyNorm * heading.getSin();
+      return VecBuilder.fill(x, y, z);
     }
   }
 
@@ -103,7 +133,7 @@ public class Cache {
   }
 
   // TODO have someone make better names
-  public static NoteTrajectory getTrajectory(Translation2d pos, Vector<N2> vel) {
+  public static ShooterState getTrajectory(Translation2d pos, Vector<N2> vel) {
     double v = getVelocity(pos);
     Rotation2d theta = getPivotAngle(pos);
     Rotation2d alpha = getHeading(pos);
@@ -113,6 +143,7 @@ public class Cache {
         Rotation2d.fromRadians(deltaVx == 0 ? Math.PI / 2 : Math.atan(deltaVy / deltaVx));
     Vector<N2> returnV =
         VecBuilder.fill(deltaVx, deltaVy).times(Math.cos(returnAlpha.getRadians()));
-    return new NoteTrajectory(theta, v + returnV.norm(), returnAlpha);
+    return new ShooterState(
+        Rotation2d.fromRadians(0), 0); // theta, v + returnV.norm(), returnAlpha);
   }
 }
