@@ -34,7 +34,7 @@ def return_coefficients():
         for y in np.arange(min_y, max_y, 0.2)
         for x in np.arange(min_x, max_x, 0.2)
     ]
-    results = multiprocessing.Pool().map(optimal_values, cases)
+    results = multiprocessing.Pool(multiprocessing.cpu_count() // 3).map(optimal_values, cases)
 
     velocity_fit = curve_fit(f, (results[2], results[3]), results[0])
     pitch_fit, _ = curve_fit(f, (results[2], results[3]), results[1])
