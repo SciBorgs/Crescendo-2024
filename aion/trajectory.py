@@ -84,8 +84,3 @@ class Trajectory:
         except:
             return [0, 0]
         return [(solutions.value(delta_v) + initial_v), (solutions.value(delta_theta) + initial_theta)]
-
-
-
-    
-        

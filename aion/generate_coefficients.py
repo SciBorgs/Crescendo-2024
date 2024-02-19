@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from trajectory import Trajectory
 from scipy.optimize import curve_fit
+import multiprocessing
 
 """
 Finds the coefficents for a quadratic function approximating the needed launch angle as a function of position (x,y)
@@ -20,28 +21,18 @@ def f(variables, a, b, c, d, e, f):
     x, y = variables
     return a + b*x + c*y + d*x**2 + e*y**2 + f*x*y
 
-
+def optimal_values(trajectory: Trajectory):
+        angle, velocity = trajectory.get_optimal_settings()
+        return (angle, velocity, trajectory.posX, trajectory.posY)
 
 def return_coefficients():
-    # Sample points
-    x_positions = np.array([])
-    y_positions = np.array([])
-    launch_angles = np.array([])
-  
-    x = min_x
-    while x < max_x:
-        y = min_y
-        while y < max_y:
-            launch_angle = Trajectory(x, y).get_optimal_settings()[1]
-            if launch_angle != 0:
-                x_positions = np.append(x_positions, x)
-                y_positions = np.append(y_positions, y)
-                launch_angles = np.append(launch_angles, launch_angle)
-            y += 0.1
-        x += 0.1
+    cases = [Trajectory(x, y) for y in np.arange(min_y, max_y, 0.2) for x in np.arange(min_x, max_x, 0.2)]
+    results = multiprocessing.Pool().map(optimal_values, cases)
 
-    popt, _ = curve_fit(f, (x_positions, y_positions), launch_angles) 
-    return popt
+    velocity_fit = curve_fit(f, (results[2], results[3]), results[0])
+    pitch_fit, _ = curve_fit(f, (results[2], results[3]), results[1])
+    return (velocity_fit, pitch_fit)
 
-
-print(return_coefficients())
+# the code doesn't work without this
+if __name__ == "__main__":
+    print(return_coefficients())
