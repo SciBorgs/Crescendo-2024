@@ -37,8 +37,8 @@ import org.photonvision.EstimatedRobotPose;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
-import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 import org.sciborgs1155.robot.drive.DriveConstants.Translation;
+import org.sciborgs1155.robot.drive.DriveConstants.Turn;
 import org.sciborgs1155.robot.vision.Vision.PoseEstimate;
 
 public class Drive extends SubsystemBase implements Logged, AutoCloseable {
@@ -69,9 +69,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   @Log.NT
   private final ProfiledPIDController rotationController =
       new ProfiledPIDController(
-          Rotation.P,
-          Rotation.I,
-          Rotation.D,
+          Turn.P,
+          Turn.I,
+          Turn.D,
           new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
 
   /**
@@ -253,7 +253,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         this::driveRobotRelative,
         new HolonomicPathFollowerConfig(
             new PIDConstants(Translation.P, Translation.I, Translation.D),
-            new PIDConstants(Rotation.P, Rotation.I, Rotation.D),
+            new PIDConstants(Turn.P, Turn.I, Turn.D),
             MAX_SPEED.in(MetersPerSecond),
             TRACK_WIDTH.divide(2).in(Meters),
             new ReplanningConfig()),
