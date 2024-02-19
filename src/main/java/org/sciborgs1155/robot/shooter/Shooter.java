@@ -1,6 +1,5 @@
 package org.sciborgs1155.robot.shooter;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -43,7 +42,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
             new SysIdRoutine.Config(Volts.per(Second).of(1), Volts.of(11.0), Seconds.of(11)),
             new SysIdRoutine.Mechanism(v -> shooter.setVoltage(v.in(Volts)), null, this));
 
-    pid.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
+    // pid.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
 
     SmartDashboard.putData("shooter quasistatic backward", quasistaticBack());
     SmartDashboard.putData("shooter quasistatic forward", quasistaticForward());

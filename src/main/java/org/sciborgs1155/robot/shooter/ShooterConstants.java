@@ -23,7 +23,7 @@ public class ShooterConstants {
 
   public static final Measure<Velocity<Angle>> VELOCITY_TOLERANCE = RadiansPerSecond.of(10);
 
-  public static final double kP = 0.05;
+  public static final double kP = 4; // changed for testing to decrease time to reach setpoint; 0.05
   public static final double kI = 0;
   public static final double kD = 0.003;
 

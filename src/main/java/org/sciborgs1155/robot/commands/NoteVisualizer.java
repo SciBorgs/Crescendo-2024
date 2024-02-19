@@ -2,6 +2,7 @@ package org.sciborgs1155.robot.commands;
 
 import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.Constants.*;
+import static org.sciborgs1155.robot.Constants.Field.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -21,7 +22,6 @@ import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Logged;
-import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.ShooterConstants;
 
 public class NoteVisualizer implements Logged {
@@ -32,7 +32,7 @@ public class NoteVisualizer implements Logged {
 
   // suppliers
   private static Supplier<Pose2d> pose = Pose2d::new;
-  private static Supplier<Rotation3d> angle = () -> PivotConstants.STARTING_ANGLE;
+  private static Supplier<Rotation3d> angle = Rotation3d::new;
   private static DoubleSupplier velocity = () -> 1;
 
   private static double zVelocity;
@@ -91,13 +91,11 @@ public class NoteVisualizer implements Logged {
   private static void generatePath() {
     double g = 9.81;
     double linearVelocity = velocity.getAsDouble() * ShooterConstants.CIRCUMFERENCE.in(Meters);
-    Rotation2d armPosition = angle.get().plus(Rotation2d.fromDegrees(180));
+    Rotation2d shootingAngle = new Rotation2d(angle.get().getY());
 
-    // replace LENGTH with real translate to shooter
-    // Translation3d shooterTranslation =
-    //     new Translation3d(
-    //         armPosition.getCos() * LENGTH.in(Meters), 0, armPosition.getSin() *
-    // LENGTH.in(Meters));
+    // flipped over origin
+    Rotation2d armPosition = shootingAngle.plus(Rotation2d.fromDegrees(180));
+
     lastNotePose =
         new Pose3d(pose.get())
             .plus(
@@ -106,9 +104,9 @@ public class NoteVisualizer implements Logged {
                     new Rotation3d(0, armPosition.getRadians(), 0)));
     Rotation2d robot = pose.get().getRotation();
 
-    final double xVelocity = -linearVelocity * robot.getCos() * angle.get().getCos();
-    final double yVelocity = -linearVelocity * robot.getSin() * angle.get().getCos();
-    zVelocity = linearVelocity * angle.get().getSin();
+    final double xVelocity = -linearVelocity * robot.getCos() * shootingAngle.getCos();
+    final double yVelocity = -linearVelocity * robot.getSin() * shootingAngle.getCos();
+    zVelocity = linearVelocity * shootingAngle.getSin();
 
     pathPosition = new ArrayList<>();
     pathPosition.add(lastNotePose);

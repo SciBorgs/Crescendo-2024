@@ -120,7 +120,7 @@ public class Robot extends CommandRobot implements Logged {
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
       addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
-      NoteVisualizer.setSuppliers(drive::getPose, pivot::getPosition, shooter::getVelocity);
+      NoteVisualizer.setSuppliers(drive::getPose, pivot::rotation, shooter::getVelocity);
       NoteVisualizer.startPublishing();
       addPeriodic(NoteVisualizer::log, kDefaultPeriod);
     }
