@@ -1,8 +1,9 @@
 package org.sciborgs1155.robot;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Seconds;
 
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
@@ -30,16 +31,31 @@ public class Constants {
 
     // found from
     // https://github.com/Mechanical-Advantage/RobotCode2024/blob/main/src/main/java/org/littletonrobotics/frc2024/FieldConstants.java
-    public static Translation2d BLUE_LEFT_NOTE = new Translation2d(2.9, 4.11);
-    public static Translation2d BLUE_MID_NOTE = new Translation2d(2.9, 5.55);
-    public static Translation2d BLUE_RIGHT_NOTE = new Translation2d(2.9, 7.0);
+    public static Pose3d BLUE_LEFT_NOTE =
+        new Pose3d(new Translation3d(2.9, 4.11, 0), new Rotation3d());
+    public static Pose3d BLUE_MID_NOTE =
+        new Pose3d(new Translation3d(2.9, 5.55, 0), new Rotation3d());
+    public static Pose3d BLUE_RIGHT_NOTE =
+        new Pose3d(new Translation3d(2.9, 7.0, 0), new Rotation3d());
+
+    public static Pose3d RED_LEFT_NOTE =
+        new Pose3d(new Translation3d(13.642, 4.11, 0), new Rotation3d());
+    public static Pose3d RED_MID_NOTE =
+        new Pose3d(new Translation3d(13.642, 5.55, 0), new Rotation3d());
+    public static Pose3d RED_RIGHT_NOTE =
+        new Pose3d(new Translation3d(13.642, 7.0, 0), new Rotation3d());
 
     // left to right, facing forward towards field from origin
-    public static Translation2d CENTER_NOTE_ONE = new Translation2d(8.2705321, 0.7528052);
-    public static Translation2d CENTER_NOTE_TWO = new Translation2d(8.2705321, 2.4292052);
-    public static Translation2d CENTER_NOTE_THREE = new Translation2d(8.2705321, 4.1056052);
-    public static Translation2d CENTER_NOTE_FOUR = new Translation2d(8.2705321, 5.78201);
-    public static Translation2d CENTER_NOTE_FIVE = new Translation2d(8.2705321, 7.4584052);
+    public static Pose3d CENTER_NOTE_ONE =
+        new Pose3d(new Translation3d(8.2705321, 0.7528052, 0), new Rotation3d());
+    public static Pose3d CENTER_NOTE_TWO =
+        new Pose3d(new Translation3d(8.2705321, 2.4292052, 0), new Rotation3d());
+    public static Pose3d CENTER_NOTE_THREE =
+        new Pose3d(new Translation3d(8.2705321, 4.1056052, 0), new Rotation3d());
+    public static Pose3d CENTER_NOTE_FOUR =
+        new Pose3d(new Translation3d(8.2705321, 5.78201, 0), new Rotation3d());
+    public static Pose3d CENTER_NOTE_FIVE =
+        new Pose3d(new Translation3d(8.2705321, 7.4584052, 0), new Rotation3d());
 
     public static Translation3d getSpeaker() {
       if (DriverStation.getAlliance().isPresent()) {

@@ -189,6 +189,20 @@
       "Pose3d[]##v_note path": {
         "open": true
       },
+      "Pose3d[]##v_notes": {
+        "Pose3d##v_[0]": {
+          "Translation3d##v_translation": {
+            "open": true
+          },
+          "open": true
+        },
+        "Pose3d##v_[6]": {
+          "Rotation3d##v_rotation": {
+            "open": true
+          },
+          "open": true
+        }
+      },
       "Pose3d[]##v_poses": {
         "Pose3d##v_[0]": {
           "Translation3d##v_translation": {
@@ -275,19 +289,18 @@
           }
         }
       },
-      "Shuffleboard": {
-        "open": true
-      },
       "SmartDashboard": {
         "Pivot": {
           "open": true
-        },
-        "open": true
+        }
       }
     }
   },
   "NetworkTables Info": {
     "Server": {
+      "Subscribers": {
+        "open": true
+      },
       "open": true
     },
     "visible": true

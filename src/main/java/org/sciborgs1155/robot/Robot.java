@@ -202,6 +202,7 @@ public class Robot extends CommandRobot implements Logged {
         .y()
         .toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE.getRadians(), () -> 11));
 
+    operator.a().whileTrue(intake.intake());
     // operator.x().onTrue(shooter.runShooter(() -> 100));
     // operator.y().onTrue(shooter.runShooter(() -> 0));
   }
