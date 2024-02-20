@@ -13,7 +13,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -101,17 +100,18 @@ public class Shooting {
         VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0));
   }
 
+  public static double pitch(Vector<N3> velocity) {
+    return Math.atan(velocity.get(2) / VecBuilder.fill(velocity.get(0), velocity.get(1)).norm());
+  }
+
+  public static Rotation2d heading(Vector<N3> velocity) {
+    return new Rotation2d(velocity.get(0), velocity.get(1));
+  }
+
   public Command fullShooting(DoubleSupplier vx, DoubleSupplier vy) {
-    var speaker = getSpeaker().toTranslation2d();
-    Supplier<Rotation2d> heading =
-        () -> {
-          var vel = noteVelocityVector();
-          return new Rotation2d(vel.get(0), vel.get(1));
-        };
     return Commands.parallel(
-        drive.drive(vx, vy, heading),
-        pivot.runPivot(
-            () -> stationaryPitch(shooterPos(drive.getPose()).toTranslation2d().minus(speaker))),
+        drive.drive(vx, vy, () -> heading(noteVelocityVector())),
+        pivot.runPivot(() -> pitch(noteVelocityVector())),
         shooter.runShooter(() -> noteVelocityVector().norm()),
         Commands.waitUntil(
                 () ->
