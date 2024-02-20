@@ -5,13 +5,10 @@ import static org.sciborgs1155.robot.Constants.Field.*;
 import static org.sciborgs1155.robot.feeder.FeederConstants.FEEDER_VELOCITY;
 import static org.sciborgs1155.robot.pivot.PivotConstants.PIVOT_OFFSET;
 
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,8 +16,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.sciborgs1155.lib.InputStream;
-import org.sciborgs1155.robot.Cache.NoteTrajectory;
-import org.sciborgs1155.robot.Cache.ShooterState;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -38,6 +33,19 @@ public class Shooting {
     this.pivot = pivot;
     this.feeder = feeder;
     this.drive = drive;
+  }
+
+  public static record NoteTrajectory(Rotation2d heading, Rotation2d pivotAngle, double speed) {
+    @Override
+    public String toString() {
+      return "{heading: "
+          + heading.getRadians()
+          + "; pivotAngle: "
+          + pivotAngle.getRadians()
+          + "; speed: "
+          + speed
+          + "}";
+    }
   }
 
   /**
@@ -70,44 +78,70 @@ public class Shooting {
                 .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
   }
 
-  // public Command fullShooting(InputStream vx, InputStream vy, Translation2d pos, Vector<N2> vel)
-  // {
-  //   return fullShooting(vx, vy, () -> Cache.getTrajectory(pos, vel));
-  // }
-
-  public Command fullShooting(InputStream vx, InputStream vy, Supplier<NoteTrajectory> traj) {
+  public Command fullShooting(
+      InputStream vx,
+      InputStream vy,
+      DoubleSupplier flywheelVel,
+      Supplier<Rotation2d> heading,
+      Supplier<Rotation2d> pitch) {
     return Commands.parallel(
-        shooter.runShooter(() -> traj.get().shooterState().speed()),
-        pivot.runPivot(() -> traj.get().shooterState().pivotAngle()),
-        drive.drive(vx, vy, () -> traj.get().heading()),
-        Commands.waitUntil(() -> ready(traj.get()))
+        shooter.runShooter(() -> flywheelVel.getAsDouble()),
+        pivot.runPivot(() -> pitch.get()),
+        drive.drive(vx, vy, () -> heading.get()),
+        Commands.waitUntil(
+                () ->
+                    pivot.atGoal()
+                        && shooter.atSetpoint()
+                        && Math.abs(drive.getHeading().minus(heading.get()).getRadians()) < 0.01
+                        && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.01)
             .andThen(feeder.runFeeder(FEEDER_VELOCITY.in(MetersPerSecond))));
   }
 
-  public static boolean almostEqual(double a, double b, double DELTA) {
-    return Math.abs(a - b) <= DELTA;
+  public Command stationaryShooting(double flywheelVel, Rotation2d heading, Rotation2d pitch) {
+    return fullShooting(() -> 0, () -> 0, () -> flywheelVel, () -> heading, () -> pitch);
   }
 
-  private boolean ready(NoteTrajectory traj) {
-    return shooter.atSetpoint()
-        && almostEqual(
-            pivot.getPosition().getRadians(), traj.shooterState().pivotAngle().getRadians(), 0.01)
-        && almostEqual(drive.getHeading().getRadians(), traj.heading().getRadians(), 0.01)
-        && drive.getChassisSpeeds().omegaRadiansPerSecond <= 0.01;
+  public Command stationaryShooting() {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      var fromSpeaker = tranlationFromSpeaker(drive.getPose().getTranslation(), alliance.get());
+      return stationaryShooting(
+          stationaryVelocity(fromSpeaker),
+          fromSpeaker.times(-1).getAngle(),
+          stationaryPitch(fromSpeaker));
+    }
+    return Commands.none();
   }
 
-  public static NoteTrajectory stationaryNoteTrajectory(
-      ShooterState shooterState, Pose2d pos, Alliance alliance) {
-    Translation2d speakerPos =
-        switch (alliance) {
+  public static double stationaryVelocity(Translation2d translationFromSpeaker) {
+    double x = translationFromSpeaker.getX();
+    double y = translationFromSpeaker.getY();
+    return 1.1331172768630184
+        + 0.0337170229983295 * x
+        + -0.07822480760293148 * y
+        + -0.010386903450326593 * x * x
+        + -0.00030007103195798433 * y * y
+        + -0.0042478354516679185 * x * y;
+  }
+
+  public static Rotation2d stationaryPitch(Translation2d translationFromSpeaker) {
+    double x = translationFromSpeaker.getX();
+    double y = translationFromSpeaker.getY();
+    return Rotation2d.fromRadians(
+        1.1331172768630184
+            + 0.0337170229983295 * x
+            + -0.07822480760293148 * y
+            + -0.010386903450326593 * x * x
+            + -0.00030007103195798433 * y * y
+            + -0.0042478354516679185 * x * y);
+  }
+
+  public static Translation2d tranlationFromSpeaker(Translation2d position, Alliance alliance) {
+    return (switch (alliance) {
           case Blue -> BLUE_SPEAKER_POSE;
           case Red -> RED_SPEAKER_POSE;
-        };
-
-    Translation2d toSpeaker = speakerPos.minus(new Translation2d(pos.getX(), pos.getY()));
-    Rotation2d heading = toSpeaker.getAngle();
-
-    return new NoteTrajectory(heading, shooterState);
+        })
+        .minus(position);
   }
 
   public static Translation3d shooterPos(Pose2d robotPose) {
@@ -116,18 +150,5 @@ public class Shooting {
     var offset2d = new Translation2d(PIVOT_OFFSET.getX(), PIVOT_OFFSET.getY());
     var shooterxy = robotTrans.plus(offset2d.rotateBy(robotHeading));
     return new Translation3d(shooterxy.getX(), shooterxy.getY(), PIVOT_OFFSET.getZ());
-  }
-
-  /** currently throws if alliance is not real -- probably should change that... TODO */
-  public NoteTrajectory noteTrajectory(ShooterState shooterState) throws Exception {
-    var stationaryTraj =
-        stationaryNoteTrajectory(
-            shooterState, drive.getPose(), DriverStation.getAlliance().orElseThrow());
-    Vector<N3> robotVel =
-        VecBuilder.fill(
-            drive.getChassisSpeeds().vxMetersPerSecond,
-            drive.getChassisSpeeds().vyMetersPerSecond,
-            0);
-    return NoteTrajectory.fromVelocityVector(stationaryTraj.toVelocityVector().minus(robotVel));
   }
 }
