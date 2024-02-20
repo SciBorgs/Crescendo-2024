@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanTopic;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructArrayTopic;
@@ -77,7 +78,7 @@ public class NoteVisualizer implements Logged {
 
   /** Set up NT publisher. Call only once before beginning to log notes. */
   public static void startPublishing() {
-    NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    NetworkTable inst = NetworkTableInstance.getDefault().getTable("Robot");
 
     StructArrayTopic<Pose3d> notesTopic = inst.getStructArrayTopic("notes", Pose3d.struct);
     StructArrayTopic<Pose3d> notePathTopic = inst.getStructArrayTopic("note path", Pose3d.struct);
@@ -99,12 +100,12 @@ public class NoteVisualizer implements Logged {
 
   public static Command intake() {
     return new ScheduleCommand(
-        Commands.defer(
-            () -> {
-              if (carryingNote) {
-                return Commands.none();
-              }
-              return Commands.run(
+            Commands.defer(
+                () -> {
+                  if (carryingNote) {
+                    return Commands.none();
+                  }
+                  return Commands.run(
                       () -> {
                         Pose2d intakePose = pose.get();
                         for (Pose3d note : notes) {
@@ -121,10 +122,10 @@ public class NoteVisualizer implements Logged {
                           notesPub.set(notes.toArray(new Pose3d[0]));
                           break;
                         }
-                      })
-                  .unless(Robot::isReal);
-            },
-            Set.of()));
+                      });
+                },
+                Set.of()))
+        .unless(Robot::isReal);
   }
 
   public static Command shoot() {
@@ -142,14 +143,14 @@ public class NoteVisualizer implements Logged {
                             i++;
                           })
                       .until(() -> i == pathPosition.size() - 1)
-                      .unless(Robot::isReal)
                       .finallyDo(
                           () -> {
                             i = 0;
                           });
                 },
                 Set.of()))
-        .ignoringDisable(true);
+        .ignoringDisable(true)
+        .unless(Robot::isReal);
   }
 
   private static void generatePath() {
@@ -175,6 +176,7 @@ public class NoteVisualizer implements Logged {
     pathPosition = new ArrayList<>();
     pathPosition.add(lastNotePose);
 
+    int timestep = 0;
     while (lastNotePose.getZ() > 0) {
       currentNotePose =
           new Pose3d(
@@ -184,11 +186,12 @@ public class NoteVisualizer implements Logged {
                   lastNotePose.getZ() + zVelocity * PERIOD.in(Seconds)),
               lastNotePose.getRotation());
 
-      pathPosition.add(currentNotePose);
+      if (timestep % 5 == 0) pathPosition.add(currentNotePose);
+      timestep++;
       zVelocity = zVelocity - g * PERIOD.in(Seconds);
       lastNotePose = currentNotePose;
     }
-    carryingNote = false;
+    // carryingNote = false;
     notePathPub.set(pathPosition.toArray(new Pose3d[0]));
   }
 }

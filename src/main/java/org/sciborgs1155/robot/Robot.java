@@ -120,7 +120,8 @@ public class Robot extends CommandRobot implements Logged {
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
       addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
-      NoteVisualizer.setSuppliers(drive::getPose, pivot::rotation, shooter::getVelocity);
+      NoteVisualizer.setSuppliers(
+          drive::getPose, pivot::rotation, shooter::getEstimatedLaunchVelocity);
       NoteVisualizer.startPublishing();
       addPeriodic(NoteVisualizer::log, kDefaultPeriod);
     }
@@ -184,7 +185,9 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     operator.a().toggleOnTrue(pivot.manualPivot(InputStream.of(operator::getLeftY).negate()));
-    operator.b().whileTrue(pivot.runPivot(() -> 0.6));
+    operator.b().whileTrue(pivot.runPivot(() -> 1.11));
+
+    operator.x().onTrue(shooting.stationaryShooting());
 
     operator.leftBumper().whileTrue(intake.intake().alongWith(feeder.eject()));
     operator.rightBumper().whileTrue(feeder.eject());
@@ -194,9 +197,9 @@ public class Robot extends CommandRobot implements Logged {
     // operator.b().onTrue(pivot.runPivot(() -> )))
 
     // shooting into speaker when up to subwoofer
-    operator
-        .x()
-        .toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE.getRadians(), () -> 10));
+    // operator
+    //     .x()
+    //     .toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE.getRadians(), () -> 10));
 
     operator
         .y()

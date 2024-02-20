@@ -13,6 +13,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -123,23 +124,26 @@ public class Shooting {
   }
 
   public Command stationaryShooting() {
-    var speaker = getSpeaker().toTranslation2d();
-    var fromSpeaker = shooterPos(drive.getPose()).toTranslation2d().minus(speaker);
+    Supplier<Translation2d> speaker = () -> getSpeaker().toTranslation2d();
+    Supplier<Translation2d> diff =
+        () -> speaker.get().minus(shooterPos(drive.getPose()).toTranslation2d());
     return Commands.parallel(
-        drive.driveFacingTarget(() -> 0, () -> 0, () -> speaker),
-        pivot.runPivot(stationaryPitch(fromSpeaker)),
-        shooter.runShooter(stationaryVelocity(fromSpeaker)),
-        Commands.waitUntil(
-                () ->
-                    pivot.atGoal()
-                        && shooter.atSetpoint()
-                        && drive.isFacing(speaker)
-                        && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1)
-            .andThen(feeder.eject()));
+            // drive.driveFacingTarget(() -> 0, () -> 0, () -> speaker.get()),
+            Commands.runOnce(
+                () -> System.out.println("SHOOTING VEL" + stationaryVelocity(diff.get()))),
+            pivot.runPivot(() -> stationaryPitch(diff.get())),
+            shooter.runShooter(() -> stationaryVelocity(diff.get())))
+        .until(
+            () -> pivot.atGoal() && shooter.atSetpoint()
+            // && drive.isFacing(speaker.get())
+            // && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1
+            )
+        .andThen(feeder.eject())
+        .andThen(Commands.print("DONE!!"));
   }
 
   public static double stationaryVelocity(Translation2d translationFromSpeaker) {
-    double x = translationFromSpeaker.getX();
+    double x = Math.abs(translationFromSpeaker.getX());
     double y = translationFromSpeaker.getY();
     return 1.1331172768630184
         + 0.0337170229983295 * x
@@ -150,7 +154,7 @@ public class Shooting {
   }
 
   public static double stationaryPitch(Translation2d translationFromSpeaker) {
-    double x = translationFromSpeaker.getX();
+    double x = Math.abs(translationFromSpeaker.getX());
     double y = translationFromSpeaker.getY();
     return 1.1331172768630184
         + 0.0337170229983295 * x

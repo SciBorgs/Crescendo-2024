@@ -28,6 +28,7 @@
       "/Robot/feeder/pid": "PIDController",
       "/Robot/flywheel": "Subsystem",
       "/Robot/flywheel/flywheelPID": "PIDController",
+      "/Robot/pivot/FUCK": "Mechanism2d",
       "/Robot/pivot/climbPID": "ProfiledPIDController",
       "/Robot/pivot/manualPID": "PIDController",
       "/Robot/pivot/manualSetpoint": "Mechanism2d",
@@ -52,6 +53,7 @@
       "/SmartDashboard/Scheduler": "Scheduler",
       "/SmartDashboard/Shooter": "Subsystem",
       "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
+      "/SmartDashboard/another pivot visualizer?": "Mechanism2d",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",
       "/SmartDashboard/drive quasistatic backward": "Command",
@@ -73,6 +75,7 @@
       "/SmartDashboard/shooter dynamic forward": "Command",
       "/SmartDashboard/shooter quasistatic backward": "Command",
       "/SmartDashboard/shooter quasistatic forward": "Command",
+      "/SmartDashboard/this should work": "Mechanism2d",
       "/SmartDashboard/turn dynamic backward": "Command",
       "/SmartDashboard/turn dynamic forward": "Command",
       "/SmartDashboard/turn quasistatic backward": "Command",
@@ -150,12 +153,12 @@
           "visible": true
         }
       },
-      "/Robot/pivot/measurement": {
+      "/Robot/pivot/positionVisualizer": {
         "window": {
           "visible": true
         }
       },
-      "/Robot/pivot/setpoint": {
+      "/Robot/pivot/setpointVisualizer": {
         "window": {
           "visible": true
         }
@@ -174,9 +177,6 @@
     }
   },
   "NetworkTables": {
-    "Persistent Values": {
-      "open": false
-    },
     "retained": {
       "Robot": {
         "autos": {
@@ -243,8 +243,10 @@
         "feeder": {
           "open": true
         },
-        "open": true,
         "pivot": {
+          "FUCK": {
+            "open": true
+          },
           "Pose3d##v_/Robot/pivot/pose": {
             "open": true
           },
@@ -290,9 +292,13 @@
         }
       },
       "SmartDashboard": {
+        "Drive": {
+          "open": true
+        },
         "Pivot": {
           "open": true
-        }
+        },
+        "open": true
       }
     }
   },

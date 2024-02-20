@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 import numpy as np
+from solver import Solver
 from trajectory import Trajectory
 from scipy.optimize import curve_fit
 import multiprocessing
@@ -17,20 +18,25 @@ max_x = round(((speaker_length / 2) + station_length))  # m
 min_y = 0  # m
 max_y = round(field_length - subwoofer_length)  # m
 
+# global solver
+solver = Solver()
+
 
 def f(variables, a, b, c, d, e, f):
     x, y = variables
     return a + b * x + c * y + d * x**2 + e * y**2 + f * x * y
 
 
-def optimal_values(trajectory: Trajectory):
-    angle, velocity = trajectory.get_optimal_settings()
-    return (angle, velocity, trajectory.posX, trajectory.posY)
+# global solver
+def optimal_values(point):
+    global solver
+    velocity, angle = solver.optimal_settings(point[0], point[1])
+    return (angle, velocity, point[0], point[1])
 
 
-def return_coefficients():
+if __name__ == "__main__":
     cases = [
-        Trajectory(x, y)
+        (x, y)
         for y in np.arange(min_y, max_y, 0.2)
         for x in np.arange(min_x, max_x, 0.2)
     ]
@@ -38,32 +44,26 @@ def return_coefficients():
 
     velocity_fit, _ = curve_fit(f, (results[:, 2], results[:, 3]), results[:, 0])
     pitch_fit, _ = curve_fit(f, (results[:, 2], results[:, 3]), results[:, 1])
-    return (velocity_fit, pitch_fit)
 
+    def coeffs_to_string(coeffs):
+        return (
+            str(coeffs[0])
+            + " + "
+            + str(coeffs[1])
+            + " * x + "
+            + str(coeffs[2])
+            + " * y + "
+            + str(coeffs[3])
+            + " * x * x + "
+            + str(coeffs[4])
+            + " * y * y + "
+            + str(coeffs[5])
+            + " * x * y"
+        )
 
-def coeffs_to_string(coeffs):
-    return (
-        str(coeffs[0])
-        + " + "
-        + str(coeffs[1])
-        + " * x + "
-        + str(coeffs[2])
-        + " * y + "
-        + str(coeffs[3])
-        + " * x * x + "
-        + str(coeffs[4])
-        + " * y * y + "
-        + str(coeffs[5])
-        + " * x * y"
-    )
-
-
-# the code doesn't work without this
-if __name__ == "__main__":
-    vel_coeffs, pitch_coeffs = return_coefficients()
     print(
         "velocity:\n"
-        + coeffs_to_string(vel_coeffs)
+        + coeffs_to_string(velocity_fit)
         + "\npitch:\n"
-        + coeffs_to_string(pitch_coeffs)
+        + coeffs_to_string(pitch_fit)
     )
