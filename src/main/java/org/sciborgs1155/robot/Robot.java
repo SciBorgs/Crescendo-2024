@@ -112,8 +112,7 @@ public class Robot extends CommandRobot implements Logged {
     addPeriodic(FaultLogger::update, 1);
 
     // Configure pose estimation updates every half-tick
-    // addPeriodic(
-    //     () -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), kDefaultPeriod / 2.0);
+    addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), kDefaultPeriod);
 
     if (isReal()) {
       URCL.start();
@@ -189,7 +188,14 @@ public class Robot extends CommandRobot implements Logged {
 
     operator.x().onTrue(shooting.stationaryShooting());
 
-    operator.leftBumper().whileTrue(intake.intake().alongWith(feeder.eject()));
+    operator
+        .leftBumper()
+        .whileTrue(
+            Commands.parallel(
+                pivot.runPivot(STARTING_ANGLE.getRadians()),
+                // Commands.sequence(
+                Commands.waitUntil(pivot::atRest)
+                    .andThen(intake.intake().alongWith(feeder.intake())))); // );
     operator.rightBumper().whileTrue(feeder.eject());
     operator.povUp().whileTrue(shooter.runShooter(() -> 300));
     operator.povDown().whileTrue(shooter.runShooter(() -> 200));

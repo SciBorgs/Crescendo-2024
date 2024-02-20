@@ -11,6 +11,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -337,7 +338,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   /** Updates pose estimation based on provided {@link EstimatedRobotPose} */
   public void updateEstimates(PoseEstimate... poses) {
+    Pose3d[] loggedEstimates = new Pose3d[poses.length];
     for (int i = 0; i < poses.length; i++) {
+      loggedEstimates[i] = poses[i].estimatedPose().estimatedPose;
       odometry.addVisionMeasurement(
           poses[i].estimatedPose().estimatedPose.toPose2d(),
           poses[i].estimatedPose().timestampSeconds,
@@ -346,6 +349,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
           .getObject("Cam " + i + " Est Pose")
           .setPose(poses[i].estimatedPose().estimatedPose.toPose2d());
     }
+    log("estimated poses", loggedEstimates);
   }
 
   @Override

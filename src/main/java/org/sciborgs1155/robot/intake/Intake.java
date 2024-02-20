@@ -3,6 +3,8 @@ package org.sciborgs1155.robot.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
@@ -18,7 +20,7 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
     return new Intake(new NoIntake());
   }
 
-  private final IntakeIO intake;
+  @Log.NT private final IntakeIO intake;
 
   public Intake(IntakeIO intake) {
     this.intake = intake;
@@ -26,8 +28,14 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command intake() {
-    return run(() -> intake.setPower(IntakeConstants.INTAKE_SPEED))
-        .alongWith(NoteVisualizer.intake());
+    return
+    // Commands.deadline(
+    // Commands.waitUntil(inIntake()).andThen(Commands.waitUntil(inIntake().negate())),
+    run(() -> intake.setPower(IntakeConstants.INTAKE_SPEED)).alongWith(NoteVisualizer.intake());
+  }
+
+  public Trigger inIntake() {
+    return new Trigger(() -> !intake.beambreak());
   }
 
   public Command outtake() {

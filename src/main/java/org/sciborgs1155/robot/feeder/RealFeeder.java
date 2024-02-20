@@ -10,7 +10,9 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
+// import edu.wpi.first.wpilibj.DigitalInput;
 import java.util.Set;
+import monologue.Annotations.Log;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
@@ -50,9 +52,10 @@ public class RealFeeder implements FeederIO {
   }
 
   @Override
+  @Log.NT
   public boolean beambreak() {
-    // return beambreak.get()
-    return false;
+    // return beambreak.get();
+    return true;
   }
 
   @Override

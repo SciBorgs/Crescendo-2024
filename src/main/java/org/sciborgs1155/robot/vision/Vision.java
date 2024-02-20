@@ -92,6 +92,7 @@ public class Vision implements Logged {
     for (int i = 0; i < estimators.length; i++) {
       var result = cameras[i].getLatestResult();
       var estimate = estimators[i].update(result);
+      log("estimates present " + i, estimate.isPresent());
       estimate.ifPresent(
           e ->
               estimates.add(

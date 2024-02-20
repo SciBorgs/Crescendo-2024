@@ -90,6 +90,13 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     return runPivot(() -> goalAngle);
   }
 
+  @Log.NT
+  public boolean atRest() {
+    return Math.abs(hardware.getPosition() - STARTING_ANGLE.getRadians())
+            < pid.getPositionTolerance()
+        && Math.abs(hardware.getVelocity()) < 0.2;
+  }
+
   /**
    * Smoothly angle the pivot to a desired angle using a separately tuned {@link
    * ProfiledPIDController} for climbing.

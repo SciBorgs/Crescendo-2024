@@ -13,7 +13,7 @@ import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 
 public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
-  private final FeederIO feeder;
+  @Log.NT private final FeederIO feeder;
 
   /** Creates a real or non-existent feeder based on {@link Robot#isReal()}. */
   public static Feeder create() {
@@ -34,15 +34,27 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command eject() {
-    return runFeeder(POWER).alongWith(NoteVisualizer.shoot()).withTimeout(TIMEOUT.in(Seconds));
+    return
+    // Commands.deadline(
+    // Commands.waitUntil(atShooter()).andThen(Commands.waitUntil(atShooter().negate())),
+    runFeeder(POWER).alongWith(NoteVisualizer.shoot()).withTimeout(TIMEOUT.in(Seconds)); // );
   }
 
   public Command retract() {
     return runFeeder(-POWER / 2.0);
   }
 
+  public Command intake() {
+    return runFeeder(POWER)
+        .withTimeout(3)
+        .andThen(
+            retract()
+                .withTimeout(
+                    0.15)); // .until(atShooter()).andThen(retract().until(atShooter().negate()));
+  }
+
   public Trigger atShooter() {
-    return new Trigger(feeder::beambreak);
+    return new Trigger(() -> !feeder.beambreak());
   }
 
   @Log.NT
