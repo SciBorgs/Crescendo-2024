@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.List;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
@@ -195,6 +196,10 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         < rotationController.getPositionTolerance();
   }
 
+  public boolean atHeadingGoal() {
+    return rotationController.atGoal();
+  }
+
   /**
    * Drives the robot based on a {@link InputStream} for field relative x y and omega velocities.
    *
@@ -219,13 +224,13 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param heading A supplier for the field relative heading of the robot.
    * @return The driving command.
    */
-  public Command drive(InputStream vx, InputStream vy, Supplier<Rotation2d> heading) {
+  public Command drive(DoubleSupplier vx, DoubleSupplier vy, Supplier<Rotation2d> heading) {
     return run(
         () ->
             driveFieldRelative(
                 new ChassisSpeeds(
-                    vx.get(),
-                    vy.get(),
+                    vx.getAsDouble(),
+                    vy.getAsDouble(),
                     rotationController.calculate(
                         getPose().getRotation().getRadians(), heading.get().getRadians()))));
   }

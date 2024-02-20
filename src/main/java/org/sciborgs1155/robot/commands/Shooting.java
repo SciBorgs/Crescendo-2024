@@ -3,13 +3,17 @@ package org.sciborgs1155.robot.commands;
 import static org.sciborgs1155.robot.Constants.Field.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.PIVOT_OFFSET;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -76,6 +80,48 @@ public class Shooting {
                 shooter.runShooter(shooterVelocity)));
   }
 
+  public Vector<N3> toVelocityVector(Rotation2d heading, double pivotAngle, double speed) {
+    double z = speed * Math.sin(pivotAngle);
+    double xyNorm = speed * Math.cos(pivotAngle);
+    double x = xyNorm * heading.getCos();
+    double y = xyNorm * heading.getSin();
+    return VecBuilder.fill(x, y, z);
+  }
+
+  public Vector<N3> noteVelocityVector() {
+    var speaker = getSpeaker().toTranslation2d();
+    var fromSpeaker = shooterPos(drive.getPose()).toTranslation2d().minus(speaker);
+    var stationaryVel =
+        toVelocityVector(
+            speaker.minus(drive.getPose().getTranslation()).getAngle(),
+            stationaryPitch(fromSpeaker),
+            stationaryVelocity(fromSpeaker));
+    var speeds = drive.getChassisSpeeds();
+    return stationaryVel.minus(
+        VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0));
+  }
+
+  public Command fullShooting(DoubleSupplier vx, DoubleSupplier vy) {
+    var speaker = getSpeaker().toTranslation2d();
+    Supplier<Rotation2d> heading =
+        () -> {
+          var vel = noteVelocityVector();
+          return new Rotation2d(vel.get(0), vel.get(1));
+        };
+    return Commands.parallel(
+        drive.drive(vx, vy, heading),
+        pivot.runPivot(
+            () -> stationaryPitch(shooterPos(drive.getPose()).toTranslation2d().minus(speaker))),
+        shooter.runShooter(() -> noteVelocityVector().norm()),
+        Commands.waitUntil(
+                () ->
+                    pivot.atGoal()
+                        && shooter.atSetpoint()
+                        && drive.atHeadingGoal()
+                        && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1)
+            .andThen(feeder.eject()));
+  }
+
   public Command stationaryShooting() {
     var speaker = getSpeaker().toTranslation2d();
     var fromSpeaker = shooterPos(drive.getPose()).toTranslation2d().minus(speaker);
@@ -115,10 +161,10 @@ public class Shooting {
   }
 
   public static Translation3d shooterPos(Pose2d robotPose) {
-    var robotTrans = robotPose.getTranslation();
-    var robotHeading = robotPose.getRotation();
-    var offset2d = new Translation2d(PIVOT_OFFSET.getX(), PIVOT_OFFSET.getY());
-    var shooterxy = robotTrans.plus(offset2d.rotateBy(robotHeading));
+    Translation2d shooterxy =
+        robotPose
+            .getTranslation()
+            .plus(PIVOT_OFFSET.toTranslation2d().rotateBy(robotPose.getRotation()));
     return new Translation3d(shooterxy.getX(), shooterxy.getY(), PIVOT_OFFSET.getZ());
   }
 }
