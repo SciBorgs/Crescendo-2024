@@ -3,10 +3,10 @@ package org.sciborgs1155.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -27,6 +27,7 @@ import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
+import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
@@ -34,6 +35,8 @@ import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
+import org.sciborgs1155.robot.vision.Vision;
+import org.sciborgs1155.robot.vision.VisionConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -49,6 +52,8 @@ public class Robot extends CommandRobot implements Logged {
   // SUBSYSTEMS
   // private final Vision vision =
   //     new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
+  private final Vision vision =
+      new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
 
   private final Drive drive = Drive.create();
 
@@ -114,7 +119,10 @@ public class Robot extends CommandRobot implements Logged {
       URCL.start();
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
-      // addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
+      addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), kDefaultPeriod);
+      NoteVisualizer.setSuppliers(drive::getPose, pivot::rotation, shooter::getVelocity);
+      NoteVisualizer.startPublishing();
+      addPeriodic(NoteVisualizer::log, kDefaultPeriod);
     }
   }
 
@@ -176,16 +184,26 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     operator.a().toggleOnTrue(pivot.manualPivot(InputStream.of(operator::getLeftY).negate()));
-    operator.b().whileTrue(pivot.runPivot(() -> Rotation2d.fromRadians(0.6)));
+    operator.b().whileTrue(pivot.runPivot(() -> 0.6));
 
-    operator.leftBumper().whileTrue(intake.intake().alongWith(feeder.forwards()));
-    operator.rightBumper().whileTrue(feeder.backwards());
+    operator.leftBumper().whileTrue(intake.intake().alongWith(feeder.eject()));
+    operator.rightBumper().whileTrue(feeder.eject());
     operator.povUp().whileTrue(shooter.runShooter(() -> 300));
     operator.povDown().whileTrue(shooter.runShooter(() -> 200));
 
     // operator.b().onTrue(pivot.runPivot(() -> )))
 
     // shooting into speaker when up to subwoofer
-    // operator.x().toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE, () -> 2));
+    operator
+        .x()
+        .toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE.getRadians(), () -> 10));
+
+    operator
+        .y()
+        .toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE.getRadians(), () -> 11));
+
+    operator.a().whileTrue(intake.intake());
+    // operator.x().onTrue(shooter.runShooter(() -> 100));
+    // operator.y().onTrue(shooter.runShooter(() -> 0));
   }
 }

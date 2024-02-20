@@ -4,6 +4,11 @@
       "window": {
         "visible": false
       }
+    },
+    "Timing": {
+      "window": {
+        "visible": false
+      }
     }
   },
   "NTProvider": {
@@ -29,7 +34,9 @@
       "/Robot/pivot/measurement": "Mechanism2d",
       "/Robot/pivot/pid": "ProfiledPIDController",
       "/Robot/pivot/pivotPID": "ProfiledPIDController",
+      "/Robot/pivot/positionVisualizer": "Mechanism2d",
       "/Robot/pivot/setpoint": "Mechanism2d",
+      "/Robot/pivot/setpointVisualizer": "Mechanism2d",
       "/Robot/shooter/measurement": "Mechanism2d",
       "/Robot/shooter/mech": "Mechanism2d",
       "/Robot/shooter/mech2": "Mechanism2d",
@@ -72,11 +79,6 @@
       "/SmartDashboard/turn quasistatic forward": "Command"
     },
     "windows": {
-      "/Robot/autos": {
-        "window": {
-          "visible": true
-        }
-      },
       "/Robot/drive/field2d": {
         "Robot": {
           "arrows": false,
@@ -168,27 +170,56 @@
         "window": {
           "visible": true
         }
-      },
-      "/SmartDashboard/pivot quasistatic backward": {
-        "window": {
-          "visible": true
-        }
-      },
-      "/SmartDashboard/pivot quasistatic forward": {
-        "window": {
-          "visible": true
-        }
       }
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
+    "retained": {
+      "Robot": {
+        "autos": {
+          "open": true
+        },
+        "open": true
+      }
+    },
     "transitory": {
+      "Pose3d[]##v_note path": {
+        "open": true
+      },
+      "Pose3d[]##v_notes": {
+        "Pose3d##v_[0]": {
+          "Translation3d##v_translation": {
+            "open": true
+          },
+          "open": true
+        },
+        "Pose3d##v_[6]": {
+          "Rotation3d##v_rotation": {
+            "open": true
+          },
+          "open": true
+        }
+      },
+      "Pose3d[]##v_poses": {
+        "Pose3d##v_[0]": {
+          "Translation3d##v_translation": {
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      },
       "Robot": {
         "drive": {
           "Pose2d##v_/Robot/drive/getPose": {
             "Rotation2d##v_rotation": {
               "open": true
-            },
+            }
+          },
+          "field2d": {
             "open": true
           },
           "frontRight": {
@@ -209,8 +240,20 @@
             }
           }
         },
+        "feeder": {
+          "open": true
+        },
         "open": true,
         "pivot": {
+          "Pose3d##v_/Robot/pivot/pose": {
+            "open": true
+          },
+          "Rotation2d##v_/Robot/pivot/getPosition": {
+            "open": true
+          },
+          "Rotation3d##v_/Robot/pivot/goal": {
+            "open": true
+          },
           "open": true,
           "pivot": {
             "Rotation2d##v_/Robot/pivot/pivot/getPosition": {
@@ -239,21 +282,25 @@
           "setpoint": {
             "open": true
           }
+        },
+        "vision": {
+          "Pose3d[]##v_/Robot/vision/getSeenTags": {
+            "open": true
+          }
         }
-      },
-      "Shuffleboard": {
-        "open": true
       },
       "SmartDashboard": {
         "Pivot": {
           "open": true
-        },
-        "open": true
+        }
       }
     }
   },
   "NetworkTables Info": {
     "Server": {
+      "Subscribers": {
+        "open": true
+      },
       "open": true
     },
     "visible": true
@@ -268,7 +315,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 0,
+          "height": 127,
           "series": [
             {
               "color": [

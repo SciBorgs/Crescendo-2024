@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
@@ -31,8 +30,11 @@ public class Shooting {
    */
   public Command shoot(DoubleSupplier desiredVelocity) {
     return shooter
-        .runShooter(desiredVelocity)
-        .alongWith(Commands.waitUntil(shooter::atSetpoint).andThen(feeder.forwards()));
+        .setSetpoint(desiredVelocity)
+        .andThen(
+            Commands.deadline(
+                Commands.waitUntil(shooter::atSetpoint).andThen(feeder.eject()),
+                shooter.runShooter(desiredVelocity)));
   }
 
   /**
@@ -42,12 +44,15 @@ public class Shooting {
    * @param shooterVelocity The desired velocity of the shooter.
    * @return The command to run the pivot to its desired angle and then shoot.
    */
-  public Command pivotThenShoot(Supplier<Rotation2d> goalAngle, DoubleSupplier shooterVelocity) {
+  public Command pivotThenShoot(DoubleSupplier goalAngle, DoubleSupplier shooterVelocity) {
     return pivot
-        .runPivot(goalAngle)
-        .alongWith(shooter.runShooter(shooterVelocity))
-        .alongWith(
-            Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
-                .andThen(feeder.forwards()));
+        .setGoal(goalAngle)
+        .alongWith(shooter.setSetpoint(shooterVelocity))
+        .andThen(
+            Commands.deadline(
+                Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
+                    .andThen(feeder.eject()),
+                pivot.runPivot(goalAngle),
+                shooter.runShooter(shooterVelocity)));
   }
 }

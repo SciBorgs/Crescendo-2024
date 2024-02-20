@@ -1,6 +1,5 @@
 package org.sciborgs1155.robot;
 
-import static edu.wpi.first.units.Units.Radians;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.fastForward;
 import static org.sciborgs1155.lib.TestingUtil.run;
@@ -10,7 +9,6 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -50,7 +48,7 @@ public class ShooterTest {
   @ParameterizedTest
   @ValueSource(doubles = {1.104793, 3 * Math.PI / 8})
   public void testPivot(double theta) {
-    run((pivot.runPivot(() -> Rotation2d.fromRadians(theta))));
+    run((pivot.runPivot(() -> theta)));
     fastForward(200);
     assertEquals(theta, pivot.goal().getY(), DELTA);
     assertEquals(theta, pivot.setpoint().getY(), DELTA);
@@ -63,7 +61,7 @@ public class ShooterTest {
   @ParameterizedTest
   @ValueSource(doubles = {1.104793, 3 * Math.PI / 8})
   public void testClimb(double theta) {
-    run(pivot.climb(Rotation2d.fromRadians(theta)));
+    run(pivot.climb(theta));
     fastForward(1000);
 
     assertEquals(STARTING_ANGLE.getRadians(), pivot.rotation().getY(), DELTA);
@@ -80,7 +78,7 @@ public class ShooterTest {
   @Disabled
   @Test
   public void testPivotThenShoot() {
-    run(shooting.pivotThenShoot(() -> new Rotation2d(Radians.of(Math.PI / 4)), () -> 4));
+    run(shooting.pivotThenShoot(() -> (Math.PI / 4), () -> 4));
     fastForward();
 
     assertEquals(

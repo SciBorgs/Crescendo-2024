@@ -6,7 +6,7 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import java.util.function.Supplier;
+import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
@@ -72,7 +72,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("pivot dynamic forward", dynamicForward());
     SmartDashboard.putData("pivot dynamic backward", dynamicBack());
 
-    setDefaultCommand(run(() -> update(STARTING_ANGLE)).withName("default position"));
+    setDefaultCommand(run(() -> update(STARTING_ANGLE.getRadians())).withName("default position"));
   }
 
   /**
@@ -82,8 +82,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    * @param goalAngle The position to move the pivot to.
    * @return The command to set the pivot's angle.
    */
-  public Command runPivot(Supplier<Rotation2d> goalAngle) {
-    return run(() -> update(goalAngle.get())).withName("go to").asProxy();
+  public Command runPivot(DoubleSupplier goalAngle) {
+    return run(() -> update(goalAngle.getAsDouble())).withName("go to").asProxy();
   }
 
   /**
@@ -92,7 +92,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    *
    * @return The command to set the pivot's angle.
    */
-  public Command climb(Rotation2d goalAngle) {
+  public Command climb(double goalAngle) {
     return runOnce(() -> pid.setPID(ClimbConstants.kP, ClimbConstants.kI, ClimbConstants.kD))
         .andThen(() -> update(goalAngle))
         .finallyDo(() -> pid.setPID(kP, kI, kD));
@@ -104,8 +104,12 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
           double velocity = stickInput.get() * MAX_VELOCITY.in(RadiansPerSecond);
           double periodMovement = Constants.PERIOD.in(Seconds) * velocity;
           double setpoint = periodMovement + pid.getSetpoint().position;
-          return Rotation2d.fromRadians(setpoint);
+          return setpoint;
         });
+  }
+
+  public Command setGoal(DoubleSupplier goal) {
+    return runOnce(() -> pid.setGoal(goal.getAsDouble())).asProxy();
   }
 
   @Log.NT
@@ -121,6 +125,11 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   @Log.NT
   public Rotation3d setpoint() {
     return new Rotation3d(0.0, pid.getSetpoint().position, 0.0);
+  }
+
+  @Log.NT
+  public Pose3d pose() {
+    return new Pose3d(OFFSET, rotation());
   }
 
   @Log.NT
@@ -157,9 +166,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    *
    * @param goalAngle The position to move the pivot to.
    */
-  private void update(Rotation2d goalAngle) {
-    double goal =
-        MathUtil.clamp(goalAngle.getRadians(), MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians());
+  private void update(double goalAngle) {
+    double goal = MathUtil.clamp(goalAngle, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians());
     double feedback = pid.calculate(hardware.getPosition(), goal);
     double feedforward =
         ff.calculate(pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
