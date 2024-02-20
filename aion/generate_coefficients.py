@@ -50,9 +50,9 @@ def coeffs_to_string(coeffs):
         + str(coeffs[2])
         + " * y + "
         + str(coeffs[3])
-        + " * x ** 2 + "
+        + " * x * x + "
         + str(coeffs[4])
-        + " * y ** 2 + "
+        + " * y * y + "
         + str(coeffs[5])
         + " * x * y"
     )
