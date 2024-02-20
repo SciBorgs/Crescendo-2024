@@ -2,7 +2,7 @@ package org.sciborgs1155.robot.feeder;
 
 public class NoFeeder implements FeederIO {
   @Override
-  public void setVoltage(double voltage) {}
+  public void set(double power) {}
 
   @Override
   public double getVelocity() {
@@ -10,12 +10,7 @@ public class NoFeeder implements FeederIO {
   }
 
   @Override
-  public boolean frontBeamBreak() {
-    return false;
-  }
-
-  @Override
-  public boolean backBeamBreak() {
+  public boolean beambreak() {
     return false;
   }
 

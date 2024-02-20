@@ -1,10 +1,10 @@
 {
-  "Keyboard 0 Settings": {
+  "FMS": {
     "window": {
-      "visible": true
+      "visible": false
     }
   },
-  "Keyboard 1 Settings": {
+  "Keyboard 0 Settings": {
     "window": {
       "visible": true
     }
@@ -13,7 +13,10 @@
     {
       "axisConfig": [
         {},
-        {},
+        {
+          "decKey": 72,
+          "incKey": 89
+        },
         {
           "decKey": 69,
           "decayRate": 0.0,
@@ -33,10 +36,10 @@
       "axisCount": 3,
       "buttonCount": 4,
       "buttonKeys": [
-        49,
-        50,
-        51,
-        52
+        90,
+        88,
+        67,
+        86
       ],
       "povConfig": [
         {

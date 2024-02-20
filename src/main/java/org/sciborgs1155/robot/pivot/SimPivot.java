@@ -3,7 +3,6 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
@@ -13,9 +12,11 @@ public class SimPivot implements PivotIO {
   private final SingleJointedArmSim sim =
       new SingleJointedArmSim(
           LinearSystemId.createSingleJointedArmSystem(
-              DCMotor.getNEO(4), MOI.in((Meters).mult(Meters).mult(Kilograms)), MOTOR_GEARING),
+              DCMotor.getNEO(4),
+              MOI.in((Meters).mult(Meters).mult(Kilograms)),
+              1.0 / MOTOR_GEARING),
           DCMotor.getNEO(4),
-          MOTOR_GEARING,
+          1.0 / MOTOR_GEARING,
           -LENGTH.in(Meters),
           MIN_ANGLE.getRadians(),
           MAX_ANGLE.getRadians(),
@@ -29,8 +30,8 @@ public class SimPivot implements PivotIO {
   }
 
   @Override
-  public Rotation2d getPosition() {
-    return Rotation2d.fromRadians(sim.getAngleRads());
+  public double getPosition() {
+    return sim.getAngleRads();
   }
 
   @Override

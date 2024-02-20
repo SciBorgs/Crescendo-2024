@@ -10,7 +10,6 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
-import edu.wpi.first.wpilibj.DigitalInput;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
@@ -20,8 +19,7 @@ public class RealFeeder implements FeederIO {
   private final CANSparkFlex motor;
   private final RelativeEncoder encoder;
 
-  private final DigitalInput frontBeambreak;
-  private final DigitalInput endBeambreak;
+  // private final DigitalInput beambreak;
 
   public RealFeeder() {
     motor = new CANSparkFlex(FEEDER_SPARK, MotorType.kBrushless);
@@ -29,8 +27,7 @@ public class RealFeeder implements FeederIO {
     motor.setIdleMode(IdleMode.kBrake);
     motor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
 
-    frontBeambreak = new DigitalInput(FRONT_BEAMBREAK);
-    endBeambreak = new DigitalInput(END_BEAMBREAK);
+    // beambreak = new DigitalInput(BEAMBREAK);
 
     SparkUtils.configureFrameStrategy(
         motor, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.INTEGRATED), false);
@@ -43,27 +40,23 @@ public class RealFeeder implements FeederIO {
   }
 
   @Override
-  public void setVoltage(double voltage) {
-    motor.setVoltage(voltage);
-  }
-
-  @Override
-  public boolean frontBeamBreak() {
-    return frontBeambreak.get();
-  }
-
-  @Override
-  public boolean backBeamBreak() {
-    return endBeambreak.get();
-  }
-
-  @Override
-  public void close() throws Exception {
-    motor.close();
+  public void set(double power) {
+    motor.set(power);
   }
 
   @Override
   public double getVelocity() {
     return encoder.getVelocity();
+  }
+
+  @Override
+  public boolean beambreak() {
+    // return beambreak.get()
+    return false;
+  }
+
+  @Override
+  public void close() throws Exception {
+    motor.close();
   }
 }
