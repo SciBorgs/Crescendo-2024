@@ -48,7 +48,7 @@ public final class DriveConstants {
     public static final double D = 0.0;
   }
 
-  public static final class Rotation {
+  public static final class Turn {
     public static final double P = 2;
     public static final double I = 0.0;
     public static final double D = 0.0;

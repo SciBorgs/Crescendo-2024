@@ -20,19 +20,19 @@
         {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "shoot"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Intake"
+            "name": "intake"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "shoot"
           }
         },
         {
@@ -44,7 +44,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Intake"
+            "name": "intake"
           }
         },
         {
@@ -56,13 +56,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "shoot"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Lock"
+            "name": "lock"
           }
         }
       ]

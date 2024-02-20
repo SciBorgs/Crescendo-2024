@@ -12,9 +12,7 @@ import org.sciborgs1155.robot.Constants;
 public class SimShooter implements ShooterIO {
   private final FlywheelSim sim =
       new FlywheelSim(
-          LinearSystemId.createFlywheelSystem(DCMotor.getNeoVortex(2), MOI, GEARING),
-          DCMotor.getNeoVortex(2),
-          GEARING);
+          LinearSystemId.identifyVelocitySystem(kV, kA), DCMotor.getNeoVortex(2), GEARING);
 
   @Override
   public void setVoltage(double voltage) {

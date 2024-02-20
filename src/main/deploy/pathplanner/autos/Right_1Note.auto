@@ -20,13 +20,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "shoot"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Lock"
+            "name": "lock"
           }
         }
       ]

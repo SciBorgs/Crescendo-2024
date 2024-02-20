@@ -4,6 +4,11 @@
       "window": {
         "visible": false
       }
+    },
+    "Timing": {
+      "window": {
+        "visible": false
+      }
     }
   },
   "NTProvider": {
@@ -20,22 +25,21 @@
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
       "/Robot/drive/rotationController": "ProfiledPIDController",
-      "/Robot/feeder/pid": "PIDController",
-      "/Robot/pivot/measurement": "Mechanism2d",
       "/Robot/pivot/pid": "ProfiledPIDController",
-      "/Robot/pivot/setpoint": "Mechanism2d",
+      "/Robot/pivot/positionVisualizer": "Mechanism2d",
+      "/Robot/pivot/setpointVisualizer": "Mechanism2d",
       "/Robot/shooter/pid": "PIDController",
+      "/SmartDashboard/Drive": "Subsystem",
+      "/SmartDashboard/Intake": "Subsystem",
+      "/SmartDashboard/Pivot": "Subsystem",
       "/SmartDashboard/Scheduler": "Scheduler",
+      "/SmartDashboard/Shooter": "Subsystem",
       "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",
       "/SmartDashboard/drive quasistatic backward": "Command",
       "/SmartDashboard/drive quasistatic forward": "Command",
       "/SmartDashboard/face same direction": "Command",
-      "/SmartDashboard/feeder dynamic backward": "Command",
-      "/SmartDashboard/feeder dynamic forward": "Command",
-      "/SmartDashboard/feeder quasistatic backward": "Command",
-      "/SmartDashboard/feeder quasistatic forward": "Command",
       "/SmartDashboard/pivot dynamic backward": "Command",
       "/SmartDashboard/pivot dynamic forward": "Command",
       "/SmartDashboard/pivot quasistatic backward": "Command",
@@ -65,16 +69,6 @@
         "window": {
           "visible": true
         }
-      },
-      "/Robot/pivot/measurement": {
-        "window": {
-          "visible": true
-        }
-      },
-      "/Robot/pivot/setpoint": {
-        "window": {
-          "visible": true
-        }
       }
     }
   },
@@ -83,10 +77,33 @@
       "Robot": {
         "open": true,
         "pivot": {
-          "Rotation2d##v_/Robot/pivot/getPosition": {
+          "Pose3d##v_/Robot/pivot/pose": {
+            "Rotation3d##v_rotation": {
+              "Quaternion##v_q": {
+                "open": true
+              }
+            },
+            "Translation3d##v_translation": {
+              "open": true
+            },
             "open": true
           },
-          "Rotation2d##v_/Robot/pivot/goal": {
+          "Rotation3d##v_/Robot/pivot/goal": {
+            "Quaternion##v_q": {
+              "open": true
+            },
+            "open": true
+          },
+          "Rotation3d##v_/Robot/pivot/rotation": {
+            "Quaternion##v_q": {
+              "open": true
+            },
+            "open": true
+          },
+          "Rotation3d##v_/Robot/pivot/setpoint": {
+            "Quaternion##v_q": {
+              "open": true
+            },
             "open": true
           },
           "open": true
@@ -96,5 +113,8 @@
   },
   "NetworkTables Info": {
     "visible": true
+  },
+  "NetworkTables View": {
+    "visible": false
   }
 }

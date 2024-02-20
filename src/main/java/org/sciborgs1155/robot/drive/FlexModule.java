@@ -38,11 +38,13 @@ public class FlexModule implements ModuleIO {
   public FlexModule(int drivePort, int turnPort, Rotation2d angularOffset) {
     driveMotor = new CANSparkFlex(drivePort, MotorType.kBrushless);
     driveMotor.restoreFactoryDefaults();
+    driveMotor.setCANTimeout(50);
     driveMotor.setIdleMode(IdleMode.kBrake);
     driveMotor.setSmartCurrentLimit((int) Driving.CURRENT_LIMIT.in(Amps));
 
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
     turnMotor.restoreFactoryDefaults();
+    turnMotor.setCANTimeout(50);
     turnMotor.setIdleMode(IdleMode.kBrake);
     turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps));
 
@@ -72,7 +74,9 @@ public class FlexModule implements ModuleIO {
     FaultLogger.register(driveMotor);
     FaultLogger.register(turnMotor);
 
+    driveMotor.setCANTimeout(20);
     driveMotor.burnFlash();
+    turnMotor.setCANTimeout(20);
     turnMotor.burnFlash();
 
     resetEncoders();

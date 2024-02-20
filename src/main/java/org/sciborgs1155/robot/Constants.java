@@ -1,8 +1,11 @@
 package org.sciborgs1155.robot;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Seconds;
 
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -19,6 +22,52 @@ import org.sciborgs1155.robot.drive.DriveConstants;
  * @see Units
  */
 public class Constants {
+  // Origin at corner of blue alliance side of field
+  public static class Field {
+    public static final Translation3d BLUE_SPEAKER_POSE =
+        new Translation3d(-0.086473, 5.757474, 2.1);
+    public static final Translation3d RED_SPEAKER_POSE =
+        new Translation3d(16.389722, 5.757474, 2.1);
+
+    // found from
+    // https://github.com/Mechanical-Advantage/RobotCode2024/blob/main/src/main/java/org/littletonrobotics/frc2024/FieldConstants.java
+    public static Pose3d BLUE_LEFT_NOTE =
+        new Pose3d(new Translation3d(2.9, 4.11, 0), new Rotation3d());
+    public static Pose3d BLUE_MID_NOTE =
+        new Pose3d(new Translation3d(2.9, 5.55, 0), new Rotation3d());
+    public static Pose3d BLUE_RIGHT_NOTE =
+        new Pose3d(new Translation3d(2.9, 7.0, 0), new Rotation3d());
+
+    public static Pose3d RED_LEFT_NOTE =
+        new Pose3d(new Translation3d(13.642, 4.11, 0), new Rotation3d());
+    public static Pose3d RED_MID_NOTE =
+        new Pose3d(new Translation3d(13.642, 5.55, 0), new Rotation3d());
+    public static Pose3d RED_RIGHT_NOTE =
+        new Pose3d(new Translation3d(13.642, 7.0, 0), new Rotation3d());
+
+    // left to right, facing forward towards field from origin
+    public static Pose3d CENTER_NOTE_ONE =
+        new Pose3d(new Translation3d(8.2705321, 0.7528052, 0), new Rotation3d());
+    public static Pose3d CENTER_NOTE_TWO =
+        new Pose3d(new Translation3d(8.2705321, 2.4292052, 0), new Rotation3d());
+    public static Pose3d CENTER_NOTE_THREE =
+        new Pose3d(new Translation3d(8.2705321, 4.1056052, 0), new Rotation3d());
+    public static Pose3d CENTER_NOTE_FOUR =
+        new Pose3d(new Translation3d(8.2705321, 5.78201, 0), new Rotation3d());
+    public static Pose3d CENTER_NOTE_FIVE =
+        new Pose3d(new Translation3d(8.2705321, 7.4584052, 0), new Rotation3d());
+
+    public static Translation3d getSpeaker() {
+      if (DriverStation.getAlliance().isPresent()) {
+        return DriverStation.getAlliance().get() == Alliance.Red
+            ? RED_SPEAKER_POSE
+            : BLUE_SPEAKER_POSE;
+      } else {
+        return BLUE_SPEAKER_POSE;
+      }
+    }
+  }
+
   public static enum RobotType {
     COMPLETE,
     CHASSIS,
@@ -34,19 +83,4 @@ public class Constants {
           / DriveConstants.MAX_ANGULAR_SPEED.baseUnitMagnitude();
   public static final double SLOW_SPEED_MULTIPLIER = 0.33;
   public static final double FULL_SPEED_MULTIPLIER = 1.0;
-
-  public static class Field {
-    public static final Translation2d BLUE_SPEAKER_POSE = new Translation2d(-0.086473, 5.757474);
-    public static final Translation2d RED_SPEAKER_POSE = new Translation2d(16.389722, 5.757474);
-
-    public static Translation2d getSpeaker() {
-      if (DriverStation.getAlliance().isPresent()) {
-        return DriverStation.getAlliance().get() == Alliance.Red
-            ? RED_SPEAKER_POSE
-            : BLUE_SPEAKER_POSE;
-      } else {
-        return BLUE_SPEAKER_POSE;
-      }
-    }
-  }
 }
