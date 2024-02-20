@@ -48,7 +48,7 @@ public class NoteVisualizer implements Logged {
               RED_MID_NOTE,
               RED_RIGHT_NOTE));
   private static boolean carryingNote = true;
-  private static ArrayList<Pose3d> pathPosition = new ArrayList<>();
+  private static List<Pose3d> pathPosition = new ArrayList<>();
 
   // suppliers
   private static Supplier<Pose2d> pose = Pose2d::new;
@@ -62,9 +62,10 @@ public class NoteVisualizer implements Logged {
   private static Pose3d lastNotePose = new Pose3d();
 
   // publishers
-  private static StructPublisher<Pose3d> shotNotePub;
-  private static StructArrayPublisher<Pose3d> notePathPub;
   private static StructArrayPublisher<Pose3d> notesPub;
+
+  private static StructArrayPublisher<Pose3d> notePathPub;
+  private static StructPublisher<Pose3d> shotNotePub;
   private static BooleanPublisher carryingNotePub;
 
   public static void setSuppliers(
@@ -80,13 +81,13 @@ public class NoteVisualizer implements Logged {
 
     StructArrayTopic<Pose3d> notesTopic = inst.getStructArrayTopic("notes", Pose3d.struct);
     StructArrayTopic<Pose3d> notePathTopic = inst.getStructArrayTopic("note path", Pose3d.struct);
-    BooleanTopic carryingNoteTopic = inst.getBooleanTopic("carrying note");
     StructTopic<Pose3d> shotNoteTopic = inst.getStructTopic("shot note", Pose3d.struct);
+    BooleanTopic carryingNoteTopic = inst.getBooleanTopic("carrying note");
 
     notesPub = notesTopic.publish();
     notePathPub = notePathTopic.publish();
-    carryingNotePub = carryingNoteTopic.publish();
     shotNotePub = shotNoteTopic.publish();
+    carryingNotePub = carryingNoteTopic.publish();
 
     notesPub.set(notes.toArray(new Pose3d[0]));
   }
