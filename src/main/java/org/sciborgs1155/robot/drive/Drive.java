@@ -188,6 +188,13 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return drive(vx, vy, () -> translation.get().minus(getPose().getTranslation()).getAngle());
   }
 
+  public boolean isFacing(Translation2d target) {
+    return Math.abs(
+            getHeading().getRadians()
+                - target.minus(getPose().getTranslation()).getAngle().getRadians())
+        < rotationController.getPositionTolerance();
+  }
+
   /**
    * Drives the robot based on a {@link InputStream} for field relative x y and omega velocities.
    *

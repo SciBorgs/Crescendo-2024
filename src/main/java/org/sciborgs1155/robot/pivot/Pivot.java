@@ -86,6 +86,10 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     return run(() -> update(goalAngle.getAsDouble())).withName("go to").asProxy();
   }
 
+  public Command runPivot(double goalAngle) {
+    return runPivot(() -> goalAngle);
+  }
+
   /**
    * Smoothly angle the pivot to a desired angle using a separately tuned {@link
    * ProfiledPIDController} for climbing.
