@@ -9,14 +9,17 @@ import multiprocessing
 Finds the coefficents for a quadratic function approximating the needed launch angle as a function of position (x,y)
 """
 
+field_width = 8.2296  # 27 ft
+field_length = 16.4592  # 54 ft
+
 speaker_length = 1.05  # m
 station_length = 1.75  # m
 field_length = 16.54  # m
 subwoofer_length = 0.92  # m
-min_x = round(-2 * station_length - (speaker_length / 2))  # m
-max_x = round(((speaker_length / 2) + station_length))  # m
+min_x = 0  # m
+max_x = field_length / 2  # m
 min_y = 0  # m
-max_y = round(field_length - subwoofer_length)  # m
+max_y = field_width  # m
 
 # global solver
 solver = Solver()
@@ -36,11 +39,13 @@ def optimal_values(point):
 
 if __name__ == "__main__":
     cases = [
-        (x, y)
-        for y in np.arange(min_y, max_y, 0.2)
-        for x in np.arange(min_x, max_x, 0.2)
+        (x, y) for y in np.arange(min_y, max_y, 1) for x in np.arange(min_x, max_x, 1)
     ]
-    results = np.array(multiprocessing.Pool().map(optimal_values, cases))
+    results = np.array(
+        multiprocessing.Pool(multiprocessing.cpu_count() // 6).map(
+            optimal_values, cases
+        )
+    )
 
     velocity_fit, _ = curve_fit(f, (results[:, 2], results[:, 3]), results[:, 0])
     pitch_fit, _ = curve_fit(f, (results[:, 2], results[:, 3]), results[:, 1])

@@ -17,8 +17,11 @@ field_width = 8.2296  # 27 ft
 field_length = 16.4592  # 54 ft
 
 g = 9.806
-max_launch_velocity = 10.0
+max_launch_velocity = 10
 speaker_max_height = 2.11  # m
+
+min_launch_angle = 0
+max_launch_angle = 1.1
 
 # shooter = np.array([[field_length / 6.0], [field_width / 6.0], [0.635]])
 # shooter_x = shooter[0, 0]
@@ -36,7 +39,11 @@ def lerp(a, b, t):
     return a + t * (b - a)
 
 
-def f(x):
+def hypot(a, b):
+    return ca.sqrt(a**2 + b**2)
+
+
+def f(x, alpha):
     # x' = x'
     # y' = y'
     # z' = z'
@@ -46,15 +53,32 @@ def f(x):
     #
     # where a_D(v) = ½ρv² C_D A / m
     rho = 1.204  # kg/m³
-    C_D = 0.05  # TODO
-    A = math.pi * 0.3
+    C_D0 = 0.08
+    C_DA = 2.72
+    C_D = C_D0 + C_DA * (alpha) ** 2  # paper uses degrees??
+    # C_D = 0.05
+    # A = math.pi * (0.356 / 2) ** 2
+    diameter = 0.356
+    width = 0.0508
+    A_ring = math.pi * (diameter / 2) ** 2 - math.pi * ((diameter - width) / 2) ** 2
+    A_rectangle = diameter * width
+    A_D = A_rectangle * ca.cos(alpha) + A_ring * ca.sin(alpha)
+    A_L = A_rectangle * ca.sin(alpha) + A_ring * ca.cos(alpha)
+
     m = 0.235301  # kg
-    a_D = lambda v: 0.5 * rho * v**2 * C_D * A / m
+    # accel due to drag
+    a_D = lambda v: 0.5 * rho * v**2 * C_D * A_D / m
+    # a_D = lambda v: 0
+
+    # accel due to lift
+    C_L = 0.15 + 1.4 * alpha
+    a_L = lambda v: 0.5 * rho * v**2 * A_L * C_L / m
+    # a_L = lambda v: 0
 
     v_x = x[3, 0]
     v_y = x[4, 0]
     v_z = x[5, 0]
-    return ca.vertcat(v_x, v_y, v_z, -a_D(v_x), -a_D(v_y), -g - a_D(v_z))
+    return ca.vertcat(v_x, v_y, v_z, -a_D(v_x), -a_D(v_y), -g + a_L(hypot(v_x, v_y)))
 
 
 class Solver:
@@ -101,16 +125,23 @@ class Solver:
         # Require the final velocity is down
         self._opti.subject_to(self.v_z[-1] > 0)
 
+        # Assume the note never rotates (a bad assumption)
+        pitch = ca.atan2(self.v_z[0], hypot(self.v_x[0], self.v_y[0]))
+        # pitch = math.pi / 2.0 - ca.asin(ca.norm_1(self.X[:3, 0]) / ca.norm_1(self.X[:3, 0]))
+        # Constrain starting angle
+        self._opti.subject_to(pitch > min_launch_angle)
+        self._opti.subject_to(pitch < max_launch_angle)
+
         # Dynamics constraints - RK4 integration
         for k in range(self.N - 1):
             h = dt
             x_k = self.X[:, k]
             x_k1 = self.X[:, k + 1]
 
-            k1 = f(x_k)
-            k2 = f(x_k + h / 2 * k1)
-            k3 = f(x_k + h / 2 * k2)
-            k4 = f(x_k + h * k3)
+            k1 = f(x_k, pitch)
+            k2 = f(x_k + h / 2 * k1, pitch)
+            k3 = f(x_k + h / 2 * k2, pitch)
+            k4 = f(x_k + h * k3, pitch)
             self._opti.subject_to(x_k1 == x_k + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4))
 
         # Avoid speaker physical constraints
@@ -123,7 +154,6 @@ class Solver:
         self._opti.minimize(J)
 
     def solve(self, x, y):
-        # TODO add angle constraints
         # TODO add proper box constraints
         shooter = np.array([[x], [y], [self.shooter_z]])
         # Position initial guess is linear interpolation between start and end position
@@ -195,7 +225,9 @@ class Solver:
     def visualize(self, x, y):
 
         # Initial velocity vector
-        v, sol = self.solve(x, y)
+        sol = self.solve(x, y)
+
+        v = sol.value(self.X[3:, 0])
 
         launch_velocity = norm(v)
         print(f"Launch velocity = {round(launch_velocity, 3)} m/s")
@@ -249,6 +281,16 @@ class Solver:
         trajectory_z = sol.value(self.p_z)
         ax.plot(trajectory_x, trajectory_y, trajectory_z, color="orange")
 
+        print(
+            "succeeded !!! ",
+            math.atan2(
+                sol.value(self.v_z)[0],
+                math.sqrt(sol.value(self.v_x)[0] ** 2 + sol.value(self.v_y)[0] ** 2),
+            )
+            * 180
+            / math.pi,
+        )
+
         ax.set_box_aspect((field_length, field_width, np.max(trajectory_z)))
 
         ax.set_xlabel("X position (m)")
@@ -259,4 +301,8 @@ class Solver:
 
 
 if __name__ == "__main__":
-    Solver().visualize(field_width / 6, field_width / 6)
+    s = Solver()
+
+    s.visualize(field_length / 3, field_width / 3)
+
+    # print(s._opti.debug.value)
