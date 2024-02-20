@@ -83,7 +83,12 @@ public class Shooting {
         drive.driveFacingTarget(() -> 0, () -> 0, () -> speaker),
         pivot.runPivot(stationaryPitch(fromSpeaker)),
         shooter.runShooter(stationaryVelocity(fromSpeaker)),
-        Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint() && drive.isFacing(speaker))
+        Commands.waitUntil(
+                () ->
+                    pivot.atGoal()
+                        && shooter.atSetpoint()
+                        && drive.isFacing(speaker)
+                        && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1)
             .andThen(feeder.eject()));
   }
 
