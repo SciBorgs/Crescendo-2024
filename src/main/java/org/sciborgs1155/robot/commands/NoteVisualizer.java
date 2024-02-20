@@ -61,9 +61,9 @@ public class NoteVisualizer implements Logged {
 
   // publishers
   private static StructPublisher<Pose3d> shotNotePub;
-  private static StructArrayPublisher<Pose3d> pathPub;
+  private static StructArrayPublisher<Pose3d> notePathPub;
   private static StructArrayPublisher<Pose3d> notesPub;
-  private static BooleanPublisher hasNotePub;
+  private static BooleanPublisher carryingNotePub;
 
   public static void setSuppliers(
       Supplier<Pose2d> robotPose, Supplier<Rotation3d> pivotAngle, DoubleSupplier shotVelocity) {
@@ -78,12 +78,12 @@ public class NoteVisualizer implements Logged {
 
     StructArrayTopic<Pose3d> notesTopic = inst.getStructArrayTopic("notes", Pose3d.struct);
     StructArrayTopic<Pose3d> notePathTopic = inst.getStructArrayTopic("note path", Pose3d.struct);
-    BooleanTopic hasNoteTopic = inst.getBooleanTopic("holding note");
+    BooleanTopic carryingNoteTopic = inst.getBooleanTopic("carrying note");
     StructTopic<Pose3d> shotNoteTopic = inst.getStructTopic("shot note", Pose3d.struct);
 
     notesPub = notesTopic.publish();
-    pathPub = notePathTopic.publish();
-    hasNotePub = hasNoteTopic.publish();
+    notePathPub = notePathTopic.publish();
+    carryingNotePub = carryingNoteTopic.publish();
     shotNotePub = shotNoteTopic.publish();
 
     notesPub.set(notes.toArray(new Pose3d[0]));
@@ -91,7 +91,7 @@ public class NoteVisualizer implements Logged {
 
   public static void log() {
     shotNotePub.set(currentNotePose);
-    hasNotePub.set(carryingNote);
+    carryingNotePub.set(carryingNote);
   }
 
   public static Command intake() {
@@ -185,6 +185,6 @@ public class NoteVisualizer implements Logged {
       zVelocity = zVelocity - g * PERIOD.in(Seconds);
       lastNotePose = currentNotePose;
     }
-    pathPub.set(pathPosition.toArray(new Pose3d[0]));
+    notePathPub.set(pathPosition.toArray(new Pose3d[0]));
   }
 }
