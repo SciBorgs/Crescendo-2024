@@ -19,8 +19,7 @@ public class PivotConstants {
   public static final Measure<Distance> RADIUS = Meters.of(1);
   public static final Measure<Distance> CIRCUMFERENCE = Meters.of(2 * Math.PI * RADIUS.in(Meters));
 
-  public static final Measure<Angle> POSITION_FACTOR =
-      Rotations.of(THROUGBORE_GEARING).times(CIRCUMFERENCE.in(Meters));
+  public static final Measure<Angle> POSITION_FACTOR = Rotations.of(THROUGBORE_GEARING);
   public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
   // Offset from the center of the robot to the pivot's axis of rotation

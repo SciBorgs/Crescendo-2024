@@ -11,7 +11,7 @@ public class NoFeeder implements FeederIO {
 
   @Override
   public boolean beambreak() {
-    return false;
+    return true;
   }
 
   @Override
