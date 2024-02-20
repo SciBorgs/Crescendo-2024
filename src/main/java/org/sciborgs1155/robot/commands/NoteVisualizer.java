@@ -23,15 +23,17 @@ import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Logged;
+import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.shooter.ShooterConstants;
 
 public class NoteVisualizer implements Logged {
   // notes
-  private static LinkedList<Pose3d> notes =
+  private static Queue<Pose3d> notes =
       new LinkedList<>(
           List.of(
               BLUE_LEFT_NOTE,
@@ -45,13 +47,13 @@ public class NoteVisualizer implements Logged {
               RED_LEFT_NOTE,
               RED_MID_NOTE,
               RED_RIGHT_NOTE));
-  private static boolean carryingNote = false;
+  private static boolean carryingNote = true;
   private static ArrayList<Pose3d> pathPosition = new ArrayList<>();
 
   // suppliers
   private static Supplier<Pose2d> pose = Pose2d::new;
   private static Supplier<Rotation3d> angle = Rotation3d::new;
-  private static DoubleSupplier velocity = () -> 1;
+  private static DoubleSupplier velocity = () -> 0;
 
   private static double zVelocity;
   private static int i = 0;
@@ -95,12 +97,12 @@ public class NoteVisualizer implements Logged {
   }
 
   public static Command intake() {
-    if (carryingNote) {
-      return Commands.none();
-    }
     return new ScheduleCommand(
         Commands.defer(
             () -> {
+              if (carryingNote) {
+                return Commands.none();
+              }
               return Commands.run(
                       () -> {
                         Pose2d intakePose = pose.get();
@@ -119,7 +121,7 @@ public class NoteVisualizer implements Logged {
                           break;
                         }
                       })
-                  .until(() -> carryingNote);
+                  .unless(Robot::isReal);
             },
             Set.of()));
   }
@@ -139,10 +141,10 @@ public class NoteVisualizer implements Logged {
                             i++;
                           })
                       .until(() -> i == pathPosition.size() - 1)
+                      .unless(Robot::isReal)
                       .finallyDo(
                           () -> {
                             i = 0;
-                            carryingNote = false;
                           });
                 },
                 Set.of()))
@@ -185,6 +187,7 @@ public class NoteVisualizer implements Logged {
       zVelocity = zVelocity - g * PERIOD.in(Seconds);
       lastNotePose = currentNotePose;
     }
+    carryingNote = false;
     notePathPub.set(pathPosition.toArray(new Pose3d[0]));
   }
 }
