@@ -5,20 +5,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "java",
-      "name": "Cache",
-      "request": "launch",
-      "mainClass": "org.sciborgs1155.robot.Cache",
-      "projectName": "Crescendo-2024"
-    },
-    {
-      "type": "java",
-      "name": "PivotConstants",
-      "request": "launch",
-      "mainClass": "org.sciborgs1155.robot.pivot.PivotConstants",
-      "projectName": "Crescendo-2024"
-    },
-    {
       "type": "wpilib",
       "name": "WPILib Desktop Debug",
       "request": "launch",

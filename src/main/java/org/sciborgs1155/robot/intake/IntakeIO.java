@@ -5,22 +5,23 @@ import static edu.wpi.first.units.Units.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import edu.wpi.first.wpilibj.DigitalInput;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.robot.Ports;
 
 public interface IntakeIO extends AutoCloseable {
   void setPower(double percentage);
 
-  boolean beamBreak();
+  boolean beambreak();
 
   public static class RealIntake implements IntakeIO {
     private final CANSparkFlex spark =
         new CANSparkFlex(Ports.Intake.INTAKE_SPARK, MotorType.kBrushless);
-    private final DigitalInput beambreak = new DigitalInput(Ports.Intake.BEAMBREAK);
+
+    // private final DigitalInput beambreak = new DigitalInput(Ports.Intake.BEAMBREAK);
 
     public RealIntake() {
       spark.restoreFactoryDefaults();
+      spark.setInverted(true);
       spark.setIdleMode(IdleMode.kBrake);
       spark.setSmartCurrentLimit((int) IntakeConstants.CURRENT_LIMIT.in(Amps));
 
@@ -34,14 +35,15 @@ public interface IntakeIO extends AutoCloseable {
     }
 
     @Override
-    public boolean beamBreak() {
-      return beambreak.get();
+    public boolean beambreak() {
+      return false;
+      // return beambreak.get();
     }
 
     @Override
     public void close() {
       spark.close();
-      beambreak.close();
+      // beambreak.close();
     }
   }
 
@@ -50,7 +52,7 @@ public interface IntakeIO extends AutoCloseable {
     public void setPower(double percentage) {}
 
     @Override
-    public boolean beamBreak() {
+    public boolean beambreak() {
       return false;
     }
 
