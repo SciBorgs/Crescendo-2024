@@ -406,5 +406,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     frontRight.close();
     rearLeft.close();
     rearRight.close();
+    gyro.close();
   }
 }

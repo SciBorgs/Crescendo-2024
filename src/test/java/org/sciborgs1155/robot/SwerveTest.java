@@ -6,10 +6,12 @@ import static org.sciborgs1155.lib.TestingUtil.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sciborgs1155.lib.TestingUtil;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.GyroIO;
 import org.sciborgs1155.robot.drive.SimModule;
@@ -35,6 +37,11 @@ public class SwerveTest {
     gyro = new GyroIO.NoGyro();
     drive = new Drive(gyro, frontLeft, frontRight, rearLeft, rearRight);
     drive.resetEncoders();
+  }
+
+  @AfterEach
+  public void destroy() throws Exception {
+    TestingUtil.closeSubsystem(drive);
   }
 
   @Test

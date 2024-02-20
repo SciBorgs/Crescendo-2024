@@ -27,8 +27,8 @@ public class PivotConstants {
   // Offset from the center of the robot to the pivot's axis of rotation
   public static final Translation2d OFFSET = new Translation2d(Inches.of(10.465), Inches.of(25));
 
-  public static final Translation3d PIVOTOFFSET =
-      new Translation3d(0, 0, 0); // TODO his ass is NOT at (0,0,0)
+  public static final Translation3d PIVOT_OFFSET =
+      new Translation3d(1, 0, 1); // TODO his ass is NOT at (0,0,0)
 
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);
