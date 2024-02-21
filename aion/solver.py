@@ -17,7 +17,7 @@ field_width = 8.2296  # 27 ft
 field_length = 16.4592  # 54 ft
 
 g = 9.806
-max_launch_velocity = 10
+max_launch_velocity = 7
 speaker_max_height = 2.11  # m
 
 min_launch_angle = 0
@@ -60,25 +60,30 @@ def f(x, alpha):
     # A = math.pi * (0.356 / 2) ** 2
     diameter = 0.356
     width = 0.0508
-    A_ring = math.pi * (diameter / 2) ** 2 - math.pi * ((diameter - width) / 2) ** 2
-    A_rectangle = diameter * width
-    A_D = A_rectangle * ca.cos(alpha) + A_ring * ca.sin(alpha)
-    A_L = A_rectangle * ca.sin(alpha) + A_ring * ca.cos(alpha)
+    # A_ring = math.pi * (diameter / 2) ** 2 - math.pi * ((diameter - width) / 2) ** 2
+    # A_rectangle = diameter * width
+    # A_D = A_rectangle * ca.cos(alpha) + A_ring * ca.sin(alpha)
+    # A_L = A_rectangle * ca.sin(alpha) + A_ring * ca.cos(alpha)
+    A = math.pi**2 * width * diameter / 2
+
+    # TODO add torque and angle changing?
 
     m = 0.235301  # kg
     # accel due to drag
-    a_D = lambda v: 0.5 * rho * v**2 * C_D * A_D / m
+    a_D = lambda v: 0.5 * rho * v**2 * C_D * A / m
     # a_D = lambda v: 0
 
     # accel due to lift
-    C_L = 0.15 + 1.4 * alpha
-    a_L = lambda v: 0.5 * rho * v**2 * A_L * C_L / m
+    C_L = (0.15 + 1.4 * alpha) / 2
+    a_L = lambda v: 0.5 * rho * v**2 * A * C_L / m
     # a_L = lambda v: 0
 
     v_x = x[3, 0]
     v_y = x[4, 0]
     v_z = x[5, 0]
-    return ca.vertcat(v_x, v_y, v_z, -a_D(v_x), -a_D(v_y), -g + a_L(hypot(v_x, v_y)))
+    return ca.vertcat(
+        v_x, v_y, v_z, -a_D(v_x), -a_D(v_y), -g + a_L(hypot(v_x, v_y))
+    )
 
 
 class Solver:
@@ -86,6 +91,8 @@ class Solver:
 
     def __init__(self) -> None:
         self._opti = ca.Opti()
+        # self._opti.solver("ipopt", {"print_level": 0})
+        self._opti.solver("ipopt")
 
         # Set up duration decision variables
         self.N = 20
@@ -181,13 +188,10 @@ class Solver:
         # Shooter initial position
         self._opti.subject_to(self.X[:3, 0] == shooter)
 
-        self._opti.solver("ipopt")
         sol = self._opti.solve()
         return sol
 
     def optimal_settings(self, x, y):
-
-        # TODO definitely wrong, return None and ignore instead of 0s
         try:
             sol = self.solve(x, y)
             v = sol.value(self.X[3:, 0])
@@ -220,7 +224,8 @@ class Solver:
             print(f"Launch angle = {round(launch_angle * 180.0 / math.pi, 3)}°")
             return (launch_velocity, launch_angle)
         except:
-            return (0, 0)
+            print("couldn't find trajectory")
+            return None
 
     def visualize(self, x, y):
 
@@ -281,16 +286,6 @@ class Solver:
         trajectory_z = sol.value(self.p_z)
         ax.plot(trajectory_x, trajectory_y, trajectory_z, color="orange")
 
-        print(
-            "succeeded !!! ",
-            math.atan2(
-                sol.value(self.v_z)[0],
-                math.sqrt(sol.value(self.v_x)[0] ** 2 + sol.value(self.v_y)[0] ** 2),
-            )
-            * 180
-            / math.pi,
-        )
-
         ax.set_box_aspect((field_length, field_width, np.max(trajectory_z)))
 
         ax.set_xlabel("X position (m)")
@@ -303,6 +298,6 @@ class Solver:
 if __name__ == "__main__":
     s = Solver()
 
-    s.visualize(field_length / 3, field_width / 3)
+    s.visualize(6, field_width / 3)
 
     # print(s._opti.debug.value)

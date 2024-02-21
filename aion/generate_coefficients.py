@@ -17,7 +17,7 @@ station_length = 1.75  # m
 field_length = 16.54  # m
 subwoofer_length = 0.92  # m
 min_x = 0  # m
-max_x = field_length / 2  # m
+max_x = field_length / 4  # m
 min_y = 0  # m
 max_y = field_width  # m
 
@@ -33,19 +33,30 @@ def f(variables, a, b, c, d, e, f):
 # global solver
 def optimal_values(point):
     global solver
-    velocity, angle = solver.optimal_settings(point[0], point[1])
-    return (angle, velocity, point[0], point[1])
+    sol = Solver().optimal_settings(point[0], point[1])
+    if sol is not None:
+        angle, velocity = sol
+        return (angle, velocity, point[0], point[1])
 
 
 if __name__ == "__main__":
     cases = [
-        (x, y) for y in np.arange(min_y, max_y, 1) for x in np.arange(min_x, max_x, 1)
+        (x, y)
+        for y in np.arange(min_y, max_y, 0.2)
+        for x in np.arange(min_x, max_x, 0.2)
     ]
     results = np.array(
-        multiprocessing.Pool(multiprocessing.cpu_count() // 6).map(
-            optimal_values, cases
+        list(
+            filter(
+                lambda x: x is not None,
+                multiprocessing.Pool(multiprocessing.cpu_count() // 4).map(
+                    optimal_values, cases
+                ),
+            )
         )
     )
+
+    print(results)
 
     velocity_fit, _ = curve_fit(f, (results[:, 2], results[:, 3]), results[:, 0])
     pitch_fit, _ = curve_fit(f, (results[:, 2], results[:, 3]), results[:, 1])
