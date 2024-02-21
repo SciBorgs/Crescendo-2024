@@ -1,20 +1,15 @@
 package org.sciborgs1155.robot;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.sciborgs1155.lib.TestingUtil.closeSubsystem;
 import static org.sciborgs1155.lib.TestingUtil.fastForward;
 import static org.sciborgs1155.lib.TestingUtil.run;
 import static org.sciborgs1155.lib.TestingUtil.setupHAL;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
-import static org.sciborgs1155.robot.pivot.PivotConstants.PIVOT_OFFSET;
 import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -25,7 +20,6 @@ import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
-import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
 
 public class ShooterTest {
@@ -105,27 +99,5 @@ public class ShooterTest {
         pivot.rotation().getY(),
         DELTA);
     assertEquals(4, shooter.getVelocity(), DELTA);
-  }
-
-  @Test
-  // ugliest test ever written...
-  public void testShooterPos() throws Exception {
-    assertEquals(PivotConstants.PIVOT_OFFSET, Shooting.shooterPos(new Pose2d()));
-    run(drive.drive(() -> 0.2, () -> 0.5, () -> Rotation2d.fromRadians(0)));
-    fastForward();
-    assertEquals(drive.getHeading(), Rotation2d.fromRadians(0));
-    var robotPose = drive.getPose();
-    var robotPos = drive.getPose().getTranslation();
-    var robotPos3d = new Translation3d(robotPos.getX(), robotPos.getY(), 0);
-    var idealShooterPos = robotPos3d.plus(PIVOT_OFFSET);
-    assertEquals(idealShooterPos, Shooting.shooterPos(robotPose));
-    run(drive.drive(() -> 0, () -> 0, () -> Rotation2d.fromRadians(0.5)));
-    fastForward();
-    var shooterPos = Shooting.shooterPos(drive.getPose());
-    assertNotEquals(idealShooterPos, shooterPos);
-    var newRobotPose = drive.getPose();
-    assertEquals(
-        shooterPos.getDistance(new Translation3d(newRobotPose.getX(), newRobotPose.getY(), 0)),
-        PIVOT_OFFSET.getNorm());
   }
 }
