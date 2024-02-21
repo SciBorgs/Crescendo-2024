@@ -23,9 +23,12 @@ max_launch_angle = 1.1
 
 speaker_low_edge = 2.002
 speaker_top_edge = 2.124
+inclined_top_angle = 14 * (np.pi / 180)  # rad
 delta_y = 1.051  # length of speaker (parallel to wall)
 delta_x = 0.451  # x distance from wall to start of speaker
 delta_z = 0.516  # height of window to score into
+bar_height = delta_z - (2 * delta_x * np.tan(inclined_top_angle))  # m
+starting_slanted_height = speaker_top_edge + bar_height  # m
 
 note_diameter = 0.356
 note_width = 0.0508
@@ -50,15 +53,13 @@ def hypot(a, b):
     return ca.sqrt(a**2 + b**2)
 
 
-# TODO actually set all of these...
-x0 = 0
-y0 = 0
-z0 = 0
-y_delta = 0
-x_delta = 0
-z_delta = 0
-z_min = 0
-z_max = 0
+# TODO don't use these
+x0 = delta_x
+y0 = field_width / 2
+z0 = speaker_top_edge
+y_delta = delta_y / 2
+x_delta = delta_x
+z_min = speaker_low_edge
 
 
 def f(x, alpha):
@@ -101,43 +102,36 @@ def f(x, alpha):
 
 
 def danger_zone(p1: tuple[float], p2: tuple[float]):
-    through_front or through_side or through_slanted_top
-
-
-# TODO actually write this
-def through_slanted_top(p1: tuple[float], p2: tuple[float]):
-    return False
+    return through_front(p1, p2) + through_side(p1, p2)
 
 
 def through_front(p1: tuple[float], p2: tuple[float]):
     def in_front(y, z):
-        y0 - y_delta < y < y0 + y_delta and z0 < z < z0 + z_delta
+        return (y0 - y_delta < y) * (y < y0 + y_delta) * (z0 < z)
 
-    def interp(x):
-        line = (p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
+    # def interp():
+    line = (p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
 
-        dydx = line[1] / line[0]
-        dzdx = line[2] / line[0]
+    dydx = line[1] / line[0]
+    dzdx = line[2] / line[0]
 
-        def y(x):
-            return dydx * x + p1[1]
+    def y(x):
+        return dydx * x + p1[1]
 
-        def z(x):
-            return dzdx * x + p1[2]
+    def z(x):
+        return dzdx * x + p1[2]
 
-        return (x, y(x), z(x))
+    on_plane = (x0, y(x0), z(x0))
 
-    return in_front(interp(x0)) and p1[0] > x0 > p2[0]
+    return in_front(on_plane[1], on_plane[2]) * (p1[0] > x0) * (x0 > p2[0])
 
 
 def through_side(p1: tuple[float], p2: tuple[float]):
+    m0 = (z0 - z_min) / x_delta
+    b0 = z0 - m0 * x0
+
     def in_side(x, z):
-        return (
-            x0 - x_delta < x < x0
-            and ((z0 - z_min) / x_delta) * x + z_min
-            < z
-            < ((z0 + z_delta - z_max) / x_delta) * x + z_max
-        )
+        return (x0 - x_delta < x) * (x < x0) * (m0 * x + b0 < z)
 
     def interp(y):
         line = (p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
@@ -159,9 +153,9 @@ def through_side(p1: tuple[float], p2: tuple[float]):
     y2 = p2[1]
     left = interp(left_y)
     right = interp(right_y)
-    in_left = in_side(left[0], left[2]) and y1 < left < y2
-    in_right = in_side(right[0], right[2]) and y1 > right > y2
-    return in_left or in_right
+    in_left = in_side(left[0], left[2]) * (y1 < left_y) * (left_y < y2)
+    in_right = in_side(right[0], right[2]) * (y1 > right_y) * (right_y > y2)
+    return in_left + in_right
 
 
 class Solver:
@@ -194,11 +188,11 @@ class Solver:
         self.v_y = self.X[4, :]
         self.v_z = self.X[5, :]
 
-        def p(i):
+        def point(i):
             return (self.p_x[i], self.p_y[i], self.p_z[i])
 
-        for i in range(self.N - 1):
-            self._opti.subject_to(not danger_zone(p(i), p(i + 1)))
+        # for i in range(11, self.N - 5):
+        # self._opti.subject_to(danger_zone(point(i), point(i + 1)) == 0) # checking that it's false
 
         # Require initial launch velocity is below max
         # √{v_x² + v_y² + v_z²) <= vₘₐₓ
@@ -365,14 +359,27 @@ class Solver:
             color="black",
             marker="x",
         )
-        xs = []
-        ys = []
-        zs = []
-        for angle in np.arange(0.0, 2.0 * math.pi, 0.1):
-            xs.append(target_x + target_radius * math.cos(angle))
-            ys.append(target_y + target_radius * math.sin(angle))
-            zs.append(target_z)
-        ax.plot(xs, ys, zs, color="black")
+        target_xs = []
+        target_ys = []
+        target_zs = []
+
+        front_hood_xs = []
+        front_hood_ys = []
+        front_hood_zs = []
+
+        # m = (z0 + z_delta)
+        for y in np.arange(y0 - y_delta, y0 + y_delta, 0.005):
+            for z in np.arange(z_min, z_min + delta_z, 0.005):
+                target_xs += [x0 - x_delta]
+                target_ys += [y]
+                target_zs += [z]
+            for z in np.arange(z0, z_min + delta_z, 0.005):
+                front_hood_xs += [x0]
+                front_hood_ys += [y]
+                front_hood_zs += [z]
+
+        ax.plot(front_hood_xs, front_hood_ys, front_hood_zs, color="red")
+        ax.plot(target_xs, target_ys, target_zs, color="blue")
 
         # Trajectory
         trajectory_x = sol.value(self.p_x)
@@ -392,6 +399,6 @@ class Solver:
 if __name__ == "__main__":
     s = Solver()
 
-    s.visualize(6, field_width / 3)
+    s.visualize(2, field_width / 3)
 
     # print(s._opti.debug.value)
