@@ -53,13 +53,7 @@ def hypot(a, b):
     return ca.sqrt(a**2 + b**2)
 
 
-# TODO don't use these
-x0 = delta_x
-y0 = field_width / 2
-z0 = speaker_top_edge
-y_delta = delta_y / 2
-x_delta = delta_x
-z_min = speaker_low_edge
+y_center = field_width / 2
 
 
 def f(x, alpha):
@@ -107,7 +101,11 @@ def danger_zone(p1: tuple[float], p2: tuple[float]):
 
 def through_front(p1: tuple[float], p2: tuple[float]):
     def in_front(y, z):
-        return (y0 - y_delta < y) * (y < y0 + y_delta) * (z0 < z)
+        return (
+            (y_center - delta_y / 2 < y)
+            * (y < y_center + delta_y / 2)
+            * (speaker_top_edge < z)
+        )
 
     # def interp():
     line = (p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
@@ -121,17 +119,17 @@ def through_front(p1: tuple[float], p2: tuple[float]):
     def z(x):
         return dzdx * x + p1[2] - dzdx * p1[0]
 
-    on_plane = (x0, y(x0), z(x0))
+    on_plane = (delta_x, y(delta_x), z(delta_x))
 
-    return in_front(on_plane[1], on_plane[2]) * (p1[0] > x0) * (x0 > p2[0])
+    return in_front(on_plane[1], on_plane[2]) * (p1[0] > delta_x) * (delta_x > p2[0])
 
 
 def through_side(p1: tuple[float], p2: tuple[float]):
-    m0 = (z0 - z_min) / x_delta
-    b0 = z0 - m0 * x0
+    m0 = (speaker_top_edge - speaker_low_edge) / delta_x
+    b0 = speaker_top_edge - m0 * delta_x
 
     def in_side(x, z):
-        return (x0 - x_delta < x) * (x < x0) * (m0 * x + b0 < z)
+        return (0 < x) * (x < delta_x) * (m0 * x + b0 < z)
 
     def interp(y):
         line = (p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
@@ -147,8 +145,8 @@ def through_side(p1: tuple[float], p2: tuple[float]):
 
         return (x(y), y, z(y))
 
-    left_y = y0 - y_delta
-    right_y = y0 + y_delta
+    left_y = y_center - delta_y / 2
+    right_y = y_center + delta_y / 2
     y1 = p1[1]
     y2 = p2[1]
     left = interp(left_y)
@@ -369,13 +367,13 @@ class Solver:
         front_hood_ys = []
         front_hood_zs = []
 
-        for y in np.arange(y0 - y_delta, y0 + y_delta, 0.005):
-            for z in np.arange(z_min, z_min + delta_z, 0.005):
-                target_xs += [x0 - x_delta]
+        for y in np.arange(y_center - delta_y / 2, y_center + delta_y / 2, 0.005):
+            for z in np.arange(speaker_low_edge, speaker_low_edge + delta_z, 0.005):
+                target_xs += [0]
                 target_ys += [y]
                 target_zs += [z]
-            for z in np.arange(z0, z_min + delta_z, 0.005):
-                front_hood_xs += [x0]
+            for z in np.arange(speaker_top_edge, speaker_low_edge + delta_z, 0.005):
+                front_hood_xs += [delta_x]
                 front_hood_ys += [y]
                 front_hood_zs += [z]
 
@@ -400,6 +398,6 @@ class Solver:
 if __name__ == "__main__":
     s = Solver()
 
-    s.visualize(6, field_width / 6)
+    s.visualize(6, field_width / 4)
 
     # print(s._opti.debug.value)
