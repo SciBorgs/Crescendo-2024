@@ -114,7 +114,8 @@ def through_slanted_top(p1: tuple[float], p2: tuple[float]):
     #z_max -> speaker_top_edge + bar_height + delta_x * tan(inclined_top_angle)
     #(And constraints for y and x coordinates)
     def h(x):
-        return starting_slanted_height + x * np.tan(inclined_top_angle)
+        #Where x is equal to 0 at the start of the speaker
+        return starting_slanted_height + abs(x) * np.tan(inclined_top_angle)
     def in_slanted_top_area(x, z):
         return z < h(x) 
     def interp(x):
