@@ -193,7 +193,7 @@ class Solver:
 
         for i in range(11, self.N - 5):
             self._opti.subject_to(
-                through_front(point(i), point(i + 1)) == 0
+                danger_zone(point(i), point(i + 1)) == 0
             )  # checking that it's false
 
         # Require initial launch velocity is below max
