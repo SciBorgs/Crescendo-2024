@@ -23,9 +23,12 @@ max_launch_angle = 1.1
 
 speaker_low_edge = 2.002
 speaker_top_edge = 2.124
+inclined_top_angle = 14 * (np.pi / 180) #rad
 delta_y = 1.051  # length of speaker (parallel to wall)
 delta_x = 0.451  # x distance from wall to start of speaker
 delta_z = 0.516  # height of window to score into
+bar_height = (delta_z - (2 * delta_x * np.tan(inclined_top_angle))) #m
+starting_slanted_height = speaker_top_edge + bar_height #m
 
 note_diameter = 0.356
 note_width = 0.0508
