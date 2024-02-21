@@ -50,6 +50,17 @@ def hypot(a, b):
     return ca.sqrt(a**2 + b**2)
 
 
+# TODO actually set all of these...
+x0 = 0
+y0 = 0
+z0 = 0
+y_delta = 0
+x_delta = 0
+z_delta = 0
+z_min = 0
+z_max = 0
+
+
 def f(x, alpha):
     # x' = x'
     # y' = y'
@@ -89,6 +100,70 @@ def f(x, alpha):
     return ca.vertcat(v_x, v_y, v_z, -a_D(v_x), -a_D(v_y), -g + a_L(hypot(v_x, v_y)))
 
 
+def danger_zone(p1: tuple[float], p2: tuple[float]):
+    through_front or through_side or through_slanted_top
+
+
+# TODO actually write this
+def through_slanted_top(p1: tuple[float], p2: tuple[float]):
+    return False
+
+
+def through_front(p1: tuple[float], p2: tuple[float]):
+    def in_front(y, z):
+        y0 - y_delta < y < y0 + y_delta and z0 < z < z0 + z_delta
+
+    def interp(x):
+        line = (p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
+
+        dydx = line[1] / line[0]
+        dzdx = line[2] / line[0]
+
+        def y(x):
+            return dydx * x + p1[1]
+
+        def z(x):
+            return dzdx * x + p1[2]
+
+        return (x, y(x), z(x))
+
+    return in_front(interp(x0)) and p1[0] > x0 > p2[0]
+
+
+def through_side(p1: tuple[float], p2: tuple[float]):
+    def in_side(x, z):
+        return (
+            x0 - x_delta < x < x0
+            and ((z0 - z_min) / x_delta) * x + z_min
+            < z
+            < ((z0 + z_delta - z_max) / x_delta) * x + z_max
+        )
+
+    def interp(y):
+        line = (p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
+
+        dxdy = line[0] / line[1]
+        dzdy = line[2] / line[1]
+
+        def x(y):
+            return dxdy * y + p1[0]  # m x + b
+
+        def z(y):
+            return dzdy * y + p1[2]  # m x + b
+
+        return (x(y), y, z(y))
+
+    left_y = y0 - y_delta
+    right_y = y0 + y_delta
+    y1 = p1[1]
+    y2 = p2[1]
+    left = interp(left_y)
+    right = interp(right_y)
+    in_left = in_side(left[0], left[2]) and y1 < left < y2
+    in_right = in_side(right[0], right[2]) and y1 > right > y2
+    return in_left or in_right
+
+
 class Solver:
     shooter_z = 0.635
 
@@ -118,6 +193,12 @@ class Solver:
         self.v_x = self.X[3, :]
         self.v_y = self.X[4, :]
         self.v_z = self.X[5, :]
+
+        def p(i):
+            return (self.p_x[i], self.p_y[i], self.p_z[i])
+
+        for i in range(self.N - 1):
+            self._opti.subject_to(not danger_zone(p(i), p(i + 1)))
 
         # Require initial launch velocity is below max
         # √{v_x² + v_y² + v_z²) <= vₘₐₓ
