@@ -1,7 +1,3 @@
-import numpy as np
-from trajectory import Trajectory
-
-
 """
 Test the functions created from the coefficents found.
 """

@@ -6,7 +6,6 @@ This program finds the optimal initial launch velocity and launch angle for the
 2022 FRC game's target.
 """
 
-from mpl_toolkits.mplot3d import Axes3D
 from numpy.linalg import norm
 import casadi as ca
 import math

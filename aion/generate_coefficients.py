@@ -1,7 +1,5 @@
-from matplotlib import pyplot as plt
 import numpy as np
 from solver import Solver
-from trajectory import Trajectory
 from scipy.optimize import curve_fit
 import multiprocessing
 
