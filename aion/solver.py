@@ -129,10 +129,18 @@ class Solver:
 
         # Require final position is within speaker wall bounds
         self._opti.subject_to(self.p_x[-1] < 0)  # note will be at wall
-        self._opti.subject_to(field_width / 2 - delta_y / 2 < self.p_y[-1])
-        self._opti.subject_to(field_width / 2 + delta_y / 2 > self.p_y[-1])
-        self._opti.subject_to(speaker_low_edge - delta_z / 2 < self.p_z[-1])
-        self._opti.subject_to(speaker_low_edge + delta_z / 2 > self.p_z[-1])
+        self._opti.subject_to(
+            (field_width - note_diameter) / 2 - delta_y / 2 < self.p_y[-1]
+        )
+        self._opti.subject_to(
+            (field_width - note_diameter) / 2 + delta_y / 2 > self.p_y[-1]
+        )
+        self._opti.subject_to(
+            speaker_low_edge - (delta_z - note_width) / 2 < self.p_z[-1]
+        )
+        self._opti.subject_to(
+            speaker_low_edge + (delta_z - note_width) / 2 > self.p_z[-1]
+        )
 
         # Require the final velocity is going into the wall
         self._opti.subject_to(self.v_x[-1] < 0)
