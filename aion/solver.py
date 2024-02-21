@@ -50,15 +50,13 @@ def hypot(a, b):
     return ca.sqrt(a**2 + b**2)
 
 
-# TODO actually set all of these...
-x0 = 0
-y0 = 0
-z0 = 0
-y_delta = 0
-x_delta = 0
-z_delta = 0
-z_min = 0
-z_max = 0
+# TODO don't use these
+x0 = delta_x
+y0 = field_width / 2
+z0 = speaker_top_edge
+y_delta = delta_y / 2
+x_delta = delta_x
+z_min = speaker_low_edge
 
 
 def f(x, alpha):
@@ -101,43 +99,36 @@ def f(x, alpha):
 
 
 def danger_zone(p1: tuple[float], p2: tuple[float]):
-    through_front or through_side or through_slanted_top
-
-
-# TODO actually write this
-def through_slanted_top(p1: tuple[float], p2: tuple[float]):
-    return False
+    through_front(p1, p2) or through_side(p1, p2)
 
 
 def through_front(p1: tuple[float], p2: tuple[float]):
     def in_front(y, z):
-        y0 - y_delta < y < y0 + y_delta and z0 < z < z0 + z_delta
+        y0 - y_delta < y < y0 + y_delta and z0 < z
 
-    def interp(x):
-        line = (p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
+    # def interp():
+    line = (p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
 
-        dydx = line[1] / line[0]
-        dzdx = line[2] / line[0]
+    dydx = line[1] / line[0]
+    dzdx = line[2] / line[0]
 
-        def y(x):
-            return dydx * x + p1[1]
+    def y(x):
+        return dydx * x + p1[1]
 
-        def z(x):
-            return dzdx * x + p1[2]
+    def z(x):
+        return dzdx * x + p1[2]
 
-        return (x, y(x), z(x))
+    on_plane = (x0, y(x0), z(x0))
 
-    return in_front(interp(x0)) and p1[0] > x0 > p2[0]
+    return in_front(on_plane[1], on_plane[2]) and p1[0] > x0 > p2[0]
 
 
 def through_side(p1: tuple[float], p2: tuple[float]):
+    m0 = (z0 - z_min) / x_delta
+    b0 = z0 - m0 * x0
+
     def in_side(x, z):
-        return (
-            x0 - x_delta < x < x0
-            and ((z0 - z_min) / x_delta) * x + z_min
-            < z
-            < ((z0 + z_delta - z_max) / x_delta) * x + z_max
-        )
+        return x0 - x_delta < x < x0 and m0 * x + b0 < z
 
     def interp(y):
         line = (p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
