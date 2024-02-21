@@ -145,23 +145,23 @@ public class Shooting {
   public static double stationaryVelocity(Translation2d translationFromSpeaker) {
     double x = Math.abs(translationFromSpeaker.getX());
     double y = translationFromSpeaker.getY();
-    return 1.1331172768630184
-        + 0.0337170229983295 * x
-        + -0.07822480760293148 * y
-        + -0.010386903450326593 * x * x
-        + -0.00030007103195798433 * y * y
-        + -0.0042478354516679185 * x * y;
+    return 5.5271852433873345
+        + 0.5190955547104696 * x
+        + 0.07707519916670269 * y
+        + -0.0024133794816567633 * x * x
+        + 0.01498409775890086 * y * y
+        + -0.06372350453603381 * x * y;
   }
 
   public static double stationaryPitch(Translation2d translationFromSpeaker) {
     double x = Math.abs(translationFromSpeaker.getX());
     double y = translationFromSpeaker.getY();
-    return 1.1331172768630184
-        + 0.0337170229983295 * x
-        + -0.07822480760293148 * y
-        + -0.010386903450326593 * x * x
-        + -0.00030007103195798433 * y * y
-        + -0.0042478354516679185 * x * y;
+    return 0.8362824373065703
+        + -0.15055912579435599 * x
+        + 0.13152228760076837 * y
+        + -0.0056287323828513765 * x * x
+        + -0.020130400003326433 * y * y
+        + 0.014766007030961469 * x * y;
   }
 
   public static Translation3d shooterPos(Pose2d robotPose) {

@@ -18,10 +18,18 @@ field_length = 16.4592  # 54 ft
 
 g = 9.806
 max_launch_velocity = 7
-speaker_max_height = 2.11  # m
 
 min_launch_angle = 0
 max_launch_angle = 1.1
+
+speaker_low_edge = 2.002
+speaker_top_edge = 2.124
+delta_y = 1.051  # length of speaker (parallel to wall)
+delta_x = 0.451  # x distance from wall to start of speaker
+delta_z = 0.516  # height of window to score into
+
+note_diameter = 0.356
+note_width = 0.0508
 
 # shooter = np.array([[field_length / 6.0], [field_width / 6.0], [0.635]])
 # shooter_x = shooter[0, 0]
@@ -56,34 +64,30 @@ def f(x, alpha):
     C_D0 = 0.08
     C_DA = 2.72
     C_D = C_D0 + C_DA * (alpha) ** 2  # paper uses degrees??
-    # C_D = 0.05
-    # A = math.pi * (0.356 / 2) ** 2
-    diameter = 0.356
-    width = 0.0508
-    # A_ring = math.pi * (diameter / 2) ** 2 - math.pi * ((diameter - width) / 2) ** 2
-    # A_rectangle = diameter * width
-    # A_D = A_rectangle * ca.cos(alpha) + A_ring * ca.sin(alpha)
-    # A_L = A_rectangle * ca.sin(alpha) + A_ring * ca.cos(alpha)
-    A = math.pi**2 * width * diameter / 2
+
+    # A = math.pi**2 * note_width * note_diameter / 2
+    A_ring = (
+        math.pi * (note_diameter / 2) ** 2
+        - math.pi * ((note_diameter - note_width) / 2) ** 2
+    )
+    A_rectangle = note_diameter * note_width
+    A_D = A_rectangle * ca.cos(alpha) + A_ring * ca.sin(alpha)
+    A_L = A_rectangle * ca.sin(alpha) + A_ring * ca.cos(alpha)
 
     # TODO add torque and angle changing?
 
     m = 0.235301  # kg
     # accel due to drag
-    a_D = lambda v: 0.5 * rho * v**2 * C_D * A / m
-    # a_D = lambda v: 0
+    a_D = lambda v: 0.5 * rho * v**2 * C_D * A_D / m
 
     # accel due to lift
     C_L = (0.15 + 1.4 * alpha) / 2
-    a_L = lambda v: 0.5 * rho * v**2 * A * C_L / m
-    # a_L = lambda v: 0
+    a_L = lambda v: 0.5 * rho * v**2 * A_L * C_L / m
 
     v_x = x[3, 0]
     v_y = x[4, 0]
     v_z = x[5, 0]
-    return ca.vertcat(
-        v_x, v_y, v_z, -a_D(v_x), -a_D(v_y), -g + a_L(hypot(v_x, v_y))
-    )
+    return ca.vertcat(v_x, v_y, v_z, -a_D(v_x), -a_D(v_y), -g + a_L(hypot(v_x, v_y)))
 
 
 class Solver:
@@ -124,15 +128,17 @@ class Solver:
             <= max_launch_velocity**2
         )
 
-        # Require final position is in center of target circle
-        self._opti.subject_to(self.p_x[-1] == target_x)
-        self._opti.subject_to(self.p_y[-1] == target_y)
-        self._opti.subject_to(self.p_z[-1] == target_z)
+        # Require final position is within speaker wall bounds
+        self._opti.subject_to(self.p_x[-1] < 0)  # note will be at wall
+        self._opti.subject_to(field_width / 2 - delta_y / 2 < self.p_y[-1])
+        self._opti.subject_to(field_width / 2 + delta_y / 2 > self.p_y[-1])
+        self._opti.subject_to(speaker_low_edge - delta_z / 2 < self.p_z[-1])
+        self._opti.subject_to(speaker_low_edge + delta_z / 2 > self.p_z[-1])
 
-        # Require the final velocity is down
-        self._opti.subject_to(self.v_z[-1] > 0)
+        # Require the final velocity is going into the wall
+        self._opti.subject_to(self.v_x[-1] < 0)
 
-        # Assume the note never rotates (a bad assumption)
+        # Calculate initial pitch
         pitch = ca.atan2(self.v_z[0], hypot(self.v_x[0], self.v_y[0]))
         # pitch = math.pi / 2.0 - ca.asin(ca.norm_1(self.X[:3, 0]) / ca.norm_1(self.X[:3, 0]))
         # Constrain starting angle
@@ -152,7 +158,7 @@ class Solver:
             self._opti.subject_to(x_k1 == x_k + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4))
 
         # Avoid speaker physical constraints
-        self._opti.subject_to(self.X[2] < speaker_max_height)
+        # self._opti.subject_to(self.X[2] < speaker_max_height)
 
         # Minimize distance from goal over time
         J = 0
