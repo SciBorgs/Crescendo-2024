@@ -1,25 +1,24 @@
-"""
-Test the functions created from the coefficents found.
-"""
+from solver import through_front, through_side, danger_zone
 
 
-def theta_approx(x, y):
-    return (
-        1.1331172768630184
-        + 0.0337170229983295 * x
-        + -0.07822480760293148 * y
-        + -0.010386903450326593 * x**2
-        + -0.00030007103195798433 * y**2
-        + -0.0042478354516679185 * x * y
-    )
+def testThroughFront():
+    p1 = (0.7, 4.5, 2.6)
+    p2 = (-0.2, 3.3, 2.3)
+    assert through_front(p1, p2) == 1
+    assert through_front(p2, p1) == 0
+    assert through_front((0.7, 4.5, 3.9), (-0.2, 3.3, 2.3)) == 1
+    assert through_front((0.7, 4.5, 1.7), (-0.2, 3.3, 2.3)) == 0
 
 
-def v_approx(x, y):
-    return (
-        6.453655233490886
-        + -0.31621564232862487 * x
-        + 1.0962750645654968 * y
-        + 0.0012312720547558165 * x**2
-        + -0.11192054441863619 * y**2
-        + 0.03819377475764463 * x * y
-    )
+def testThroughSide():
+    p1 = (0.7, 2.9, 3.1)
+    p2 = (-0.2, 4.5, 2.4)
+    assert through_side(p1, p2) == 1
+    assert through_side(p2, p1) == 0
+    assert through_side((1.5, 2.9, 3.1), p2) == 0
+    assert through_side((0.7, 5, 3.1), (-1.3, 3.5, 2.4)) == 1
+    assert through_side((0.7, 5, 1.6), (-1.3, 3.5, 2.4)) == 0
+
+
+testThroughSide()
+testThroughSide()

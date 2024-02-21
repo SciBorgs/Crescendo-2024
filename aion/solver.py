@@ -116,10 +116,10 @@ def through_front(p1: tuple[float], p2: tuple[float]):
     dzdx = line[2] / line[0]
 
     def y(x):
-        return dydx * x + p1[1]
+        return dydx * x + p1[1] - dydx * p1[0]
 
     def z(x):
-        return dzdx * x + p1[2]
+        return dzdx * x + p1[2] - dzdx * p1[0]
 
     on_plane = (x0, y(x0), z(x0))
 
@@ -140,10 +140,10 @@ def through_side(p1: tuple[float], p2: tuple[float]):
         dzdy = line[2] / line[1]
 
         def x(y):
-            return dxdy * y + p1[0]  # m x + b
+            return dxdy * y + p1[0] - dxdy * p1[1]  # m x + b
 
         def z(y):
-            return dzdy * y + p1[2]  # m x + b
+            return dzdy * y + p1[2] - dzdy * p1[1]  # m x + b
 
         return (x(y), y, z(y))
 
@@ -191,8 +191,10 @@ class Solver:
         def point(i):
             return (self.p_x[i], self.p_y[i], self.p_z[i])
 
-        # for i in range(11, self.N - 5):
-        # self._opti.subject_to(danger_zone(point(i), point(i + 1)) == 0) # checking that it's false
+        for i in range(11, self.N - 5):
+            self._opti.subject_to(
+                through_front(point(i), point(i + 1)) == 0
+            )  # checking that it's false
 
         # Require initial launch velocity is below max
         # √{v_x² + v_y² + v_z²) <= vₘₐₓ
@@ -367,7 +369,6 @@ class Solver:
         front_hood_ys = []
         front_hood_zs = []
 
-        # m = (z0 + z_delta)
         for y in np.arange(y0 - y_delta, y0 + y_delta, 0.005):
             for z in np.arange(z_min, z_min + delta_z, 0.005):
                 target_xs += [x0 - x_delta]
@@ -399,6 +400,6 @@ class Solver:
 if __name__ == "__main__":
     s = Solver()
 
-    s.visualize(2, field_width / 3)
+    s.visualize(6, field_width / 6)
 
     # print(s._opti.debug.value)
