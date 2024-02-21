@@ -156,8 +156,9 @@ public class Robot extends CommandRobot implements Logged {
   private void registerCommands() {
     NamedCommands.registerCommand("lock", drive.lock());
     NamedCommands.registerCommand(
-        "shoot", shooting.pivotThenShoot(() -> PRESET_PODIUM_ANGLE.getRadians(), () -> 11).withTimeout(3));
-    NamedCommands.registerCommand("intake", intake.intake().withTimeout(1.6));
+        "shoot",
+        shooting.pivotThenShoot(() -> PRESET_PODIUM_ANGLE.getRadians(), () -> 11).withTimeout(2.7));
+    NamedCommands.registerCommand("intake", intake.intake().withTimeout(1.3));
   }
 
   /** Configures trigger -> command bindings */
@@ -188,20 +189,11 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     // shooting
-    operator
-        .x()
-        .toggleOnTrue(
-            shooter.runShooter(() -> 12));
+    operator.x().toggleOnTrue(shooter.runShooter(() -> 12));
     // pivot into speaker when up to podium.
-    operator
-        .y()
-        .toggleOnTrue(
-            pivot.runPivot(() -> PRESET_PODIUM_ANGLE.getRadians()));
+    operator.y().toggleOnTrue(pivot.runPivot(() -> PRESET_PODIUM_ANGLE.getRadians()));
     // pivot into amp when up to amp.
-    operator
-        .a()
-        .toggleOnTrue(
-            pivot.runPivot(() -> PRESET_AMP_ANGLE.getRadians()));
+    operator.a().toggleOnTrue(pivot.runPivot(() -> PRESET_AMP_ANGLE.getRadians()));
     // moving pivot to starting config.
     operator.b().toggleOnTrue(pivot.runPivot(() -> STARTING_ANGLE.getRadians()));
     // outtake
