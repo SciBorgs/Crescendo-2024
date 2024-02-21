@@ -27,7 +27,8 @@ inclined_top_angle = 14 * (np.pi / 180) #rad
 delta_y = 1.051  # length of speaker (parallel to wall)
 delta_x = 0.451  # x distance from wall to start of speaker
 delta_z = 0.516  # height of window to score into
-starting_slanted_height = (2 * speaker_top_edge) - speaker_low_edge - (delta_x * np.tan(inclined_top_angle))
+bar_height = (delta_z - (2 * delta_x * np.tan(inclined_top_angle))) #m
+starting_slanted_height = speaker_top_edge + bar_height #m
 
 note_diameter = 0.356
 note_width = 0.0508
@@ -108,10 +109,14 @@ def danger_zone(p1: tuple[float], p2: tuple[float]):
 
 # TODO actually write this
 def through_slanted_top(p1: tuple[float], p2: tuple[float]):
+    #Boundary of slanted area is defined by:
+    #z_min -> speaker_top_edge + bar_height
+    #z_max -> speaker_top_edge + bar_height + delta_x * tan(inclined_top_angle)
+    #(And constraints for y and x coordinates)
     def h(x):
         return starting_slanted_height + x * np.tan(inclined_top_angle)
     def in_slanted_top_area(x, z):
-        return z < h(x)
+        return z < h(x) 
     def interp(x):
         line = (p2[0] - p1[0], p2[2] - p1[2])
         dzdx = line[1] / line[0]
