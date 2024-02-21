@@ -1,5 +1,9 @@
 package org.sciborgs1155.robot.intake;
 
+import static edu.wpi.first.units.Units.Seconds;
+import static org.sciborgs1155.robot.Constants.PERIOD;
+
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,23 +32,18 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command intake() {
-    return
-    // Commands.deadline(
-    // Commands.waitUntil(inIntake()).andThen(Commands.waitUntil(inIntake().negate())),
-    run(() -> intake.setPower(IntakeConstants.INTAKE_SPEED)).alongWith(NoteVisualizer.intake());
+    return run(() -> intake.setPower(IntakeConstants.INTAKE_SPEED))
+        .alongWith(NoteVisualizer.intake());
   }
 
   public Trigger inIntake() {
-    return new Trigger(() -> !intake.beambreak());
+    return new Trigger(() -> !intake.beambreak())
+        .debounce(PERIOD.times(3).in(Seconds), DebounceType.kBoth);
   }
 
   public Command outtake() {
     return run(() -> intake.setPower(-IntakeConstants.INTAKE_SPEED));
   }
-
-  // public Trigger hasNote() {
-  //   return new Trigger(intake::beamBreak);
-  // }
 
   @Override
   public void close() throws Exception {

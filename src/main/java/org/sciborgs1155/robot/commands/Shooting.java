@@ -57,7 +57,9 @@ public class Shooting {
         .setSetpoint(desiredVelocity)
         .andThen(
             Commands.deadline(
-                Commands.waitUntil(shooter::atSetpoint).andThen(feeder.eject()),
+                Commands.waitUntil(shooter::atSetpoint)
+                    .andThen(feeder.eject())
+                    .andThen(Commands.waitSeconds(0.05)),
                 shooter.runShooter(desiredVelocity)));
   }
 
