@@ -193,9 +193,11 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(
             Commands.parallel(
                 pivot.runPivot(STARTING_ANGLE.getRadians()),
-                // Commands.sequence(
                 Commands.waitUntil(pivot::atRest)
-                    .andThen(intake.intake().alongWith(feeder.intake())))); // );
+                    .andThen(
+                        Commands.deadline(
+                            Commands.waitUntil(intake.inIntake()).andThen(feeder.intake()),
+                            intake.intake()))));
     operator.rightBumper().whileTrue(feeder.eject());
     operator.povUp().whileTrue(shooter.runShooter(() -> 300));
     operator.povDown().whileTrue(shooter.runShooter(() -> 200));

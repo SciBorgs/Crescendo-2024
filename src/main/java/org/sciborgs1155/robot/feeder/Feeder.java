@@ -1,8 +1,10 @@
 package org.sciborgs1155.robot.feeder;
 
 import static edu.wpi.first.units.Units.Seconds;
+import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,10 +36,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command eject() {
-    return
-    // Commands.deadline(
-    // Commands.waitUntil(atShooter()).andThen(Commands.waitUntil(atShooter().negate())),
-    runFeeder(POWER).alongWith(NoteVisualizer.shoot()).withTimeout(TIMEOUT.in(Seconds)); // );
+    return runFeeder(POWER).alongWith(NoteVisualizer.shoot()).withTimeout(TIMEOUT.in(Seconds));
   }
 
   public Command retract() {
@@ -45,16 +44,12 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command intake() {
-    return runFeeder(POWER)
-        .withTimeout(3)
-        .andThen(
-            retract()
-                .withTimeout(
-                    0.15)); // .until(atShooter()).andThen(retract().until(atShooter().negate()));
+    return runFeeder(POWER).withTimeout(1.5).andThen(retract().withTimeout(0.15));
   }
 
   public Trigger atShooter() {
-    return new Trigger(() -> !feeder.beambreak());
+    return new Trigger(() -> !feeder.beambreak())
+        .debounce(PERIOD.times(3).in(Seconds), DebounceType.kBoth);
   }
 
   @Log.NT
