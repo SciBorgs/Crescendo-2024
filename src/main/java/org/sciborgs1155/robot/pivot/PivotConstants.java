@@ -46,6 +46,7 @@ public class PivotConstants {
 
   public static final Rotation2d PRESET_SUBWOOFER_ANGLE = STARTING_ANGLE;
   public static final Rotation2d PRESET_AMP_ANGLE = MIN_ANGLE;
+  public static final Rotation2d PRESET_PODIUM_ANGLE = Rotation2d.fromDegrees(56.3);
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 

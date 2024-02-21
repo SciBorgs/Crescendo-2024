@@ -156,7 +156,7 @@ public class Robot extends CommandRobot implements Logged {
   private void registerCommands() {
     NamedCommands.registerCommand("lock", drive.lock());
     NamedCommands.registerCommand(
-        "shoot", shooting.pivotThenShoot(() -> 35, () -> 11).withTimeout(3));
+        "shoot", shooting.pivotThenShoot(() -> PRESET_PODIUM_ANGLE.getRadians(), () -> 11).withTimeout(3));
     NamedCommands.registerCommand("intake", intake.intake().withTimeout(1.6));
   }
 
@@ -187,27 +187,21 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
-    // shooting into speaker by moving pivot based on angle
+    // shooting
     operator
         .x()
         .toggleOnTrue(
-            shooting.pivotThenShoot(() -> 40, () -> 12)
-            // .until(() -> !feeder.topBB().getAsBoolean())
-            );
-    // shooting into speaker when up to subwoofer.
+            shooter.runShooter(() -> 12));
+    // pivot into speaker when up to podium.
     operator
         .y()
         .toggleOnTrue(
-            shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE.getRadians(), () -> 11)
-            // .until(() -> !feeder.topBB().getAsBoolean())
-            );
-    // shooting into amp when up to amp.
+            pivot.runPivot(() -> PRESET_PODIUM_ANGLE.getRadians()));
+    // pivot into amp when up to amp.
     operator
         .a()
         .toggleOnTrue(
-            shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE.getRadians(), () -> 10)
-            // .until(() -> !feeder.topBB().getAsBoolean())
-            );
+            pivot.runPivot(() -> PRESET_AMP_ANGLE.getRadians()));
     // moving pivot to starting config.
     operator.b().toggleOnTrue(pivot.runPivot(() -> STARTING_ANGLE.getRadians()));
     // outtake
