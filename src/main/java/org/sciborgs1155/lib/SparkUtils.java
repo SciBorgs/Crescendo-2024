@@ -61,6 +61,7 @@ public class SparkUtils {
     int status4 = FRAME_STRATEGY_DISABLED; // alternate quadrature encoder | default 20
     int status5 = FRAME_STRATEGY_DISABLED; // duty cycle position | default 200
     int status6 = FRAME_STRATEGY_DISABLED; // duty cycle velocity | default 200
+    int status7 = FRAME_STRATEGY_DISABLED;
 
     if (!data.contains(Data.OUTPUT) && !withFollower) {
       status0 = FRAME_STRATEGY_SLOW;
@@ -98,9 +99,31 @@ public class SparkUtils {
     REVLibError e4 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus4, status4);
     REVLibError e5 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus5, status5);
     REVLibError e6 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus6, status6);
-    // if (e0 != REVLibError.kOk) {
-    //   System.out.println("failed to set status frame 0");
-    // }
+    REVLibError e7 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus7, status7);
+    if (e0 != REVLibError.kOk) {
+      System.out.println("failed to set status frame 0");
+    }
+    if (e1 != REVLibError.kOk) {
+      System.out.println("failed to set status frame 1");
+    }
+    if (e2 != REVLibError.kOk) {
+      System.out.println("failed to set status frame 2");
+    }
+    if (e3 != REVLibError.kOk) {
+      System.out.println("failed to set status frame 3");
+    }
+    if (e4 != REVLibError.kOk) {
+      System.out.println("failed to set status frame 4");
+    }
+    if (e5 != REVLibError.kOk) {
+      System.out.println("failed to set status frame 5");
+    }
+    if (e6 != REVLibError.kOk) {
+      System.out.println("failed to set status frame 6");
+    }
+    if (e7 != REVLibError.kOk) {
+      System.out.println("failed to set status frame 7");
+    }
   }
 
   /**

@@ -21,7 +21,7 @@ public class ShooterConstants {
       Rotations.of(GEARING).times(CIRCUMFERENCE.in(Meters));
   public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
-  public static final Measure<Velocity<Angle>> VELOCITY_TOLERANCE = RadiansPerSecond.of(10);
+  public static final Measure<Velocity<Angle>> VELOCITY_TOLERANCE = RadiansPerSecond.of(5);
 
   public static final double kP = 0.05;
   public static final double kI = 0;

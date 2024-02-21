@@ -22,13 +22,13 @@ public class VisionConstants {
       new CameraConfig(
           "left",
           new Transform3d(
-              new Translation3d(Inches.of(-12), Inches.of(10.5), Inches.of(17.5)),
+              new Translation3d(Inches.of(-12), Inches.of(-10.5), Inches.of(17.5)),
               new Rotation3d(0, Math.PI / 6, 5 * Math.PI / 6)));
   public static final CameraConfig SIDE_CAMERA_CONFIG =
       new CameraConfig(
           "right",
           new Transform3d(
-              new Translation3d(Inches.of(-12), Inches.of(-10.5), Inches.of(17.5)),
+              new Translation3d(Inches.of(-12), Inches.of(10.5), Inches.of(17.5)),
               new Rotation3d(0, Math.PI / 6, -5 * Math.PI / 6)));
 
   // OV9281 constants for our configuration

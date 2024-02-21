@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
@@ -41,6 +42,8 @@ public final class DriveConstants {
           Rotation2d.fromRadians(Math.PI), // rear left
           Rotation2d.fromRadians(Math.PI / 2) // rear right
           );
+
+  public static final Rotation3d GYRO_OFFSET = new Rotation3d(0, 0, Math.PI);
 
   public static final class Translation {
     public static final double P = 0.6;
@@ -86,9 +89,9 @@ public final class DriveConstants {
       }
 
       public static final class FF {
-        public static final double S = 0.12389;
-        public static final double V = 2.0928;
-        public static final double A = 0.12098;
+        public static final double S = 0.11292;
+        public static final double V = 2.0994;
+        public static final double A = 0.34005;
       }
     }
 
@@ -104,9 +107,9 @@ public final class DriveConstants {
       public static final Measure<Current> CURRENT_LIMIT = Amps.of(20);
 
       public static final class PID {
-        public static final double P = 2.8;
+        public static final double P = 8;
         public static final double I = 0.0;
-        public static final double D = 0.001;
+        public static final double D = 0.004;
       }
 
       // system constants only used in simulation
