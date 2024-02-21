@@ -65,6 +65,7 @@ public class FlexModule implements ModuleIO {
         Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
         Set.of(Sensor.INTEGRATED),
         false);
+
     SparkUtils.configureFrameStrategy(
         turnMotor,
         Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),

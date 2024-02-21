@@ -35,16 +35,16 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     return runOnce(() -> feeder.set(power)).andThen(Commands.idle()).finallyDo(() -> feeder.set(0));
   }
 
-  public Command eject() {
-    return runFeeder(POWER).alongWith(NoteVisualizer.shoot()).withTimeout(TIMEOUT.in(Seconds));
+  public Command forward() {
+    return runFeeder(POWER).alongWith(NoteVisualizer.shoot());
   }
 
-  public Command retract() {
+  public Command backward() {
     return runFeeder(-POWER / 2.0);
   }
 
-  public Command intake() {
-    return runFeeder(POWER).withTimeout(1.5).andThen(retract().withTimeout(0.15));
+  public Command retract() {
+    return backward().withTimeout(0.15);
   }
 
   public Trigger atShooter() {

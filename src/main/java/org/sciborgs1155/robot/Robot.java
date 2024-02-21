@@ -7,7 +7,6 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -112,7 +111,7 @@ public class Robot extends CommandRobot implements Logged {
     addPeriodic(FaultLogger::update, 1);
 
     // Configure pose estimation updates every half-tick
-    addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), kDefaultPeriod);
+    // addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), kDefaultPeriod);
 
     if (isReal()) {
       URCL.start();
@@ -162,43 +161,25 @@ public class Robot extends CommandRobot implements Logged {
 
     driver.b().whileTrue(drive.zeroHeading());
     driver
-        .x()
-        .toggleOnTrue(
-            drive
-                .driveFacingTarget(
-                    createJoystickStream(
-                        driver::getLeftY, // account for roborio (and navx) facing wrong direction
-                        DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-                    createJoystickStream(
-                        driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-                    Translation2d::new)
-                .until(
-                    () ->
-                        Math.abs(Math.hypot(driver.getRightX(), driver.getRightY()))
-                            > Constants.DEADBAND));
-
-    driver
         .leftBumper()
         .or(driver.rightBumper())
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
-    operator.a().toggleOnTrue(pivot.manualPivot(InputStream.of(operator::getLeftY).negate()));
-    operator.b().whileTrue(pivot.runPivot(() -> 1.11));
-
-    operator.x().onTrue(shooting.stationaryShooting());
+    operator
+        .a()
+        .toggleOnTrue(
+            pivot.manualPivot(
+                InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
+    operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE.getRadians(), 70));
+    operator.x().whileTrue(shooting.pivotThenShoot(0.5, 300));
+    operator.y().whileTrue(shooting.pivotThenShoot(0.35, 330));
 
     operator
         .leftBumper()
-        .whileTrue(
-            Commands.parallel(
-                pivot.runPivot(STARTING_ANGLE.getRadians()),
-                Commands.waitUntil(pivot::atRest)
-                    .andThen(
-                        Commands.deadline(
-                            Commands.waitUntil(intake.inIntake()).andThen(feeder.intake()),
-                            intake.intake()))));
-    operator.rightBumper().whileTrue(feeder.eject());
+        .whileTrue(intake.intake().alongWith(feeder.forward()))
+        .onFalse(feeder.retract());
+    operator.rightBumper().whileTrue(feeder.forward());
     operator.povUp().whileTrue(shooter.runShooter(() -> 300));
     operator.povDown().whileTrue(shooter.runShooter(() -> 200));
 
@@ -209,11 +190,12 @@ public class Robot extends CommandRobot implements Logged {
     //     .x()
     //     .toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE.getRadians(), () -> 10));
 
-    operator
-        .y()
-        .toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE.getRadians(), () -> 11));
+    // operator
+    //     .y()
+    //     .toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE.getRadians(), () ->
+    // 11));
 
-    operator.a().whileTrue(intake.intake());
+    // operator.a().whileTrue(intake.intake());
     // operator.x().onTrue(shooter.runShooter(() -> 100));
     // operator.y().onTrue(shooter.runShooter(() -> 0));
   }

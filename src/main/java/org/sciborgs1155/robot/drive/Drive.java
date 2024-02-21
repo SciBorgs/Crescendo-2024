@@ -83,22 +83,17 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   public static Drive create() {
     return Robot.isReal()
         ? new Drive(
-            new GyroIO.NavX(),
+            new NavXGyro(),
             new FlexModule(FRONT_LEFT_DRIVE, FRONT_LEFT_TURNING, ANGULAR_OFFSETS.get(0)),
             new FlexModule(FRONT_RIGHT_DRIVE, FRONT_RIGHT_TURNING, ANGULAR_OFFSETS.get(1)),
             new FlexModule(REAR_LEFT_DRIVE, REAR_LEFT_TURNING, ANGULAR_OFFSETS.get(2)),
             new FlexModule(REAR_RIGHT_DRIVE, REAR_RIGHT_TURNING, ANGULAR_OFFSETS.get(3)))
         : new Drive(
-            new GyroIO.NoGyro(),
-            new SimModule(),
-            new SimModule(),
-            new SimModule(),
-            new SimModule());
+            new NoGyro(), new SimModule(), new SimModule(), new SimModule(), new SimModule());
   }
 
   public static Drive none() {
-    return new Drive(
-        new GyroIO.NoGyro(), new NoModule(), new NoModule(), new NoModule(), new NoModule());
+    return new Drive(new NoGyro(), new NoModule(), new NoModule(), new NoModule(), new NoModule());
   }
 
   /** A swerve drive subsystem containing four {@link ModuleIO} modules. */
@@ -133,12 +128,18 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                 "turn routine"));
 
     odometry =
-        new SwerveDrivePoseEstimator(kinematics, getHeading(), getModulePositions(), new Pose2d());
+        new SwerveDrivePoseEstimator(
+            kinematics,
+            getHeading(),
+            getModulePositions(),
+            new Pose2d(new Translation2d(), Rotation2d.fromDegrees(180)));
 
     for (int i = 0; i < modules.size(); i++) {
       var module = modules.get(i);
       modules2d[i] = field2d.getObject("module-" + module.name);
     }
+
+    gyro.reset();
 
     rotationController.enableContinuousInput(0, 2 * Math.PI);
 
@@ -427,6 +428,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     frontRight.close();
     rearLeft.close();
     rearRight.close();
-    gyro.close();
+    // gyro.close();
   }
 }

@@ -7,5 +7,5 @@ import edu.wpi.first.units.Measure;
 
 public final class IntakeConstants {
   public static final double INTAKE_SPEED = 1;
-  public static final Measure<Current> CURRENT_LIMIT = Amps.of(35);
+  public static final Measure<Current> CURRENT_LIMIT = Amps.of(40);
 }

@@ -58,7 +58,7 @@ public class Shooting {
         .andThen(
             Commands.deadline(
                 Commands.waitUntil(shooter::atSetpoint)
-                    .andThen(feeder.eject())
+                    .andThen(feeder.forward())
                     .andThen(Commands.waitSeconds(0.05)),
                 shooter.runShooter(desiredVelocity)));
   }
@@ -70,14 +70,14 @@ public class Shooting {
    * @param shooterVelocity The desired velocity of the shooter.
    * @return The command to run the pivot to its desired angle and then shoot.
    */
-  public Command pivotThenShoot(DoubleSupplier goalAngle, DoubleSupplier shooterVelocity) {
+  public Command pivotThenShoot(double goalAngle, double shooterVelocity) {
     return pivot
-        .setGoal(goalAngle)
-        .alongWith(shooter.setSetpoint(shooterVelocity))
+        .setGoal(() -> goalAngle)
+        .alongWith(shooter.setSetpoint(() -> shooterVelocity))
         .andThen(
             Commands.deadline(
                 Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
-                    .andThen(feeder.eject()),
+                    .andThen(feeder.forward()),
                 pivot.runPivot(goalAngle),
                 shooter.runShooter(shooterVelocity)));
   }
@@ -122,7 +122,7 @@ public class Shooting {
                         && shooter.atSetpoint()
                         && drive.atHeadingGoal()
                         && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1)
-            .andThen(feeder.eject()));
+            .andThen(feeder.forward()));
   }
 
   public Command stationaryShooting() {
@@ -140,7 +140,7 @@ public class Shooting {
             // && drive.isFacing(speaker.get())
             // && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1
             )
-        .andThen(feeder.eject())
+        .andThen(feeder.forward())
         .andThen(Commands.print("DONE!!"));
   }
 

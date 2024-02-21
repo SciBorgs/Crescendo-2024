@@ -13,7 +13,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sciborgs1155.lib.TestingUtil;
 import org.sciborgs1155.robot.drive.Drive;
-import org.sciborgs1155.robot.drive.GyroIO;
+import org.sciborgs1155.robot.drive.NoGyro;
 import org.sciborgs1155.robot.drive.SimModule;
 
 /** Swerve test. Currently incomplete and does nothing. */
@@ -22,7 +22,7 @@ public class SwerveTest {
   SimModule frontRight;
   SimModule rearLeft;
   SimModule rearRight;
-  GyroIO.NoGyro gyro;
+  NoGyro gyro;
   Drive drive;
 
   final double DELTA = 0.15;
@@ -34,7 +34,7 @@ public class SwerveTest {
     frontRight = new SimModule();
     rearLeft = new SimModule();
     rearRight = new SimModule();
-    gyro = new GyroIO.NoGyro();
+    gyro = new NoGyro();
     drive = new Drive(gyro, frontLeft, frontRight, rearLeft, rearRight);
     drive.resetEncoders();
   }
