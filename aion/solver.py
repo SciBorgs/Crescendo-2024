@@ -32,6 +32,7 @@ starting_slanted_height = speaker_top_edge + bar_height  # m
 
 note_diameter = 0.356
 note_width = 0.0508
+aspect_ratio = note_diameter / note_width
 
 # shooter = np.array([[field_length / 6.0], [field_width / 6.0], [0.635]])
 # shooter_x = shooter[0, 0]
@@ -56,7 +57,7 @@ def hypot(a, b):
 y_center = field_width / 2
 
 
-def f(x, alpha):
+def f(x, alpha, speed):
     # x' = x'
     # y' = y'
     # z' = z'
@@ -66,6 +67,11 @@ def f(x, alpha):
     #
     # where a_D(v) = ½ρv² C_D A / m
     rho = 1.204  # kg/m³
+    dynamic_viscosity = 1.825 * (10 ** -5) #kg/(m*s)
+    L = 0 #volume / surface area -> characteristic length
+    Re = (rho * speed * L) / dynamic_viscosity
+    #C_D = 0.207485 * aspect_ratio ^ (0.626308) * cos(2 * alpha) + 5.781323 * Re ^ (−0.468003)
+    #C_L = −0.987067 * aspect_ratio ^ (−0.115132) * Re ^ (−0.298905) * sin(2 * alpha)
     C_D0 = 0.08
     C_DA = 2.72
     C_D = C_D0 + C_DA * (alpha) ** 2  # paper uses degrees??
@@ -185,7 +191,7 @@ class Solver:
         self.v_x = self.X[3, :]
         self.v_y = self.X[4, :]
         self.v_z = self.X[5, :]
-
+        self.speed = np.sqrt(self.v_z ** 2 + self.v_x ** 2 + self.v_y ** 2)
         def point(i):
             return (self.p_x[i], self.p_y[i], self.p_z[i])
 
@@ -201,6 +207,7 @@ class Solver:
             self.v_x[0] ** 2 + self.v_y[0] ** 2 + self.v_z[0] ** 2
             <= max_launch_velocity**2
         )
+
 
         # Require final position is within speaker wall bounds
         self._opti.subject_to(self.p_x[-1] < 0)  # note will be at wall
@@ -233,10 +240,10 @@ class Solver:
             x_k = self.X[:, k]
             x_k1 = self.X[:, k + 1]
 
-            k1 = f(x_k, pitch)
-            k2 = f(x_k + h / 2 * k1, pitch)
-            k3 = f(x_k + h / 2 * k2, pitch)
-            k4 = f(x_k + h * k3, pitch)
+            k1 = f(x_k, pitch, speed)
+            k2 = f(x_k + h / 2 * k1, pitch, speed)
+            k3 = f(x_k + h / 2 * k2, pitch, speed)
+            k4 = f(x_k + h * k3, pitch, speed)
             self._opti.subject_to(x_k1 == x_k + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4))
 
         # Avoid speaker physical constraints
