@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot.shooter;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -9,6 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -42,14 +44,16 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
             new SysIdRoutine.Config(Volts.per(Second).of(1), Volts.of(11.0), Seconds.of(11)),
             new SysIdRoutine.Mechanism(v -> shooter.setVoltage(v.in(Volts)), null, this));
 
-    // pid.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
+    pid.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
 
     SmartDashboard.putData("shooter quasistatic backward", quasistaticBack());
     SmartDashboard.putData("shooter quasistatic forward", quasistaticForward());
     SmartDashboard.putData("shooter dynamic backward", dynamicBack());
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
 
-    setDefaultCommand(run(() -> shooter.setVoltage(0)).withName("stopping default"));
+    setDefaultCommand(
+        Commands.either(
+            runShooter(() -> 0), run(() -> shooter.setVoltage(0)), () -> getVelocity() < 50));
   }
 
   /**

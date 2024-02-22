@@ -26,6 +26,12 @@
         {
           "type": "named",
           "data": {
+            "name": "reset"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "intake"
           }
         },
@@ -33,6 +39,12 @@
           "type": "named",
           "data": {
             "name": "shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "reset"
           }
         },
         {
@@ -54,6 +66,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "reset"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "M_2-1"
@@ -69,6 +87,12 @@
           "type": "named",
           "data": {
             "name": "shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "reset"
           }
         },
         {

@@ -78,7 +78,7 @@ public class ShooterTest {
   @Disabled
   @Test
   public void testPivotThenShoot() {
-    run(shooting.pivotThenShoot(() -> (Math.PI / 4), () -> 4));
+    run(shooting.pivotThenShoot((Math.PI / 4), 4));
     fastForward();
 
     assertEquals(

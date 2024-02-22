@@ -1,6 +1,5 @@
 package org.sciborgs1155.robot.feeder;
 
-import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,12 +32,16 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     return runOnce(() -> feeder.set(power)).andThen(Commands.idle()).finallyDo(() -> feeder.set(0));
   }
 
-  public Command eject() {
-    return runFeeder(POWER).withTimeout(TIMEOUT.in(Seconds)).alongWith(NoteVisualizer.shoot());
+  public Command forward() {
+    return runFeeder(POWER).alongWith(NoteVisualizer.shoot());
+  }
+
+  public Command backward() {
+    return runFeeder(-POWER / 2.0);
   }
 
   public Command retract() {
-    return runFeeder(-POWER / 2.0);
+    return backward().withTimeout(0.15);
   }
 
   public Trigger atShooter() {

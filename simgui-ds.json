@@ -1,10 +1,10 @@
 {
-  "FMS": {
+  "Joysticks": {
     "window": {
       "visible": false
     }
   },
-  "Joysticks": {
+  "System Joysticks": {
     "window": {
       "visible": false
     }

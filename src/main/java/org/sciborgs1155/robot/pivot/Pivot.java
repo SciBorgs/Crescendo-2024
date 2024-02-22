@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.teleop;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import edu.wpi.first.math.MathUtil;
@@ -8,10 +9,12 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -73,6 +76,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("pivot dynamic backward", dynamicBack());
 
     setDefaultCommand(run(() -> update(STARTING_ANGLE.getRadians())).withName("default position"));
+    teleop().onTrue(Commands.runOnce(() -> pid.reset(hardware.getPosition())));
   }
 
   /**
@@ -101,9 +105,9 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   public Command manualPivot(InputStream stickInput) {
     return runPivot(
         () -> {
-          double velocity = stickInput.get() * MAX_VELOCITY.in(RadiansPerSecond);
+          double velocity = stickInput.get() * MAX_VELOCITY.in(RadiansPerSecond) / 2;
           double periodMovement = Constants.PERIOD.in(Seconds) * velocity;
-          double setpoint = periodMovement + pid.getSetpoint().position;
+          double setpoint = periodMovement + pid.getGoal().position;
           return setpoint;
         });
   }
@@ -129,7 +133,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   @Log.NT
   public Pose3d pose() {
-    return new Pose3d(OFFSET, rotation());
+    return new Pose3d(
+        new Translation3d(0.023, 0.03, 0.545), new Rotation3d(0, hardware.getPosition() - 0.2, 0));
   }
 
   @Log.NT

@@ -33,7 +33,7 @@ public class Shooting {
         .setSetpoint(desiredVelocity)
         .andThen(
             Commands.deadline(
-                Commands.waitUntil(shooter::atSetpoint).andThen(feeder.eject()),
+                Commands.waitUntil(shooter::atSetpoint).andThen(feeder.forward()),
                 shooter.runShooter(desiredVelocity)));
   }
 
@@ -44,15 +44,15 @@ public class Shooting {
    * @param shooterVelocity The desired velocity of the shooter.
    * @return The command to run the pivot to its desired angle and then shoot.
    */
-  public Command pivotThenShoot(DoubleSupplier goalAngle, DoubleSupplier shooterVelocity) {
+  public Command pivotThenShoot(double goalAngle, double shooterVelocity) {
     return pivot
-        .setGoal(goalAngle)
-        .alongWith(shooter.setSetpoint(shooterVelocity))
+        .setGoal(() -> goalAngle)
+        .alongWith(shooter.setSetpoint(() -> shooterVelocity))
         .andThen(
             Commands.deadline(
                 Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
-                    .andThen(feeder.eject()),
-                pivot.runPivot(goalAngle),
-                shooter.runShooter(shooterVelocity)));
+                    .andThen(feeder.forward()),
+                pivot.runPivot(() -> goalAngle),
+                shooter.runShooter(() -> shooterVelocity)));
   }
 }

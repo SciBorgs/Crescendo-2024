@@ -25,7 +25,7 @@ public class PivotConstants {
 
   // Offset from the center of the robot to the pivot's axis of rotation
   public static final Translation3d OFFSET =
-      new Translation3d(Inches.of(10.465), Inches.of(0), Inches.of(25));
+      new Translation3d(Inches.of(-4), Inches.of(-12.47), Inches.of(12.4));
 
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);
@@ -45,8 +45,8 @@ public class PivotConstants {
   public static final Rotation2d STARTING_ANGLE = Rotation2d.fromDegrees(63.3);
 
   public static final Rotation2d PRESET_SUBWOOFER_ANGLE = STARTING_ANGLE;
-  public static final Rotation2d PRESET_AMP_ANGLE = MIN_ANGLE;
-  public static final Rotation2d PRESET_PODIUM_ANGLE = Rotation2d.fromDegrees(58.6);
+  public static final Rotation2d PRESET_AMP_ANGLE = Rotation2d.fromRadians(-0.55);
+  public static final Rotation2d PRESET_PODIUM_ANGLE = Rotation2d.fromRadians(0.5);
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 

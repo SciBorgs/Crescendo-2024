@@ -156,9 +156,10 @@ public class Robot extends CommandRobot implements Logged {
   private void registerCommands() {
     NamedCommands.registerCommand("lock", drive.lock());
     NamedCommands.registerCommand(
-        "shoot",
-        shooting.pivotThenShoot(() -> PRESET_PODIUM_ANGLE.getRadians(), () -> 11).withTimeout(2.7));
-    NamedCommands.registerCommand("intake", intake.intake().withTimeout(1.3));
+        "shoot", shooting.pivotThenShoot(PRESET_PODIUM_ANGLE.getRadians(), 40).withTimeout(1));
+    NamedCommands.registerCommand(
+        "reset", pivot.runPivot(() -> STARTING_ANGLE.getRadians()).withTimeout(1));
+    NamedCommands.registerCommand("intake", intake.intake().withTimeout(0.7));
   }
 
   /** Configures trigger -> command bindings */
@@ -189,32 +190,28 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     // shooting
-    operator.x().toggleOnTrue(shooter.runShooter(() -> 12));
-    // pivot into speaker when up to podium.
-    operator.y().toggleOnTrue(pivot.runPivot(() -> PRESET_PODIUM_ANGLE.getRadians()));
-    // pivot into amp when up to amp.
-    operator.a().toggleOnTrue(pivot.runPivot(() -> PRESET_AMP_ANGLE.getRadians()));
-    // moving pivot to starting config.
-    operator.b().toggleOnTrue(pivot.runPivot(() -> STARTING_ANGLE.getRadians()));
-    // outtake
-    operator.leftBumper().toggleOnTrue(intake.outtake());
-    // intake
-    operator.rightBumper().toggleOnTrue(intake.intake());
-    // manually control the pivot(climb)
-    operator.povUp().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
+    operator.x().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE.getRadians(), 75));
+
+    operator.b().whileTrue(shooting.pivotThenShoot(PRESET_PODIUM_ANGLE.getRadians(), 300));
+
+    operator.y().whileTrue(shooting.pivotThenShoot(PRESET_SUBWOOFER_ANGLE.getRadians(), 290));
+
+    operator
+        .a()
+        .toggleOnTrue(
+            pivot.manualPivot(
+                InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
+
+    operator
+        .leftBumper()
+        .whileTrue(intake.intake().alongWith(feeder.forward()))
+        .onFalse(feeder.retract());
+
+    operator.rightBumper().whileTrue(feeder.forward());
+    operator.povUp().whileTrue(shooter.runShooter(() -> 300));
+    operator.povDown().whileTrue(shooter.runShooter(() -> 200));
 
     intake.hasNote().onTrue(rumble(RumbleType.kBothRumble, 0.5));
-
-    intake
-        .hasNote()
-        .onTrue(
-            pivot
-                .runPivot(() -> STARTING_ANGLE.getRadians())
-                .andThen(
-                    feeder
-                        .runFeeder(1)
-                        // .until(feeder.topBB()))
-                        .withTimeout(3)));
   }
 
   public Command rumble(RumbleType RumbleType, double strength) {
