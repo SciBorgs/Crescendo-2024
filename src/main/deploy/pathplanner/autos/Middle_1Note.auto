@@ -26,6 +26,12 @@
         {
           "type": "named",
           "data": {
+            "name": "reset"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "lock"
           }
         }

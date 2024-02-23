@@ -156,10 +156,10 @@ public class Robot extends CommandRobot implements Logged {
   private void registerCommands() {
     NamedCommands.registerCommand("lock", drive.lock());
     NamedCommands.registerCommand(
-        "shoot", shooting.pivotThenShoot(PRESET_PODIUM_ANGLE.getRadians(), 40).withTimeout(1));
+        "shoot", shooting.pivotThenShoot(PRESET_PODIUM_ANGLE.getRadians(), 40).withTimeout(1.2));
     NamedCommands.registerCommand(
-        "reset", pivot.runPivot(() -> STARTING_ANGLE.getRadians()).withTimeout(1));
-    NamedCommands.registerCommand("intake", intake.intake().withTimeout(0.7));
+        "reset", pivot.runPivot(() -> STARTING_ANGLE.getRadians()).withTimeout(1.2));
+    NamedCommands.registerCommand("intake", intake.intake().withTimeout(0.6));
   }
 
   /** Configures trigger -> command bindings */

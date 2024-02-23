@@ -26,6 +26,18 @@
         {
           "type": "named",
           "data": {
+            "name": "reset"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.4
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "intake"
           }
         },
@@ -36,9 +48,15 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "reset"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "L_1-4(1)"
+            "pathName": "L_1-2"
           }
         },
         {
@@ -48,15 +66,21 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "L_1-4(2)"
+            "name": "shoot"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "reset"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L_2-5(1)"
           }
         },
         {

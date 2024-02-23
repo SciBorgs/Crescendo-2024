@@ -26,19 +26,13 @@
         {
           "type": "named",
           "data": {
-            "name": "intake"
+            "name": "reset"
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "L_1-2"
+            "waitTime": 0.4
           }
         },
         {
@@ -54,9 +48,9 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "L_2-5(1)"
+            "name": "reset"
           }
         },
         {

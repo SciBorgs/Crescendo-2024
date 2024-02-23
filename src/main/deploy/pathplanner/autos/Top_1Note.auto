@@ -24,6 +24,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "reset"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "L_0(2)"

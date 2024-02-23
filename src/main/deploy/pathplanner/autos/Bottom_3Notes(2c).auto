@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.9481438398361206,
-      "y": 6.971286773681641
+      "x": 0.7235912084579468,
+      "y": 2.5081095695495605
     },
     "rotation": 0.0
   },
@@ -14,25 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L_1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "reset"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intake"
+            "pathName": "R_8(1)"
           }
         },
         {
@@ -50,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L_1-4(1)"
+            "pathName": "R_8(2)"
           }
         },
         {
@@ -62,7 +44,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L_1-4(2)"
+            "pathName": "R_8(3)"
           }
         },
         {
@@ -80,7 +62,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L_4-5(1)"
+            "pathName": "R_7(1)"
           }
         },
         {
@@ -92,7 +74,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L_4-5(2)"
+            "pathName": "R_7(2)"
           }
         },
         {
@@ -116,6 +98,6 @@
       ]
     }
   },
-  "folder": "Top Autos",
+  "folder": "Bottom Autos",
   "choreoAuto": true
 }
