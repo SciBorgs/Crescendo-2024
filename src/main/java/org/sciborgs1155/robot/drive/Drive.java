@@ -11,6 +11,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -29,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.List;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
@@ -81,22 +83,17 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   public static Drive create() {
     return Robot.isReal()
         ? new Drive(
-            new GyroIO.NavX(),
+            new NavXGyro(),
             new FlexModule(FRONT_LEFT_DRIVE, FRONT_LEFT_TURNING, ANGULAR_OFFSETS.get(0)),
             new FlexModule(FRONT_RIGHT_DRIVE, FRONT_RIGHT_TURNING, ANGULAR_OFFSETS.get(1)),
             new FlexModule(REAR_LEFT_DRIVE, REAR_LEFT_TURNING, ANGULAR_OFFSETS.get(2)),
             new FlexModule(REAR_RIGHT_DRIVE, REAR_RIGHT_TURNING, ANGULAR_OFFSETS.get(3)))
         : new Drive(
-            new GyroIO.NoGyro(),
-            new SimModule(),
-            new SimModule(),
-            new SimModule(),
-            new SimModule());
+            new NoGyro(), new SimModule(), new SimModule(), new SimModule(), new SimModule());
   }
 
   public static Drive none() {
-    return new Drive(
-        new GyroIO.NoGyro(), new NoModule(), new NoModule(), new NoModule(), new NoModule());
+    return new Drive(new NoGyro(), new NoModule(), new NoModule(), new NoModule(), new NoModule());
   }
 
   /** A swerve drive subsystem containing four {@link ModuleIO} modules. */
@@ -131,12 +128,18 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                 "turn routine"));
 
     odometry =
-        new SwerveDrivePoseEstimator(kinematics, getHeading(), getModulePositions(), new Pose2d());
+        new SwerveDrivePoseEstimator(
+            kinematics,
+            getHeading(),
+            getModulePositions(),
+            new Pose2d(new Translation2d(), Rotation2d.fromDegrees(180)));
 
     for (int i = 0; i < modules.size(); i++) {
       var module = modules.get(i);
       modules2d[i] = field2d.getObject("module-" + module.name);
     }
+
+    gyro.reset();
 
     rotationController.enableContinuousInput(0, 2 * Math.PI);
 
@@ -188,6 +191,17 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return drive(vx, vy, () -> translation.get().minus(getPose().getTranslation()).getAngle());
   }
 
+  public boolean isFacing(Translation2d target) {
+    return Math.abs(
+            getHeading().getRadians()
+                - target.minus(getPose().getTranslation()).getAngle().getRadians())
+        < rotationController.getPositionTolerance();
+  }
+
+  public boolean atHeadingGoal() {
+    return rotationController.atGoal();
+  }
+
   /**
    * Drives the robot based on a {@link InputStream} for field relative x y and omega velocities.
    *
@@ -212,13 +226,13 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param heading A supplier for the field relative heading of the robot.
    * @return The driving command.
    */
-  public Command drive(InputStream vx, InputStream vy, Supplier<Rotation2d> heading) {
+  public Command drive(DoubleSupplier vx, DoubleSupplier vy, Supplier<Rotation2d> heading) {
     return run(
         () ->
             driveFieldRelative(
                 new ChassisSpeeds(
-                    vx.get(),
-                    vy.get(),
+                    vx.getAsDouble(),
+                    vy.getAsDouble(),
                     rotationController.calculate(
                         getPose().getRotation().getRadians(), heading.get().getRadians()))));
   }
@@ -249,7 +263,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     AutoBuilder.configureHolonomic(
         this::getPose,
         this::resetOdometry,
-        this::getChassisSpeed,
+        this::getRobotRelativeChassisSpeeds,
         this::driveRobotRelative,
         new HolonomicPathFollowerConfig(
             new PIDConstants(Translation.P, Translation.I, Translation.D),
@@ -312,15 +326,22 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
   }
 
-  /** Returns the chassis speed. */
+  /** Returns the robot relative chassis speeds. */
   @Log.NT
-  public ChassisSpeeds getChassisSpeed() {
+  public ChassisSpeeds getRobotRelativeChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
+  }
+
+  /** Returns the field relative chassis speeds. */
+  public ChassisSpeeds getChassisSpeeds() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(getRobotRelativeChassisSpeeds(), getHeading());
   }
 
   /** Updates pose estimation based on provided {@link EstimatedRobotPose} */
   public void updateEstimates(PoseEstimate... poses) {
+    Pose3d[] loggedEstimates = new Pose3d[poses.length];
     for (int i = 0; i < poses.length; i++) {
+      loggedEstimates[i] = poses[i].estimatedPose().estimatedPose;
       odometry.addVisionMeasurement(
           poses[i].estimatedPose().estimatedPose.toPose2d(),
           poses[i].estimatedPose().timestampSeconds,
@@ -329,6 +350,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
           .getObject("Cam " + i + " Est Pose")
           .setPose(poses[i].estimatedPose().estimatedPose.toPose2d());
     }
+    log("estimated poses", loggedEstimates);
   }
 
   @Override
@@ -349,7 +371,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     simRotation =
         simRotation.rotateBy(
             Rotation2d.fromRadians(
-                getChassisSpeed().omegaRadiansPerSecond * Constants.PERIOD.in(Seconds)));
+                getRobotRelativeChassisSpeeds().omegaRadiansPerSecond
+                    * Constants.PERIOD.in(Seconds)));
   }
 
   /** Stops drivetrain */
@@ -405,5 +428,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     frontRight.close();
     rearLeft.close();
     rearRight.close();
+    // gyro.close();
   }
 }

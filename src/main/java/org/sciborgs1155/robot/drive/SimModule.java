@@ -16,12 +16,12 @@ public class SimModule implements ModuleIO {
       new DCMotorSim(
           LinearSystemId.createDCMotorSystem(Driving.FF.V, Driving.FF.A),
           DCMotor.getNeoVortex(1),
-          Driving.GEARING);
+          1 / Driving.GEARING);
   private final DCMotorSim turn =
       new DCMotorSim(
           LinearSystemId.createDCMotorSystem(Turning.FF.V, Turning.FF.A),
           DCMotor.getNeo550(1),
-          Turning.MOTOR_GEARING);
+          1 / Turning.MOTOR_GEARING);
 
   @Override
   public void setDriveVoltage(double voltage) {

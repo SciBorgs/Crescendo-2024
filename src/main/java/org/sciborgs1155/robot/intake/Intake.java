@@ -1,8 +1,14 @@
 package org.sciborgs1155.robot.intake;
 
+import static edu.wpi.first.units.Units.Seconds;
+import static org.sciborgs1155.robot.Constants.PERIOD;
+
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
@@ -18,7 +24,7 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
     return new Intake(new NoIntake());
   }
 
-  private final IntakeIO intake;
+  @Log.NT private final IntakeIO intake;
 
   public Intake(IntakeIO intake) {
     this.intake = intake;
@@ -30,13 +36,14 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
         .alongWith(NoteVisualizer.intake());
   }
 
+  public Trigger inIntake() {
+    return new Trigger(() -> !intake.beambreak())
+        .debounce(PERIOD.times(3).in(Seconds), DebounceType.kBoth);
+  }
+
   public Command outtake() {
     return run(() -> intake.setPower(-IntakeConstants.INTAKE_SPEED));
   }
-
-  // public Trigger hasNote() {
-  //   return new Trigger(intake::beamBreak);
-  // }
 
   @Override
   public void close() throws Exception {

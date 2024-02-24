@@ -6,6 +6,7 @@ import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import monologue.Annotations.Log;
 import org.sciborgs1155.robot.Constants;
 
 public class SimFeeder implements FeederIO {
@@ -24,8 +25,9 @@ public class SimFeeder implements FeederIO {
   }
 
   @Override
+  @Log.NT
   public boolean beambreak() {
-    return false;
+    return true;
   }
 
   @Override

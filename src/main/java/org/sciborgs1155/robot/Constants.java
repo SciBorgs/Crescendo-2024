@@ -58,13 +58,9 @@ public class Constants {
         new Pose3d(new Translation3d(8.2705321, 7.4584052, 0), new Rotation3d());
 
     public static Translation3d getSpeaker() {
-      if (DriverStation.getAlliance().isPresent()) {
-        return DriverStation.getAlliance().get() == Alliance.Red
-            ? RED_SPEAKER_POSE
-            : BLUE_SPEAKER_POSE;
-      } else {
-        return BLUE_SPEAKER_POSE;
-      }
+      return DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red
+          ? RED_SPEAKER_POSE
+          : BLUE_SPEAKER_POSE;
     }
   }
 

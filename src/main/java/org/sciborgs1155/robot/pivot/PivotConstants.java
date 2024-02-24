@@ -19,13 +19,14 @@ public class PivotConstants {
   public static final Measure<Distance> RADIUS = Meters.of(1);
   public static final Measure<Distance> CIRCUMFERENCE = Meters.of(2 * Math.PI * RADIUS.in(Meters));
 
-  public static final Measure<Angle> POSITION_FACTOR =
-      Rotations.of(THROUGBORE_GEARING).times(CIRCUMFERENCE.in(Meters));
+  public static final Measure<Angle> POSITION_FACTOR = Rotations.of(THROUGBORE_GEARING);
   public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
   // Offset from the center of the robot to the pivot's axis of rotation
   public static final Translation3d OFFSET =
       new Translation3d(Inches.of(10.465), Inches.of(0), Inches.of(25));
+
+  public static final Translation3d PIVOT_OFFSET = new Translation3d(1, 0, 1); // TODO this is false
 
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);
@@ -45,7 +46,7 @@ public class PivotConstants {
   public static final Rotation2d STARTING_ANGLE = Rotation2d.fromDegrees(63.3);
 
   public static final Rotation2d PRESET_SUBWOOFER_ANGLE = STARTING_ANGLE;
-  public static final Rotation2d PRESET_AMP_ANGLE = MIN_ANGLE;
+  public static final Rotation2d PRESET_AMP_ANGLE = Rotation2d.fromRadians(-0.55);
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 

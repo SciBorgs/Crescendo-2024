@@ -6,23 +6,9 @@
   "configurations": [
     {
       "type": "java",
-      "name": "NoteVisualizer",
+      "name": "Robot",
       "request": "launch",
-      "mainClass": "org.sciborgs1155.robot.commands.NoteVisualizer",
-      "projectName": "Crescendo-2024"
-    },
-    {
-      "type": "java",
-      "name": "Constants",
-      "request": "launch",
-      "mainClass": "org.sciborgs1155.robot.Constants",
-      "projectName": "Crescendo-2024"
-    },
-    {
-      "type": "java",
-      "name": "PivotConstants",
-      "request": "launch",
-      "mainClass": "org.sciborgs1155.robot.pivot.PivotConstants",
+      "mainClass": "org.sciborgs1155.robot.Robot",
       "projectName": "Crescendo-2024"
     },
     {

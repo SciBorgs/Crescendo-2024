@@ -17,7 +17,7 @@ public class PivotVisualizer implements Sendable, AutoCloseable {
 
   public PivotVisualizer(Color8Bit color) {
     mech = new Mechanism2d(2, 2);
-    MechanismRoot2d chassis = mech.getRoot("Chassis", 1 + OFFSET.getX(), OFFSET.getY());
+    MechanismRoot2d chassis = mech.getRoot("Chassis", 1 + OFFSET.getX(), OFFSET.getZ());
     arm = chassis.append(new MechanismLigament2d("Arm", LENGTH.in(Meters), 0, 4, color));
   }
 
