@@ -1,4 +1,3 @@
-import casadi
 from frispy import disc
 import numpy as np
 
