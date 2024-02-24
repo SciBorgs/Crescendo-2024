@@ -177,7 +177,11 @@ public class Robot extends CommandRobot implements Logged {
 
     operator
         .leftBumper()
-        .whileTrue(intake.intake().alongWith(feeder.forward()).onlyIf(pivot::atRest))
+        .whileTrue(
+            intake
+                .intake()
+                .alongWith(feeder.forward())
+                .onlyIf(() -> pivot.atPosition(STARTING_ANGLE.getRadians())))
         .onFalse(feeder.retract());
     operator.rightBumper().whileTrue(feeder.forward());
     operator.povUp().whileTrue(shooter.runShooter(() -> 300));

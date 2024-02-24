@@ -82,7 +82,7 @@ public class ShooterTest {
 
   @Test
   public void testShootStoredNote() {
-    run(shooting.shoot(() -> 4));
+    run(shooting.shoot(4));
     fastForward();
 
     assertEquals(4, shooter.getVelocity(), DELTA);

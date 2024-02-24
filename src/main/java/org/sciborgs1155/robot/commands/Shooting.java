@@ -35,37 +35,30 @@ public class Shooting {
   /**
    * Runs the shooter before feeding it the note.
    *
-   * @param desiredVelocity The velocity to shoot at.
+   * @param desiredVelocity The velocity in radians per second to shoot at.
    * @return The command to shoot at the desired velocity.
    */
-  public Command shoot(DoubleSupplier desiredVelocity) {
-    return shooter
-        .setSetpoint(desiredVelocity)
-        .andThen(
-            Commands.deadline(
-                Commands.waitUntil(shooter::atSetpoint)
-                    .andThen(feeder.forward())
-                    .andThen(Commands.waitSeconds(0.05)),
-                shooter.runShooter(desiredVelocity)));
+  public Command shoot(double desiredVelocity) {
+    return Commands.deadline(
+        Commands.waitUntil(() -> shooter.atVelocity(desiredVelocity))
+            .andThen(feeder.forward().withTimeout(0.05)),
+        shooter.runShooter(() -> desiredVelocity));
   }
 
   /**
    * Runs the pivot to an angle & runs the shooter before feeding it the note.
    *
-   * @param goalAngle The desired angle of the pivot.
-   * @param shooterVelocity The desired velocity of the shooter.
+   * @param targetAngle The desired angle of the pivot.
+   * @param targetVelocity The desired velocity of the shooter.
    * @return The command to run the pivot to its desired angle and then shoot.
    */
-  public Command pivotThenShoot(double goalAngle, double shooterVelocity) {
-    return pivot
-        .setGoal(() -> goalAngle)
-        .alongWith(shooter.setSetpoint(() -> shooterVelocity))
-        .andThen(
-            Commands.deadline(
-                Commands.waitUntil(() -> pivot.atGoal() && shooter.atSetpoint())
-                    .andThen(feeder.forward()),
-                pivot.runPivot(goalAngle),
-                shooter.runShooter(shooterVelocity)));
+  public Command pivotThenShoot(double targetAngle, double targetVelocity) {
+    return Commands.deadline(
+        Commands.waitUntil(
+                () -> pivot.atPosition(targetAngle) && shooter.atVelocity(targetVelocity))
+            .andThen(feeder.forward().withTimeout(0.05)),
+        pivot.runPivot(targetAngle),
+        shooter.runShooter(targetVelocity));
   }
 
   /**

@@ -102,6 +102,10 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     return pid.atSetpoint();
   }
 
+  public boolean atVelocity(double velocity) {
+    return Math.abs(velocity - shooter.getVelocity()) < VELOCITY_TOLERANCE.in(RadiansPerSecond);
+  }
+
   public Command quasistaticBack() {
     return sysId.quasistatic(Direction.kReverse);
   }
