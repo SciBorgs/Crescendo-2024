@@ -1,11 +1,7 @@
 package org.sciborgs1155.lib;
 
 import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Time;
@@ -92,37 +88,28 @@ public class SparkUtils {
       }
     }
 
-    REVLibError e0 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus0, status0);
-    REVLibError e1 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus1, status1);
-    REVLibError e2 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus2, status2);
-    REVLibError e3 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus3, status3);
-    REVLibError e4 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus4, status4);
-    REVLibError e5 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus5, status5);
-    REVLibError e6 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus6, status6);
-    REVLibError e7 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus7, status7);
-    if (e0 != REVLibError.kOk) {
-      System.out.println("failed to set status frame 0");
-    }
-    if (e1 != REVLibError.kOk) {
-      System.out.println("failed to set status frame 1");
-    }
-    if (e2 != REVLibError.kOk) {
-      System.out.println("failed to set status frame 2");
-    }
-    if (e3 != REVLibError.kOk) {
-      System.out.println("failed to set status frame 3");
-    }
-    if (e4 != REVLibError.kOk) {
-      System.out.println("failed to set status frame 4");
-    }
-    if (e5 != REVLibError.kOk) {
-      System.out.println("failed to set status frame 5");
-    }
-    if (e6 != REVLibError.kOk) {
-      System.out.println("failed to set status frame 6");
-    }
-    if (e7 != REVLibError.kOk) {
-      System.out.println("failed to set status frame 7");
+    REVLibError[] errors = new REVLibError[8];
+    errors[0] = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus0, status0);
+    errors[1] = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus1, status1);
+    errors[2] = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus2, status2);
+    errors[3] = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus3, status3);
+    errors[4] = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus4, status4);
+    errors[5] = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus5, status5);
+    errors[6] = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus6, status6);
+    errors[7] = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus7, status7);
+    // REVLibError e0 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus0, status0);
+    // REVLibError e1 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus1, status1);
+    // REVLibError e2 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus2, status2);
+    // REVLibError e3 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus3, status3);
+    // REVLibError e4 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus4, status4);
+    // REVLibError e5 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus5, status5);
+    // REVLibError e6 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus6, status6);
+    // REVLibError e7 = spark.setPeriodicFramePeriod(PeriodicFrame.kStatus7, status7);
+    // REVLibError[] errors = {e0, e1, e2, e3, e4, e5, e6, e7};
+    for (int i = 0; i < 8; i++) {
+      if (errors[i] != REVLibError.kOk) {
+        System.out.println("failed to set status frame " + i);
+      }
     }
   }
 
@@ -134,53 +121,5 @@ public class SparkUtils {
    */
   public static void configureNothingFrameStrategy(CANSparkBase spark) {
     configureFrameStrategy(spark, Set.of(), Set.of(), false);
-  }
-
-  /**
-   * creates a CANSparkMax
-   *
-   * @param deviceId The port number of the spark
-   * @param motortype The motortype (kBrushed/kBrushless)
-   * @param idlemode The idlemode (kBrake/kCoast) - pass in via IdleMode class
-   * @param currentLimit The current limit in int quantity in amperes
-   */
-  public static void createSparkMax(
-      int deviceId, MotorType motortype, IdleMode idlemode, int currentLimit) {
-    CANSparkMax spark = new CANSparkMax(deviceId, motortype);
-    spark.restoreFactoryDefaults();
-    spark.setCANTimeout(50);
-    spark.setIdleMode(idlemode);
-    spark.setSmartCurrentLimit(currentLimit);
-
-    // spark.getLastError();
-
-    spark.setCANTimeout(20);
-    spark.burnFlash();
-
-    spark.getLastError();
-  }
-
-  /**
-   * creates a CANSparkFlex
-   *
-   * @param deviceId The port number of the spark
-   * @param motortype The motortype (kBrushed/kBrushless)
-   * @param idlemode The idlemode (kBrake/kCoast) - pass in via IdleMode class
-   * @param currentLimit The current limit in int quantity in amperes
-   */
-  public static void createSparkFlex(
-      int deviceId, MotorType motortype, IdleMode idlemode, int currentLimit) {
-    CANSparkFlex spark = new CANSparkFlex(deviceId, motortype);
-    spark.restoreFactoryDefaults();
-    spark.setCANTimeout(50);
-    spark.setIdleMode(idlemode);
-    spark.setSmartCurrentLimit(currentLimit);
-
-    // spark.getLastError();
-
-    spark.setCANTimeout(20);
-    spark.burnFlash();
-
-    spark.getLastError();
   }
 }

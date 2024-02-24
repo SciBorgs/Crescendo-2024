@@ -115,13 +115,10 @@ public class Shooting {
     Translation2d speaker = getSpeaker().toTranslation2d();
     Translation2d tranlationFromSpeaker =
         speaker.minus(shooterPos(drive.getPose()).toTranslation2d());
-    double targetVel = stationaryVelocity(tranlationFromSpeaker);
-    double targetPitch = stationaryPitch(tranlationFromSpeaker);
     return Commands.parallel(
             drive.driveFacingTarget(() -> 0, () -> 0, () -> speaker),
-            Commands.runOnce(() -> System.out.println("SHOOTING VEL" + targetVel)),
-            pivot.runPivot(() -> targetPitch),
-            shooter.runShooter(() -> targetVel))
+            pivot.runPivot(stationaryPitch(tranlationFromSpeaker)),
+            shooter.runShooter(stationaryVelocity(tranlationFromSpeaker)))
         .until(
             () ->
                 pivot.atGoal()
@@ -136,10 +133,9 @@ public class Shooting {
     Translation2d tranlationFromSpeaker =
         getSpeaker().minus(shooterPos(drive.getPose())).toTranslation2d();
     double targetVel = stationaryVelocity(tranlationFromSpeaker);
-    double targetPitch = stationaryPitch(tranlationFromSpeaker);
     return Commands.parallel(
             Commands.runOnce(() -> System.out.println("SHOOTING VEL" + targetVel)),
-            pivot.runPivot(() -> targetPitch),
+            pivot.runPivot(stationaryPitch(tranlationFromSpeaker)),
             shooter.runShooter(targetVel))
         .until(() -> pivot.atGoal() && shooter.atSetpoint())
         .andThen(feeder.forward())
