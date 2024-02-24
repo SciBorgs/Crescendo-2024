@@ -115,8 +115,8 @@ public final class DriveConstants {
       // system constants only used in simulation
       public static final class FF {
         public static final double S = 0.30817;
-        public static final double V = 0.22;
-        public static final double A = 0.012;
+        public static final double V = 0.55;
+        public static final double A = 0.03;
       }
     }
   }
