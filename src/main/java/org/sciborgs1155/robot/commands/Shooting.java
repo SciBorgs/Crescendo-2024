@@ -13,6 +13,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -39,10 +40,29 @@ public class Shooting {
    * @return The command to shoot at the desired velocity.
    */
   public Command shoot(double desiredVelocity) {
+    return shoot(desiredVelocity, () -> true);
+  }
+
+  public Command shoot(DoubleSupplier desiredVelocity) {
+    return shoot(desiredVelocity, () -> true);
+  }
+
+  public Command shoot(double desiredVelocity, Supplier<Boolean> shootCondition) {
+    return shoot(() -> desiredVelocity, shootCondition);
+  }
+
+  /**
+   * Runs shooter to desired velocity, runs feeder once it reaches its velocity and shootCondition
+   * is true.
+   *
+   * @param desiredVelocity Target velocity for the flywheel.
+   * @param shootCondition Condition after which the feeder will run.
+   */
+  public Command shoot(DoubleSupplier desiredVelocity, Supplier<Boolean> shootCondition) {
     return Commands.deadline(
-        Commands.waitUntil(() -> shooter.atVelocity(desiredVelocity))
+        Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.get())
             .andThen(feeder.forward().withTimeout(0.05)),
-        shooter.runShooter(() -> desiredVelocity));
+        shooter.runShooter(() -> desiredVelocity.getAsDouble()));
   }
 
   /**
@@ -53,12 +73,7 @@ public class Shooting {
    * @return The command to run the pivot to its desired angle and then shoot.
    */
   public Command pivotThenShoot(double targetAngle, double targetVelocity) {
-    return Commands.deadline(
-        Commands.waitUntil(
-                () -> pivot.atPosition(targetAngle) && shooter.atVelocity(targetVelocity))
-            .andThen(feeder.forward().withTimeout(0.05)),
-        pivot.runPivot(targetAngle),
-        shooter.runShooter(targetVelocity));
+    return Commands.deadline(shoot(targetVelocity, pivot::atGoal), pivot.runPivot(targetAngle));
   }
 
   /**
@@ -68,17 +83,15 @@ public class Shooting {
    * @param vy Supplier for y velocity of chassis
    */
   public Command fullShooting(DoubleSupplier vx, DoubleSupplier vy) {
-    return Commands.parallel(
+    return Commands.deadline(
+        shoot(
+            () -> noteRobotRelativeVelocityVector().norm(),
+            () ->
+                pivot.atGoal()
+                    && drive.atHeadingGoal()
+                    && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1),
         drive.drive(vx, vy, () -> heading(noteRobotRelativeVelocityVector())),
-        pivot.runPivot(() -> pitch(noteRobotRelativeVelocityVector())),
-        shooter.runShooter(() -> noteRobotRelativeVelocityVector().norm()),
-        Commands.waitUntil(
-                () ->
-                    pivot.atGoal()
-                        && shooter.atSetpoint()
-                        && drive.atHeadingGoal()
-                        && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1)
-            .andThen(feeder.forward()));
+        pivot.runPivot(() -> pitch(noteRobotRelativeVelocityVector())));
   }
 
   /**
@@ -144,17 +157,15 @@ public class Shooting {
     Translation2d speaker = getSpeaker().toTranslation2d();
     Translation2d tranlationFromSpeaker =
         speaker.minus(shooterPos(drive.getPose()).toTranslation2d());
-    return Commands.parallel(
+    return Commands.deadline(
+            shoot(
+                stationaryVelocity(tranlationFromSpeaker),
+                () ->
+                    pivot.atGoal()
+                        && drive.isFacing(speaker)
+                        && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1),
             drive.driveFacingTarget(() -> 0, () -> 0, () -> speaker),
-            pivot.runPivot(stationaryPitch(tranlationFromSpeaker)),
-            shooter.runShooter(stationaryVelocity(tranlationFromSpeaker)))
-        .until(
-            () ->
-                pivot.atGoal()
-                    && shooter.atSetpoint()
-                    && drive.isFacing(speaker)
-                    && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1)
-        .andThen(feeder.forward().withTimeout(0.05))
+            pivot.runPivot(stationaryPitch(tranlationFromSpeaker)))
         .andThen(Commands.print("DONE!!"));
   }
 

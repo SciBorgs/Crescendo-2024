@@ -41,7 +41,7 @@ public class SwerveTest {
 
   @AfterEach
   public void destroy() throws Exception {
-    TestingUtil.closeSubsystem(drive);
+    TestingUtil.reset(drive);
   }
 
   @Test
