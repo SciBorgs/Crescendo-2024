@@ -111,7 +111,7 @@ public class Robot extends CommandRobot implements Logged {
     addPeriodic(FaultLogger::update, 1);
 
     // Configure pose estimation updates every half-tick
-    // addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), kDefaultPeriod);
+    addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), kDefaultPeriod);
 
     if (isReal()) {
       URCL.start();
