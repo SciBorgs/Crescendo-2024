@@ -161,15 +161,8 @@ public class Shooting {
   public Command stationaryShooting() {
     Translation2d tranlationFromSpeaker =
         getSpeaker().minus(shooterPos(drive.getPose())).toTranslation2d();
-    double targetVel = stationaryVelocity(tranlationFromSpeaker);
-    return Commands.parallel(
-            Commands.runOnce(() -> System.out.println("SHOOTING VEL" + targetVel)),
-            pivot.runPivot(stationaryPitch(tranlationFromSpeaker)),
-            shooter.runShooter(targetVel))
-        .until(() -> pivot.atGoal() && shooter.atSetpoint())
-        .andThen(feeder.forward())
-        .withTimeout(1) // do we even need this? It can just stop when the button is released
-        .andThen(Commands.print("DONE!!"));
+    return pivotThenShoot(
+        stationaryPitch(tranlationFromSpeaker), stationaryVelocity(tranlationFromSpeaker));
   }
 
   /**
