@@ -13,7 +13,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -31,19 +30,6 @@ public class Shooting {
     this.pivot = pivot;
     this.feeder = feeder;
     this.drive = drive;
-  }
-
-  public static record NoteTrajectory(Rotation2d heading, Rotation2d pivotAngle, double speed) {
-    @Override
-    public String toString() {
-      return "{heading: "
-          + heading.getRadians()
-          + "; pivotAngle: "
-          + pivotAngle.getRadians()
-          + "; speed: "
-          + speed
-          + "}";
-    }
   }
 
   /**
@@ -125,22 +111,39 @@ public class Shooting {
             .andThen(feeder.forward()));
   }
 
-  public Command stationaryShooting() {
-    Supplier<Translation2d> speaker = () -> getSpeaker().toTranslation2d();
-    Supplier<Translation2d> diff =
-        () -> speaker.get().minus(shooterPos(drive.getPose()).toTranslation2d());
+  public Command stationaryTurretShooting() {
+    Translation2d speaker = getSpeaker().toTranslation2d();
+    Translation2d tranlationFromSpeaker =
+        speaker.minus(shooterPos(drive.getPose()).toTranslation2d());
+    double targetVel = stationaryVelocity(tranlationFromSpeaker);
+    double targetPitch = stationaryPitch(tranlationFromSpeaker);
     return Commands.parallel(
-            // drive.driveFacingTarget(() -> 0, () -> 0, () -> speaker.get()),
-            Commands.runOnce(
-                () -> System.out.println("SHOOTING VEL" + stationaryVelocity(diff.get()))),
-            pivot.runPivot(() -> stationaryPitch(diff.get())),
-            shooter.runShooter(() -> stationaryVelocity(diff.get())))
+            drive.driveFacingTarget(() -> 0, () -> 0, () -> speaker),
+            Commands.runOnce(() -> System.out.println("SHOOTING VEL" + targetVel)),
+            pivot.runPivot(() -> targetPitch),
+            shooter.runShooter(() -> targetVel))
         .until(
-            () -> pivot.atGoal() && shooter.atSetpoint()
-            // && drive.isFacing(speaker.get())
-            // && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1
-            )
+            () ->
+                pivot.atGoal()
+                    && shooter.atSetpoint()
+                    && drive.isFacing(speaker)
+                    && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1)
         .andThen(feeder.forward())
+        .andThen(Commands.print("DONE!!"));
+  }
+
+  public Command stationaryShooting() {
+    Translation2d tranlationFromSpeaker =
+        getSpeaker().minus(shooterPos(drive.getPose())).toTranslation2d();
+    double targetVel = stationaryVelocity(tranlationFromSpeaker);
+    double targetPitch = stationaryPitch(tranlationFromSpeaker);
+    return Commands.parallel(
+            Commands.runOnce(() -> System.out.println("SHOOTING VEL" + targetVel)),
+            pivot.runPivot(() -> targetPitch),
+            shooter.runShooter(targetVel))
+        .until(() -> pivot.atGoal() && shooter.atSetpoint())
+        .andThen(feeder.forward())
+        .withTimeout(1) // do we even need this? It can just stop when the button is released
         .andThen(Commands.print("DONE!!"));
   }
 
