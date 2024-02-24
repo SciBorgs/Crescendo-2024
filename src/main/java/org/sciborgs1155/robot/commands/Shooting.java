@@ -85,15 +85,15 @@ public class Shooting {
    * Converts heading, pivotAngle, and flywheel speed to the initial velocity of the note.
    *
    * @param heading
-   * @param pivotAngle
+   * @param pitch
    * @param speed
    * @return Initial velocity vector of the note
    */
-  public Vector<N3> toVelocityVector(Rotation2d heading, double pivotAngle, double speed) {
-    double xyNorm = speed * Math.cos(pivotAngle);
+  public static Vector<N3> toVelocityVector(Rotation2d heading, double pitch, double speed) {
+    double xyNorm = speed * Math.cos(pitch);
     double x = xyNorm * heading.getCos();
     double y = xyNorm * heading.getSin();
-    double z = speed * Math.sin(pivotAngle);
+    double z = speed * Math.sin(pitch);
     return VecBuilder.fill(x, y, z);
   }
 
@@ -105,12 +105,13 @@ public class Shooting {
    */
   public Vector<N3> noteRobotRelativeVelocityVector() {
     var speaker = getSpeaker().toTranslation2d();
-    var fromSpeaker = shooterPos(drive.getPose()).toTranslation2d().minus(speaker);
+    var heading = speaker.minus(drive.getPose().getTranslation()).getAngle();
+    var fromSpeaker =
+        shooterPos(new Pose2d(drive.getPose().getTranslation(), heading))
+            .toTranslation2d()
+            .minus(speaker);
     var stationaryVel =
-        toVelocityVector(
-            speaker.minus(drive.getPose().getTranslation()).getAngle(),
-            stationaryPitch(fromSpeaker),
-            stationaryVelocity(fromSpeaker));
+        toVelocityVector(heading, stationaryPitch(fromSpeaker), stationaryVelocity(fromSpeaker));
     var speeds = drive.getChassisSpeeds();
     return stationaryVel.minus(
         VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0));
@@ -153,7 +154,7 @@ public class Shooting {
                     && shooter.atSetpoint()
                     && drive.isFacing(speaker)
                     && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1)
-        .andThen(feeder.forward())
+        .andThen(feeder.forward().withTimeout(0.05))
         .andThen(Commands.print("DONE!!"));
   }
 
