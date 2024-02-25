@@ -41,7 +41,7 @@ public class RealShooter implements ShooterIO {
 
     SparkUtils.configureFrameStrategy(
         topMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
+        Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
         Set.of(Sensor.INTEGRATED),
         true);
     SparkUtils.configureNothingFrameStrategy(bottomMotor);

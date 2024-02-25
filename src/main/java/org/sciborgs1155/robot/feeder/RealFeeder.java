@@ -32,7 +32,10 @@ public class RealFeeder implements FeederIO {
     // beambreak = new DigitalInput(BEAMBREAK);
 
     SparkUtils.configureFrameStrategy(
-        motor, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.INTEGRATED), false);
+        motor,
+        Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
+        Set.of(Sensor.INTEGRATED),
+        false);
 
     encoder = motor.getEncoder();
     encoder.setVelocityConversionFactor(VELOCITY_CONVERSION.in(MetersPerSecond));

@@ -49,7 +49,10 @@ public class RealPivot implements PivotIO {
     encoder.setPosition(STARTING_ANGLE.in(Radians));
 
     SparkUtils.configureFrameStrategy(
-        lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.QUADRATURE), true);
+        lead,
+        Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
+        Set.of(Sensor.ALTERNATE),
+        true);
     SparkUtils.configureNothingFrameStrategy(leftTop);
     SparkUtils.configureNothingFrameStrategy(rightTop);
     SparkUtils.configureNothingFrameStrategy(rightBottom);
