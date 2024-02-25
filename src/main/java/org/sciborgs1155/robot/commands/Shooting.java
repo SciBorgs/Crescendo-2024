@@ -1,8 +1,12 @@
 package org.sciborgs1155.robot.commands;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static org.sciborgs1155.robot.Constants.Field.*;
+import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.OFFSET;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.RADIUS;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -12,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -56,11 +61,9 @@ public class Shooting {
    * @param shootCondition Condition after which the feeder will run.
    */
   public Command shoot(DoubleSupplier desiredVelocity, BooleanSupplier shootCondition) {
-    return Commands.deadline(
-        Commands.sequence(
-            Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean()),
-            feeder.forward().withTimeout(0.05)),
-        shooter.runShooter(desiredVelocity));
+    return (Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean())
+            .andThen(feeder.forward().withTimeout(0.15)))
+        .deadlineWith(shooter.runShooter(desiredVelocity));
   }
 
   /**
@@ -81,15 +84,15 @@ public class Shooting {
    * @param vy Supplier for y velocity of chassis
    */
   public Command shootWhileDriving(DoubleSupplier vx, DoubleSupplier vy) {
-    return Commands.deadline(
-        shoot(
-            () -> noteRobotRelativeVelocityVector().norm(),
+    return shoot(
+            () -> speed(noteRobotRelativeVelocityVector()),
             () ->
                 pivot.atGoal()
                     && drive.atHeadingGoal()
-                    && drive.getFieldRelativeChassisSpeeds().omegaRadiansPerSecond < 0.1),
-        drive.drive(vx, vy, () -> heading(noteRobotRelativeVelocityVector())),
-        pivot.runPivot(() -> pitch(noteRobotRelativeVelocityVector())));
+                    && drive.getFieldRelativeChassisSpeeds().omegaRadiansPerSecond < 0.1)
+        .deadlineWith(
+            drive.drive(vx, vy, () -> heading(noteRobotRelativeVelocityVector())),
+            pivot.runPivot(() -> pitch(noteRobotRelativeVelocityVector())));
   }
 
   /**
@@ -128,7 +131,7 @@ public class Shooting {
    * Calculates pitch from note initial velocity vector. If given a robot relative initial velocity
    * vector, the return value will also be the pivot angle.
    *
-   * @param Note initial velocity vector
+   * @param velocity Note initial velocity vector
    * @return Pitch/pivot angle
    */
   public static double pitch(Vector<N3> velocity) {
@@ -139,11 +142,24 @@ public class Shooting {
    * Calculates heading from note initial velocity vector. If given a robot relative initial
    * velocity vector, the return value will be the target robot heading.
    *
-   * @param Note initial velocity vector.
+   * @param velocity Note initial velocity vector
    * @return Heading
    */
   public static Rotation2d heading(Vector<N3> velocity) {
     return new Rotation2d(velocity.get(0), velocity.get(1));
+  }
+
+  /**
+   * Calculates magnitude of initial velocity vector of note, in radians per second. If given a
+   * robot relative initial velocity vector, the return value will be the target flywheel speed
+   * (ish).
+   *
+   * @param velocity Note initial velocity vector
+   * @return Flywheel speed (rads / s)
+   */
+  public static double speed(Vector<N3> velocity) {
+    // TODO account for lost energy! (with regression probably)
+    return velocity.norm() * RADIUS.in(Meters);
   }
 
   /** Shoots while stationary at correct flywheel speed, pivot angle, and heading. */
@@ -253,5 +269,16 @@ public class Shooting {
         new Translation3d(
             offsetFieldRelativeXY.getX(), offsetFieldRelativeXY.getY(), OFFSET.getZ());
     return new Pose3d(robotPose).getTranslation().plus(offsetFieldRelatvive);
+  }
+
+  /**
+   * @return whether the robot can shoot from its current position at its current veloicty
+   */
+  public boolean canShoot() {
+    Vector<N3> shot = noteRobotRelativeVelocityVector();
+    double pitch = pitch(shot);
+    return MIN_ANGLE.in(Radians) < pitch
+        && pitch < MAX_ANGLE.in(Radians)
+        && speed(shot) < DCMotor.getNeoVortex(1).freeSpeedRadPerSec;
   }
 }
