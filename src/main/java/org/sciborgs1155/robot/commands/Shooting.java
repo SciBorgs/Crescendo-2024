@@ -172,13 +172,13 @@ public class Shooting {
               tranlationFromSpeaker(drive.getPose().getTranslation(), heading);
           double targetVel = stationaryVelocity(tranlationFromSpeaker);
           double targetPitch = stationaryPitch(tranlationFromSpeaker);
-          return Commands.deadline(
-                  shoot(
-                      () -> targetVel,
-                      () ->
-                          pivot.atPosition(targetPitch)
-                              && drive.isFacing(speaker)
-                              && drive.getFieldRelativeChassisSpeeds().omegaRadiansPerSecond < 0.1),
+          return shoot(
+                  () -> targetVel,
+                  () ->
+                      pivot.atPosition(targetPitch)
+                          && drive.isFacing(speaker)
+                          && drive.getFieldRelativeChassisSpeeds().omegaRadiansPerSecond < 0.1)
+              .deadlineWith(
                   drive.driveFacingTarget(() -> 0, () -> 0, () -> speaker),
                   pivot.runPivot(() -> targetPitch))
               .andThen(Commands.print("DONE!!"));
