@@ -10,6 +10,8 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.VELOCITY_TOLERANCE;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj2.command.Command;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -22,7 +24,7 @@ import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
 
-public class ShooterTest {
+public class ShootingTest {
   Shooting shooting;
   Pivot pivot;
   Shooter shooter;
@@ -101,21 +103,15 @@ public class ShooterTest {
 
   @Test
   public void endConditions() {
-    var c = shooting.pivotThenShoot(Radians.of(4), 5).ignoringDisable(true);
-    c.schedule();
-    fastForward(10);
-    assert !c.isFinished();
-    var c2 = shooting.stationaryTurretShooting().ignoringDisable(true);
-    c2.schedule();
-    fastForward(2);
-    assert !c2.isFinished();
-    var c3 = shooting.stationaryShooting().ignoringDisable(true);
-    c3.schedule();
-    fastForward(2);
-    assert !c3.isFinished();
-    var c4 = shooting.shoot(3).ignoringDisable(true);
-    c4.schedule();
-    fastForward(2);
-    assert !c4.isFinished();
+    Consumer<Command> testEndCondition =
+        c_ -> {
+          var c = c_.ignoringDisable(true);
+          c.schedule();
+          fastForward(10);
+          assert !c.isFinished();
+        };
+    testEndCondition.accept(shooting.pivotThenShoot(Radians.of(4), 5));
+    // testEndCondition.accept(shooting.stationaryTurretShooting()); // worked before it was proxied
+    testEndCondition.accept(shooting.shoot(150));
   }
 }

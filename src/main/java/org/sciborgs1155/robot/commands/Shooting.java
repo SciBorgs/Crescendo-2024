@@ -16,6 +16,7 @@ import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import org.sciborgs1155.robot.drive.Drive;
@@ -55,12 +56,11 @@ public class Shooting {
    * @param shootCondition Condition after which the feeder will run.
    */
   public Command shoot(DoubleSupplier desiredVelocity, BooleanSupplier shootCondition) {
-    return shooter
-        .setSetpoint(desiredVelocity)
-        .andThen(
-            Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean())
-                .andThen(feeder.forward().withTimeout(0.15))
-                .deadlineWith(shooter.runShooter(desiredVelocity)));
+    return Commands.deadline(
+        Commands.sequence(
+            Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean()),
+            feeder.forward().withTimeout(0.05)),
+        shooter.runShooter(desiredVelocity));
   }
 
   /**
@@ -115,12 +115,8 @@ public class Shooting {
    * @return Target initial velocity of note, relative to robot
    */
   public Vector<N3> noteRobotRelativeVelocityVector() {
-    var speaker = speaker().toTranslation2d();
-    var heading = speaker.minus(drive.getPose().getTranslation()).getAngle();
-    var fromSpeaker =
-        shooterPos(new Pose2d(drive.getPose().getTranslation(), heading))
-            .toTranslation2d()
-            .minus(speaker);
+    var heading = headingToSpeaker(drive.getPose().getTranslation());
+    var fromSpeaker = tranlationFromSpeaker(drive.getPose().getTranslation(), heading);
     var stationaryVel =
         toVelocityVector(heading, stationaryPitch(fromSpeaker), stationaryVelocity(fromSpeaker));
     var speeds = drive.getFieldRelativeChassisSpeeds();
@@ -153,27 +149,64 @@ public class Shooting {
   /** Shoots while stationary at correct flywheel speed, pivot angle, and heading. */
   public Command stationaryTurretShooting() {
     Translation2d speaker = speaker().toTranslation2d();
-    Translation2d tranlationFromSpeaker =
-        speaker.minus(shooterPos(drive.getPose()).toTranslation2d());
-    return Commands.deadline(
-            shoot(
-                () -> stationaryVelocity(tranlationFromSpeaker),
-                () ->
-                    pivot.atGoal()
-                        && drive.isFacing(speaker)
-                        && drive.getFieldRelativeChassisSpeeds().omegaRadiansPerSecond < 0.1),
-            drive.driveFacingTarget(() -> 0, () -> 0, () -> speaker),
-            pivot.runPivot(() -> stationaryPitch(tranlationFromSpeaker)))
-        .andThen(Commands.print("DONE!!"));
+    return new ProxyCommand(
+        () -> {
+          Rotation2d heading = headingToSpeaker(drive.getPose().getTranslation());
+          Translation2d tranlationFromSpeaker =
+              tranlationFromSpeaker(drive.getPose().getTranslation(), heading);
+          double targetVel = stationaryVelocity(tranlationFromSpeaker);
+          double targetPitch = stationaryPitch(tranlationFromSpeaker);
+          return Commands.deadline(
+                  shoot(
+                      () -> targetVel,
+                      () ->
+                          pivot.atPosition(targetPitch)
+                              && drive.isFacing(speaker)
+                              && drive.getFieldRelativeChassisSpeeds().omegaRadiansPerSecond < 0.1),
+                  drive.driveFacingTarget(() -> 0, () -> 0, () -> speaker),
+                  pivot.runPivot(() -> targetPitch))
+              .andThen(Commands.print("DONE!!"));
+        });
+  }
+
+  /**
+   * Calculates heading needed to face the speaker.
+   *
+   * @param robotTranslation Translation2d of the robot
+   */
+  public static Rotation2d headingToSpeaker(Translation2d robotTranslation) {
+    return speaker().toTranslation2d().minus(robotTranslation).getAngle();
+  }
+
+  /**
+   * Calculates the position of the shooter relative to the speaker, given a robot position.
+   *
+   * @param robotTranslation Translation2d of the robot
+   * @param robotHeading Heading of the robot, generally the heading to the speaker
+   */
+  public static Translation2d tranlationFromSpeaker(
+      Translation2d robotTranslation, Rotation2d robotHeading) {
+    return tranlationFromSpeaker(new Pose2d(robotTranslation, robotHeading));
+  }
+
+  /**
+   * Calculates the position of the shooter relative to the speaker, given a robot position.
+   *
+   * @param robotPose Pose2d of the robot
+   */
+  public static Translation2d tranlationFromSpeaker(Pose2d robotPose) {
+    return speaker().minus(shooterPos(robotPose)).toTranslation2d();
   }
 
   /** Shoots while stationary at correct flywheel speed and pivot angle, doesn't auto-turret. */
   public Command stationaryShooting() {
-    Translation2d tranlationFromSpeaker =
-        speaker().minus(shooterPos(drive.getPose())).toTranslation2d();
-    return pivotThenShoot(
-        Radians.of(stationaryPitch(tranlationFromSpeaker)),
-        stationaryVelocity(tranlationFromSpeaker));
+    return new ProxyCommand(
+        () -> {
+          Translation2d tranlationFromSpeaker = tranlationFromSpeaker(drive.getPose());
+          return pivotThenShoot(
+              Radians.of(stationaryPitch(tranlationFromSpeaker)),
+              stationaryVelocity(tranlationFromSpeaker));
+        });
   }
 
   /**
@@ -214,6 +247,11 @@ public class Shooting {
 
   /** Calculates position of shooter from Pose2d of robot. */
   public static Translation3d shooterPos(Pose2d robotPose) {
-    return new Pose3d(robotPose).getTranslation().plus(OFFSET);
+    Translation2d offsetFieldRelativeXY =
+        OFFSET.toTranslation2d().rotateBy(robotPose.getRotation());
+    Translation3d offsetFieldRelatvive =
+        new Translation3d(
+            offsetFieldRelativeXY.getX(), offsetFieldRelativeXY.getY(), OFFSET.getZ());
+    return new Pose3d(robotPose).getTranslation().plus(offsetFieldRelatvive);
   }
 }
