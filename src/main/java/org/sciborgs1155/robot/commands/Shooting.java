@@ -1,19 +1,23 @@
 package org.sciborgs1155.robot.commands;
 
+import static edu.wpi.first.units.Units.Radians;
 import static org.sciborgs1155.robot.Constants.Field.*;
-import static org.sciborgs1155.robot.pivot.PivotConstants.PIVOT_OFFSET;
+import static org.sciborgs1155.robot.pivot.PivotConstants.OFFSET;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -40,15 +44,7 @@ public class Shooting {
    * @return The command to shoot at the desired velocity.
    */
   public Command shoot(double desiredVelocity) {
-    return shoot(desiredVelocity, () -> true);
-  }
-
-  public Command shoot(DoubleSupplier desiredVelocity) {
-    return shoot(desiredVelocity, () -> true);
-  }
-
-  public Command shoot(double desiredVelocity, Supplier<Boolean> shootCondition) {
-    return shoot(() -> desiredVelocity, shootCondition);
+    return shoot(() -> desiredVelocity, () -> true);
   }
 
   /**
@@ -58,11 +54,13 @@ public class Shooting {
    * @param desiredVelocity Target velocity for the flywheel.
    * @param shootCondition Condition after which the feeder will run.
    */
-  public Command shoot(DoubleSupplier desiredVelocity, Supplier<Boolean> shootCondition) {
-    return Commands.deadline(
-        Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.get())
-            .andThen(feeder.forward().withTimeout(0.05)),
-        shooter.runShooter(() -> desiredVelocity.getAsDouble()));
+  public Command shoot(DoubleSupplier desiredVelocity, BooleanSupplier shootCondition) {
+    return shooter
+        .setSetpoint(desiredVelocity)
+        .andThen(
+            Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean())
+                .andThen(feeder.forward().withTimeout(0.15))
+                .deadlineWith(shooter.runShooter(desiredVelocity)));
   }
 
   /**
@@ -72,8 +70,8 @@ public class Shooting {
    * @param targetVelocity The desired velocity of the shooter.
    * @return The command to run the pivot to its desired angle and then shoot.
    */
-  public Command pivotThenShoot(double targetAngle, double targetVelocity) {
-    return Commands.deadline(shoot(targetVelocity, pivot::atGoal), pivot.runPivot(targetAngle));
+  public Command pivotThenShoot(Measure<Angle> targetAngle, double targetVelocity) {
+    return shoot(() -> targetVelocity, pivot::atGoal).deadlineWith(pivot.runPivot(targetAngle));
   }
 
   /**
@@ -82,14 +80,14 @@ public class Shooting {
    * @param vx Supplier for x velocity of chassis
    * @param vy Supplier for y velocity of chassis
    */
-  public Command fullShooting(DoubleSupplier vx, DoubleSupplier vy) {
+  public Command shootWhileDriving(DoubleSupplier vx, DoubleSupplier vy) {
     return Commands.deadline(
         shoot(
             () -> noteRobotRelativeVelocityVector().norm(),
             () ->
                 pivot.atGoal()
                     && drive.atHeadingGoal()
-                    && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1),
+                    && drive.getFieldRelativeChassisSpeeds().omegaRadiansPerSecond < 0.1),
         drive.drive(vx, vy, () -> heading(noteRobotRelativeVelocityVector())),
         pivot.runPivot(() -> pitch(noteRobotRelativeVelocityVector())));
   }
@@ -117,7 +115,7 @@ public class Shooting {
    * @return Target initial velocity of note, relative to robot
    */
   public Vector<N3> noteRobotRelativeVelocityVector() {
-    var speaker = getSpeaker().toTranslation2d();
+    var speaker = speaker().toTranslation2d();
     var heading = speaker.minus(drive.getPose().getTranslation()).getAngle();
     var fromSpeaker =
         shooterPos(new Pose2d(drive.getPose().getTranslation(), heading))
@@ -125,7 +123,7 @@ public class Shooting {
             .minus(speaker);
     var stationaryVel =
         toVelocityVector(heading, stationaryPitch(fromSpeaker), stationaryVelocity(fromSpeaker));
-    var speeds = drive.getChassisSpeeds();
+    var speeds = drive.getFieldRelativeChassisSpeeds();
     return stationaryVel.minus(
         VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0));
   }
@@ -154,27 +152,28 @@ public class Shooting {
 
   /** Shoots while stationary at correct flywheel speed, pivot angle, and heading. */
   public Command stationaryTurretShooting() {
-    Translation2d speaker = getSpeaker().toTranslation2d();
+    Translation2d speaker = speaker().toTranslation2d();
     Translation2d tranlationFromSpeaker =
         speaker.minus(shooterPos(drive.getPose()).toTranslation2d());
     return Commands.deadline(
             shoot(
-                stationaryVelocity(tranlationFromSpeaker),
+                () -> stationaryVelocity(tranlationFromSpeaker),
                 () ->
                     pivot.atGoal()
                         && drive.isFacing(speaker)
-                        && drive.getChassisSpeeds().omegaRadiansPerSecond < 0.1),
+                        && drive.getFieldRelativeChassisSpeeds().omegaRadiansPerSecond < 0.1),
             drive.driveFacingTarget(() -> 0, () -> 0, () -> speaker),
-            pivot.runPivot(stationaryPitch(tranlationFromSpeaker)))
+            pivot.runPivot(() -> stationaryPitch(tranlationFromSpeaker)))
         .andThen(Commands.print("DONE!!"));
   }
 
   /** Shoots while stationary at correct flywheel speed and pivot angle, doesn't auto-turret. */
   public Command stationaryShooting() {
     Translation2d tranlationFromSpeaker =
-        getSpeaker().minus(shooterPos(drive.getPose())).toTranslation2d();
+        speaker().minus(shooterPos(drive.getPose())).toTranslation2d();
     return pivotThenShoot(
-        stationaryPitch(tranlationFromSpeaker), stationaryVelocity(tranlationFromSpeaker));
+        Radians.of(stationaryPitch(tranlationFromSpeaker)),
+        stationaryVelocity(tranlationFromSpeaker));
   }
 
   /**
@@ -215,10 +214,6 @@ public class Shooting {
 
   /** Calculates position of shooter from Pose2d of robot. */
   public static Translation3d shooterPos(Pose2d robotPose) {
-    Translation2d shooterxy =
-        robotPose
-            .getTranslation()
-            .plus(PIVOT_OFFSET.toTranslation2d().rotateBy(robotPose.getRotation()));
-    return new Translation3d(shooterxy.getX(), shooterxy.getY(), PIVOT_OFFSET.getZ());
+    return new Pose3d(robotPose).getTranslation().plus(OFFSET);
   }
 }

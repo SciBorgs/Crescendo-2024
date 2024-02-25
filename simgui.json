@@ -243,6 +243,7 @@
         "feeder": {
           "open": true
         },
+        "open": true,
         "pivot": {
           "FUCK": {
             "open": true
@@ -297,16 +298,12 @@
         },
         "Pivot": {
           "open": true
-        },
-        "open": true
+        }
       }
     }
   },
   "NetworkTables Info": {
-    "Server": {
-      "Subscribers": {
-        "open": true
-      },
+    "Clients": {
       "open": true
     },
     "visible": true

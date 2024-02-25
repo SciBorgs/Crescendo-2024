@@ -2,7 +2,6 @@ package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.*;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
@@ -26,8 +25,6 @@ public class PivotConstants {
   public static final Translation3d OFFSET =
       new Translation3d(Inches.of(10.465), Inches.of(0), Inches.of(25));
 
-  public static final Translation3d PIVOT_OFFSET = new Translation3d(1, 0, 1); // TODO this is false
-
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);
 
@@ -40,13 +37,13 @@ public class PivotConstants {
   public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL =
       RadiansPerSecond.per(Second).of(12.0);
 
-  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(-45.7);
-  public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(63.3);
+  public static final Measure<Angle> STARTING_ANGLE = Degrees.of(63.3);
 
-  public static final Rotation2d STARTING_ANGLE = Rotation2d.fromDegrees(63.3);
+  public static final Measure<Angle> MIN_ANGLE = Degrees.of(-45.7);
+  public static final Measure<Angle> MAX_ANGLE = STARTING_ANGLE;
 
-  public static final Rotation2d PRESET_SUBWOOFER_ANGLE = STARTING_ANGLE;
-  public static final Rotation2d PRESET_AMP_ANGLE = Rotation2d.fromRadians(-0.55);
+  public static final Measure<Angle> PRESET_SUBWOOFER_ANGLE = STARTING_ANGLE;
+  public static final Measure<Angle> PRESET_AMP_ANGLE = Radians.of(-0.55);
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 

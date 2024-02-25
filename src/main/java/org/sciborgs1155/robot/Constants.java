@@ -22,6 +22,30 @@ import org.sciborgs1155.robot.drive.DriveConstants;
  * @see Units
  */
 public class Constants {
+
+  /** Represents the model of robot this code is controlling. */
+  public static enum RobotType {
+    COMPLETE,
+    CHASSIS,
+    NO_PIVOT
+  }
+
+  /** The current model of robot this code is controlling. */
+  public static final RobotType ROBOT_TYPE = RobotType.COMPLETE;
+
+  /** Returns the robot's alliance. */
+  public static Alliance alliance() {
+    return DriverStation.getAlliance().orElse(Alliance.Blue);
+  }
+
+  public static final Measure<Time> PERIOD = Seconds.of(0.02); // roborio tickrate (s)
+  public static final double DEADBAND = 0.1;
+  public static final double MAX_RATE =
+      DriveConstants.MAX_ACCEL.baseUnitMagnitude()
+          / DriveConstants.MAX_ANGULAR_SPEED.baseUnitMagnitude();
+  public static final double SLOW_SPEED_MULTIPLIER = 0.33;
+  public static final double FULL_SPEED_MULTIPLIER = 1.0;
+
   // Origin at corner of blue alliance side of field
   public static class Field {
     public static final Translation3d BLUE_SPEAKER_POSE =
@@ -57,26 +81,9 @@ public class Constants {
     public static Pose3d CENTER_NOTE_FIVE =
         new Pose3d(new Translation3d(8.2705321, 7.4584052, 0), new Rotation3d());
 
-    public static Translation3d getSpeaker() {
-      return DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red
-          ? RED_SPEAKER_POSE
-          : BLUE_SPEAKER_POSE;
+    /** Returns the translation of the speaker for the robot's alliance. */
+    public static Translation3d speaker() {
+      return alliance() == Alliance.Red ? RED_SPEAKER_POSE : BLUE_SPEAKER_POSE;
     }
   }
-
-  public static enum RobotType {
-    COMPLETE,
-    CHASSIS,
-    NO_PIVOT
-  }
-
-  public static final RobotType ROBOT_TYPE = RobotType.COMPLETE;
-
-  public static final Measure<Time> PERIOD = Seconds.of(0.02); // roborio tickrate (s)
-  public static final double DEADBAND = 0.1;
-  public static final double MAX_RATE =
-      DriveConstants.MAX_ACCEL.baseUnitMagnitude()
-          / DriveConstants.MAX_ANGULAR_SPEED.baseUnitMagnitude();
-  public static final double SLOW_SPEED_MULTIPLIER = 0.33;
-  public static final double FULL_SPEED_MULTIPLIER = 1.0;
 }

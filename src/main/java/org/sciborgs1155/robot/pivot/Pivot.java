@@ -10,6 +10,8 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -74,7 +77,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("pivot dynamic forward", dynamicForward());
     SmartDashboard.putData("pivot dynamic backward", dynamicBack());
 
-    setDefaultCommand(run(() -> update(STARTING_ANGLE.getRadians())).withName("default position"));
+    setDefaultCommand(run(() -> update(STARTING_ANGLE.in(Radians))).withName("default position"));
     teleop().onTrue(Commands.runOnce(() -> pid.reset(hardware.getPosition())));
   }
 
@@ -89,8 +92,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     return run(() -> update(goalAngle.getAsDouble())).withName("go to").asProxy();
   }
 
-  public Command runPivot(double goalAngle) {
-    return runPivot(() -> goalAngle);
+  public Command runPivot(Measure<Angle> goal) {
+    return runPivot(() -> goal.in(Radians));
   }
 
   /**
@@ -105,14 +108,12 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
         .finallyDo(() -> pid.setPID(kP, kI, kD));
   }
 
-  public Command manualPivot(InputStream stickInput) {
+  public Command manualPivot(DoubleSupplier stickInput) {
     return runPivot(
-        () -> {
-          double velocity = stickInput.get() * (MAX_VELOCITY.in(RadiansPerSecond) / 2);
-          double periodMovement = Constants.PERIOD.in(Seconds) * velocity;
-          double setpoint = periodMovement + pid.getGoal().position;
-          return setpoint;
-        });
+        InputStream.of(stickInput)
+            .scale(MAX_VELOCITY.in(RadiansPerSecond) / 2)
+            .scale(Constants.PERIOD.in(Seconds))
+            .add(() -> pid.getGoal().position));
   }
 
   public Command setGoal(DoubleSupplier goal) {
@@ -151,25 +152,25 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   public Command quasistaticForward() {
     return sysIdRoutine
         .quasistatic(Direction.kForward)
-        .until(() -> hardware.getPosition() > MAX_ANGLE.getRadians() - 0.2);
+        .until(() -> hardware.getPosition() > MAX_ANGLE.in(Radians) - 0.2);
   }
 
   public Command quasistaticBack() {
     return sysIdRoutine
         .quasistatic(Direction.kReverse)
-        .until(() -> hardware.getPosition() < MIN_ANGLE.getRadians() + 0.2);
+        .until(() -> hardware.getPosition() < MIN_ANGLE.in(Radians) + 0.2);
   }
 
   public Command dynamicForward() {
     return sysIdRoutine
         .dynamic(Direction.kForward)
-        .until(() -> hardware.getPosition() > MAX_ANGLE.getRadians() - 0.2);
+        .until(() -> hardware.getPosition() > MAX_ANGLE.in(Radians) - 0.2);
   }
 
   public Command dynamicBack() {
     return sysIdRoutine
         .dynamic(Direction.kReverse)
-        .until(() -> hardware.getPosition() < MIN_ANGLE.getRadians() + 0.2);
+        .until(() -> hardware.getPosition() < MIN_ANGLE.in(Radians) + 0.2);
   }
 
   /**
@@ -178,7 +179,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    * @param goalAngle The position to move the pivot to.
    */
   private void update(double goalAngle) {
-    double goal = MathUtil.clamp(goalAngle, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians());
+    double goal = MathUtil.clamp(goalAngle, MIN_ANGLE.in(Radians), MAX_ANGLE.in(Radians));
     double feedback = pid.calculate(hardware.getPosition(), goal);
     double feedforward =
         ff.calculate(pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
@@ -191,6 +192,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   public void periodic() {
     positionVisualizer.setState(rotation().getY());
     setpointVisualizer.setState(setpoint().getY());
+    log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
   }
 
   @Override

@@ -37,6 +37,11 @@ public class Vision implements Logged {
 
   private VisionSystemSim visionSim;
 
+  /** A factory to create new vision classes with our two configured cameras */
+  public static Vision create() {
+    return new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
+  }
+
   public Vision(CameraConfig... configs) {
     cameras = new PhotonCamera[configs.length];
     estimators = new PhotonPoseEstimator[configs.length];

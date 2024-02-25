@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot;
 
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.*;
@@ -62,7 +63,7 @@ public class ShooterTest {
     assertEquals(theta, pivot.goal().getY(), DELTA);
     assertEquals(theta, pivot.setpoint().getY(), DELTA);
     assertEquals(
-        MathUtil.clamp(theta, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
+        MathUtil.clamp(theta, MIN_ANGLE.in(Radians), MAX_ANGLE.in(Radians)),
         pivot.rotation().getY(),
         0.15);
   }
@@ -73,7 +74,7 @@ public class ShooterTest {
     run(pivot.climb(theta));
     fastForward(1000);
 
-    assertEquals(STARTING_ANGLE.getRadians(), pivot.rotation().getY(), DELTA);
+    assertEquals(STARTING_ANGLE.in(Radians), pivot.rotation().getY(), DELTA);
   }
 
   @ParameterizedTest
@@ -88,11 +89,11 @@ public class ShooterTest {
   @Disabled
   @Test
   public void testPivotThenShoot() {
-    run(shooting.pivotThenShoot(Math.PI / 4, 4));
+    run(shooting.pivotThenShoot(Radians.of(Math.PI / 4), 4));
     fastForward();
 
     assertEquals(
-        MathUtil.clamp(Math.PI / 4, MIN_ANGLE.getRadians(), MAX_ANGLE.getRadians()),
+        MathUtil.clamp(Math.PI / 4, MIN_ANGLE.in(Radians), MAX_ANGLE.in(Radians)),
         pivot.rotation().getY(),
         DELTA);
     assertEquals(4, shooter.getVelocity(), DELTA);
@@ -100,7 +101,7 @@ public class ShooterTest {
 
   @Test
   public void endConditions() {
-    var c = shooting.pivotThenShoot(4, 5).ignoringDisable(true);
+    var c = shooting.pivotThenShoot(Radians.of(4), 5).ignoringDisable(true);
     c.schedule();
     fastForward(10);
     assert !c.isFinished();
@@ -112,7 +113,7 @@ public class ShooterTest {
     c3.schedule();
     fastForward(2);
     assert !c3.isFinished();
-    var c4 = shooting.shoot(3, pivot::atGoal).ignoringDisable(true);
+    var c4 = shooting.shoot(3).ignoringDisable(true);
     c4.schedule();
     fastForward(2);
     assert !c4.isFinished();
