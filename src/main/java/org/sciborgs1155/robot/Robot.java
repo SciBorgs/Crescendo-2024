@@ -182,13 +182,15 @@ public class Robot extends CommandRobot implements Logged {
             pivot.manualPivot(
                 InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
     operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE, 70));
-    operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.5), 300));
+    operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.194), 400));
     operator.y().whileTrue(shooting.pivotThenShoot(Radians.of(0.35), 330));
 
+    // intake.inIntake().onFalse(intake.runOnce(() -> {}).alongWith(feeder.runOnce(() -> {})));
     operator
         .leftBumper()
         .and(() -> pivot.atPosition(STARTING_ANGLE.in(Radians)))
         .whileTrue(intake.intake().alongWith(feeder.forward()))
+        // .until(intake.inIntake()));
         .onFalse(feeder.retract());
     operator.rightBumper().whileTrue(feeder.forward());
     operator.povUp().whileTrue(shooter.runShooter(() -> 300));

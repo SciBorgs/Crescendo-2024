@@ -45,11 +45,11 @@ public class PivotConstants {
   public static final Measure<Angle> PRESET_SUBWOOFER_ANGLE = STARTING_ANGLE;
   public static final Measure<Angle> PRESET_AMP_ANGLE = Radians.of(-0.55);
 
-  public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
+  public static final Measure<Current> CURRENT_LIMIT = Amps.of(30);
 
   public static final double kP = 8;
   public static final double kI = 0;
-  public static final double kD = 1;
+  public static final double kD = 0.5;
 
   public static final double kS = 0.14296;
   public static final double kV = 1.7305;

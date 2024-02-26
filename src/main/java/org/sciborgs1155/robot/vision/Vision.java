@@ -40,7 +40,8 @@ public class Vision implements Logged {
 
   /** A factory to create new vision classes with our two configured cameras */
   public static Vision create() {
-    return new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
+    // return new Vision(VisionConstants.FRONT_CAMERA_CONFIG, VisionConstants.SIDE_CAMERA_CONFIG);
+    return new Vision();
   }
 
   public Vision(CameraConfig... configs) {
