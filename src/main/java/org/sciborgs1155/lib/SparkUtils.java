@@ -31,7 +31,10 @@ public class SparkUtils {
   }
 
   /**
-   * Configures a specific value on a spark, retrying up to {@code MAX_ATTEMPTS} times.
+   * Fully configures a Spark Max/Flex with all provided configs.
+   *
+   * <p>Each config is applied until success, or until the number of attempts exceed {@code
+   * MAX_ATTEMPTS}.
    *
    * @param spark The spark to configure.
    * @param config The configuration to apply.

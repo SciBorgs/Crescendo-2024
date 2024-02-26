@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * FaultLogger allows for faults to be logged and displayed.
@@ -64,7 +63,7 @@ public final class FaultLogger {
       infos = table.getStringArrayTopic("infos").publish();
     }
 
-    public void set(Stream<Fault> faults) {
+    public void set(Set<Fault> faults) {
       errors.set(filteredStrings(faults, FaultType.ERROR));
       warnings.set(filteredStrings(faults, FaultType.WARNING));
       infos.set(filteredStrings(faults, FaultType.INFO));
@@ -73,6 +72,7 @@ public final class FaultLogger {
 
   // DATA
   private static final List<Supplier<Optional<Fault>>> faultSuppliers = new ArrayList<>();
+  private static final Set<Fault> newFaults = new HashSet<>();
   private static final Set<Fault> activeFaults = new HashSet<>();
   private static final Set<Fault> totalFaults = new HashSet<>();
 
@@ -85,13 +85,18 @@ public final class FaultLogger {
   public static void update() {
     activeFaults.clear();
 
-    var active = faultSuppliers.stream().map(s -> s.get()).flatMap(Optional::stream);
-    active.forEach(FaultLogger::report);
+    faultSuppliers.stream()
+        .map(s -> s.get())
+        .flatMap(Optional::stream)
+        .forEach(FaultLogger::report);
+
+    activeFaults.addAll(newFaults);
+    newFaults.clear();
 
     totalFaults.addAll(activeFaults);
 
-    activeAlerts.set(active);
-    totalAlerts.set(totalFaults.stream());
+    activeAlerts.set(activeFaults);
+    totalAlerts.set(totalFaults);
   }
 
   /**
@@ -118,7 +123,7 @@ public final class FaultLogger {
    * @param fault The fault to report.
    */
   public static void report(Fault fault) {
-    activeFaults.add(fault);
+    newFaults.add(fault);
     switch (fault.type) {
       case ERROR -> DriverStation.reportError(fault.toString(), false);
       case WARNING -> DriverStation.reportWarning(fault.toString(), false);
@@ -236,7 +241,10 @@ public final class FaultLogger {
    * @param type The type to filter for.
    * @return An array of description strings.
    */
-  private static String[] filteredStrings(Stream<Fault> faults, FaultType type) {
-    return faults.filter(a -> a.type() == type).map(Fault::toString).toArray(String[]::new);
+  private static String[] filteredStrings(Set<Fault> faults, FaultType type) {
+    return faults.stream()
+        .filter(a -> a.type() == type)
+        .map(Fault::toString)
+        .toArray(String[]::new);
   }
 }
