@@ -181,6 +181,11 @@ public final class FaultLogger {
     for (FaultID fault : FaultID.values()) {
       register(() -> spark.getFault(fault), SparkUtils.name(spark), fault.name(), FaultType.ERROR);
     }
+    register(
+        () -> spark.getMotorTemperature() > 100,
+        SparkUtils.name(spark),
+        "motor above 100°C",
+        FaultType.WARNING);
   }
 
   /**
@@ -234,7 +239,7 @@ public final class FaultLogger {
   public static void register(PhotonCamera camera) {
     register(
         () -> !camera.isConnected(),
-        "Camera: " + camera.getName(),
+        "Photon Camera [" + camera.getName() + "]",
         "disconnected",
         FaultType.ERROR);
   }
