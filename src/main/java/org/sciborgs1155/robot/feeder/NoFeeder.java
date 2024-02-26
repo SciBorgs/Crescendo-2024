@@ -5,11 +5,6 @@ public class NoFeeder implements FeederIO {
   public void set(double power) {}
 
   @Override
-  public double getVelocity() {
-    return 0;
-  }
-
-  @Override
   public boolean beambreak() {
     return true;
   }
