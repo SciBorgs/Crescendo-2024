@@ -1,7 +1,5 @@
 package org.sciborgs1155.robot.drive;
 
-import static org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.*;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -9,6 +7,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Driving;
+import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Turning;
 
 /** Class to encapsulate a REV Max Swerve module */
 public class SwerveModule implements Logged, AutoCloseable {
@@ -71,7 +71,14 @@ public class SwerveModule implements Logged, AutoCloseable {
   public void updateDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
     setpoint = SwerveModuleState.optimize(desiredState, module.getRotation());
-    updateDriveSpeed(setpoint.speedMetersPerSecond);
+    // Calculate cosine of turning error
+    double cosScalar = (setpoint.angle.minus(module.getRotation())).getCos();
+
+    if (cosScalar < 0.0) {
+      cosScalar = 0.0;
+    }
+
+    updateDriveSpeed(setpoint.speedMetersPerSecond * cosScalar);
     updateTurnRotation(setpoint.angle);
   }
 
