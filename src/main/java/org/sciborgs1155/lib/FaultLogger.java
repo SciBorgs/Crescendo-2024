@@ -4,10 +4,12 @@ import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.FaultID;
 import com.revrobotics.REVLibError;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringArrayPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,34 +18,20 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
+/**
+ * FaultLogger allows for faults to be logged and displayed.
+ *
+ * <p>
+ *
+ * <pre>
+ * FaultLogger.register(spark); // registers a spark, periodically checking for hardware faults
+ * spark.set(0.5);
+ * FaultLogger.check(spark); // checks that the previous set call did not encounter an error.
+ * </pre>
+ */
 public final class FaultLogger {
-  /** Adds an alert widget to SmartDashboard;. */
-  public static void setupLogging() {
-    SmartDashboard.putData(
-        "Active Faults",
-        builder -> {
-          builder.setSmartDashboardType("Alerts");
-          builder.addStringArrayProperty(
-              "errors", () -> filteredStrings(activeFaults, FaultType.ERROR), null);
-          builder.addStringArrayProperty(
-              "warnings", () -> filteredStrings(activeFaults, FaultType.WARNING), null);
-          builder.addStringArrayProperty(
-              "infos", () -> filteredStrings(activeFaults, FaultType.INFO), null);
-        });
-
-    SmartDashboard.putData(
-        "Total Faults",
-        builder -> {
-          builder.setSmartDashboardType("Alerts");
-          builder.addStringArrayProperty(
-              "errors", () -> filteredStrings(totalFaults, FaultType.ERROR), null);
-          builder.addStringArrayProperty(
-              "warnings", () -> filteredStrings(totalFaults, FaultType.WARNING), null);
-          builder.addStringArrayProperty(
-              "infos", () -> filteredStrings(totalFaults, FaultType.INFO), null);
-        });
-  }
 
   /** An individual fault, containing necessary information. */
   public static record Fault(String name, String description, FaultType type) {
@@ -63,18 +51,47 @@ public final class FaultLogger {
     ERROR,
   }
 
+  /** A class to represent an alerts widget on NetworkTables */
+  public static class Alerts {
+    private final StringArrayPublisher errors;
+    private final StringArrayPublisher warnings;
+    private final StringArrayPublisher infos;
+
+    public Alerts(NetworkTable base, String name) {
+      NetworkTable table = base.getSubTable(name);
+      errors = table.getStringArrayTopic("errors").publish();
+      warnings = table.getStringArrayTopic("warnings").publish();
+      infos = table.getStringArrayTopic("infos").publish();
+    }
+
+    public void set(Stream<Fault> faults) {
+      errors.set(filteredStrings(faults, FaultType.ERROR));
+      warnings.set(filteredStrings(faults, FaultType.WARNING));
+      infos.set(filteredStrings(faults, FaultType.INFO));
+    }
+  }
+
+  // DATA
   private static final List<Supplier<Optional<Fault>>> faultSuppliers = new ArrayList<>();
   private static final Set<Fault> activeFaults = new HashSet<>();
   private static final Set<Fault> totalFaults = new HashSet<>();
 
+  // NETWORK TABLES
+  private static final NetworkTable base = NetworkTableInstance.getDefault().getTable("Faults");
+  private static final Alerts activeAlerts = new Alerts(base, "Active Faults");
+  private static final Alerts totalAlerts = new Alerts(base, "Total Faults");
+
   /** Polls registered fallibles. This method should be called periodically. */
   public static void update() {
     activeFaults.clear();
-    faultSuppliers.stream()
-        .map(s -> s.get())
-        .flatMap(Optional::stream)
-        .forEach(FaultLogger::report);
+
+    var active = faultSuppliers.stream().map(s -> s.get()).flatMap(Optional::stream);
+    active.forEach(FaultLogger::report);
+
     totalFaults.addAll(activeFaults);
+
+    activeAlerts.set(active);
+    totalAlerts.set(totalFaults.stream());
   }
 
   /**
@@ -93,30 +110,6 @@ public final class FaultLogger {
    */
   public static Set<Fault> totalFaults() {
     return totalFaults;
-  }
-
-  /**
-   * Returns a list of faults of the specified type from the set of faults.
-   *
-   * @param faults The set of faults to filter.
-   * @param type The type of faults to find.
-   * @return A list of faults of the specified FaultType.
-   */
-  public static List<Fault> filteredFaults(Set<Fault> faults, FaultType type) {
-    return faults.stream().filter(a -> a.type() == type).toList();
-  }
-
-  /**
-   * Returns an array of descriptions of all faults that match the specified type.
-   *
-   * @param type The type to filter for.
-   * @return An array of description strings.
-   */
-  public static String[] filteredStrings(Set<Fault> faults, FaultType type) {
-    return faults.stream()
-        .filter(a -> a.type() == type)
-        .map(Fault::toString)
-        .toArray(String[]::new);
   }
 
   /**
@@ -210,9 +203,16 @@ public final class FaultLogger {
   public static void register(PowerDistribution powerDistribution) {
     for (Field field : PowerDistribution.class.getFields()) {
       register(
-          () ->
-              IHateThisLanguage.handle(() -> field.getBoolean(powerDistribution))
-                  .map(b -> new Fault("Power Distribution", field.getName(), FaultType.ERROR)));
+          () -> {
+            try {
+              if (field.getBoolean(powerDistribution)) {
+                return Optional.of(
+                    new Fault("Power Distribution", field.getName(), FaultType.ERROR));
+              }
+            } catch (Exception e) {
+            }
+            return Optional.empty();
+          });
     }
   }
 
@@ -228,5 +228,15 @@ public final class FaultLogger {
     if (error != REVLibError.kOk) {
       report(SparkUtils.name(spark), error.name(), FaultType.ERROR);
     }
+  }
+
+  /**
+   * Returns an array of descriptions of all faults that match the specified type.
+   *
+   * @param type The type to filter for.
+   * @return An array of description strings.
+   */
+  private static String[] filteredStrings(Stream<Fault> faults, FaultType type) {
+    return faults.filter(a -> a.type() == type).map(Fault::toString).toArray(String[]::new);
   }
 }

@@ -101,7 +101,6 @@ public class Robot extends CommandRobot implements Logged {
     DataLogManager.start();
     Monologue.setupMonologue(this, "/Robot", false, true);
     addPeriodic(Monologue::updateAll, PERIOD.in(Seconds));
-    FaultLogger.setupLogging();
     addPeriodic(FaultLogger::update, 1);
 
     // Configure pose estimation updates every tick

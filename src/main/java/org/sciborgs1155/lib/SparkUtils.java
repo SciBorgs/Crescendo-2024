@@ -3,11 +3,8 @@ package org.sciborgs1155.lib;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.REVLibError;
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Time;
-import edu.wpi.first.units.Units;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import org.sciborgs1155.lib.FaultLogger.FaultType;
 
 /** Utility class for configuration of Spark motor controllers */
@@ -19,27 +16,52 @@ public class SparkUtils {
   public static final int FRAME_STRATEGY_FAST = 20;
   public static final int FRAME_STRATEGY_VERY_FAST = 10;
 
-  public static final Angle ANGLE_UNIT = Units.Rotations;
-  public static final Time TIME_UNIT = Units.Minutes;
   public static final int THROUGHBORE_CPR = 8192;
 
   public static final int MAX_ATTEMPTS = 5;
 
+  /**
+   * Formats the name of a spark with its CAN ID.
+   *
+   * @param spark The spark to find the name of.
+   * @return The name of a spark.
+   */
   public static String name(CANSparkBase spark) {
     return "Spark [" + spark.getDeviceId() + "]";
   }
 
-  public static void configure(CANSparkBase spark, Function<CANSparkBase, REVLibError> config) {
-    configure(spark, config, 2);
+  /**
+   * Configures a specific value on a spark, retrying up to {@code MAX_ATTEMPTS} times.
+   *
+   * @param spark The spark to configure.
+   * @param config The configuration to apply.
+   */
+  @SafeVarargs
+  public static void configure(CANSparkBase spark, Supplier<REVLibError>... config) {
+    configure(spark, spark::restoreFactoryDefaults, 1);
+    configure(spark, () -> spark.setCANTimeout(50), 1);
+    for (var f : config) {
+      configure(spark, f::get, 1);
+    }
+    configure(spark, () -> spark.setCANTimeout(20), 1);
+    spark.burnFlash();
+    FaultLogger.check(spark); // checks the burn flash call
   }
 
-  private static void configure(
-      CANSparkBase spark, Function<CANSparkBase, REVLibError> config, int attempt) {
+  /**
+   * Recursively configures a specific value on a spark, until {@code attempt} exceeds {@code
+   * MAX_ATTEMPTS}.
+   *
+   * @param spark The spark to configure.
+   * @param config The configuration to apply to the spark.
+   * @param attempt The current attempt number.
+   */
+  private static void configure(CANSparkBase spark, Supplier<REVLibError> config, int attempt) {
     if (attempt >= MAX_ATTEMPTS) {
       FaultLogger.report(name(spark), "FAILED TO SET PARAMETER", FaultType.ERROR);
       return;
     }
-    REVLibError error = config.apply(spark);
+    REVLibError error = config.get();
     if (error != REVLibError.kOk) {
       configure(spark, config, attempt + 1);
     }
@@ -75,7 +97,7 @@ public class SparkUtils {
    * @see Data
    * @see https://docs.revrobotics.com/brushless/spark-max/control-interfaces
    */
-  public static void configureFrameStrategy(
+  public static REVLibError configureFrameStrategy(
       CANSparkBase spark, Set<Data> data, Set<Sensor> sensors, boolean withFollower) {
     int status0 = FRAME_STRATEGY_MEDIUM; // output, faults
     int status1 = FRAME_STRATEGY_SLOW;
@@ -124,19 +146,14 @@ public class SparkUtils {
       }
     }
 
-    setFrame(PeriodicFrame.kStatus0, status0, 0, spark);
-    setFrame(PeriodicFrame.kStatus1, status1, 1, spark);
-    setFrame(PeriodicFrame.kStatus2, status2, 2, spark);
-    setFrame(PeriodicFrame.kStatus3, status3, 3, spark);
-    setFrame(PeriodicFrame.kStatus4, status4, 4, spark);
-    setFrame(PeriodicFrame.kStatus5, status5, 5, spark);
-    setFrame(PeriodicFrame.kStatus6, status6, 6, spark);
-    setFrame(PeriodicFrame.kStatus7, status7, 7, spark);
-  }
-
-  private static void setFrame(PeriodicFrame frame, int period, int i, CANSparkBase spark) {
-    // TODO fix effectively final errors
-    configure(spark, s -> s.setPeriodicFramePeriod(frame, period));
+    int[] frames = {status0, status1, status2, status3, status4, status5, status6, status7};
+    for (int i = 0; i < frames.length; i++) {
+      REVLibError e = spark.setPeriodicFramePeriod(PeriodicFrame.fromId(i), frames[i]);
+      if (e != REVLibError.kOk) {
+        return e;
+      }
+    }
+    return REVLibError.kOk;
   }
 
   /**
