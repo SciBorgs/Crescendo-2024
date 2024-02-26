@@ -14,10 +14,11 @@ public class FaultLoggerTest {
   @BeforeEach
   public void setup() {
     setupHAL();
+    FaultLogger.clear();
   }
 
   @Test
-  void basic() {
+  void report() {
     NetworkTable base = NetworkTableInstance.getDefault().getTable("Faults");
     var activeInfos =
         base.getSubTable("Active Faults").getStringArrayTopic("infos").subscribe(new String[10]);
@@ -44,6 +45,28 @@ public class FaultLoggerTest {
     assertEquals(FaultLogger.activeFaults().size(), 1);
     assertEquals(FaultLogger.totalFaults().size(), 2);
     assertEquals(activeInfos.get().length, 0);
+    assertEquals(totalErrors.get().length, 1);
+  }
+
+  @Test
+  void register() {
+    NetworkTable base = NetworkTableInstance.getDefault().getTable("Faults");
+    var activeErrors =
+        base.getSubTable("Active Faults").getStringArrayTopic("errors").subscribe(new String[10]);
+    var totalErrors =
+        base.getSubTable("Total Faults").getStringArrayTopic("errors").subscribe(new String[10]);
+
+    FaultLogger.update();
+    FaultLogger.register(() -> true, "Recurring Test", "Idk", FaultType.ERROR);
+    FaultLogger.update();
+    FaultLogger.update();
+
+    // System.out.println(totalErrors.get().toString());
+    for (var e : totalErrors.get()) {
+      System.out.println(e);
+    }
+
+    assertEquals(activeErrors.get().length, 1);
     assertEquals(totalErrors.get().length, 1);
   }
 }

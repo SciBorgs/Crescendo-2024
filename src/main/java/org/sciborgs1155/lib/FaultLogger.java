@@ -22,8 +22,6 @@ import java.util.function.Supplier;
 /**
  * FaultLogger allows for faults to be logged and displayed.
  *
- * <p>
- *
  * <pre>
  * FaultLogger.register(spark); // registers a spark, periodically checking for hardware faults
  * spark.set(0.5);
@@ -98,6 +96,11 @@ public final class FaultLogger {
 
     activeAlerts.set(activeFaults);
     totalAlerts.set(totalFaults);
+  }
+
+  /** Clears total faults. */
+  public static void clear() {
+    totalFaults.clear();
   }
 
   /**
