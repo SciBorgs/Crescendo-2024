@@ -58,6 +58,7 @@ public final class FaultLogger {
 
     public Alerts(NetworkTable base, String name) {
       NetworkTable table = base.getSubTable(name);
+      table.getStringTopic(".type").publish().set("Alerts");
       errors = table.getStringArrayTopic("errors").publish();
       warnings = table.getStringArrayTopic("warnings").publish();
       infos = table.getStringArrayTopic("infos").publish();
