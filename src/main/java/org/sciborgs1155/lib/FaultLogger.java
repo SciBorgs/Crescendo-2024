@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import org.photonvision.PhotonCamera;
 
 /**
  * FaultLogger allows for faults to be logged and displayed.
@@ -223,6 +224,19 @@ public final class FaultLogger {
             return Optional.empty();
           });
     }
+  }
+
+  /**
+   * Registers fault suppliers for a camera.
+   *
+   * @param camera The camera to manage.
+   */
+  public static void register(PhotonCamera camera) {
+    register(
+        () -> !camera.isConnected(),
+        "Camera: " + camera.getName(),
+        "disconnected",
+        FaultType.ERROR);
   }
 
   /**
