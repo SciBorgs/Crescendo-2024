@@ -73,12 +73,7 @@ public class SwerveModule implements Logged, AutoCloseable {
     setpoint = SwerveModuleState.optimize(desiredState, module.getRotation());
     // Calculate cosine of turning error
     double cosScalar = (setpoint.angle.minus(module.getRotation())).getCos();
-
-    if (cosScalar < 0.0) {
-      cosScalar = 0.0;
-    }
-
-    updateDriveSpeed(setpoint.speedMetersPerSecond * cosScalar);
+    updateDriveSpeed(setpoint.speedMetersPerSecond * Math.abs(cosScalar));
     updateTurnRotation(setpoint.angle);
   }
 

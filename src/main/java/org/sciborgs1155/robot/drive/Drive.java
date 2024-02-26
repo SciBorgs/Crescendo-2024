@@ -190,14 +190,16 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param vOmega A supplier for the angular velocity of the robot.
    * @return The driving command.
    */
-  public Command drive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier vOmega) {
+  public Command drive(DoubleSupplier vx, DoubleSupplier vy, InputStream vOmega) {
     return run(
         () -> {
-          double omega = vOmega.getAsDouble();
-          if (alliance() == Alliance.Red) {
-            omega += Math.PI; // Add pi radians to rotate by 180 degrees
-          }
-          driveFieldRelative(new ChassisSpeeds(vx.getAsDouble(), vy.getAsDouble(), omega));
+          driveFieldRelative(
+              new ChassisSpeeds(
+                  vx.getAsDouble(),
+                  vy.getAsDouble(),
+                  alliance() == Alliance.Red
+                      ? (vOmega.add(Math.PI)).getAsDouble()
+                      : vOmega.getAsDouble()));
         });
   }
 
