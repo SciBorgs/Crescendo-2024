@@ -6,6 +6,7 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import monologue.Annotations.Log;
 import org.sciborgs1155.robot.Constants;
 
 public class SimPivot implements PivotIO {
@@ -18,10 +19,10 @@ public class SimPivot implements PivotIO {
           DCMotor.getNEO(4),
           1.0 / MOTOR_GEARING,
           -LENGTH.in(Meters),
-          MIN_ANGLE.getRadians(),
-          MAX_ANGLE.getRadians(),
+          MIN_ANGLE.in(Radians),
+          MAX_ANGLE.in(Radians),
           true,
-          STARTING_ANGLE.getRadians());
+          STARTING_ANGLE.in(Radians));
 
   @Override
   public void setVoltage(double voltage) {
@@ -30,6 +31,7 @@ public class SimPivot implements PivotIO {
   }
 
   @Override
+  @Log.NT
   public double getPosition() {
     return sim.getAngleRads();
   }

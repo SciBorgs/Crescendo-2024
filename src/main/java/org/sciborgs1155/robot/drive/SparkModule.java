@@ -9,7 +9,6 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
-import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.Set;
 import org.sciborgs1155.lib.FaultLogger;
@@ -19,7 +18,7 @@ import org.sciborgs1155.lib.SparkUtils.Sensor;
 import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Driving;
 import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Turning;
 
-public class FlexModule implements ModuleIO {
+public class SparkModule implements ModuleIO {
 
   private final CANSparkFlex driveMotor; // Neo Vortex
   private final CANSparkMax turnMotor; // Neo 550
@@ -35,49 +34,47 @@ public class FlexModule implements ModuleIO {
    * @param drivePort drive motor port
    * @param turnPort turning motor port
    */
-  public FlexModule(int drivePort, int turnPort, Rotation2d angularOffset) {
+  public SparkModule(int drivePort, int turnPort, Rotation2d angularOffset) {
     driveMotor = new CANSparkFlex(drivePort, MotorType.kBrushless);
-    driveMotor.restoreFactoryDefaults();
-    driveMotor.setCANTimeout(50);
-    driveMotor.setIdleMode(IdleMode.kBrake);
-    driveMotor.setSmartCurrentLimit((int) Driving.CURRENT_LIMIT.in(Amps));
+    driveEncoder = driveMotor.getEncoder();
+
+    SparkUtils.configure(
+        driveMotor,
+        () ->
+            SparkUtils.configureFrameStrategy(
+                driveMotor,
+                Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
+                Set.of(Sensor.INTEGRATED),
+                false),
+        () -> driveMotor.setIdleMode(IdleMode.kBrake),
+        () -> driveMotor.setSmartCurrentLimit((int) Driving.CURRENT_LIMIT.in(Amps)),
+        () -> driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Meters)),
+        () -> driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(MetersPerSecond)),
+        () -> driveEncoder.setMeasurementPeriod(4),
+        () -> driveEncoder.setAverageDepth(2));
 
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
-    turnMotor.restoreFactoryDefaults();
-    turnMotor.setCANTimeout(50);
-    turnMotor.setIdleMode(IdleMode.kBrake);
-    turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps));
+    turningEncoder = turnMotor.getAbsoluteEncoder();
 
-    driveEncoder = driveMotor.getEncoder();
-    driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Meters));
-    driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(MetersPerSecond));
-    driveEncoder.setMeasurementPeriod(10);
-    driveEncoder.setAverageDepth(2);
-
-    turningEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);
-    turningEncoder.setInverted(Turning.ENCODER_INVERTED);
-    turningEncoder.setPositionConversionFactor(Turning.POSITION_FACTOR.in(Radians));
-    turningEncoder.setVelocityConversionFactor(Turning.VELOCITY_FACTOR.in(RadiansPerSecond));
-    turningEncoder.setAverageDepth(2);
-
-    SparkUtils.configureFrameStrategy(
-        driveMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
-        Set.of(Sensor.INTEGRATED),
-        false);
-    SparkUtils.configureFrameStrategy(
+    SparkUtils.configure(
         turnMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
-        Set.of(Sensor.DUTY_CYCLE),
-        false);
+        () ->
+            SparkUtils.configureFrameStrategy(
+                turnMotor,
+                Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
+                Set.of(Sensor.ABSOLUTE),
+                false),
+        () -> turnMotor.setIdleMode(IdleMode.kBrake),
+        () -> turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps)),
+        () -> turningEncoder.setInverted(Turning.ENCODER_INVERTED),
+        () -> turningEncoder.setPositionConversionFactor(Turning.POSITION_FACTOR.in(Radians)),
+        () ->
+            turningEncoder.setVelocityConversionFactor(
+                Turning.VELOCITY_FACTOR.in(RadiansPerSecond)),
+        () -> turningEncoder.setAverageDepth(2));
 
     FaultLogger.register(driveMotor);
     FaultLogger.register(turnMotor);
-
-    driveMotor.setCANTimeout(20);
-    driveMotor.burnFlash();
-    turnMotor.setCANTimeout(20);
-    turnMotor.burnFlash();
 
     resetEncoders();
 
@@ -87,11 +84,13 @@ public class FlexModule implements ModuleIO {
   @Override
   public void setDriveVoltage(double voltage) {
     driveMotor.setVoltage(voltage);
+    FaultLogger.check(driveMotor);
   }
 
   @Override
   public void setTurnVoltage(double voltage) {
     turnMotor.setVoltage(voltage);
+    FaultLogger.check(turnMotor);
   }
 
   @Override

@@ -1,58 +1,47 @@
 package org.sciborgs1155.robot.feeder;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static org.sciborgs1155.robot.Ports.Feeder.*;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;
-import java.util.Set;
+// import edu.wpi.first.wpilibj.DigitalInput;
+import monologue.Annotations.Log;
+import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.SparkUtils;
-import org.sciborgs1155.lib.SparkUtils.Data;
-import org.sciborgs1155.lib.SparkUtils.Sensor;
 
 public class RealFeeder implements FeederIO {
   private final CANSparkFlex motor;
-  private final RelativeEncoder encoder;
 
   // private final DigitalInput beambreak;
 
   public RealFeeder() {
     motor = new CANSparkFlex(FEEDER_SPARK, MotorType.kBrushless);
-    motor.restoreFactoryDefaults();
-    motor.setIdleMode(IdleMode.kBrake);
-    motor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
+
+    SparkUtils.configure(
+        motor,
+        () -> SparkUtils.configureNothingFrameStrategy(motor),
+        () -> motor.setIdleMode(IdleMode.kBrake),
+        () -> motor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
 
     // beambreak = new DigitalInput(BEAMBREAK);
 
-    SparkUtils.configureFrameStrategy(
-        motor, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.INTEGRATED), false);
-
-    encoder = motor.getEncoder();
-    encoder.setVelocityConversionFactor(VELOCITY_CONVERSION.in(MetersPerSecond));
-    encoder.setPositionConversionFactor(POSITION_CONVERSION.in(Meters));
-
-    motor.burnFlash();
+    FaultLogger.register(motor);
   }
 
   @Override
   public void set(double power) {
     motor.set(power);
+    FaultLogger.check(motor);
   }
 
   @Override
-  public double getVelocity() {
-    return encoder.getVelocity();
-  }
-
-  @Override
+  @Log.NT
   public boolean beambreak() {
-    // return beambreak.get()
-    return false;
+    // return beambreak.get();
+    return true;
   }
 
   @Override

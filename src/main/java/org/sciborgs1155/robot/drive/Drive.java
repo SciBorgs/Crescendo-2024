@@ -4,13 +4,10 @@ import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -19,7 +16,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -29,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
@@ -37,7 +35,6 @@ import org.photonvision.EstimatedRobotPose;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
-import org.sciborgs1155.robot.drive.DriveConstants.Translation;
 import org.sciborgs1155.robot.drive.DriveConstants.Turn;
 import org.sciborgs1155.robot.vision.Vision.PoseEstimate;
 
@@ -62,9 +59,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   @Log.NT private final Field2d field2d = new Field2d();
   private final FieldObject2d[] modules2d;
 
-  // SysId
-  private final SysIdRoutine driveRoutine;
-  private final SysIdRoutine turnRoutine;
+  private final SysIdRoutine sysid;
 
   @Log.NT
   private final ProfiledPIDController rotationController =
@@ -75,28 +70,24 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
           new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
 
   /**
-   * A factory to create a new drive subsystem based on whether the robot is being ran in simulation
-   * or not.
+   * A factory to create a new swerve drive based on whether the robot is being ran in simulation or
+   * not.
    */
   public static Drive create() {
     return Robot.isReal()
         ? new Drive(
-            new GyroIO.NavX(),
-            new FlexModule(FRONT_LEFT_DRIVE, FRONT_LEFT_TURNING, ANGULAR_OFFSETS.get(0)),
-            new FlexModule(FRONT_RIGHT_DRIVE, FRONT_RIGHT_TURNING, ANGULAR_OFFSETS.get(1)),
-            new FlexModule(REAR_LEFT_DRIVE, REAR_LEFT_TURNING, ANGULAR_OFFSETS.get(2)),
-            new FlexModule(REAR_RIGHT_DRIVE, REAR_RIGHT_TURNING, ANGULAR_OFFSETS.get(3)))
+            new NavXGyro(),
+            new SparkModule(FRONT_LEFT_DRIVE, FRONT_LEFT_TURNING, ANGULAR_OFFSETS.get(0)),
+            new SparkModule(FRONT_RIGHT_DRIVE, FRONT_RIGHT_TURNING, ANGULAR_OFFSETS.get(1)),
+            new SparkModule(REAR_LEFT_DRIVE, REAR_LEFT_TURNING, ANGULAR_OFFSETS.get(2)),
+            new SparkModule(REAR_RIGHT_DRIVE, REAR_RIGHT_TURNING, ANGULAR_OFFSETS.get(3)))
         : new Drive(
-            new GyroIO.NoGyro(),
-            new SimModule(),
-            new SimModule(),
-            new SimModule(),
-            new SimModule());
+            new NoGyro(), new SimModule(), new SimModule(), new SimModule(), new SimModule());
   }
 
+  /** A factory to create a nonexistent swerve drive. */
   public static Drive none() {
-    return new Drive(
-        new GyroIO.NoGyro(), new NoModule(), new NoModule(), new NoModule(), new NoModule());
+    return new Drive(new NoGyro(), new NoModule(), new NoModule(), new NoModule(), new NoModule());
   }
 
   /** A swerve drive subsystem containing four {@link ModuleIO} modules. */
@@ -111,44 +102,32 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     modules = List.of(this.frontLeft, this.frontRight, this.rearLeft, this.rearRight);
     modules2d = new FieldObject2d[modules.size()];
 
-    driveRoutine =
+    sysid =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
-                volts -> modules.forEach(m -> m.setDriveVoltage(volts.in(Volts))),
-                null,
-                this,
-                "drive routine"));
-
-    turnRoutine =
-        new SysIdRoutine(
-            new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism(
-                // volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))),
-                volts -> modules.forEach(m -> m.setTurnVoltage(volts.in(Volts))),
-                null,
-                this,
-                "turn routine"));
+                volts -> modules.forEach(m -> m.setDriveVoltage(volts.in(Volts))), null, this));
 
     odometry =
-        new SwerveDrivePoseEstimator(kinematics, getHeading(), getModulePositions(), new Pose2d());
+        new SwerveDrivePoseEstimator(
+            kinematics,
+            getHeading(),
+            getModulePositions(),
+            new Pose2d(new Translation2d(), Rotation2d.fromDegrees(180)));
 
     for (int i = 0; i < modules.size(); i++) {
       var module = modules.get(i);
       modules2d[i] = field2d.getObject("module-" + module.name);
     }
 
+    gyro.reset();
+
     rotationController.enableContinuousInput(0, 2 * Math.PI);
 
-    SmartDashboard.putData("drive quasistatic forward", driveSysIdQuasistatic(Direction.kForward));
-    SmartDashboard.putData("drive dynamic forward", driveSysIdDynamic(Direction.kForward));
-    SmartDashboard.putData("drive quasistatic backward", driveSysIdQuasistatic(Direction.kReverse));
-    SmartDashboard.putData("drive dynamic backward", driveSysIdDynamic(Direction.kReverse));
-    SmartDashboard.putData("turn quasistatic forward", turnSysIdQuasistatic(Direction.kForward));
-    SmartDashboard.putData("turn dynamic forward", turnSysIdDynamic(Direction.kForward));
-    SmartDashboard.putData("turn quasistatic backward", turnSysIdQuasistatic(Direction.kReverse));
-    SmartDashboard.putData("turn dynamic backward", turnSysIdDynamic(Direction.kReverse));
-    SmartDashboard.putData("face same direction", alignModuleDirections());
+    SmartDashboard.putData("drive quasistatic forward", sysIdQuasistatic(Direction.kForward));
+    SmartDashboard.putData("drive dynamic forward", sysIdDynamic(Direction.kForward));
+    SmartDashboard.putData("drive quasistatic backward", sysIdQuasistatic(Direction.kReverse));
+    SmartDashboard.putData("drive dynamic backward", sysIdDynamic(Direction.kReverse));
   }
 
   /**
@@ -184,8 +163,19 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @return A command to drive while facing a target.
    */
   public Command driveFacingTarget(
-      InputStream vx, InputStream vy, Supplier<Translation2d> translation) {
+      DoubleSupplier vx, DoubleSupplier vy, Supplier<Translation2d> translation) {
     return drive(vx, vy, () -> translation.get().minus(getPose().getTranslation()).getAngle());
+  }
+
+  public boolean isFacing(Translation2d target) {
+    return Math.abs(
+            getHeading().getRadians()
+                - target.minus(getPose().getTranslation()).getAngle().getRadians())
+        < rotationController.getPositionTolerance();
+  }
+
+  public boolean atHeadingGoal() {
+    return rotationController.atGoal();
   }
 
   /**
@@ -198,8 +188,11 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param vOmega A supplier for the angular velocity of the robot.
    * @return The driving command.
    */
-  public Command drive(InputStream vx, InputStream vy, InputStream vOmega) {
-    return run(() -> driveFieldRelative(new ChassisSpeeds(vx.get(), vy.get(), vOmega.get())));
+  public Command drive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier vOmega) {
+    return run(
+        () ->
+            driveFieldRelative(
+                new ChassisSpeeds(vx.getAsDouble(), vy.getAsDouble(), vOmega.getAsDouble())));
   }
 
   /**
@@ -212,15 +205,13 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param heading A supplier for the field relative heading of the robot.
    * @return The driving command.
    */
-  public Command drive(InputStream vx, InputStream vy, Supplier<Rotation2d> heading) {
-    return run(
+  public Command drive(DoubleSupplier vx, DoubleSupplier vy, Supplier<Rotation2d> heading) {
+    return drive(
+        vx,
+        vy,
         () ->
-            driveFieldRelative(
-                new ChassisSpeeds(
-                    vx.get(),
-                    vy.get(),
-                    rotationController.calculate(
-                        getPose().getRotation().getRadians(), heading.get().getRadians()))));
+            rotationController.calculate(
+                getPose().getRotation().getRadians(), heading.get().getRadians()));
   }
 
   /**
@@ -243,28 +234,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     setModuleStates(
         kinematics.toSwerveModuleStates(
             ChassisSpeeds.discretize(speeds, Constants.PERIOD.in(Seconds))));
-  }
-
-  public void configureAuto() {
-    AutoBuilder.configureHolonomic(
-        this::getPose,
-        this::resetOdometry,
-        this::getChassisSpeed,
-        this::driveRobotRelative,
-        new HolonomicPathFollowerConfig(
-            new PIDConstants(Translation.P, Translation.I, Translation.D),
-            new PIDConstants(Turn.P, Turn.I, Turn.D),
-            MAX_SPEED.in(MetersPerSecond),
-            TRACK_WIDTH.divide(2).in(Meters),
-            new ReplanningConfig()),
-        () -> {
-          var alliance = DriverStation.getAlliance();
-          if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Red;
-          }
-          throw new RuntimeException("ahhhhhhhhhh");
-        },
-        this);
   }
 
   /**
@@ -312,15 +281,22 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
   }
 
-  /** Returns the chassis speed. */
+  /** Returns the robot relative chassis speeds. */
   @Log.NT
-  public ChassisSpeeds getChassisSpeed() {
+  public ChassisSpeeds getRobotRelativeChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
+  }
+
+  /** Returns the field relative chassis speeds. */
+  public ChassisSpeeds getFieldRelativeChassisSpeeds() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(getRobotRelativeChassisSpeeds(), getHeading());
   }
 
   /** Updates pose estimation based on provided {@link EstimatedRobotPose} */
   public void updateEstimates(PoseEstimate... poses) {
+    Pose3d[] loggedEstimates = new Pose3d[poses.length];
     for (int i = 0; i < poses.length; i++) {
+      loggedEstimates[i] = poses[i].estimatedPose().estimatedPose;
       odometry.addVisionMeasurement(
           poses[i].estimatedPose().estimatedPose.toPose2d(),
           poses[i].estimatedPose().timestampSeconds,
@@ -329,6 +305,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
           .getObject("Cam " + i + " Est Pose")
           .setPose(poses[i].estimatedPose().estimatedPose.toPose2d());
     }
+    log("estimated poses", loggedEstimates);
   }
 
   @Override
@@ -342,6 +319,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
       var transform = new Transform2d(MODULE_OFFSET[i], module.position().angle);
       modules2d[i].setPose(getPose().transformBy(transform));
     }
+
+    log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
   }
 
   @Override
@@ -349,7 +328,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     simRotation =
         simRotation.rotateBy(
             Rotation2d.fromRadians(
-                getChassisSpeed().omegaRadiansPerSecond * Constants.PERIOD.in(Seconds)));
+                getRobotRelativeChassisSpeeds().omegaRadiansPerSecond
+                    * Constants.PERIOD.in(Seconds)));
   }
 
   /** Stops drivetrain */
@@ -364,40 +344,20 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return run(() -> setModuleStates(new SwerveModuleState[] {front, back, back, front}));
   }
 
-  /** Locks the drive motors. */
-  private Command lockDriveMotors() {
-    return Commands.run(() -> modules.forEach(m -> m.updateDriveSpeed(0)));
-  }
-
   /** Locks the turn motors. */
   private Command lockTurnMotors() {
     return Commands.run(
         () -> modules.forEach(m -> m.updateTurnRotation(Rotation2d.fromDegrees(0))));
   }
 
-  private Command alignModuleDirections() {
-    return Commands.run(
-        () -> modules.forEach(m -> m.updateTurnRotation(ANGULAR_OFFSETS.get(modules.indexOf(m)))));
-  }
-
   /** Runs the drive quasistatic SysId while locking turn motors. */
-  public Command driveSysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return driveRoutine.quasistatic(direction).deadlineWith(lockTurnMotors());
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return sysid.quasistatic(direction).deadlineWith(lockTurnMotors());
   }
 
   /** Runs the drive dynamic SysId while locking turn motors. */
-  public Command driveSysIdDynamic(SysIdRoutine.Direction direction) {
-    return driveRoutine.dynamic(direction).deadlineWith(lockTurnMotors());
-  }
-
-  /** Runs the turn quasistatic SysId while locking drive motors. */
-  public Command turnSysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return (turnRoutine.quasistatic(direction).deadlineWith(lockDriveMotors()));
-  }
-
-  /** Runs the turn dynamic SysId while locking drive motors. */
-  public Command turnSysIdDynamic(SysIdRoutine.Direction direction) {
-    return (turnRoutine.dynamic(direction).deadlineWith(lockDriveMotors()));
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return sysid.dynamic(direction).deadlineWith(lockTurnMotors());
   }
 
   public void close() throws Exception {
@@ -405,5 +365,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     frontRight.close();
     rearLeft.close();
     rearRight.close();
+    gyro.close();
   }
 }

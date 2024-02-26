@@ -43,8 +43,8 @@ public class TalonModule implements ModuleIO {
 
     SparkUtils.configureFrameStrategy(
         turnMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
-        Set.of(Sensor.DUTY_CYCLE),
+        Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
+        Set.of(Sensor.ABSOLUTE),
         false);
 
     TalonFXConfiguration toApply = new TalonFXConfiguration();
