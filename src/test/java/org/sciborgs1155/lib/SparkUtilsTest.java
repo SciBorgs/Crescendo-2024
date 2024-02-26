@@ -1,6 +1,5 @@
 package org.sciborgs1155.lib;
 
-import static edu.wpi.first.units.Units.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.setupHAL;
 
