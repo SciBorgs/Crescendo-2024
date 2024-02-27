@@ -40,7 +40,7 @@ public class PivotConstants {
   public static final Measure<Angle> STARTING_ANGLE = Degrees.of(63.3);
 
   public static final Measure<Angle> MIN_ANGLE = Degrees.of(-45.7);
-  public static final Measure<Angle> MAX_ANGLE = STARTING_ANGLE;
+  public static final Measure<Angle> MAX_ANGLE = STARTING_ANGLE.minus(Degrees.of(2));
 
   public static final Measure<Angle> PRESET_SUBWOOFER_ANGLE = STARTING_ANGLE;
   public static final Measure<Angle> PRESET_AMP_ANGLE = Radians.of(-0.55);

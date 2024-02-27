@@ -7,7 +7,7 @@ import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-// import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 import monologue.Annotations.Log;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.SparkUtils;
@@ -15,7 +15,7 @@ import org.sciborgs1155.lib.SparkUtils;
 public class RealFeeder implements FeederIO {
   private final CANSparkFlex motor;
 
-  // private final DigitalInput beambreak;
+  private final DigitalInput beambreak;
 
   public RealFeeder() {
     motor = new CANSparkFlex(FEEDER_SPARK, MotorType.kBrushless);
@@ -26,7 +26,7 @@ public class RealFeeder implements FeederIO {
         () -> motor.setIdleMode(IdleMode.kBrake),
         () -> motor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
 
-    // beambreak = new DigitalInput(BEAMBREAK);
+    beambreak = new DigitalInput(BEAMBREAK);
 
     FaultLogger.register(motor);
   }
@@ -40,8 +40,7 @@ public class RealFeeder implements FeederIO {
   @Override
   @Log.NT
   public boolean beambreak() {
-    // return beambreak.get();
-    return true;
+    return beambreak.get();
   }
 
   @Override

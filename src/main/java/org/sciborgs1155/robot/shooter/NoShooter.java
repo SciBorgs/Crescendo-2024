@@ -10,5 +10,10 @@ public class NoShooter implements ShooterIO {
   }
 
   @Override
+  public double getCurrent() {
+      return 0;
+  }
+
+  @Override
   public void close() throws Exception {}
 }

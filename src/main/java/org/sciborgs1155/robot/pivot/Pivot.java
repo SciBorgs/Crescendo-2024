@@ -77,7 +77,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("pivot dynamic forward", dynamicForward());
     SmartDashboard.putData("pivot dynamic backward", dynamicBack());
 
-    setDefaultCommand(run(() -> update(STARTING_ANGLE.in(Radians))).withName("default position"));
+    setDefaultCommand(run(() -> update(MAX_ANGLE.in(Radians))).withName("default position"));
     teleop().onTrue(Commands.runOnce(() -> pid.reset(hardware.getPosition())));
   }
 

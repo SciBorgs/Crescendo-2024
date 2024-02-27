@@ -45,7 +45,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command retract() {
-    return backward().withTimeout(0.15);
+    return backward().withTimeout(0.5);
   }
 
   public Trigger atShooter() {
