@@ -1,7 +1,7 @@
 package org.sciborgs1155.robot.drive;
 
 import static edu.wpi.first.units.Units.*;
-import static org.sciborgs1155.robot.Constants.alliance;
+import static org.sciborgs1155.robot.Constants.allianceRotation;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
 
@@ -17,7 +17,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -190,17 +189,15 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param vOmega A supplier for the angular velocity of the robot.
    * @return The driving command.
    */
-  public Command drive(DoubleSupplier vx, DoubleSupplier vy, InputStream vOmega) {
+  public Command drive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier vOmega) {
     return run(
-        () -> {
-          driveFieldRelative(
-              new ChassisSpeeds(
-                  vx.getAsDouble(),
-                  vy.getAsDouble(),
-                  alliance() == Alliance.Red
-                      ? (vOmega.add(Math.PI)).getAsDouble()
-                      : vOmega.getAsDouble()));
-        });
+        () ->
+            driveRobotRelative(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                    vx.getAsDouble(),
+                    vy.getAsDouble(),
+                    vOmega.getAsDouble(),
+                    getPose().getRotation().plus(allianceRotation()))));
   }
 
   /**
