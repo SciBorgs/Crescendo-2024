@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.drive;
 
 import static edu.wpi.first.units.Units.*;
+import static org.sciborgs1155.robot.Constants.allianceRotation;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
 
@@ -191,8 +192,12 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   public Command drive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier vOmega) {
     return run(
         () ->
-            driveFieldRelative(
-                new ChassisSpeeds(vx.getAsDouble(), vy.getAsDouble(), vOmega.getAsDouble())));
+            driveRobotRelative(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                    vx.getAsDouble(),
+                    vy.getAsDouble(),
+                    vOmega.getAsDouble(),
+                    getPose().getRotation().plus(allianceRotation()))));
   }
 
   /**
