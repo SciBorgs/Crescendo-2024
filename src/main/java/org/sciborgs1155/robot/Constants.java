@@ -3,6 +3,7 @@ package org.sciborgs1155.robot;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -36,6 +37,11 @@ public class Constants {
   /** Returns the robot's alliance. */
   public static Alliance alliance() {
     return DriverStation.getAlliance().orElse(Alliance.Blue);
+  }
+
+  /** Returns the rotation of the robot's alliance with respect to the origin. */
+  public static Rotation2d allianceRotation() {
+    return Rotation2d.fromRotations(alliance() == Alliance.Blue ? 0 : 0.5);
   }
 
   public static final Measure<Time> PERIOD = Seconds.of(0.02); // roborio tickrate (s)
