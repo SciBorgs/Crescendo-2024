@@ -20,11 +20,6 @@ public class SimFeeder implements FeederIO {
   }
 
   @Override
-  public double getVelocity() {
-    return sim.getAngularVelocityRadPerSec();
-  }
-
-  @Override
   @Log.NT
   public boolean beambreak() {
     return true;

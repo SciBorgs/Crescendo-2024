@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import java.util.Set;
+import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
@@ -20,41 +21,40 @@ public class RealShooter implements ShooterIO {
 
   public RealShooter() {
     topMotor = new CANSparkFlex(TOP_MOTOR, MotorType.kBrushless);
-    topMotor.restoreFactoryDefaults();
-    topMotor.setCANTimeout(50);
-    topMotor.setIdleMode(IdleMode.kCoast);
-    topMotor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
-    topMotor.setInverted(true);
+    encoder = topMotor.getEncoder();
+
+    SparkUtils.configure(
+        topMotor,
+        () ->
+            SparkUtils.configureFrameStrategy(
+                topMotor,
+                Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
+                Set.of(Sensor.INTEGRATED),
+                true),
+        () -> topMotor.setIdleMode(IdleMode.kCoast),
+        () -> topMotor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)),
+        () -> SparkUtils.setInverted(topMotor, true),
+        () -> encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians)),
+        () -> encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)),
+        () -> encoder.setMeasurementPeriod(4),
+        () -> encoder.setAverageDepth(2));
 
     bottomMotor = new CANSparkFlex(BOTTOM_MOTOR, MotorType.kBrushless);
-    bottomMotor.restoreFactoryDefaults();
-    bottomMotor.setCANTimeout(50);
-    bottomMotor.setIdleMode(IdleMode.kCoast);
-    bottomMotor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
-    bottomMotor.follow(topMotor, true);
+    SparkUtils.configure(
+        bottomMotor,
+        () -> SparkUtils.configureNothingFrameStrategy(bottomMotor),
+        () -> bottomMotor.setIdleMode(IdleMode.kCoast),
+        () -> bottomMotor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)),
+        () -> bottomMotor.follow(topMotor, true));
 
-    encoder = topMotor.getEncoder();
-    encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
-    encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
-    encoder.setMeasurementPeriod(10);
-    encoder.setAverageDepth(2);
-
-    SparkUtils.configureFrameStrategy(
-        topMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT),
-        Set.of(Sensor.INTEGRATED),
-        true);
-    SparkUtils.configureNothingFrameStrategy(bottomMotor);
-
-    topMotor.setCANTimeout(20);
-    topMotor.burnFlash();
-    bottomMotor.setCANTimeout(20);
-    bottomMotor.burnFlash();
+    FaultLogger.register(topMotor);
+    FaultLogger.register(bottomMotor);
   }
 
   @Override
   public void setVoltage(double voltage) {
     topMotor.setVoltage(voltage);
+    FaultLogger.check(topMotor);
   }
 
   @Override

@@ -24,6 +24,7 @@ import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.robot.Robot;
 
 public class Vision implements Logged {
@@ -57,9 +58,10 @@ public class Vision implements Logged {
               configs[i].robotToCam());
 
       estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-
       cameras[i] = camera;
       estimators[i] = estimator;
+
+      FaultLogger.register(camera);
     }
 
     if (Robot.isSimulation()) {
