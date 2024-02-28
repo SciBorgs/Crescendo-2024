@@ -24,6 +24,7 @@ import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.robot.Robot;
 
 public class Vision implements Logged {
@@ -36,6 +37,11 @@ public class Vision implements Logged {
   private final PhotonCameraSim[] simCameras;
 
   private VisionSystemSim visionSim;
+
+  /** A factory to create new vision classes with our two configured cameras */
+  public static Vision create() {
+    return new Vision(VisionConstants.LEFT_CAMERA, VisionConstants.RIGHT_CAMERA);
+  }
 
   public Vision(CameraConfig... configs) {
     cameras = new PhotonCamera[configs.length];
@@ -52,9 +58,10 @@ public class Vision implements Logged {
               configs[i].robotToCam());
 
       estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-
       cameras[i] = camera;
       estimators[i] = estimator;
+
+      FaultLogger.register(camera);
     }
 
     if (Robot.isSimulation()) {

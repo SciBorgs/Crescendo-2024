@@ -9,13 +9,13 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -54,7 +54,8 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
 
     setDefaultCommand(
-        Commands.either(runShooter(0), run(() -> shooter.setVoltage(0)), () -> getVelocity() < 50));
+        Commands.either(
+            runShooter(0), run(() -> shooter.setVoltage(0)), () -> rotationalVelocity() < 50));
   }
 
   /**
@@ -88,13 +89,13 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
    * @return Shooter velocity in radians per second
    */
   @Log.NT
-  public double getVelocity() {
+  public double rotationalVelocity() {
     return shooter.getVelocity();
   }
 
   @Log.NT
-  public double getEstimatedLaunchVelocity() {
-    return Units.radiansToRotations(getVelocity()) * RADIUS.in(Meters);
+  public double tangentialVelocity() {
+    return rotationalVelocity() * RADIUS.in(Meters);
   }
 
   @Log.NT
@@ -116,6 +117,11 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   public Command dynamicBack() {
     return sysId.dynamic(Direction.kReverse);
+  }
+
+  @Override
+  public void periodic() {
+    log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
   }
 
   @Override

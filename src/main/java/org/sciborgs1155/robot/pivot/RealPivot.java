@@ -13,6 +13,7 @@ import com.revrobotics.RelativeEncoder;
 import java.util.List;
 import java.util.Set;
 import monologue.Annotations.Log;
+import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
@@ -29,40 +30,50 @@ public class RealPivot implements PivotIO {
     leftTop = new CANSparkMax(SPARK_LEFT_TOP, MotorType.kBrushless);
     rightTop = new CANSparkMax(SPARK_RIGHT_TOP, MotorType.kBrushless);
     rightBottom = new CANSparkMax(SPARK_RIGHT_BOTTOM, MotorType.kBrushless);
-
-    for (CANSparkMax spark : List.of(lead, leftTop, rightTop, rightBottom)) {
-      spark.restoreFactoryDefaults();
-      spark.setCANTimeout(50);
-      spark.setIdleMode(IdleMode.kBrake);
-      spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
-    }
-
-    lead.setInverted(true);
-    leftTop.follow(lead, false);
-    rightTop.follow(lead, true);
-    rightBottom.follow(lead, true);
-
     encoder = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
-    encoder.setInverted(true);
-    encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
-    encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
-    encoder.setPosition(STARTING_ANGLE.getRadians());
 
-    SparkUtils.configureFrameStrategy(
-        lead, Set.of(Data.POSITION, Data.VELOCITY, Data.OUTPUT), Set.of(Sensor.QUADRATURE), true);
-    SparkUtils.configureNothingFrameStrategy(leftTop);
-    SparkUtils.configureNothingFrameStrategy(rightTop);
-    SparkUtils.configureNothingFrameStrategy(rightBottom);
+    SparkUtils.configure(
+        lead,
+        () ->
+            SparkUtils.configureFrameStrategy(
+                lead,
+                Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
+                Set.of(Sensor.ALTERNATE),
+                true),
+        () -> SparkUtils.setInverted(lead, true),
+        () -> lead.setIdleMode(IdleMode.kBrake),
+        () -> lead.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)),
+        () -> encoder.setInverted(true),
+        () -> encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians)),
+        () -> encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)),
+        () -> encoder.setPosition(STARTING_ANGLE.in(Radians)));
 
-    for (CANSparkMax spark : List.of(lead, leftTop, rightTop, rightBottom)) {
-      spark.setCANTimeout(20);
-      spark.burnFlash();
+    SparkUtils.configure(
+        leftTop,
+        () -> SparkUtils.configureNothingFrameStrategy(leftTop),
+        () -> leftTop.setIdleMode(IdleMode.kBrake),
+        () -> leftTop.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)),
+        () -> leftTop.follow(lead));
+
+    for (CANSparkMax right : List.of(rightTop, rightBottom)) {
+      SparkUtils.configure(
+          right,
+          () -> SparkUtils.configureNothingFrameStrategy(right),
+          () -> right.setIdleMode(IdleMode.kBrake),
+          () -> right.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)),
+          () -> right.follow(lead, true));
     }
+
+    FaultLogger.register(lead);
+    FaultLogger.register(leftTop);
+    FaultLogger.register(rightBottom);
+    FaultLogger.register(rightTop);
   }
 
   @Override
   public void setVoltage(double voltage) {
     lead.setVoltage(voltage);
+    FaultLogger.check(lead);
   }
 
   @Override

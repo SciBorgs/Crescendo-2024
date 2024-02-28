@@ -16,7 +16,7 @@ field_width = 8.2296  # 27 ft
 field_length = 16.4592  # 54 ft
 
 g = 9.806
-max_launch_velocity = 9
+max_launch_velocity = 30
 
 min_launch_angle = 0
 max_launch_angle = 1.1
