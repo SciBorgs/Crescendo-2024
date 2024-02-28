@@ -109,11 +109,14 @@ public class Vision implements Logged {
                       && f.estimatedPose.getX() < Field.LENGTH.in(Meters)
                       && f.estimatedPose.getY() > 0
                       && f.estimatedPose.getY() < Field.WIDTH.in(Meters)
-                      && Math.abs(f.estimatedPose.getZ()) < MIN_HEIGHT
+                      && Math.abs(f.estimatedPose.getZ()) < MAX_HEIGHT
                       && Math.abs(f.estimatedPose.getRotation().getY()) < MAX_ANGLE
                       && Math.abs(f.estimatedPose.getRotation().getX()) < MAX_ANGLE)
           .ifPresent(
-              e -> new PoseEstimate(e, getEstimationStdDevs(e.estimatedPose.toPose2d(), result)));
+              e ->
+                  estimates.add(
+                      new PoseEstimate(
+                          e, getEstimationStdDevs(e.estimatedPose.toPose2d(), result))));
     }
     return estimates.toArray(PoseEstimate[]::new);
   }

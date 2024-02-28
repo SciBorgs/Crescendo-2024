@@ -199,7 +199,7 @@ public class Robot extends CommandRobot implements Logged {
             pivot.manualPivot(
                 InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
     operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE, 85));
-    // operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.194), 400));
+    operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.194), 400));
     // operator.x().whileTrue(shooting.shootWhileDriving(null, null))
     operator.y().whileTrue(shooting.pivotThenShoot(Radians.of(0.35), 330));
 
@@ -210,7 +210,9 @@ public class Robot extends CommandRobot implements Logged {
             intake
                 .intake()
                 .alongWith(feeder.forward())
-                .until(feeder.atShooter())
+                .andThen(Commands.waitUntil(intake.inIntake()))
+                .andThen(Commands.waitSeconds(4))
+                // .andThen(Commands.waitUntil(intake.inIntake().negate()))
                 .andThen(feeder.retract()));
     // .until(intake.inIntake()));
     // .onFalse(feeder.retract());
@@ -219,13 +221,13 @@ public class Robot extends CommandRobot implements Logged {
     operator.povDown().whileTrue(shooter.runShooter(() -> 200));
 
     intake.inIntake().onTrue(rumble(RumbleType.kLeftRumble, 0.5));
-    feeder.atShooter().onFalse(rumble(RumbleType.kRightRumble, 0.5));
+    // feeder.atShooter().onFalse(rumble(RumbleType.kRightRumble, 0.5));
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {
     return Commands.run(() -> operator.getHID().setRumble(rumbleType, strength))
         .alongWith(Commands.run(() -> driver.getHID().setRumble(rumbleType, strength)))
-        .withTimeout(1);
+        .withTimeout(0.1);
   }
 
   public Pose3d shooterPose() {

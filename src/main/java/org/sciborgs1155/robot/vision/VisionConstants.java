@@ -41,5 +41,5 @@ public class VisionConstants {
 
   public static final double MAX_HEIGHT = 0.305;
   public static final double MIN_HEIGHT = -0.305;
-  public static final double MAX_ANGLE = 0.2;
+  public static final double MAX_ANGLE = 0.4;
 }

@@ -64,7 +64,7 @@ public class Shooting {
     return Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean())
         .andThen(feeder.forward())
         .andThen(Commands.waitSeconds(2))
-        .until(feeder.atShooter().negate())
+        .andThen(Commands.idle().until(feeder.atShooter().negate()))
         .deadlineWith(shooter.runShooter(desiredVelocity));
   }
 

@@ -44,6 +44,11 @@ public class RealFeeder implements FeederIO {
   }
 
   @Override
+  public double current() {
+    return motor.getOutputCurrent();
+  }
+
+  @Override
   public void close() throws Exception {
     motor.close();
   }

@@ -26,5 +26,10 @@ public class SimFeeder implements FeederIO {
   }
 
   @Override
+  public double current() {
+    return 0;
+  }
+
+  @Override
   public void close() throws Exception {}
 }
