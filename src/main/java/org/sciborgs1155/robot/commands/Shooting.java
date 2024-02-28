@@ -1,8 +1,10 @@
 package org.sciborgs1155.robot.commands;
 
-import static java.lang.Math.pow;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static java.lang.Math.pow;
 import static org.sciborgs1155.robot.Constants.Field.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
@@ -14,18 +16,21 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
@@ -52,7 +57,7 @@ public class Shooting {
    * @param desiredVelocity The velocity in radians per second to shoot at.
    * @return The command to shoot at the desired velocity.
    */
-  public Command shoot(double desiredVelocity) {
+  public Command shoot(Measure<Velocity<Angle>> desiredVelocity) {
     return shoot(() -> desiredVelocity, () -> true);
   }
 
@@ -63,10 +68,11 @@ public class Shooting {
    * @param desiredVelocity Target velocity for the flywheel.
    * @param shootCondition Condition after which the feeder will run.
    */
-  public Command shoot(DoubleSupplier desiredVelocity, BooleanSupplier shootCondition) {
+  public Command shoot(
+      Supplier<Measure<Velocity<Angle>>> desiredVelocity, BooleanSupplier shootCondition) {
     return (Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean())
             .andThen(feeder.forward().withTimeout(0.15)))
-        .deadlineWith(shooter.runShooter(desiredVelocity));
+        .deadlineWith(shooter.runShooter(() -> desiredVelocity.get().in(RadiansPerSecond)));
   }
 
   /**
@@ -76,7 +82,8 @@ public class Shooting {
    * @param targetVelocity The desired velocity of the shooter.
    * @return The command to run the pivot to its desired angle and then shoot.
    */
-  public Command pivotThenShoot(Measure<Angle> targetAngle, double targetVelocity) {
+  public Command pivotThenShoot(
+      Measure<Angle> targetAngle, Measure<Velocity<Angle>> targetVelocity) {
     return shoot(() -> targetVelocity, pivot::atGoal).deadlineWith(pivot.runPivot(targetAngle));
   }
 
@@ -88,7 +95,7 @@ public class Shooting {
    */
   public Command shootWhileDriving(DoubleSupplier vx, DoubleSupplier vy) {
     return shoot(
-            () -> speed(noteRobotRelativeVelocityVector()),
+            () -> flywheelSpeed(noteRobotRelativeVelocityVector()),
             () ->
                 pivot.atGoal()
                     && drive.atHeadingGoal()
@@ -144,23 +151,26 @@ public class Shooting {
    * @param velocity Note initial velocity vector
    * @return Flywheel speed (rads / s)
    */
-  public static double speed(Vector<N3> velocity) {
+  public static Measure<Velocity<Angle>> flywheelSpeed(Vector<N3> velocity) {
     // TODO account for lost energy! (with regression probably)
-    return velocity.norm() * RADIUS.in(Meters);
+    return RadiansPerSecond.of(velocity.norm() / RADIUS.in(Meters));
   }
+
+  public static Measure<Velocity<Distance>> noteSpeed(Measure<Velocity<Angle>> flywheelSpeed) {
+    // TODO account for lost energy! (with regression probably)
+    return MetersPerSecond.of(flywheelSpeed.in(RadiansPerSecond) * RADIUS.in(Meters));
+  }
+
+  static Measure<Velocity<Angle>> MAX_FLYWHEEL_SPEED = RadiansPerSecond.of(400);
 
   /** Shoots while stationary at correct flywheel speed, pivot angle, and heading. */
   public Command stationaryTurretShooting() {
     Translation2d speaker = speaker().toTranslation2d();
     return new ProxyCommand(
         () -> {
-          Rotation2d heading = headingToSpeaker(drive.getPose().getTranslation());
-          Translation2d tranlationFromSpeaker =
-              tranlationFromSpeaker(drive.getPose().getTranslation(), heading);
-          double targetVel = stationaryVelocity(tranlationFromSpeaker);
-          double targetPitch = stationaryPitch(tranlationFromSpeaker);
+          double targetPitch = pitch(drive.getPose(), noteSpeed(MAX_FLYWHEEL_SPEED)).in(Radians);
           return shoot(
-                  () -> targetVel,
+                  () -> MAX_FLYWHEEL_SPEED,
                   () ->
                       pivot.atPosition(targetPitch)
                           && drive.isFacing(speaker)
@@ -181,56 +191,12 @@ public class Shooting {
     return speaker().toTranslation2d().minus(robotTranslation).getAngle();
   }
 
-  /**
-   * Calculates the position of the shooter relative to the speaker, given a robot position.
-   *
-   * @param robotTranslation Translation2d of the robot
-   * @param robotHeading Heading of the robot, generally the heading to the speaker
-   */
-  public static Translation2d tranlationFromSpeaker(
-      Translation2d robotTranslation, Rotation2d robotHeading) {
-    return tranlationFromSpeaker(new Pose2d(robotTranslation, robotHeading));
-  }
-
-  /**
-   * Calculates the position of the shooter relative to the speaker, given a robot position.
-   *
-   * @param robotPose Pose2d of the robot
-   */
-  public static Translation2d tranlationFromSpeaker(Pose2d robotPose) {
-    return speaker().minus(shooterPos(robotPose)).toTranslation2d();
-  }
-
   /** Shoots while stationary at correct flywheel speed and pivot angle, doesn't auto-turret. */
   public Command stationaryShooting() {
     return new ProxyCommand(
-        () -> {
-          Translation2d tranlationFromSpeaker = tranlationFromSpeaker(drive.getPose());
-          return pivotThenShoot(
-              Radians.of(stationaryPitch(tranlationFromSpeaker)),
-              stationaryVelocity(tranlationFromSpeaker));
-        });
-  }
-
-  double MAX_FLYWHEEL_SPEED = 10; // approx, in m/s, TODO will be a constant
-
-  public Vector<N3> fixedPoint(
-      Rotation2d heading,
-      Vector<N3> robotVel,
-      Function<Double, Double> speedToPitch,
-      double shotSpeed,
-      Vector<N3> prev,
-      int i) { // NOTE get rid of i, it was just for some testing
-
-    double pitch = speedToPitch.apply(shotSpeed);
-    Vector<N3> stationaryVel = toVelocityVector(heading, pitch, shotSpeed);
-    Vector<N3> robotRelVel = stationaryVel.minus(robotVel);
-    if (robotRelVel.minus(prev).norm() < 0.001) {
-      return robotRelVel;
-    }
-    Vector<N3> robotRelVelTopSpeed = robotRelVel.unit().times(MAX_FLYWHEEL_SPEED);
-    double newShotSpeed = robotRelVelTopSpeed.plus(robotVel).norm();
-    return fixedPoint(heading, robotVel, speedToPitch, newShotSpeed, robotRelVel, i + 1);
+        () ->
+            pivotThenShoot(
+                pitch(drive.getPose(), noteSpeed(MAX_FLYWHEEL_SPEED)), MAX_FLYWHEEL_SPEED));
   }
 
   /**
@@ -240,83 +206,36 @@ public class Shooting {
    * @return Target initial velocity of note, relative to robot
    */
   public Vector<N3> noteRobotRelativeVelocityVector() {
-    var speaker = getSpeaker().toTranslation2d();
-    var robotPose = drive.getPose();
-    Function<Double, Double> speedToPitch = pitch(robotPose);
-    var speeds = drive.getChassisSpeeds();
-    Vector<N3> robotVel = VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
-    Rotation2d stationaryHeading = speaker.minus(robotPose.getTranslation()).getAngle();
-
-    return fixedPoint(
-        stationaryHeading,
-        robotVel,
-        speedToPitch,
-        MAX_FLYWHEEL_SPEED,
-        VecBuilder.fill(-10, -10, -10),
-        0);
+    var heading = headingToSpeaker(drive.getPose().getTranslation());
+    Vector<N3> stationaryVel =
+        toVelocityVector(
+            heading,
+            pitch(drive.getPose(), noteSpeed(MAX_FLYWHEEL_SPEED)).in(Radians),
+            noteSpeed(MAX_FLYWHEEL_SPEED).in(MetersPerSecond));
+    var speeds = drive.getFieldRelativeChassisSpeeds();
+    return stationaryVel.minus(
+        VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0));
   }
 
   double G = 9.81; // I'm sorry (i'm tired) TODO
 
-  public Function<Double, Double> pitch(Pose2d robotPose) {
-    return v -> {
-      Translation3d shooterPos = shooterPos(robotPose);
-      double dist = getSpeaker().toTranslation2d().getDistance(shooterPos.toTranslation2d());
-      double h = getSpeaker().getZ() - shooterPos.getZ();
-      double denom = (G * pow(dist, 2));
-      // if (denom == 0) {}
-      double rad =
-          pow(dist, 2) * pow(v, 4) - G * pow(dist, 2) * (G * pow(dist, 2) + 2 * h * pow(v, 2));
-      // if (rad < 0) {}
-      // TODO someone check me on this copying...
-      return Math.atan((1 / (denom)) * (dist * pow(v, 2) + Math.sqrt(rad)));
-    };
-  }
-
-  /**
-   * Uses regression from casadi model to calculate the target initial speed of the note, field
-   * relative.
-   *
-   * @param translationFromSpeaker Tranlation of shooter from speaker (speaker - shooter)
-   * @return Target speed of note.
-   */
-  public static double stationaryVelocity(Translation2d translationFromSpeaker) {
-    double x = Math.abs(translationFromSpeaker.getX());
-    double y = translationFromSpeaker.getY();
-    return 5.5271852433873345
-        + 0.5190955547104696 * x
-        + 0.07707519916670269 * y
-        + -0.0024133794816567633 * x * x
-        + 0.01498409775890086 * y * y
-        + -0.06372350453603381 * x * y;
-  }
-
-  /**
-   * Uses regression from casadi model to calculate the target initial pitch of the note, field
-   * relative.
-   *
-   * @param translationFromSpeaker Tranlation of shooter from speaker (speaker - shooter)
-   * @return Target pitch of note.
-   */
-  public static double stationaryPitch(Translation2d translationFromSpeaker) {
-    double x = Math.abs(translationFromSpeaker.getX());
-    double y = translationFromSpeaker.getY();
-    return 0.8362824373065703
-        + -0.15055912579435599 * x
-        + 0.13152228760076837 * y
-        + -0.0056287323828513765 * x * x
-        + -0.020130400003326433 * y * y
-        + 0.014766007030961469 * x * y;
+  public Measure<Angle> pitch(Pose2d robotPose, Measure<Velocity<Distance>> v) {
+    double v_ = v.in(MetersPerSecond);
+    Translation3d shooterPos = shooterPos(robotPose);
+    double dist = speaker().toTranslation2d().getDistance(shooterPos.toTranslation2d());
+    double h = speaker().getZ() - shooterPos.getZ();
+    double denom = (G * pow(dist, 2));
+    double rad =
+        pow(dist, 2) * pow(v_, 4) - G * pow(dist, 2) * (G * pow(dist, 2) + 2 * h * pow(v_, 2));
+    // TODO someone check me on this copying...
+    return Radians.of(Math.atan((1 / (denom)) * (dist * pow(v_, 2) - Math.sqrt(rad))));
   }
 
   /** Calculates position of shooter from Pose2d of robot. */
   public static Translation3d shooterPos(Pose2d robotPose) {
-    Translation2d offsetFieldRelativeXY =
-        OFFSET.toTranslation2d().rotateBy(robotPose.getRotation());
-    Translation3d offsetFieldRelatvive =
-        new Translation3d(
-            offsetFieldRelativeXY.getX(), offsetFieldRelativeXY.getY(), OFFSET.getZ());
-    return new Pose3d(robotPose).getTranslation().plus(offsetFieldRelatvive);
+    return new Pose3d(robotPose)
+        .transformBy(new Transform3d(OFFSET, new Rotation3d()))
+        .getTranslation();
   }
 
   /**
@@ -327,6 +246,6 @@ public class Shooting {
     double pitch = pitch(shot);
     return MIN_ANGLE.in(Radians) < pitch
         && pitch < MAX_ANGLE.in(Radians)
-        && speed(shot) < DCMotor.getNeoVortex(1).freeSpeedRadPerSec;
+        && flywheelSpeed(shot).in(RadiansPerSecond) < DCMotor.getNeoVortex(1).freeSpeedRadPerSec;
   }
 }

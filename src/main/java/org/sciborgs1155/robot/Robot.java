@@ -140,7 +140,8 @@ public class Robot extends CommandRobot implements Logged {
     // register named commands for auto
     NamedCommands.registerCommand("lock", drive.lock());
     NamedCommands.registerCommand(
-        "shoot", shooting.pivotThenShoot(PRESET_PODIUM_ANGLE, 80).withTimeout(1.2));
+        "shoot",
+        shooting.pivotThenShoot(PRESET_PODIUM_ANGLE, RadiansPerSecond.of(80)).withTimeout(1.2));
     NamedCommands.registerCommand(
         "reset", pivot.runPivot(() -> STARTING_ANGLE.in(Radians)).withTimeout(1));
     NamedCommands.registerCommand(
@@ -198,9 +199,9 @@ public class Robot extends CommandRobot implements Logged {
         .toggleOnTrue(
             pivot.manualPivot(
                 InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
-    operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE, 70));
-    operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.5), 300));
-    operator.y().whileTrue(shooting.pivotThenShoot(Radians.of(0.35), 330));
+    operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE, RadiansPerSecond.of(70)));
+    operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.5), RadiansPerSecond.of(300)));
+    operator.y().whileTrue(shooting.pivotThenShoot(Radians.of(0.35), RadiansPerSecond.of(330)));
 
     operator
         .leftBumper()
