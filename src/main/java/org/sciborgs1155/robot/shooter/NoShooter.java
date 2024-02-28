@@ -11,7 +11,7 @@ public class NoShooter implements ShooterIO {
 
   @Override
   public double getCurrent() {
-      return 0;
+    return 0;
   }
 
   @Override

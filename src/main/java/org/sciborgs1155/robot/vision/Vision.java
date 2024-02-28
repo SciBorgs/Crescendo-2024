@@ -12,6 +12,7 @@ import edu.wpi.first.math.numbers.N3;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -101,9 +102,16 @@ public class Vision implements Logged {
       var estimate = estimators[i].update(result);
       log("estimates present " + i, estimate.isPresent());
       estimate.ifPresent(
-          e ->
-              estimates.add(
-                  new PoseEstimate(e, getEstimationStdDevs(e.estimatedPose.toPose2d(), result))));
+          e -> {
+            double height = e.estimatedPose.getZ();
+
+            estimates.add(
+                (height >= MIN_HEIGHT && height <= MAX_HEIGHT)
+                    ? new PoseEstimate(e, getEstimationStdDevs(e.estimatedPose.toPose2d(), result))
+                    : null);
+
+            estimates.removeIf(Objects::isNull); // Remove null entries
+          });
     }
     return estimates.toArray(PoseEstimate[]::new);
   }

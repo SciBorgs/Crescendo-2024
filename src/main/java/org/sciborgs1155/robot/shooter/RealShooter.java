@@ -7,11 +7,9 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-
-import monologue.Annotations.Log;
-
 import com.revrobotics.RelativeEncoder;
 import java.util.Set;
+import monologue.Annotations.Log;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
@@ -63,7 +61,7 @@ public class RealShooter implements ShooterIO {
   @Override
   @Log.NT
   public double getCurrent() {
-      return topMotor.getOutputCurrent();
+    return topMotor.getOutputCurrent();
   }
 
   @Override
