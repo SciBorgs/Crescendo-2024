@@ -4,12 +4,13 @@ import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.robot.Constants.*;
 import static org.sciborgs1155.robot.Constants.Field.*;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanTopic;
 import edu.wpi.first.networktables.NetworkTable;
@@ -30,7 +31,6 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
-import org.sciborgs1155.robot.shooter.ShooterConstants;
 
 public class NoteVisualizer implements Logged {
   // notes
@@ -52,38 +52,42 @@ public class NoteVisualizer implements Logged {
   private static List<Pose3d> pathPosition = new ArrayList<>();
 
   // suppliers
-  private static Supplier<Pose2d> pose = Pose2d::new;
-  private static Supplier<Rotation3d> angle = Rotation3d::new;
+  private static Supplier<Pose2d> drive = Pose2d::new;
+  private static Supplier<Pose3d> shooter = Pose3d::new;
+  private static Supplier<ChassisSpeeds> speeds = ChassisSpeeds::new;
   private static DoubleSupplier velocity = () -> 0;
 
-  private static double zVelocity;
-  private static int i = 0;
+  private static final Vector<N3> GRAVITY = VecBuilder.fill(0, 0, -9.81);
 
-  private static Pose3d currentNotePose = new Pose3d();
-  private static Pose3d lastNotePose = new Pose3d();
+  private static int step = 0;
 
-  // publishers
   private static StructArrayPublisher<Pose3d> notesPub;
 
+  // publishers
+  private static NetworkTable table;
   private static StructArrayPublisher<Pose3d> notePathPub;
   private static StructPublisher<Pose3d> shotNotePub;
   private static BooleanPublisher carryingNotePub;
 
   public static void setSuppliers(
-      Supplier<Pose2d> robotPose, Supplier<Rotation3d> pivotAngle, DoubleSupplier shotVelocity) {
-    pose = robotPose;
-    angle = pivotAngle;
+      Supplier<Pose2d> drivePose,
+      Supplier<Pose3d> pivotPose,
+      Supplier<ChassisSpeeds> driveSpeeds,
+      DoubleSupplier shotVelocity) {
+    drive = drivePose;
+    shooter = pivotPose;
+    speeds = driveSpeeds;
     velocity = shotVelocity;
   }
 
   /** Set up NT publisher. Call only once before beginning to log notes. */
   public static void startPublishing() {
-    NetworkTable inst = NetworkTableInstance.getDefault().getTable("Robot");
+    table = NetworkTableInstance.getDefault().getTable("Robot").getSubTable("Notes");
 
-    StructArrayTopic<Pose3d> notesTopic = inst.getStructArrayTopic("notes", Pose3d.struct);
-    StructArrayTopic<Pose3d> notePathTopic = inst.getStructArrayTopic("note path", Pose3d.struct);
-    StructTopic<Pose3d> shotNoteTopic = inst.getStructTopic("shot note", Pose3d.struct);
-    BooleanTopic carryingNoteTopic = inst.getBooleanTopic("carrying note");
+    StructArrayTopic<Pose3d> notesTopic = table.getStructArrayTopic("notes", Pose3d.struct);
+    StructArrayTopic<Pose3d> notePathTopic = table.getStructArrayTopic("note path", Pose3d.struct);
+    StructTopic<Pose3d> shotNoteTopic = table.getStructTopic("shot note", Pose3d.struct);
+    BooleanTopic carryingNoteTopic = table.getBooleanTopic("carrying note");
 
     notesPub = notesTopic.publish();
     notePathPub = notePathTopic.publish();
@@ -91,11 +95,6 @@ public class NoteVisualizer implements Logged {
     carryingNotePub = carryingNoteTopic.publish();
 
     notesPub.set(notes.toArray(new Pose3d[0]));
-  }
-
-  public static void log() {
-    shotNotePub.set(currentNotePose);
-    carryingNotePub.set(carryingNote);
   }
 
   public static Command intake() {
@@ -107,7 +106,7 @@ public class NoteVisualizer implements Logged {
                   }
                   return Commands.run(
                       () -> {
-                        Pose2d intakePose = pose.get();
+                        Pose2d intakePose = drive.get();
                         for (Pose3d note : notes) {
                           double distance =
                               Math.abs(
@@ -132,66 +131,57 @@ public class NoteVisualizer implements Logged {
     return new ScheduleCommand(
             Commands.defer(
                 () -> {
-                  if (!carryingNote) {
-                    return Commands.none();
-                  }
-                  generatePath();
-
+                  var poses = generatePath();
+                  step = 0;
+                  notePathPub.set(poses);
                   return Commands.run(
                           () -> {
-                            currentNotePose = pathPosition.get(i);
-                            i++;
+                            shotNotePub.set(poses[step]);
+                            step++;
                           })
-                      .until(() -> i == pathPosition.size() - 1)
+                      .until(() -> step == poses.length - 1)
                       .finallyDo(
                           () -> {
-                            i = 0;
+                            shotNotePub.set(new Pose3d());
+                            notePathPub.set(new Pose3d[0]);
                           });
                 },
                 Set.of()))
-        .ignoringDisable(true)
-        .unless(Robot::isReal);
+        // .unless(() -> !carryingNote)
+        .unless(Robot::isReal)
+        .ignoringDisable(true);
   }
 
-  private static void generatePath() {
-    double g = 9.81;
-    double linearVelocity = velocity.getAsDouble() * ShooterConstants.CIRCUMFERENCE.in(Meters);
+  private static Pose3d[] generatePath() {
+    double shotVelocity = velocity.getAsDouble();
+    ChassisSpeeds driveSpeeds = speeds.get();
 
-    Rotation2d shootingAngle = new Rotation2d(angle.get().getY());
-    Rotation2d armPosition = shootingAngle.plus(Rotation2d.fromDegrees(180)); // flipped over origin
+    Pose3d pose = shooter.get();
+    Vector<N3> position = pose.getTranslation().toVector();
 
-    Rotation2d robot = pose.get().getRotation();
+    Vector<N3> driveVelocity =
+        VecBuilder.fill(driveSpeeds.vxMetersPerSecond, driveSpeeds.vyMetersPerSecond, 0);
 
-    lastNotePose =
-        new Pose3d(pose.get())
-            .plus(
-                new Transform3d(
-                    new Translation3d(Inches.of(-10.465), Inches.of(0), Inches.of(25)),
-                    new Rotation3d(0, armPosition.getRadians(), 0)));
-
-    final double xVelocity = -linearVelocity * robot.getCos() * shootingAngle.getCos();
-    final double yVelocity = -linearVelocity * robot.getSin() * shootingAngle.getCos();
-    zVelocity = linearVelocity * shootingAngle.getSin();
+    Vector<N3> velocity =
+        new Translation3d(1, 0, 0)
+            .rotateBy(pose.getRotation())
+            .toVector()
+            .unit()
+            .times(-shotVelocity);
+            // .plus(driveVelocity);
 
     pathPosition = new ArrayList<>();
-    pathPosition.add(lastNotePose);
 
-    int timestep = 0;
-    while (lastNotePose.getZ() > 0) {
-      currentNotePose =
-          new Pose3d(
-              new Translation3d(
-                  lastNotePose.getX() + xVelocity * PERIOD.in(Seconds),
-                  lastNotePose.getY() + yVelocity * PERIOD.in(Seconds),
-                  lastNotePose.getZ() + zVelocity * PERIOD.in(Seconds)),
-              lastNotePose.getRotation());
+    while (pose.getZ() > 0) {
+      pathPosition.add(pose);
 
-      if (timestep % 5 == 0) pathPosition.add(currentNotePose);
-      timestep++;
-      zVelocity = zVelocity - g * PERIOD.in(Seconds);
-      lastNotePose = currentNotePose;
+      pose = new Pose3d(new Translation3d(position), pose.getRotation());
+
+      position = position.plus(velocity.times(PERIOD.in(Seconds)));
+      velocity = velocity.plus(GRAVITY.times(PERIOD.in(Seconds)));
     }
     // carryingNote = false;
-    notePathPub.set(pathPosition.toArray(new Pose3d[0]));
+    // notePathPub.set(pathPosition.toArray(new Pose3d[0]));
+    return pathPosition.toArray(Pose3d[]::new);
   }
 }

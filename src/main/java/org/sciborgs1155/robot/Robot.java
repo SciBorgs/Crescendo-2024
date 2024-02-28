@@ -15,6 +15,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -117,9 +118,11 @@ public class Robot extends CommandRobot implements Logged {
       DriverStation.silenceJoystickConnectionWarning(true);
       addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), PERIOD.in(Seconds));
       NoteVisualizer.setSuppliers(
-          drive::getPose, pivot::rotation, shooter::getEstimatedLaunchVelocity);
+          drive::getPose,
+          this::shooterPose,
+          drive::getFieldRelativeChassisSpeeds,
+          shooter::getEstimatedLaunchVelocity);
       NoteVisualizer.startPublishing();
-      addPeriodic(NoteVisualizer::log, PERIOD.in(Seconds));
     }
   }
 
@@ -214,5 +217,9 @@ public class Robot extends CommandRobot implements Logged {
   public Command rumble(RumbleType RumbleType, double strength) {
     return Commands.run(() -> operator.getHID().setRumble(RumbleType, strength))
         .alongWith(Commands.run(() -> driver.getHID().setRumble(RumbleType, strength)));
+  }
+
+  public Pose3d shooterPose() {
+    return new Pose3d(drive.getPose()).transformBy(pivot.transform());
   }
 }
