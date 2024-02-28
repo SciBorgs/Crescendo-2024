@@ -2,6 +2,8 @@ package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.*;
 
+import org.sciborgs1155.robot.commands.Shooting;
+
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Distance;
@@ -22,6 +24,7 @@ public class ShooterConstants {
   public static final Measure<Velocity<Angle>> VELOCITY_TOLERANCE = RadiansPerSecond.of(5);
 
   public static Measure<Velocity<Angle>> MAX_FLYWHEEL_SPEED = RadiansPerSecond.of(400);
+  public static Measure<Velocity<Distance>> MAX_NOTE_SPEED = Shooting.flywheelToNoteSpeed(MAX_FLYWHEEL_SPEED);
 
   public static final double kP = 0.05;
   public static final double kI = 0;
