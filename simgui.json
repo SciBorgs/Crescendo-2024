@@ -4,11 +4,6 @@
       "window": {
         "visible": false
       }
-    },
-    "Timing": {
-      "window": {
-        "visible": false
-      }
     }
   },
   "NTProvider": {
@@ -25,278 +20,28 @@
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
       "/Robot/drive/rotationController": "ProfiledPIDController",
-      "/Robot/feeder/pid": "PIDController",
-      "/Robot/flywheel": "Subsystem",
-      "/Robot/flywheel/flywheelPID": "PIDController",
-      "/Robot/pivot/FUCK": "Mechanism2d",
-      "/Robot/pivot/climbPID": "ProfiledPIDController",
-      "/Robot/pivot/manualPID": "PIDController",
-      "/Robot/pivot/manualSetpoint": "Mechanism2d",
-      "/Robot/pivot/measurement": "Mechanism2d",
       "/Robot/pivot/pid": "ProfiledPIDController",
-      "/Robot/pivot/pivotPID": "ProfiledPIDController",
       "/Robot/pivot/positionVisualizer": "Mechanism2d",
-      "/Robot/pivot/setpoint": "Mechanism2d",
       "/Robot/pivot/setpointVisualizer": "Mechanism2d",
-      "/Robot/shooter/measurement": "Mechanism2d",
-      "/Robot/shooter/mech": "Mechanism2d",
-      "/Robot/shooter/mech2": "Mechanism2d",
       "/Robot/shooter/pid": "PIDController",
-      "/Robot/shooter/pivot/manualPID": "PIDController",
-      "/Robot/shooter/pivot/manualSetpoint": "Mechanism2d",
-      "/Robot/shooter/pivot/measurement": "Mechanism2d",
-      "/Robot/shooter/pivot/setpoint": "Mechanism2d",
-      "/Robot/shooter/setpoint": "Mechanism2d",
-      "/SmartDashboard/Drive": "Subsystem",
-      "/SmartDashboard/Intake": "Subsystem",
-      "/SmartDashboard/Pivot": "Subsystem",
-      "/SmartDashboard/Scheduler": "Scheduler",
-      "/SmartDashboard/Shooter": "Subsystem",
       "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
-      "/SmartDashboard/another pivot visualizer?": "Mechanism2d",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",
       "/SmartDashboard/drive quasistatic backward": "Command",
       "/SmartDashboard/drive quasistatic forward": "Command",
-      "/SmartDashboard/dynamicBack": "Command",
-      "/SmartDashboard/dynamicForward": "Command",
-      "/SmartDashboard/face same direction": "Command",
-      "/SmartDashboard/feeder dynamic backward": "Command",
-      "/SmartDashboard/feeder dynamic forward": "Command",
-      "/SmartDashboard/feeder quasistatic backward": "Command",
-      "/SmartDashboard/feeder quasistatic forward": "Command",
       "/SmartDashboard/pivot dynamic backward": "Command",
       "/SmartDashboard/pivot dynamic forward": "Command",
       "/SmartDashboard/pivot quasistatic backward": "Command",
       "/SmartDashboard/pivot quasistatic forward": "Command",
-      "/SmartDashboard/quasistaticBack": "Command",
-      "/SmartDashboard/quasistaticForward": "Command",
       "/SmartDashboard/shooter dynamic backward": "Command",
       "/SmartDashboard/shooter dynamic forward": "Command",
       "/SmartDashboard/shooter quasistatic backward": "Command",
-      "/SmartDashboard/shooter quasistatic forward": "Command",
-      "/SmartDashboard/this should work": "Mechanism2d",
-      "/SmartDashboard/turn dynamic backward": "Command",
-      "/SmartDashboard/turn dynamic forward": "Command",
-      "/SmartDashboard/turn quasistatic backward": "Command",
-      "/SmartDashboard/turn quasistatic forward": "Command"
+      "/SmartDashboard/shooter quasistatic forward": "Command"
     },
     "windows": {
-      "/Robot/drive/field2d": {
-        "Robot": {
-          "arrows": false,
-          "color": [
-            1.0,
-            0.9705882668495178,
-            0.0,
-            255.0
-          ],
-          "length": 0.5715000033378601,
-          "weight": 5.0,
-          "width": 0.5715000033378601
-        },
-        "bottom": 1476,
-        "height": 8.210550308227539,
-        "left": 150,
-        "module- FL": {
-          "arrowColor": [
-            0.0,
-            0.0,
-            1.0,
-            255.0
-          ],
-          "arrowSize": 33,
-          "arrowWeight": 3.0,
-          "selectable": false,
-          "style": "Line"
-        },
-        "module- RR": {
-          "arrowColor": [
-            0.0,
-            0.0,
-            1.0,
-            255.0
-          ],
-          "arrowSize": 33,
-          "arrowWeight": 3.0,
-          "selectable": false,
-          "style": "Line"
-        },
-        "module-FR": {
-          "arrowColor": [
-            0.0,
-            0.0,
-            1.0,
-            255.0
-          ],
-          "arrowSize": 33,
-          "arrowWeight": 3.0,
-          "selectable": false,
-          "style": "Line"
-        },
-        "module-RL": {
-          "arrowColor": [
-            0.0,
-            0.0,
-            1.0,
-            255.0
-          ],
-          "arrowSize": 33,
-          "arrowWeight": 3.0,
-          "selectable": false,
-          "style": "Line"
-        },
-        "right": 2961,
-        "top": 79,
-        "width": 16.541748046875,
+      "/Robot/autos": {
         "window": {
           "visible": true
-        }
-      },
-      "/Robot/pivot/positionVisualizer": {
-        "window": {
-          "visible": true
-        }
-      },
-      "/Robot/pivot/setpointVisualizer": {
-        "window": {
-          "visible": true
-        }
-      },
-      "/SmartDashboard/VisionSystemSim-main/Sim Field": {
-        "bottom": 1476,
-        "height": 8.210550308227539,
-        "left": 150,
-        "right": 2961,
-        "top": 79,
-        "width": 16.541748046875,
-        "window": {
-          "visible": true
-        }
-      }
-    }
-  },
-  "NetworkTables": {
-    "retained": {
-      "Robot": {
-        "autos": {
-          "open": true
-        },
-        "open": true
-      }
-    },
-    "transitory": {
-      "Pose3d[]##v_note path": {
-        "open": true
-      },
-      "Pose3d[]##v_notes": {
-        "Pose3d##v_[0]": {
-          "Translation3d##v_translation": {
-            "open": true
-          },
-          "open": true
-        },
-        "Pose3d##v_[6]": {
-          "Rotation3d##v_rotation": {
-            "open": true
-          },
-          "open": true
-        }
-      },
-      "Pose3d[]##v_poses": {
-        "Pose3d##v_[0]": {
-          "Translation3d##v_translation": {
-            "open": true
-          },
-          "open": true
-        },
-        "open": true
-      },
-      "Robot": {
-        "drive": {
-          "Pose2d##v_/Robot/drive/getPose": {
-            "Rotation2d##v_rotation": {
-              "open": true
-            }
-          },
-          "field2d": {
-            "open": true
-          },
-          "frontRight": {
-            "SwerveModulePosition##v_/Robot/drive/frontRight/position": {
-              "Rotation2d##v_angle": {
-                "open": true
-              },
-              "open": true
-            },
-            "SwerveModuleState##v_/Robot/drive/frontRight/state": {
-              "Rotation2d##v_angle": {
-                "open": true
-              },
-              "open": true
-            },
-            "driveFeedback": {
-              "open": true
-            }
-          }
-        },
-        "feeder": {
-          "open": true
-        },
-        "pivot": {
-          "FUCK": {
-            "open": true
-          },
-          "Pose3d##v_/Robot/pivot/pose": {
-            "open": true
-          },
-          "Rotation2d##v_/Robot/pivot/getPosition": {
-            "open": true
-          },
-          "Rotation3d##v_/Robot/pivot/goal": {
-            "open": true
-          },
-          "open": true,
-          "pivot": {
-            "Rotation2d##v_/Robot/pivot/pivot/getPosition": {
-              "open": true
-            },
-            "open": true
-          }
-        },
-        "shooter": {
-          "mech": {
-            "open": true
-          },
-          "open": true,
-          "pid": {
-            "open": true
-          },
-          "pivot": {
-            "open": true,
-            "pivot": {
-              "Rotation2d##v_/Robot/shooter/pivot/pivot/getPosition": {
-                "open": true
-              },
-              "open": true
-            }
-          },
-          "setpoint": {
-            "open": true
-          }
-        },
-        "vision": {
-          "Pose3d[]##v_/Robot/vision/getSeenTags": {
-            "open": true
-          }
-        }
-      },
-      "SmartDashboard": {
-        "Drive": {
-          "open": true
-        },
-        "Pivot": {
-          "open": true
         }
       }
     }
@@ -304,43 +49,7 @@
   "NetworkTables Info": {
     "visible": true
   },
-  "Plot": {
-    "Plot <0>": {
-      "plots": [
-        {
-          "backgroundColor": [
-            0.0,
-            0.0,
-            0.0,
-            0.8500000238418579
-          ],
-          "height": 127,
-          "series": [
-            {
-              "color": [
-                0.2980392277240753,
-                0.44705885648727417,
-                0.6901960968971252,
-                1.0
-              ],
-              "id": "NT:/Robot/shooter/getPivotSetpointRadians"
-            },
-            {
-              "color": [
-                0.8666667342185974,
-                0.5176470875740051,
-                0.32156863808631897,
-                1.0
-              ],
-              "id": "NT:/Robot/shooter/pivot/getPosition"
-            }
-          ]
-        }
-      ],
-      "window": {
-        "name": "Pivot",
-        "visible": false
-      }
-    }
+  "NetworkTables View": {
+    "visible": false
   }
 }
