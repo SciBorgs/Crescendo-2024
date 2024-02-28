@@ -132,6 +132,7 @@ public class NoteVisualizer implements Logged {
             Commands.defer(
                 () -> {
                   var poses = generatePath();
+                  if (poses.length == 0) return Commands.runOnce(() -> {});
                   step = 0;
                   notePathPub.set(poses);
                   return Commands.run(
@@ -139,7 +140,7 @@ public class NoteVisualizer implements Logged {
                             shotNotePub.set(poses[step]);
                             step++;
                           })
-                      .until(() -> step == poses.length - 1)
+                      .until(() -> step >= poses.length - 1)
                       .finallyDo(
                           () -> {
                             shotNotePub.set(new Pose3d());
@@ -167,12 +168,17 @@ public class NoteVisualizer implements Logged {
             .rotateBy(pose.getRotation())
             .toVector()
             .unit()
-            .times(-shotVelocity);
-            // .plus(driveVelocity);
+            .times(shotVelocity)
+            .plus(driveVelocity)
+            .times(-1);
 
     pathPosition = new ArrayList<>();
 
-    while (pose.getZ() > 0) {
+    while (pose.getZ() > 0
+        && pose.getX() > 0
+        && pose.getY() > 0
+        && pose.getX() < Field.LENGTH.in(Meters)
+        && pose.getY() < Field.WIDTH.in(Meters)) {
       pathPosition.add(pose);
 
       pose = new Pose3d(new Translation3d(position), pose.getRotation());

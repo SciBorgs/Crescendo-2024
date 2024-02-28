@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -7,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -54,6 +56,9 @@ public class Constants {
 
   // Origin at corner of blue alliance side of field
   public static class Field {
+    public static final Measure<Distance> LENGTH = Inches.of(651.223);
+    public static final Measure<Distance> WIDTH = Inches.of(323.277);
+
     public static final Translation3d BLUE_SPEAKER_POSE =
         new Translation3d(-0.086473, 5.757474, 2.1);
     public static final Translation3d RED_SPEAKER_POSE =

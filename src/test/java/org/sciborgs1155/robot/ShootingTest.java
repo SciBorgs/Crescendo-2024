@@ -53,7 +53,7 @@ public class ShootingTest {
     run(shooter.runShooter(() -> 3));
     fastForward(400);
 
-    assertEquals(3, shooter.getVelocity(), DELTA);
+    assertEquals(3, shooter.rotationalVelocity(), DELTA);
   }
 
   @Disabled
@@ -85,7 +85,7 @@ public class ShootingTest {
     run(shooting.shoot(vel));
     fastForward();
 
-    assertEquals(vel, shooter.getVelocity(), VELOCITY_TOLERANCE.in(RadiansPerSecond));
+    assertEquals(vel, shooter.rotationalVelocity(), VELOCITY_TOLERANCE.in(RadiansPerSecond));
   }
 
   @Disabled
@@ -98,7 +98,7 @@ public class ShootingTest {
         MathUtil.clamp(Math.PI / 4, MIN_ANGLE.in(Radians), MAX_ANGLE.in(Radians)),
         pivot.rotation().getY(),
         DELTA);
-    assertEquals(4, shooter.getVelocity(), DELTA);
+    assertEquals(4, shooter.rotationalVelocity(), DELTA);
   }
 
   @Test
