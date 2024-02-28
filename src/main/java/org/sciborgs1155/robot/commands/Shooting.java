@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot.commands;
 
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static java.lang.Math.pow;
@@ -24,7 +23,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -156,9 +154,9 @@ public class Shooting {
     return velocity.norm() / RADIUS.in(Meters);
   }
 
-  public static Measure<Velocity<Distance>> noteSpeed(Measure<Velocity<Angle>> flywheelSpeed) {
+  public static double noteSpeed(Measure<Velocity<Angle>> flywheelSpeed) {
     // TODO account for lost energy! (with regression probably)
-    return MetersPerSecond.of(flywheelSpeed.in(RadiansPerSecond) * RADIUS.in(Meters));
+    return flywheelSpeed.in(RadiansPerSecond) * RADIUS.in(Meters);
   }
 
   /** Shoots while stationary at correct flywheel speed, pivot angle, and heading. */
@@ -166,7 +164,7 @@ public class Shooting {
     Translation2d speaker = speaker().toTranslation2d();
     return new ProxyCommand(
         () -> {
-          double targetPitch = pitch(drive.getPose(), noteSpeed(MAX_FLYWHEEL_SPEED)).in(Radians);
+          double targetPitch = pitch(drive.getPose(), noteSpeed(MAX_FLYWHEEL_SPEED));
           return shoot(
                   () -> MAX_FLYWHEEL_SPEED.in(RadiansPerSecond),
                   () ->
@@ -193,8 +191,8 @@ public class Shooting {
   public Command stationaryShooting() {
     return new ProxyCommand(
         () ->
-            pivotThenShoot(
-                pitch(drive.getPose(), noteSpeed(MAX_FLYWHEEL_SPEED)), MAX_FLYWHEEL_SPEED));
+            pivotThenShoot(Radians.of(
+                pitch(drive.getPose(), noteSpeed(MAX_FLYWHEEL_SPEED))), MAX_FLYWHEEL_SPEED));
   }
 
   /**
@@ -208,8 +206,8 @@ public class Shooting {
     Vector<N3> stationaryVel =
         toVelocityVector(
             heading,
-            pitch(drive.getPose(), noteSpeed(MAX_FLYWHEEL_SPEED)).in(Radians),
-            noteSpeed(MAX_FLYWHEEL_SPEED).in(MetersPerSecond));
+            pitch(drive.getPose(), noteSpeed(MAX_FLYWHEEL_SPEED)),
+            noteSpeed(MAX_FLYWHEEL_SPEED));
     var speeds = drive.getFieldRelativeChassisSpeeds();
     return stationaryVel.minus(
         VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0));
@@ -217,16 +215,16 @@ public class Shooting {
 
   double G = 9.81; // I'm sorry (i'm tired) TODO
 
-  public Measure<Angle> pitch(Pose2d robotPose, Measure<Velocity<Distance>> v) {
-    double v_ = v.in(MetersPerSecond);
+  /** v is in meters per second!! */
+  public double pitch(Pose2d robotPose, double v) {
     Translation3d shooterPos = shooterPos(robotPose);
     double dist = speaker().toTranslation2d().getDistance(shooterPos.toTranslation2d());
     double h = speaker().getZ() - shooterPos.getZ();
     double denom = (G * pow(dist, 2));
     double rad =
-        pow(dist, 2) * pow(v_, 4) - G * pow(dist, 2) * (G * pow(dist, 2) + 2 * h * pow(v_, 2));
+        pow(dist, 2) * pow(v, 4) - G * pow(dist, 2) * (G * pow(dist, 2) + 2 * h * pow(v, 2));
     // TODO someone check me on this copying...
-    return Radians.of(Math.atan((1 / (denom)) * (dist * pow(v_, 2) - Math.sqrt(rad))));
+    return Math.atan((1 / (denom)) * (dist * pow(v, 2) - Math.sqrt(rad)));
   }
 
   /** Calculates position of shooter from Pose2d of robot. */
