@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot.commands;
 
+import static java.lang.Math.pow;
 import static org.sciborgs1155.robot.Constants.Field.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.PIVOT_OFFSET;
 
@@ -13,6 +14,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
@@ -111,26 +113,6 @@ public class Shooting {
   }
 
   /**
-   * Calculates the required velocity vector of the note, relative to the robot. Accounts for the
-   * velocity of the robot. This can be used to find flywheel speed, pivot angle and heading.
-   *
-   * @return Target initial velocity of note, relative to robot
-   */
-  public Vector<N3> noteRobotRelativeVelocityVector() {
-    var speaker = getSpeaker().toTranslation2d();
-    var heading = speaker.minus(drive.getPose().getTranslation()).getAngle();
-    var fromSpeaker =
-        shooterPos(new Pose2d(drive.getPose().getTranslation(), heading))
-            .toTranslation2d()
-            .minus(speaker);
-    var stationaryVel =
-        toVelocityVector(heading, stationaryPitch(fromSpeaker), stationaryVelocity(fromSpeaker));
-    var speeds = drive.getChassisSpeeds();
-    return stationaryVel.minus(
-        VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0));
-  }
-
-  /**
    * Calculates pitch from note initial velocity vector. If given a robot relative initial velocity
    * vector, the return value will also be the pivot angle.
    *
@@ -175,6 +157,67 @@ public class Shooting {
         getSpeaker().minus(shooterPos(drive.getPose())).toTranslation2d();
     return pivotThenShoot(
         stationaryPitch(tranlationFromSpeaker), stationaryVelocity(tranlationFromSpeaker));
+  }
+
+  double MAX_FLYWHEEL_SPEED = 10; // approx, in m/s, TODO will be a constant
+
+  public Vector<N3> fixedPoint(
+      Rotation2d heading,
+      Vector<N3> robotVel,
+      Function<Double, Double> speedToPitch,
+      double shotSpeed,
+      Vector<N3> prev,
+      int i) { // NOTE get rid of i, it was just for some testing
+
+    double pitch = speedToPitch.apply(shotSpeed);
+    Vector<N3> stationaryVel = toVelocityVector(heading, pitch, shotSpeed);
+    Vector<N3> robotRelVel = stationaryVel.minus(robotVel);
+    if (robotRelVel.minus(prev).norm() < 0.001) {
+      return robotRelVel;
+    }
+    Vector<N3> robotRelVelTopSpeed = robotRelVel.unit().times(MAX_FLYWHEEL_SPEED);
+    double newShotSpeed = robotRelVelTopSpeed.plus(robotVel).norm();
+    return fixedPoint(heading, robotVel, speedToPitch, newShotSpeed, robotRelVel, i + 1);
+  }
+
+  /**
+   * Calculates the required velocity vector of the note, relative to the robot. Accounts for the
+   * velocity of the robot. This can be used to find flywheel speed, pivot angle and heading.
+   *
+   * @return Target initial velocity of note, relative to robot
+   */
+  public Vector<N3> noteRobotRelativeVelocityVector() {
+    var speaker = getSpeaker().toTranslation2d();
+    var robotPose = drive.getPose();
+    Function<Double, Double> speedToPitch = pitch(robotPose);
+    var speeds = drive.getChassisSpeeds();
+    Vector<N3> robotVel = VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
+    Rotation2d stationaryHeading = speaker.minus(robotPose.getTranslation()).getAngle();
+
+    return fixedPoint(
+        stationaryHeading,
+        robotVel,
+        speedToPitch,
+        MAX_FLYWHEEL_SPEED,
+        VecBuilder.fill(-10, -10, -10),
+        0);
+  }
+
+  double G = 9.81; // I'm sorry (i'm tired) TODO
+
+  public Function<Double, Double> pitch(Pose2d robotPose) {
+    return v -> {
+      Translation3d shooterPos = shooterPos(robotPose);
+      double dist = getSpeaker().toTranslation2d().getDistance(shooterPos.toTranslation2d());
+      double h = getSpeaker().getZ() - shooterPos.getZ();
+      double denom = (G * pow(dist, 2));
+      // if (denom == 0) {}
+      double rad =
+          pow(dist, 2) * pow(v, 4) - G * pow(dist, 2) * (G * pow(dist, 2) + 2 * h * pow(v, 2));
+      // if (rad < 0) {}
+      // TODO someone check me on this copying...
+      return Math.atan((1 / (denom)) * (dist * pow(v, 2) + Math.sqrt(rad)));
+    };
   }
 
   /**
