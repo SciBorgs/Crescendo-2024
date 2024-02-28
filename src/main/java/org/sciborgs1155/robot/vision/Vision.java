@@ -1,5 +1,7 @@
 package org.sciborgs1155.robot.vision;
 
+import static edu.wpi.first.units.Units.Meters;
+import static org.sciborgs1155.robot.Constants.*;
 import static org.sciborgs1155.robot.vision.VisionConstants.*;
 
 import edu.wpi.first.math.Matrix;
@@ -12,7 +14,6 @@ import edu.wpi.first.math.numbers.N3;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -41,7 +42,7 @@ public class Vision implements Logged {
 
   /** A factory to create new vision classes with our two configured cameras */
   public static Vision create() {
-    return new Vision();
+    return new Vision(LEFT_CAMERA, RIGHT_CAMERA);
   }
 
   public Vision(CameraConfig... configs) {
@@ -101,17 +102,18 @@ public class Vision implements Logged {
       var result = cameras[i].getLatestResult();
       var estimate = estimators[i].update(result);
       log("estimates present " + i, estimate.isPresent());
-      estimate.ifPresent(
-          e -> {
-            double height = e.estimatedPose.getZ();
-
-            estimates.add(
-                (height >= MIN_HEIGHT && height <= MAX_HEIGHT)
-                    ? new PoseEstimate(e, getEstimationStdDevs(e.estimatedPose.toPose2d(), result))
-                    : null);
-
-            estimates.removeIf(Objects::isNull); // Remove null entries
-          });
+      estimate
+          .filter(
+              f ->
+                  f.estimatedPose.getX() > 0
+                      && f.estimatedPose.getX() < Field.LENGTH.in(Meters)
+                      && f.estimatedPose.getY() > 0
+                      && f.estimatedPose.getY() < Field.WIDTH.in(Meters)
+                      && Math.abs(f.estimatedPose.getZ()) < MIN_HEIGHT
+                      && Math.abs(f.estimatedPose.getRotation().getY()) < MAX_ANGLE
+                      && Math.abs(f.estimatedPose.getRotation().getX()) < MAX_ANGLE)
+          .ifPresent(
+              e -> new PoseEstimate(e, getEstimationStdDevs(e.estimatedPose.toPose2d(), result)));
     }
     return estimates.toArray(PoseEstimate[]::new);
   }
