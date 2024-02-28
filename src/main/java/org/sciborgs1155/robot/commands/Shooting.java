@@ -184,7 +184,8 @@ public class Shooting {
    * @param robotTranslation Translation2d of the robot
    */
   public static Rotation2d headingToSpeaker(Translation2d robotTranslation) {
-    return speaker().toTranslation2d().minus(robotTranslation).getAngle();
+    // return speaker().toTranslation2d().minus(robotTranslation).getAngle();
+    return robotTranslation.minus(speaker().toTranslation2d()).getAngle();
   }
 
   /** Shoots while stationary at correct flywheel speed and pivot angle, doesn't auto-turret. */
