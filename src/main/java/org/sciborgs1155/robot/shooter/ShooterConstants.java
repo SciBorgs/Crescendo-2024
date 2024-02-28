@@ -24,7 +24,7 @@ public class ShooterConstants {
 
   public static Measure<Velocity<Angle>> MAX_FLYWHEEL_SPEED = RadiansPerSecond.of(400);
   public static Measure<Velocity<Distance>> MAX_NOTE_SPEED =
-      Shooting.flywheelToNoteSpeed(MAX_FLYWHEEL_SPEED);
+      MetersPerSecond.of(Shooting.flywheelToNoteSpeed(MAX_FLYWHEEL_SPEED.in(RadiansPerSecond)));
 
   public static final double kP = 0.05;
   public static final double kI = 0;

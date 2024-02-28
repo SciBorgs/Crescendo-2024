@@ -25,7 +25,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -177,18 +176,6 @@ public class Shooting {
     // TODO account for lost energy! (with regression probably)
     return velocity.norm() / RADIUS.in(Meters);
   } // TODO maybe replace this with inverse of
-
-  /**
-   * Converts between flywheel speed and note speed
-   *
-   * @param flywheelSpeed Flywheel speed in radians per second
-   * @return Note speed in meters per second
-   */
-  public static Measure<Velocity<Distance>> flywheelToNoteSpeed(
-      Measure<Velocity<Angle>> flywheelSpeed) {
-    // TODO account for lost energy! (with regression probably)
-    return MetersPerSecond.of(flywheelSpeed.in(RadiansPerSecond) * RADIUS.in(Meters));
-  }
 
   /**
    * Converts between flywheel speed and note speed
