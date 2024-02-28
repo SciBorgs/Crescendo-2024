@@ -7,8 +7,8 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
@@ -136,8 +136,8 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   @Log.NT
-  public Pose3d pose() {
-    return new Pose3d(OFFSET, rotation());
+  public Transform3d transform() {
+    return new Transform3d(OFFSET, rotation());
   }
 
   @Log.NT

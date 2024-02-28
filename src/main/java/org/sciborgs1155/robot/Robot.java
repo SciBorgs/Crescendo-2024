@@ -15,9 +15,11 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -116,9 +118,11 @@ public class Robot extends CommandRobot implements Logged {
       DriverStation.silenceJoystickConnectionWarning(true);
       addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), PERIOD.in(Seconds));
       NoteVisualizer.setSuppliers(
-          drive::getPose, pivot::rotation, shooter::getEstimatedLaunchVelocity);
+          drive::getPose,
+          this::shooterPose,
+          drive::getFieldRelativeChassisSpeeds,
+          shooter::tangentialVelocity);
       NoteVisualizer.startPublishing();
-      addPeriodic(NoteVisualizer::log, PERIOD.in(Seconds));
     }
   }
 
@@ -133,8 +137,21 @@ public class Robot extends CommandRobot implements Logged {
   }
 
   public void configureAuto() {
-    NamedCommands.registerCommand("Lock", drive.lock());
+    // register named commands for auto
+    NamedCommands.registerCommand("lock", drive.lock());
+    NamedCommands.registerCommand(
+        "shoot", shooting.pivotThenShoot(PRESET_PODIUM_ANGLE, 80).withTimeout(1.2));
+    NamedCommands.registerCommand(
+        "reset", pivot.runPivot(() -> STARTING_ANGLE.in(Radians)).withTimeout(1));
+    NamedCommands.registerCommand(
+        "intake",
+        intake
+            .intake()
+            .alongWith(feeder.forward())
+            .until(feeder.atShooter())
+            .andThen(feeder.retract()));
 
+    // configure auto
     AutoBuilder.configureHolonomic(
         drive::getPose,
         drive::resetOdometry,
@@ -196,20 +213,15 @@ public class Robot extends CommandRobot implements Logged {
     operator.povUp().whileTrue(shooter.runShooter(() -> 300));
     operator.povDown().whileTrue(shooter.runShooter(() -> 200));
 
-    // operator.b().onTrue(pivot.runPivot(() -> )))
+    intake.inIntake().onTrue(rumble(RumbleType.kBothRumble, 0.5));
+  }
 
-    // shooting into speaker when up to subwoofer
-    // operator
-    //     .x()
-    //     .toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_AMP_ANGLE.getRadians(), () -> 10));
+  public Command rumble(RumbleType RumbleType, double strength) {
+    return Commands.run(() -> operator.getHID().setRumble(RumbleType, strength))
+        .alongWith(Commands.run(() -> driver.getHID().setRumble(RumbleType, strength)));
+  }
 
-    // operator
-    //     .y()
-    //     .toggleOnTrue(shooting.pivotThenShoot(() -> PRESET_SUBWOOFER_ANGLE.getRadians(), () ->
-    // 11));
-
-    // operator.a().whileTrue(intake.intake());
-    // operator.x().onTrue(shooter.runShooter(() -> 100));
-    // operator.y().onTrue(shooter.runShooter(() -> 0));
+  public Pose3d shooterPose() {
+    return new Pose3d(drive.getPose()).transformBy(pivot.transform());
   }
 }
