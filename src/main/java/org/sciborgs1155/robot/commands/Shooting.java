@@ -133,7 +133,8 @@ public class Shooting {
    * @param flywheelSpeed in radians per second
    * @return Initial velocity vector of the note
    */
-  public static Vector<N3> toVelocityVector(Rotation2d heading, double pitch, double flywheelSpeed) {
+  public static Vector<N3> toVelocityVector(
+      Rotation2d heading, double pitch, double flywheelSpeed) {
     double noteSpeed = flywheelToNoteSpeed(flywheelSpeed);
     double xyNorm = noteSpeed * Math.cos(pitch);
     double x = xyNorm * heading.getCos();
@@ -183,7 +184,8 @@ public class Shooting {
    * @param flywheelSpeed Flywheel speed in radians per second
    * @return Note speed in meters per second
    */
-  public static Measure<Velocity<Distance>> flywheelToNoteSpeed(Measure<Velocity<Angle>> flywheelSpeed) {
+  public static Measure<Velocity<Distance>> flywheelToNoteSpeed(
+      Measure<Velocity<Angle>> flywheelSpeed) {
     // TODO account for lost energy! (with regression probably)
     return MetersPerSecond.of(flywheelSpeed.in(RadiansPerSecond) * RADIUS.in(Meters));
   }
@@ -198,7 +200,6 @@ public class Shooting {
     // TODO account for lost energy! (with regression probably)
     return flywheelSpeed * RADIUS.in(Meters);
   }
-
 
   /**
    * Calculates heading needed to face the speaker.
@@ -235,7 +236,6 @@ public class Shooting {
     return stationaryVel.minus(
         VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0));
   }
-
 
   /** v is in meters per second!! */
   public static double stationaryPitch(Pose2d robotPose, double v) {
