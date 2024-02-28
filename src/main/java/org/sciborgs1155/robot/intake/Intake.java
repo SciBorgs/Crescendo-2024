@@ -39,7 +39,7 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
 
   public Trigger inIntake() {
     return new Trigger(() -> !intake.beambreak())
-        .debounce(PERIOD.times(3).in(Seconds), DebounceType.kBoth);
+        .debounce(PERIOD.times(3).in(Seconds), DebounceType.kFalling);
   }
 
   public Command outtake() {

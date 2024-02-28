@@ -50,7 +50,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
 
   public Trigger atShooter() {
     return new Trigger(() -> !feeder.beambreak())
-        .debounce(PERIOD.times(3).in(Seconds), DebounceType.kBoth);
+        .debounce(PERIOD.times(3).in(Seconds), DebounceType.kFalling);
   }
 
   @Override

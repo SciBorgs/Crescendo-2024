@@ -199,26 +199,33 @@ public class Robot extends CommandRobot implements Logged {
             pivot.manualPivot(
                 InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
     operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE, 85));
-    operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.194), 400));
+    // operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.194), 400));
+    // operator.x().whileTrue(shooting.shootWhileDriving(null, null))
     operator.y().whileTrue(shooting.pivotThenShoot(Radians.of(0.35), 330));
 
-    intake.inIntake().onFalse(intake.runOnce(() -> {}).alongWith(feeder.runOnce(() -> {})));
     operator
         .leftBumper()
         .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
-        .whileTrue(intake.intake().alongWith(feeder.forward()))
-        // .until(intake.inIntake()));
-        .onFalse(feeder.retract());
+        .whileTrue(
+            intake
+                .intake()
+                .alongWith(feeder.forward())
+                .until(feeder.atShooter())
+                .andThen(feeder.retract()));
+    // .until(intake.inIntake()));
+    // .onFalse(feeder.retract());
     operator.rightBumper().whileTrue(feeder.forward());
     operator.povUp().whileTrue(shooter.runShooter(() -> 300));
     operator.povDown().whileTrue(shooter.runShooter(() -> 200));
 
-    intake.inIntake().onTrue(rumble(RumbleType.kBothRumble, 0.5));
+    intake.inIntake().onTrue(rumble(RumbleType.kLeftRumble, 0.5));
+    feeder.atShooter().onFalse(rumble(RumbleType.kRightRumble, 0.5));
   }
 
-  public Command rumble(RumbleType RumbleType, double strength) {
-    return Commands.run(() -> operator.getHID().setRumble(RumbleType, strength))
-        .alongWith(Commands.run(() -> driver.getHID().setRumble(RumbleType, strength)));
+  public Command rumble(RumbleType rumbleType, double strength) {
+    return Commands.run(() -> operator.getHID().setRumble(rumbleType, strength))
+        .alongWith(Commands.run(() -> driver.getHID().setRumble(rumbleType, strength)))
+        .withTimeout(1);
   }
 
   public Pose3d shooterPose() {

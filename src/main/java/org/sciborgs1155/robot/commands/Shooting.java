@@ -63,7 +63,8 @@ public class Shooting {
   public Command shoot(DoubleSupplier desiredVelocity, BooleanSupplier shootCondition) {
     return Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean())
         .andThen(feeder.forward())
-        // .withTimeout(2)
+        .andThen(Commands.waitSeconds(2))
+        .until(feeder.atShooter().negate())
         .deadlineWith(shooter.runShooter(desiredVelocity));
   }
 
