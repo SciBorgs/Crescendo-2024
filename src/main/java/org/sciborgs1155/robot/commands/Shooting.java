@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -59,7 +58,7 @@ public class Shooting {
    * @return The command to shoot at the desired velocity.
    */
   public Command shoot(Measure<Velocity<Angle>> desiredVelocity) {
-    return shoot(() -> desiredVelocity, () -> true);
+    return shoot(() -> desiredVelocity.in(RadiansPerSecond), () -> true);
   }
 
   /**
@@ -69,11 +68,10 @@ public class Shooting {
    * @param desiredVelocity Target velocity for the flywheel.
    * @param shootCondition Condition after which the feeder will run.
    */
-  public Command shoot(
-      Supplier<Measure<Velocity<Angle>>> desiredVelocity, BooleanSupplier shootCondition) {
+  public Command shoot(DoubleSupplier desiredVelocity, BooleanSupplier shootCondition) {
     return (Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean())
             .andThen(feeder.forward().withTimeout(0.15)))
-        .deadlineWith(shooter.runShooter(() -> desiredVelocity.get().in(RadiansPerSecond)));
+        .deadlineWith(shooter.runShooter(desiredVelocity));
   }
 
   /**
@@ -85,7 +83,8 @@ public class Shooting {
    */
   public Command pivotThenShoot(
       Measure<Angle> targetAngle, Measure<Velocity<Angle>> targetVelocity) {
-    return shoot(() -> targetVelocity, pivot::atGoal).deadlineWith(pivot.runPivot(targetAngle));
+    return shoot(() -> targetVelocity.in(RadiansPerSecond), pivot::atGoal)
+        .deadlineWith(pivot.runPivot(targetAngle));
   }
 
   /**
@@ -152,9 +151,9 @@ public class Shooting {
    * @param velocity Note initial velocity vector
    * @return Flywheel speed (rads / s)
    */
-  public static Measure<Velocity<Angle>> flywheelSpeed(Vector<N3> velocity) {
+  public static double flywheelSpeed(Vector<N3> velocity) {
     // TODO account for lost energy! (with regression probably)
-    return RadiansPerSecond.of(velocity.norm() / RADIUS.in(Meters));
+    return velocity.norm() / RADIUS.in(Meters);
   }
 
   public static Measure<Velocity<Distance>> noteSpeed(Measure<Velocity<Angle>> flywheelSpeed) {
@@ -169,7 +168,7 @@ public class Shooting {
         () -> {
           double targetPitch = pitch(drive.getPose(), noteSpeed(MAX_FLYWHEEL_SPEED)).in(Radians);
           return shoot(
-                  () -> MAX_FLYWHEEL_SPEED,
+                  () -> MAX_FLYWHEEL_SPEED.in(RadiansPerSecond),
                   () ->
                       pivot.atPosition(targetPitch)
                           && drive.isFacing(speaker)
@@ -245,6 +244,6 @@ public class Shooting {
     double pitch = pitch(shot);
     return MIN_ANGLE.in(Radians) < pitch
         && pitch < MAX_ANGLE.in(Radians)
-        && flywheelSpeed(shot).in(RadiansPerSecond) < DCMotor.getNeoVortex(1).freeSpeedRadPerSec;
+        && flywheelSpeed(shot) < DCMotor.getNeoVortex(1).freeSpeedRadPerSec;
   }
 }
