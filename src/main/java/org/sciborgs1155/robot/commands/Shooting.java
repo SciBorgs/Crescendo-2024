@@ -10,6 +10,8 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.OFFSET;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.RADIUS;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.MAX_FLYWHEEL_SPEED;
+
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -160,9 +162,7 @@ public class Shooting {
     // TODO account for lost energy! (with regression probably)
     return MetersPerSecond.of(flywheelSpeed.in(RadiansPerSecond) * RADIUS.in(Meters));
   }
-
-  static Measure<Velocity<Angle>> MAX_FLYWHEEL_SPEED = RadiansPerSecond.of(400);
-
+  
   /** Shoots while stationary at correct flywheel speed, pivot angle, and heading. */
   public Command stationaryTurretShooting() {
     Translation2d speaker = speaker().toTranslation2d();
