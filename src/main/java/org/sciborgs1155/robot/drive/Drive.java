@@ -179,6 +179,10 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return rotationController.atGoal();
   }
 
+  public double headingGoal() {
+    return rotationController.getGoal().position;
+  }
+
   /**
    * Drives the robot based on a {@link InputStream} for field relative x y and omega velocities.
    *

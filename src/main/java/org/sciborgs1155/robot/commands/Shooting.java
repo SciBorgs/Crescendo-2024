@@ -118,8 +118,8 @@ public class Shooting {
             () -> flywheelSpeed(noteRobotRelativeVelocityVector()),
             () ->
                 pivot.atGoal()
-                    && drive.atHeadingGoal()
-                    && drive.getFieldRelativeChassisSpeeds().omegaRadiansPerSecond < 0.1)
+                    && Math.abs(drive.getHeading().getRadians() - drive.headingGoal()) < 1
+                    && drive.getFieldRelativeChassisSpeeds().omegaRadiansPerSecond < 0.2)
         .deadlineWith(
             drive.drive(vx, vy, () -> heading(noteRobotRelativeVelocityVector())),
             pivot.runPivot(() -> pitch(noteRobotRelativeVelocityVector())));
@@ -207,8 +207,7 @@ public class Shooting {
    * @param robotTranslation Translation2d of the robot
    */
   public static Rotation2d headingToSpeaker(Translation2d robotTranslation) {
-    // return speaker().toTranslation2d().minus(robotTranslation).getAngle();
-    return robotTranslation.minus(speaker().toTranslation2d()).getAngle();
+    return speaker().toTranslation2d().minus(robotTranslation).getAngle();
   }
 
   /** Shoots while stationary at correct flywheel speed and pivot angle, doesn't auto-turret. */
@@ -232,7 +231,7 @@ public class Shooting {
         toVelocityVector(
             heading,
             stationaryPitch(drive.getPose(), MAX_NOTE_SPEED.in(MetersPerSecond)),
-            MAX_NOTE_SPEED.in(MetersPerSecond));
+            MAX_FLYWHEEL_SPEED.in(RadiansPerSecond));
     var speeds = drive.getFieldRelativeChassisSpeeds();
     return stationaryVel.minus(
         VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0));

@@ -202,9 +202,14 @@ public class Robot extends CommandRobot implements Logged {
     operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE, RadiansPerSecond.of(70)));
     operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.5), RadiansPerSecond.of(300)));
     // operator.y().whileTrue(shooting.pivotThenShoot(Radians.of(0.35), RadiansPerSecond.of(330)));
-    operator.y().whileTrue(shooting.shootWhileDriving(
-        createJoystickStream(driver::getLeftY,  DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-        createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
+    operator
+        .y()
+        .whileTrue(
+            shooting.shootWhileDriving(
+                createJoystickStream(
+                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond) / 3),
+                createJoystickStream(
+                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond) / 3)));
 
     operator
         .leftBumper()
