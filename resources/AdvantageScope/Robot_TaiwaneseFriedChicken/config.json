@@ -1,0 +1,24 @@
+{
+  "name": "Taiwanese Fried Chicken",
+  "sourceUrl": "https://cad.onshape.com/documents/68add77a3e06a40e80168fdd/w/f1dcc7ffb38312caa4257dc2/e/79ed0c80d9a1d0c097fe374f",
+  "rotations": [
+    {
+      "axis": "x",
+      "degrees": 90
+    },
+    {
+      "axis": "z",
+      "degrees": 90
+    }
+  ],
+  "position": [
+    0,0,0
+  ],
+  "cameras": [],
+    "components": [
+      {
+        "zeroedRotations": [{"axis":"x","degrees":90},{"axis":"z","degrees":180},{"axis":"y","degrees":-4}],
+        "zeroedPosition": [0.45,0.635,-0.125]
+      }
+    ]
+}

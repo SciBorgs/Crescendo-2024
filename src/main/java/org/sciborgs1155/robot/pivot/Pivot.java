@@ -9,7 +9,6 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
@@ -138,8 +137,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   @Log.NT
   public Pose3d pose() {
-    return new Pose3d(
-        new Translation3d(0.023, 0.03, 0.545), new Rotation3d(0, hardware.getPosition() - 0.2, 0));
+    return new Pose3d(OFFSET, rotation());
   }
 
   @Log.NT
