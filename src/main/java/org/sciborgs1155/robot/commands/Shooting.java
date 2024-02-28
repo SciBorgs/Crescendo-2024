@@ -191,8 +191,9 @@ public class Shooting {
   public Command stationaryShooting() {
     return new ProxyCommand(
         () ->
-            pivotThenShoot(Radians.of(
-                pitch(drive.getPose(), noteSpeed(MAX_FLYWHEEL_SPEED))), MAX_FLYWHEEL_SPEED));
+            pivotThenShoot(
+                Radians.of(pitch(drive.getPose(), noteSpeed(MAX_FLYWHEEL_SPEED))),
+                MAX_FLYWHEEL_SPEED));
   }
 
   /**
