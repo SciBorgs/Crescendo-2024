@@ -148,7 +148,7 @@ public class Robot extends CommandRobot implements Logged {
         intake
             .intake()
             .alongWith(feeder.forward())
-            .until(feeder.atShooter())
+            .until(feeder.noteAtShooter())
             .andThen(feeder.retract()));
 
     // configure auto
@@ -206,21 +206,13 @@ public class Robot extends CommandRobot implements Logged {
     operator
         .leftBumper()
         .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
-        .whileTrue(
-            intake
-                .intake()
-                .alongWith(feeder.forward())
-                .andThen(Commands.waitUntil(intake.inIntake()))
-                .andThen(Commands.waitSeconds(4))
-                // .andThen(Commands.waitUntil(intake.inIntake().negate()))
-                .andThen(feeder.retract()));
-    // .until(intake.inIntake()));
-    // .onFalse(feeder.retract());
+        .whileTrue(intake.intake().deadlineWith(feeder.forward()));
+
     operator.rightBumper().whileTrue(feeder.forward());
     operator.povUp().whileTrue(shooter.runShooter(() -> 300));
     operator.povDown().whileTrue(shooter.runShooter(() -> 200));
 
-    intake.inIntake().onTrue(rumble(RumbleType.kLeftRumble, 0.5));
+    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.5));
     // feeder.atShooter().onFalse(rumble(RumbleType.kRightRumble, 0.5));
   }
 
