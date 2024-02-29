@@ -15,6 +15,8 @@ import edu.wpi.first.math.numbers.N3;
 import org.sciborgs1155.robot.vision.Vision.CameraConfig;
 
 public class VisionConstants {
+  public static final String NOTE_CAMERA_NAME = "notecam";
+
   public static final AprilTagFieldLayout TAG_LAYOUT =
       AprilTagFields.kDefaultField.loadAprilTagLayoutField();
 
