@@ -13,8 +13,6 @@ import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
-import org.sciborgs1155.robot.intake.IntakeIO.NoIntake;
-import org.sciborgs1155.robot.intake.IntakeIO.RealIntake;
 
 public class Intake extends SubsystemBase implements Logged, AutoCloseable {
   public static Intake create() {
