@@ -4,14 +4,12 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.*;
-import static org.sciborgs1155.robot.Constants.Field.speaker;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.VELOCITY_TOLERANCE;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
@@ -116,5 +114,4 @@ public class ShootingTest {
     // testEndCondition.accept(shooting.stationaryTurretShooting()); // worked before it was proxied
     testEndCondition.accept(shooting.shoot(RadiansPerSecond.of(150)));
   }
-
 }
