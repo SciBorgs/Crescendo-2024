@@ -102,7 +102,8 @@ public class Vision implements Logged {
       var estimate = estimators[i].update(result);
       log("estimates present " + i, estimate.isPresent());
       estimate
-          .filter(f -> Field.inField(f.estimatedPose) && Math.abs(f.estimatedPose.getZ()) < MAX_HEIGHT)
+          .filter(
+              f -> Field.inField(f.estimatedPose) && Math.abs(f.estimatedPose.getZ()) < MAX_HEIGHT)
           .ifPresent(
               e ->
                   estimates.add(

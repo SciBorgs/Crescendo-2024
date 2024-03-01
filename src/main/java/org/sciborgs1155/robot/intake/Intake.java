@@ -26,7 +26,8 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
 
   public Intake(IntakeIO hardware) {
     this.hardware = hardware;
-    setDefaultCommand(runOnce(() -> hardware.setPower(0)).andThen(Commands.idle()).withName("idle"));
+    setDefaultCommand(
+        runOnce(() -> hardware.setPower(0)).andThen(Commands.idle()).withName("idle"));
   }
 
   /**
