@@ -124,6 +124,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     gyro.reset();
 
     rotationController.enableContinuousInput(0, 2 * Math.PI);
+    rotationController.setTolerance(0.1);
 
     SmartDashboard.putData("drive quasistatic forward", sysIdQuasistatic(Direction.kForward));
     SmartDashboard.putData("drive dynamic forward", sysIdDynamic(Direction.kForward));
@@ -174,6 +175,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         < rotationController.getPositionTolerance();
   }
 
+  @Log.NT
   public boolean atHeadingGoal() {
     return rotationController.atGoal();
   }

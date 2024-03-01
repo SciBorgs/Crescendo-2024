@@ -77,8 +77,7 @@
         "drive": {
           "ChassisSpeeds##v_/Robot/drive/getFieldRelativeChassisSpeeds": {
             "open": true
-          },
-          "open": true
+          }
         },
         "open": true,
         "pivot": {

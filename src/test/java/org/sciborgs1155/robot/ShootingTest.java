@@ -91,7 +91,7 @@ public class ShootingTest {
   @Disabled
   @Test
   public void testPivotThenShoot() {
-    run(shooting.pivotThenShoot(Radians.of(Math.PI / 4), RadiansPerSecond.of(4)));
+    run(shooting.shootWithPivot(() -> Math.PI / 4, () -> 4));
     fastForward();
 
     assertEquals(
@@ -110,7 +110,7 @@ public class ShootingTest {
           fastForward(10);
           assert !c.isFinished();
         };
-    testEndCondition.accept(shooting.pivotThenShoot(Radians.of(4), RadiansPerSecond.of(100)));
+    testEndCondition.accept(shooting.shootWithPivot(() -> 4, () -> 100));
     // testEndCondition.accept(shooting.stationaryTurretShooting()); // worked before it was proxied
     testEndCondition.accept(shooting.shoot(RadiansPerSecond.of(150)));
   }

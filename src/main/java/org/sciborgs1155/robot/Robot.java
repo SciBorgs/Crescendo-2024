@@ -15,7 +15,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -119,7 +118,7 @@ public class Robot extends CommandRobot implements Logged {
       addPeriodic(() -> vision.simulationPeriodic(drive.pose()), PERIOD.in(Seconds));
       NoteVisualizer.setSuppliers(
           drive::pose,
-          this::shooterPose,
+          shooting::shooterPose,
           drive::getFieldRelativeChassisSpeeds,
           shooter::tangentialVelocity);
       NoteVisualizer.startPublishing();
@@ -141,7 +140,7 @@ public class Robot extends CommandRobot implements Logged {
     NamedCommands.registerCommand("lock", drive.lock());
     NamedCommands.registerCommand(
         "shoot",
-        shooting.pivotThenShoot(PRESET_PODIUM_ANGLE, RadiansPerSecond.of(80)).withTimeout(1.2));
+        shooting.shootWithPivot(() -> PRESET_PODIUM_ANGLE.in(Radians), () -> 80).withTimeout(1.2));
     NamedCommands.registerCommand(
         "reset", pivot.runPivot(() -> STARTING_ANGLE.in(Radians)).withTimeout(1));
     NamedCommands.registerCommand(
@@ -199,8 +198,7 @@ public class Robot extends CommandRobot implements Logged {
         .toggleOnTrue(
             pivot.manualPivot(
                 InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
-    operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE, RadiansPerSecond.of(85)));
-    operator.x().whileTrue(shooting.stationaryTurretShooting());
+    operator.b().whileTrue(shooting.shootWithPivot(() -> PRESET_AMP_ANGLE.in(Radians), () -> 0.1));
     operator
         .y()
         .whileTrue(
@@ -227,9 +225,5 @@ public class Robot extends CommandRobot implements Logged {
     return Commands.run(() -> operator.getHID().setRumble(rumbleType, strength))
         .alongWith(Commands.run(() -> driver.getHID().setRumble(rumbleType, strength)))
         .withTimeout(0.1);
-  }
-
-  public Pose3d shooterPose() {
-    return new Pose3d(drive.pose()).transformBy(pivot.transform());
   }
 }

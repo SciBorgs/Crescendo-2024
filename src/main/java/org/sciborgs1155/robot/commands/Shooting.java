@@ -8,20 +8,18 @@ import static java.lang.Math.pow;
 import static org.sciborgs1155.robot.Constants.Field.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
-import static org.sciborgs1155.robot.pivot.PivotConstants.OFFSET;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.MAX_FLYWHEEL_SPEED;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.MAX_NOTE_SPEED;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.RADIUS;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Angle;
@@ -29,7 +27,6 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import org.sciborgs1155.robot.drive.Drive;
@@ -38,6 +35,12 @@ import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
 
 public class Shooting {
+
+  /**
+   * The conversion between shooter tangential velocity and note launch velocity. Perhaps. This may
+   * also account for other errors with our model.
+   */
+  public static final double SIGGYS_CONSTANT = 1;
 
   private final Shooter shooter;
   private final Pivot pivot;
@@ -78,69 +81,84 @@ public class Shooting {
    * Runs the pivot to an angle & runs the shooter before feeding it the note.
    *
    * @param targetAngle The desired angle of the pivot.
-   * @param targetVelocity The desired velocity of the shooter.
+   * @param targetAngularVelocity The desired angular velocity of the shooter.
    * @return The command to run the pivot to its desired angle and then shoot.
    */
-  public Command pivotThenShoot(
-      Measure<Angle> targetAngle, Measure<Velocity<Angle>> targetVelocity) {
-    return shoot(() -> targetVelocity.in(RadiansPerSecond), pivot::atGoal)
-        .deadlineWith(pivot.runPivot(targetAngle));
+  public Command shootWithPivot(DoubleSupplier targetAngle, DoubleSupplier targetAngularVelocity) {
+    return shoot(targetAngularVelocity, pivot::atGoal).deadlineWith(pivot.runPivot(targetAngle));
   }
 
-  /** Shoots while stationary at correct flywheel speed, pivot angle, and heading. */
-  public Command stationaryTurretShooting() {
-    return new ProxyCommand(
-        () -> {
-          double targetPitch = stationaryPitch(drive.pose(), MAX_NOTE_SPEED.in(MetersPerSecond));
-          return shoot(
-                  () -> MAX_FLYWHEEL_SPEED.in(RadiansPerSecond),
-                  () ->
-                      pivot.atPosition(targetPitch)
-                          && drive.atHeadingGoal()
-                          && drive.getFieldRelativeChassisSpeeds().omegaRadiansPerSecond < 0.1)
-              .deadlineWith(
-                  drive.drive(
-                      () -> 0,
-                      () -> 0,
-                      () ->
-                          Rotation2d.fromRadians(Math.PI)
-                              .plus(headingToSpeaker(drive.pose().getTranslation()))),
-                  pivot.runPivot(() -> targetPitch))
-              .andThen(Commands.print("DONE!!"));
-        });
+  /** Shoots while stationary at correct flywheel speed and pivot angle, doesn't auto-turret. */
+  public Command shootWithPivot() {
+    return shootWithPivot(
+        () -> calculateStationaryPitch(shooterPose(), MAX_NOTE_SPEED.in(MetersPerSecond)),
+        () -> MAX_FLYWHEEL_SPEED.in(RadiansPerSecond));
   }
 
   /**
-   * Shoots while moving.
+   * Shoots while driving at a manually inputted translational velocity.
    *
-   * @param vx Supplier for x velocity of chassis
-   * @param vy Supplier for y velocity of chassis
+   * @param vx The field relative x velocity to drive in.
+   * @param vy The field relative y velocity to drive in.
+   * @return A command to shote while moving.
    */
   public Command shootWhileDriving(DoubleSupplier vx, DoubleSupplier vy) {
     return shoot(
-            () -> flywheelSpeed(noteRobotRelativeVelocityVector()),
+            () -> rotationalVelocityFromNoteVelocity(calculateNoteVelocity()),
             () -> pivot.atGoal() && drive.atHeadingGoal())
         .deadlineWith(
-            drive.drive(vx, vy, () -> heading(noteRobotRelativeVelocityVector())),
-            pivot.runPivot(() -> pitch(noteRobotRelativeVelocityVector())));
+            drive.drive(vx, vy, () -> yawFromNoteVelocity(calculateNoteVelocity())),
+            pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
   }
 
   /**
-   * Converts heading, pivotAngle, and flywheel speed to the initial velocity of the note.
+   * Calculates a vector for the desired note velocity relative to the robot for it to travel into
+   * the speaker, accounting for the robot's current motion.
    *
-   * @param heading
-   * @param pitch
-   * @param flywheelSpeed in radians per second
-   * @return Initial velocity vector of the note
+   * @return A 3d vector representing the desired note initial velocity.
    */
-  public static Vector<N3> toVelocityVector(
-      Rotation2d heading, double pitch, double flywheelSpeed) {
-    double noteSpeed = flywheelToNoteSpeed(flywheelSpeed);
-    double xyNorm = noteSpeed * Math.cos(pitch);
-    double x = xyNorm * heading.getCos();
-    double y = xyNorm * heading.getSin();
-    double z = noteSpeed * Math.sin(pitch);
-    return VecBuilder.fill(x, y, z);
+  public Vector<N3> calculateNoteVelocity() {
+    Pose3d pose = shooterPose();
+    ChassisSpeeds speeds = drive.getFieldRelativeChassisSpeeds();
+    Vector<N3> robotVelocity =
+        VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
+    Rotation3d noteOrientation =
+        new Rotation3d(
+            0,
+            -calculateStationaryPitch(pose, MAX_NOTE_SPEED.in(MetersPerSecond)),
+            yawToSpeaker(pose.getTranslation().toTranslation2d()).getRadians());
+    Vector<N3> noteVelocity =
+        new Translation3d(1, 0, 0)
+            .rotateBy(noteOrientation)
+            .toVector()
+            .unit()
+            .times(MAX_NOTE_SPEED.in(MetersPerSecond));
+
+    return noteVelocity.minus(robotVelocity);
+  }
+
+  /**
+   * Returns the pose of the shooter.
+   *
+   * <p>TODO actually return the pose of the shooter
+   *
+   * @return The pose of the shooter in 3d space.
+   */
+  public Pose3d shooterPose() {
+    return new Pose3d(drive.pose()).transformBy(pivot.transform());
+  }
+
+  /**
+   * Calculates if the robot can make its current shot.
+   *
+   * @return Whether the robot can shoot from its current position at its current velocity.
+   */
+  public boolean canShoot() {
+    Vector<N3> shot = calculateNoteVelocity();
+    double pitch = pitchFromNoteVelocity(shot);
+    return MIN_ANGLE.in(Radians) < pitch
+        && pitch < MAX_ANGLE.in(Radians)
+        && rotationalVelocityFromNoteVelocity(shot) < DCMotor.getNeoVortex(1).freeSpeedRadPerSec;
   }
 
   /**
@@ -150,7 +168,7 @@ public class Shooting {
    * @param velocity Note initial velocity vector
    * @return Pitch/pivot angle
    */
-  public static double pitch(Vector<N3> velocity) {
+  public static double pitchFromNoteVelocity(Vector<N3> velocity) {
     return Math.atan(velocity.get(2) / VecBuilder.fill(velocity.get(0), velocity.get(1)).norm());
   }
 
@@ -161,7 +179,7 @@ public class Shooting {
    * @param velocity Note initial velocity vector
    * @return Heading
    */
-  public static Rotation2d heading(Vector<N3> velocity) {
+  public static Rotation2d yawFromNoteVelocity(Vector<N3> velocity) {
     return Rotation2d.fromRadians(Math.PI).plus(new Rotation2d(velocity.get(0), velocity.get(1)));
   }
 
@@ -170,13 +188,13 @@ public class Shooting {
    * robot relative initial velocity vector, the return value will be the target flywheel speed
    * (ish).
    *
-   * @param velocity Note initial velocity vector
+   * @param velocity Note initial velocity vector relative to the robot
    * @return Flywheel speed (rads / s)
    */
-  public static double flywheelSpeed(Vector<N3> velocity) {
+  public static double rotationalVelocityFromNoteVelocity(Vector<N3> velocity) {
     // TODO account for lost energy! (with regression probably)
-    return velocity.norm() / RADIUS.in(Meters);
-  } // TODO maybe replace this with inverse of
+    return velocity.norm() / RADIUS.in(Meters) * SIGGYS_CONSTANT;
+  }
 
   /**
    * Converts between flywheel speed and note speed
@@ -186,7 +204,7 @@ public class Shooting {
    */
   public static double flywheelToNoteSpeed(double flywheelSpeed) {
     // TODO account for lost energy! (with regression probably)
-    return flywheelSpeed * RADIUS.in(Meters);
+    return flywheelSpeed * RADIUS.in(Meters) / SIGGYS_CONSTANT;
   }
 
   /**
@@ -194,79 +212,28 @@ public class Shooting {
    *
    * @param robotTranslation Translation2d of the robot
    */
-  public static Rotation2d headingToSpeaker(Translation2d robotTranslation) {
+  public static Rotation2d yawToSpeaker(Translation2d robotTranslation) {
     return speaker().toTranslation2d().minus(robotTranslation).getAngle();
-    // return robotTranslation.minus(speaker().toTranslation2d()).getAngle();
-  }
-
-  /** Shoots while stationary at correct flywheel speed and pivot angle, doesn't auto-turret. */
-  public Command stationaryShooting() {
-    return new ProxyCommand(
-        () ->
-            pivotThenShoot(
-                Radians.of(stationaryPitch(drive.pose(), MAX_NOTE_SPEED.in(MetersPerSecond))),
-                MAX_FLYWHEEL_SPEED));
   }
 
   /**
-   * Calculates the required velocity vector of the note, relative to the robot. Accounts for the
-   * velocity of the robot. This can be used to find flywheel speed, p ivot angle and heading.
+   * Calculates a stationary pitch from a pose so that the note goes into the speaker.
    *
-   * @return Target initial velocity of note, relative to robot
+   * @param shooterPose The pose of the shooter.
+   * @param velocity The magnitude of velocity to launch the note at.
+   * @return The pitch to shoot the note at.
    */
-  public Vector<N3> noteRobotRelativeVelocityVector() {
-    var speeds = drive.getFieldRelativeChassisSpeeds();
-    var robotVelocity = VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
-    return noteRobotRelativeVelocityVector(drive.pose(), robotVelocity);
-  }
-
-  /**
-   * Calculates the required velocity vector of the note, relative to the robot. Accounts for the
-   * velocity of the robot. This can be used to find flywheel speed, pivot angle and heading.
-   *
-   * @return Target initial velocity of note, relative to robot
-   */
-  public static Vector<N3> noteRobotRelativeVelocityVector(
-      Pose2d robotPose, Vector<N3> robotVelocity) {
-    var heading = headingToSpeaker(robotPose.getTranslation());
-    Vector<N3> stationaryVel =
-        toVelocityVector(
-            heading,
-            stationaryPitch(robotPose, MAX_NOTE_SPEED.in(MetersPerSecond)),
-            MAX_FLYWHEEL_SPEED.in(RadiansPerSecond));
-    return stationaryVel.minus(robotVelocity);
-  }
-
-  /** v is in meters per second!! */
-  public static double stationaryPitch(Pose2d robotPose, double v) {
+  public static double calculateStationaryPitch(Pose3d shooterPose, double velocity) {
     double G = 9.81;
     Translation3d speaker = speaker().minus(new Translation3d(0.451, 0, 0.2));
-    Translation3d shooterPos = shooterTranslation(robotPose);
+    Translation3d shooterPos = shooterPose.getTranslation();
     double dist = speaker.minus(shooterPos).toTranslation2d().getNorm();
     // double dist = speaker().toTranslation2d().getDistance(shooterPos.toTranslation2d());
     double h = speaker.getZ() - shooterPos.getZ();
     double denom = (G * pow(dist, 2));
     double rad =
-        pow(dist, 2) * pow(v, 4) - G * pow(dist, 2) * (G * pow(dist, 2) + 2 * h * pow(v, 2));
-    // TODO someone check me on this copying...
-    return Math.atan((1 / (denom)) * (dist * pow(v, 2) - Math.sqrt(rad)));
-  }
-
-  /** Calculates position of shooter from Pose2d of robot. */
-  public static Translation3d shooterTranslation(Pose2d robotPose) {
-    return new Pose3d(robotPose)
-        .transformBy(new Transform3d(OFFSET, new Rotation3d()))
-        .getTranslation();
-  }
-
-  /**
-   * @return whether the robot can shoot from its current position at its current veloicty
-   */
-  public boolean canShoot() {
-    Vector<N3> shot = noteRobotRelativeVelocityVector();
-    double pitch = pitch(shot);
-    return MIN_ANGLE.in(Radians) < pitch
-        && pitch < MAX_ANGLE.in(Radians)
-        && flywheelSpeed(shot) < DCMotor.getNeoVortex(1).freeSpeedRadPerSec;
+        pow(dist, 2) * pow(velocity, 4)
+            - G * pow(dist, 2) * (G * pow(dist, 2) + 2 * h * pow(velocity, 2));
+    return Math.atan((1 / (denom)) * (dist * pow(velocity, 2) - Math.sqrt(rad)));
   }
 }
