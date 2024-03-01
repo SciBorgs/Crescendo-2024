@@ -46,10 +46,35 @@
       }
     }
   },
+  "NetworkTables": {
+    "Retained Values": {
+      "open": false
+    },
+    "transitory": {
+      "Robot": {
+        "drive": {
+          "ChassisSpeeds##v_/Robot/drive/getFieldRelativeChassisSpeeds": {
+            "open": true
+          },
+          "open": true
+        },
+        "open": true,
+        "pivot": {
+          "hardware": {
+            "open": true
+          },
+          "open": true,
+          "pid": {
+            "open": true
+          }
+        },
+        "shooter": {
+          "open": true
+        }
+      }
+    }
+  },
   "NetworkTables Info": {
     "visible": true
-  },
-  "NetworkTables View": {
-    "visible": false
   }
 }

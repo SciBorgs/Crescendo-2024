@@ -5,11 +5,17 @@ import static org.sciborgs1155.lib.TestingUtil.setupHAL;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sciborgs1155.lib.FaultLogger.FaultType;
 
 public class FaultLoggerTest {
+
+  @BeforeAll
+  public static void reset() {
+    FaultLogger.unregisterAll();
+  }
 
   @BeforeEach
   public void setup() {
@@ -27,7 +33,7 @@ public class FaultLoggerTest {
     FaultLogger.update();
     FaultLogger.report("Test", "Example", FaultType.INFO);
     FaultLogger.update();
-    assertEquals(FaultLogger.activeFaults().size(), 1);
+    assertEquals(1, FaultLogger.activeFaults().size());
     assertEquals(FaultLogger.totalFaults().size(), 1);
     assertEquals(activeInfos.get().length, 1);
     assertEquals(totalErrors.get().length, 0);

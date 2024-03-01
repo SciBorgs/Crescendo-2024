@@ -116,9 +116,9 @@ public class Robot extends CommandRobot implements Logged {
       URCL.start();
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
-      addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), PERIOD.in(Seconds));
+      addPeriodic(() -> vision.simulationPeriodic(drive.pose()), PERIOD.in(Seconds));
       NoteVisualizer.setSuppliers(
-          drive::getPose,
+          drive::pose,
           this::shooterPose,
           drive::getFieldRelativeChassisSpeeds,
           shooter::tangentialVelocity);
@@ -154,7 +154,7 @@ public class Robot extends CommandRobot implements Logged {
 
     // configure auto
     AutoBuilder.configureHolonomic(
-        drive::getPose,
+        drive::pose,
         drive::resetOdometry,
         drive::getRobotRelativeChassisSpeeds,
         drive::driveRobotRelative,
@@ -200,16 +200,15 @@ public class Robot extends CommandRobot implements Logged {
             pivot.manualPivot(
                 InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
     operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE, RadiansPerSecond.of(70)));
-    operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.5), RadiansPerSecond.of(300)));
-    // operator.y().whileTrue(shooting.pivotThenShoot(Radians.of(0.35), RadiansPerSecond.of(330)));
+    operator.x().whileTrue(shooting.stationaryTurretShooting());
     operator
         .y()
         .whileTrue(
             shooting.shootWhileDriving(
                 createJoystickStream(
-                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond) / 3),
+                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
                 createJoystickStream(
-                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond) / 3)));
+                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
 
     operator
         .leftBumper()
@@ -229,6 +228,6 @@ public class Robot extends CommandRobot implements Logged {
   }
 
   public Pose3d shooterPose() {
-    return new Pose3d(drive.getPose()).transformBy(pivot.transform());
+    return new Pose3d(drive.pose()).transformBy(pivot.transform());
   }
 }

@@ -104,6 +104,11 @@ public final class FaultLogger {
     totalFaults.clear();
   }
 
+  /** Clears fault suppliers. */
+  public static void unregisterAll() {
+    faultSuppliers.clear();
+  }
+
   /**
    * Returns the set of all current faults.
    *
