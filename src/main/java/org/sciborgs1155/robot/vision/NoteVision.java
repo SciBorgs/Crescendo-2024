@@ -9,14 +9,30 @@ import org.sciborgs1155.lib.FaultLogger;
 public class NoteVision implements Logged {
   private final PhotonCamera camera;
 
+  private Translation2d last = new Translation2d();
+
   public NoteVision() {
     camera = new PhotonCamera(VisionConstants.NOTE_CAMERA_NAME);
 
     FaultLogger.register(camera);
   }
 
-  public Optional<Translation2d> getNearestNote() {
-    return Optional.ofNullable(camera.getLatestResult().getBestTarget())
-        .map(t -> t.getBestCameraToTarget().getTranslation().toTranslation2d());
+  public Optional<Translation2d> nearestNote() {
+    Optional<Translation2d> note =
+        Optional.ofNullable(camera.getLatestResult().getBestTarget())
+            .map(t -> t.getBestCameraToTarget().getTranslation().toTranslation2d());
+    if (note.isPresent()) {
+      last = note.get();
+    }
+    return note;
+  }
+
+  public Translation2d lastNote() {
+    return last;
+  }
+
+  public Translation2d note() {
+    var target = nearestNote();
+    return target.isPresent() ? target.get() : last;
   }
 }

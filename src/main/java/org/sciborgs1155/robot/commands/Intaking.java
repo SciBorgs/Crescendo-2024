@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import java.util.function.DoubleSupplier;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.vision.NoteVision;
 
@@ -13,7 +14,7 @@ public class Intaking {
     this.noteVision = noteVision;
   }
 
-  public Command alignToNearestNote() {
-    return drive.driveFacingTarget(() -> 0, () -> 0, () -> noteVision.getNearestNote().get());
+  public Command alignToNearestNote(DoubleSupplier vx, DoubleSupplier vy) {
+    return drive.driveFacingTarget(vx, vy, noteVision::note);
   }
 }
