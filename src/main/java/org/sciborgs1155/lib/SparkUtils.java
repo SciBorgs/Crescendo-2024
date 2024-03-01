@@ -18,7 +18,7 @@ public class SparkUtils {
 
   public static final int THROUGHBORE_CPR = 8192;
 
-  public static final int MAX_ATTEMPTS = 5;
+  public static final int MAX_ATTEMPTS = 3;
 
   /**
    * Formats the name of a spark with its CAN ID.
