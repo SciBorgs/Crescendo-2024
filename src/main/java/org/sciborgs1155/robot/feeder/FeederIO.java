@@ -3,7 +3,7 @@ package org.sciborgs1155.robot.feeder;
 import monologue.Logged;
 
 public interface FeederIO extends AutoCloseable, Logged {
-  void set(double power);
+  void setPower(double power);
 
   double current();
 

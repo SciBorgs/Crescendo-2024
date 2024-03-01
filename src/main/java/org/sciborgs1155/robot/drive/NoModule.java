@@ -5,10 +5,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public class NoModule implements ModuleIO {
 
   @Override
-  public void driveVoltage(double voltage) {}
+  public void setDriveVoltage(double voltage) {}
 
   @Override
-  public void turnVoltage(double voltage) {}
+  public void setTurnVoltage(double voltage) {}
 
   @Override
   public double drivePosition() {

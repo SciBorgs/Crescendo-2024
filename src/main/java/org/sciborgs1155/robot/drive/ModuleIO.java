@@ -10,14 +10,14 @@ public interface ModuleIO extends AutoCloseable, Logged {
    *
    * @param voltage The voltage to inputted into the drive motor.
    */
-  void driveVoltage(double voltage);
+  void setDriveVoltage(double voltage);
 
   /**
    * Sets the turn voltage of the module.
    *
    * @param voltage The voltage to inputted into the turn motor.
    */
-  void turnVoltage(double voltage);
+  void setTurnVoltage(double voltage);
 
   /**
    * Returns the distance the wheel traveled.

@@ -82,13 +82,13 @@ public class SparkModule implements ModuleIO {
   }
 
   @Override
-  public void driveVoltage(double voltage) {
+  public void setDriveVoltage(double voltage) {
     driveMotor.setVoltage(voltage);
     FaultLogger.check(driveMotor);
   }
 
   @Override
-  public void turnVoltage(double voltage) {
+  public void setTurnVoltage(double voltage) {
     turnMotor.setVoltage(voltage);
     FaultLogger.check(turnMotor);
   }

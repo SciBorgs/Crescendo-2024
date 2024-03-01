@@ -29,7 +29,7 @@ public class RealIntake implements IntakeIO {
   }
 
   @Override
-  public void power(double percentage) {
+  public void setPower(double percentage) {
     spark.set(percentage);
     FaultLogger.check(spark);
   }

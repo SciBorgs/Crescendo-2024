@@ -26,7 +26,7 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
 
   public Intake(IntakeIO hardware) {
     this.hardware = hardware;
-    setDefaultCommand(runOnce(() -> hardware.power(0)).andThen(Commands.idle()).withName("idle"));
+    setDefaultCommand(runOnce(() -> hardware.setPower(0)).andThen(Commands.idle()).withName("idle"));
   }
 
   /**
@@ -48,7 +48,7 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
    * @return A command to run the intake.
    */
   public Command forward() {
-    return run(() -> hardware.power(IntakeConstants.INTAKE_SPEED)).withName("forward");
+    return run(() -> hardware.setPower(IntakeConstants.INTAKE_SPEED)).withName("forward");
   }
 
   /**
@@ -57,7 +57,7 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
    * @return A command to run the intake.
    */
   public Command backward() {
-    return run(() -> hardware.power(-IntakeConstants.INTAKE_SPEED)).withName("backward");
+    return run(() -> hardware.setPower(-IntakeConstants.INTAKE_SPEED)).withName("backward");
   }
 
   /**

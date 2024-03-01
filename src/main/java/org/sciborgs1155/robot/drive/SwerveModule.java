@@ -87,7 +87,7 @@ public class SwerveModule implements Logged, AutoCloseable {
   void updateDriveSpeed(double speed) {
     double driveFF = driveFeedforward.calculate(speed);
     double driveVoltage = driveFF + driveFeedback.calculate(module.driveVelocity(), speed);
-    module.driveVoltage(driveVoltage);
+    module.setDriveVoltage(driveVoltage);
   }
 
   /**
@@ -100,7 +100,7 @@ public class SwerveModule implements Logged, AutoCloseable {
   void updateTurnRotation(Rotation2d rotation) {
     double turnVoltage =
         turnFeedback.calculate(module.rotation().getRadians(), rotation.getRadians());
-    module.turnVoltage(turnVoltage);
+    module.setTurnVoltage(turnVoltage);
   }
 
   @Log.NT
@@ -109,11 +109,11 @@ public class SwerveModule implements Logged, AutoCloseable {
   }
 
   public void setDriveVoltage(double voltage) {
-    module.driveVoltage(voltage);
+    module.setDriveVoltage(voltage);
   }
 
   public void setTurnVoltage(double voltage) {
-    module.turnVoltage(voltage);
+    module.setTurnVoltage(voltage);
   }
 
   public void resetEncoders() {

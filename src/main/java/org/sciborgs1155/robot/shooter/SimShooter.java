@@ -15,7 +15,7 @@ public class SimShooter implements ShooterIO {
           LinearSystemId.identifyVelocitySystem(kV, kA), DCMotor.getNeoVortex(2), GEARING);
 
   @Override
-  public void voltage(double voltage) {
+  public void setVoltage(double voltage) {
     sim.setInputVoltage(voltage);
     sim.update(Constants.PERIOD.in(Seconds));
   }

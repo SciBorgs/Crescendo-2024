@@ -59,12 +59,12 @@ public class TalonModule implements ModuleIO {
   }
 
   @Override
-  public void driveVoltage(double voltage) {
+  public void setDriveVoltage(double voltage) {
     driveMotor.setVoltage(voltage);
   }
 
   @Override
-  public void turnVoltage(double voltage) {
+  public void setTurnVoltage(double voltage) {
     turnMotor.setVoltage(voltage);
   }
 

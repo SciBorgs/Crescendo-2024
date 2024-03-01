@@ -9,6 +9,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import org.sciborgs1155.robot.Constants;
+import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Driving;
+import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Turning;
 
 public class SimModule implements ModuleIO {
 
@@ -24,13 +26,13 @@ public class SimModule implements ModuleIO {
           1 / Turning.MOTOR_GEARING);
 
   @Override
-  public void driveVoltage(double voltage) {
+  public void setDriveVoltage(double voltage) {
     drive.setInputVoltage(voltage);
     drive.update(Constants.PERIOD.in(Seconds));
   }
 
   @Override
-  public void turnVoltage(double voltage) {
+  public void setTurnVoltage(double voltage) {
     turn.setInputVoltage(voltage);
     turn.update(Constants.PERIOD.in(Seconds));
   }

@@ -3,7 +3,7 @@ package org.sciborgs1155.robot.shooter;
 import monologue.Logged;
 
 public interface ShooterIO extends AutoCloseable, Logged {
-  void voltage(double voltage);
+  void setVoltage(double voltage);
 
   double current();
 

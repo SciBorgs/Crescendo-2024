@@ -1,6 +1,5 @@
 package org.sciborgs1155.robot.vision;
 
-import static edu.wpi.first.units.Units.Meters;
 import static org.sciborgs1155.robot.Constants.*;
 import static org.sciborgs1155.robot.vision.VisionConstants.*;
 
@@ -90,16 +89,6 @@ public class Vision implements Logged {
     }
   }
 
-  private static boolean inConstrainedArea(Pose3d pose) {
-    return (pose.getX() > 0
-        && pose.getX() < Field.LENGTH.in(Meters)
-        && pose.getY() > 0
-        && pose.getY() < Field.LENGTH.in(Meters)
-        && Math.abs(pose.getZ()) < MAX_HEIGHT
-        && pose.getRotation().getX() < MAX_ANGLE
-        && pose.getRotation().getY() < MAX_ANGLE);
-  }
-
   /**
    * Returns a list of all currently visible pose estimates and their standard deviation vectors.
    *
@@ -113,7 +102,7 @@ public class Vision implements Logged {
       var estimate = estimators[i].update(result);
       log("estimates present " + i, estimate.isPresent());
       estimate
-          .filter(f -> inConstrainedArea(f.estimatedPose))
+          .filter(f -> Field.inField(f.estimatedPose) && Math.abs(f.estimatedPose.getZ()) < MAX_HEIGHT)
           .ifPresent(
               e ->
                   estimates.add(
