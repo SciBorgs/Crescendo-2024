@@ -8,8 +8,8 @@ import static java.lang.Math.pow;
 import static org.sciborgs1155.robot.Constants.Field.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.MAX_FLYWHEEL_SPEED;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.MAX_NOTE_SPEED;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.MAX_LAUNCH_SPEED;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.MAX_SPEED;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.RADIUS;
 
 import edu.wpi.first.math.VecBuilder;
@@ -91,8 +91,8 @@ public class Shooting {
   /** Shoots while stationary at correct flywheel speed and pivot angle, doesn't auto-turret. */
   public Command shootWithPivot() {
     return shootWithPivot(
-        () -> calculateStationaryPitch(shooterPose(), MAX_NOTE_SPEED.in(MetersPerSecond)),
-        () -> MAX_FLYWHEEL_SPEED.in(RadiansPerSecond));
+        () -> calculateStationaryPitch(shooterPose(), MAX_LAUNCH_SPEED.in(MetersPerSecond)),
+        () -> MAX_SPEED.in(RadiansPerSecond));
   }
 
   /**
@@ -125,14 +125,14 @@ public class Shooting {
     Rotation3d noteOrientation =
         new Rotation3d(
             0,
-            -calculateStationaryPitch(pose, MAX_NOTE_SPEED.in(MetersPerSecond)),
+            -calculateStationaryPitch(pose, MAX_LAUNCH_SPEED.in(MetersPerSecond)),
             yawToSpeaker(pose.getTranslation().toTranslation2d()).getRadians());
     Vector<N3> noteVelocity =
         new Translation3d(1, 0, 0)
             .rotateBy(noteOrientation)
             .toVector()
             .unit()
-            .times(MAX_NOTE_SPEED.in(MetersPerSecond));
+            .times(MAX_LAUNCH_SPEED.in(MetersPerSecond));
 
     return noteVelocity.minus(robotVelocity);
   }

@@ -7,7 +7,7 @@ include/
 venv
 
 # Log files
-*.wpilog
+# *.wpilog
 
 ### C++ ###
 # Prerequisites
