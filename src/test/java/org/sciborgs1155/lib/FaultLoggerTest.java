@@ -34,24 +34,24 @@ public class FaultLoggerTest {
     FaultLogger.report("Test", "Example", FaultType.INFO);
     FaultLogger.update();
     assertEquals(1, FaultLogger.activeFaults().size());
-    assertEquals(FaultLogger.totalFaults().size(), 1);
-    assertEquals(activeInfos.get().length, 1);
-    assertEquals(totalErrors.get().length, 0);
+    assertEquals(1, FaultLogger.totalFaults().size());
+    assertEquals(1, activeInfos.get().length);
+    assertEquals(0, totalErrors.get().length);
 
     // duplicate
     FaultLogger.report("Test", "Example", FaultType.INFO);
     FaultLogger.update();
-    assertEquals(FaultLogger.activeFaults().size(), 1);
-    assertEquals(FaultLogger.totalFaults().size(), 1);
-    assertEquals(activeInfos.get().length, 1);
-    assertEquals(totalErrors.get().length, 0);
+    assertEquals(1, FaultLogger.activeFaults().size());
+    assertEquals(1, FaultLogger.totalFaults().size());
+    assertEquals(1, activeInfos.get().length);
+    assertEquals(0, totalErrors.get().length);
 
     FaultLogger.report("Test2", "Example2", FaultType.ERROR);
     FaultLogger.update();
-    assertEquals(FaultLogger.activeFaults().size(), 1);
-    assertEquals(FaultLogger.totalFaults().size(), 2);
-    assertEquals(activeInfos.get().length, 0);
-    assertEquals(totalErrors.get().length, 1);
+    assertEquals(1, FaultLogger.activeFaults().size());
+    assertEquals(2, FaultLogger.totalFaults().size());
+    assertEquals(0, activeInfos.get().length);
+    assertEquals(1, totalErrors.get().length);
   }
 
   @Test
@@ -72,7 +72,7 @@ public class FaultLoggerTest {
       System.out.println(e);
     }
 
-    assertEquals(activeErrors.get().length, 1);
-    assertEquals(totalErrors.get().length, 1);
+    assertEquals(1, activeErrors.get().length);
+    assertEquals(1, totalErrors.get().length);
   }
 }
