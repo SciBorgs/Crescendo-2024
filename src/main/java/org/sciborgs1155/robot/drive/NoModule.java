@@ -11,17 +11,17 @@ public class NoModule implements ModuleIO {
   public void setTurnVoltage(double voltage) {}
 
   @Override
-  public double getDrivePosition() {
+  public double drivePosition() {
     return 0;
   }
 
   @Override
-  public double getDriveVelocity() {
+  public double driveVelocity() {
     return 0;
   }
 
   @Override
-  public Rotation2d getRotation() {
+  public Rotation2d rotation() {
     return new Rotation2d();
   }
 

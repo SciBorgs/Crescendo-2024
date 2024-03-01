@@ -174,11 +174,7 @@ public class NoteVisualizer implements Logged {
 
     pathPosition = new ArrayList<>();
 
-    while (pose.getZ() > 0
-        && pose.getX() > 0
-        && pose.getY() > 0
-        && pose.getX() < Field.LENGTH.in(Meters)
-        && pose.getY() < Field.WIDTH.in(Meters)) {
+    while (inField(pose) && pose.getZ() > 0) {
       pathPosition.add(pose);
 
       pose = new Pose3d(new Translation3d(position), pose.getRotation());

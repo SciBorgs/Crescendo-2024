@@ -10,39 +10,39 @@ public interface ModuleIO extends AutoCloseable, Logged {
    *
    * @param voltage The voltage to inputted into the drive motor.
    */
-  public void setDriveVoltage(double voltage);
+  void setDriveVoltage(double voltage);
 
   /**
    * Sets the turn voltage of the module.
    *
    * @param voltage The voltage to inputted into the turn motor.
    */
-  public void setTurnVoltage(double voltage);
+  void setTurnVoltage(double voltage);
 
   /**
    * Returns the distance the wheel traveled.
    *
    * @return The drive encoder position value, in radians.
    */
-  public double getDrivePosition();
+  double drivePosition();
 
   /**
    * Returns the current velocity of the wheel.
    *
    * @return The drive encoder velocity value, in radians / seconds.
    */
-  public double getDriveVelocity();
+  double driveVelocity();
 
   /**
    * Returns the angular position of the module.
    *
    * @return The adjusted turn encoder position value, in radians.
    */
-  public Rotation2d getRotation();
+  Rotation2d rotation();
 
   /** Resets all encoders. */
-  public void resetEncoders();
+  void resetEncoders();
 
   @Override
-  public void close();
+  void close();
 }
