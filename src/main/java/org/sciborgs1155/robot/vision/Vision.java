@@ -90,6 +90,16 @@ public class Vision implements Logged {
     }
   }
 
+  private static boolean inConstrainedArea(Pose3d pose) {
+    return (pose.getX() > 0
+        && pose.getX() < Field.LENGTH.in(Meters)
+        && pose.getY() > 0
+        && pose.getY() < Field.LENGTH.in(Meters)
+        && Math.abs(pose.getZ()) < MAX_HEIGHT
+        && pose.getRotation().getX() < MAX_ANGLE
+        && pose.getRotation().getY() < MAX_ANGLE);
+  }
+
   /**
    * Returns a list of all currently visible pose estimates and their standard deviation vectors.
    *
@@ -103,15 +113,7 @@ public class Vision implements Logged {
       var estimate = estimators[i].update(result);
       log("estimates present " + i, estimate.isPresent());
       estimate
-          .filter(
-              f ->
-                  f.estimatedPose.getX() > 0
-                      && f.estimatedPose.getX() < Field.LENGTH.in(Meters)
-                      && f.estimatedPose.getY() > 0
-                      && f.estimatedPose.getY() < Field.WIDTH.in(Meters)
-                      && Math.abs(f.estimatedPose.getZ()) < MAX_HEIGHT
-                      && Math.abs(f.estimatedPose.getRotation().getY()) < MAX_ANGLE
-                      && Math.abs(f.estimatedPose.getRotation().getX()) < MAX_ANGLE)
+          .filter(f -> inConstrainedArea(f.estimatedPose))
           .ifPresent(
               e ->
                   estimates.add(
