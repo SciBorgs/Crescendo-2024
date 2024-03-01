@@ -2,7 +2,7 @@ package org.sciborgs1155.robot.feeder;
 
 public class NoFeeder implements FeederIO {
   @Override
-  public void set(double power) {}
+  public void setPower(double power) {}
 
   @Override
   public boolean beambreak() {

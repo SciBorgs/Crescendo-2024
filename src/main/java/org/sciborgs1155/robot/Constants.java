@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -95,6 +96,14 @@ public class Constants {
     /** Returns the translation of the speaker for the robot's alliance. */
     public static Translation3d speaker() {
       return alliance() == Alliance.Red ? RED_SPEAKER_POSE : BLUE_SPEAKER_POSE;
+    }
+
+    /** Returns whether the provided position is within the boundaries of the field. */
+    public static boolean inField(Pose3d pose) {
+      return (pose.getX() > 0
+          && pose.getX() < Field.LENGTH.in(Meters)
+          && pose.getY() > 0
+          && pose.getY() < Field.WIDTH.in(Meters));
     }
   }
 }

@@ -60,12 +60,12 @@ public class RealShooter implements ShooterIO {
 
   @Override
   @Log.NT
-  public double getCurrent() {
+  public double current() {
     return topMotor.getOutputCurrent();
   }
 
   @Override
-  public double getVelocity() {
+  public double velocity() {
     return encoder.getVelocity();
   }
 

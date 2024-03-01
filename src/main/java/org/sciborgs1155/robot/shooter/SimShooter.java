@@ -21,12 +21,12 @@ public class SimShooter implements ShooterIO {
   }
 
   @Override
-  public double getVelocity() {
+  public double velocity() {
     return sim.getAngularVelocityRadPerSec();
   }
 
   @Override
-  public double getCurrent() {
+  public double current() {
     // TODO Auto-generated method stub
     return 0;
   }

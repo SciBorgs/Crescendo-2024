@@ -9,6 +9,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import org.sciborgs1155.robot.Constants;
+import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Driving;
+import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Turning;
 
 public class SimModule implements ModuleIO {
 
@@ -36,17 +38,17 @@ public class SimModule implements ModuleIO {
   }
 
   @Override
-  public double getDrivePosition() {
+  public double drivePosition() {
     return drive.getAngularPositionRad();
   }
 
   @Override
-  public double getDriveVelocity() {
+  public double driveVelocity() {
     return drive.getAngularVelocityRadPerSec();
   }
 
   @Override
-  public Rotation2d getRotation() {
+  public Rotation2d rotation() {
     return Rotation2d.fromRadians(turn.getAngularPositionRad());
   }
 

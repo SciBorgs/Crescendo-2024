@@ -68,7 +68,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   public Command runShooter(DoubleSupplier velocity) {
     return run(() ->
             shooter.setVoltage(
-                pid.calculate(shooter.getVelocity(), velocity.getAsDouble())
+                pid.calculate(shooter.velocity(), velocity.getAsDouble())
                     + ff.calculate(velocity.getAsDouble())))
         .finallyDo(
             () -> {
@@ -91,7 +91,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
    */
   @Log.NT
   public double rotationalVelocity() {
-    return shooter.getVelocity();
+    return shooter.velocity();
   }
 
   @Log.NT
@@ -127,7 +127,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
-    filter.calculate(shooter.getCurrent());
+    filter.calculate(shooter.current());
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
   }
 

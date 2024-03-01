@@ -5,12 +5,12 @@ public class NoShooter implements ShooterIO {
   public void setVoltage(double voltage) {}
 
   @Override
-  public double getVelocity() {
+  public double velocity() {
     return 0;
   }
 
   @Override
-  public double getCurrent() {
+  public double current() {
     return 0;
   }
 

@@ -32,7 +32,7 @@ public class RealFeeder implements FeederIO {
   }
 
   @Override
-  public void set(double power) {
+  public void setPower(double power) {
     motor.set(power);
     FaultLogger.check(motor);
   }

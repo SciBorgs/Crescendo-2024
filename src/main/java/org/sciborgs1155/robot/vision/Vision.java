@@ -1,6 +1,5 @@
 package org.sciborgs1155.robot.vision;
 
-import static edu.wpi.first.units.Units.Meters;
 import static org.sciborgs1155.robot.Constants.*;
 import static org.sciborgs1155.robot.vision.VisionConstants.*;
 
@@ -104,14 +103,7 @@ public class Vision implements Logged {
       log("estimates present " + i, estimate.isPresent());
       estimate
           .filter(
-              f ->
-                  f.estimatedPose.getX() > 0
-                      && f.estimatedPose.getX() < Field.LENGTH.in(Meters)
-                      && f.estimatedPose.getY() > 0
-                      && f.estimatedPose.getY() < Field.WIDTH.in(Meters)
-                      && Math.abs(f.estimatedPose.getZ()) < MAX_HEIGHT
-                      && Math.abs(f.estimatedPose.getRotation().getY()) < MAX_ANGLE
-                      && Math.abs(f.estimatedPose.getRotation().getX()) < MAX_ANGLE)
+              f -> Field.inField(f.estimatedPose) && Math.abs(f.estimatedPose.getZ()) < MAX_HEIGHT)
           .ifPresent(
               e ->
                   estimates.add(
