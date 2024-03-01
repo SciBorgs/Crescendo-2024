@@ -21,11 +21,11 @@ public class ShooterConstants {
 
   public static final Measure<Velocity<Angle>> VELOCITY_TOLERANCE = RadiansPerSecond.of(5);
 
-  public static final double kP = 0.18;
-  public static final double kI = 0;
-  public static final double kD = 0.00002;
+  public static final double kP = 0.12;
+  public static final double kI = 0.0;
+  public static final double kD = 0.0;
 
   public static final double kS = 0;
-  public static final double kV = 0.026444;
-  public static final double kA = 0.007565;
+  public static final double kV = 0.016826;
+  public static final double kA = 0.0061081;
 }

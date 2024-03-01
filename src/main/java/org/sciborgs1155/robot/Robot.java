@@ -16,6 +16,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -199,7 +200,7 @@ public class Robot extends CommandRobot implements Logged {
             pivot.manualPivot(
                 InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
     operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE, 85));
-    operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.194), 400));
+    operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.194), 650));
     // operator.x().whileTrue(shooting.shootWhileDriving(null, null))
     operator.y().whileTrue(shooting.pivotThenShoot(Radians.of(0.35), 330));
 
@@ -209,17 +210,25 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(intake.intake().deadlineWith(feeder.forward()));
 
     operator.rightBumper().whileTrue(feeder.forward());
-    operator.povUp().whileTrue(shooter.runShooter(() -> 300));
-    operator.povDown().whileTrue(shooter.runShooter(() -> 200));
+    operator.povUp().whileTrue(shooter.runShooter(() -> 630));
+    operator.povDown().whileTrue(shooter.runShooter(() -> 500));
 
-    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.5));
-    // feeder.atShooter().onFalse(rumble(RumbleType.kRightRumble, 0.5));
+    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3));
+    feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3));
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {
-    return Commands.run(() -> operator.getHID().setRumble(rumbleType, strength))
-        .alongWith(Commands.run(() -> driver.getHID().setRumble(rumbleType, strength)))
-        .withTimeout(0.1);
+    return Commands.runOnce(
+            () -> {
+              driver.getHID().setRumble(rumbleType, strength);
+              operator.getHID().setRumble(rumbleType, strength);
+            })
+        .andThen(Commands.waitSeconds(0.3))
+        .finallyDo(
+            () -> {
+              driver.getHID().setRumble(rumbleType, 0);
+              operator.getHID().setRumble(rumbleType, 0);
+            });
   }
 
   public Pose3d shooterPose() {
