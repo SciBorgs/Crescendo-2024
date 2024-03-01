@@ -25,4 +25,6 @@ public class FeederConstants {
   public static final double kS = 0;
   public static final double kV = 0.2;
   public static final double kA = 0.7;
+
+  public static final Measure<Current> STALL_THRESHOLD = Amps.of(30); //TODO 30 is a MADE UP NUMBER someone fix dis
 }

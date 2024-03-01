@@ -6,4 +6,6 @@ public interface IntakeIO extends AutoCloseable, Logged {
   void setPower(double percentage);
 
   boolean beambreak();
+
+  double current();
 }

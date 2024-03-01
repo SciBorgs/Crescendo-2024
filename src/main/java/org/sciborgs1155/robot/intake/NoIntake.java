@@ -14,4 +14,9 @@ public class NoIntake implements IntakeIO {
 
   @Override
   public void close() {}
+
+  @Override
+  public double current() {
+    return 0;
+  }
 }

@@ -1,7 +1,9 @@
 package org.sciborgs1155.robot.intake;
 
+import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.robot.intake.IntakeConstants.DEBOUNCE_TIME;
+import static org.sciborgs1155.robot.intake.IntakeConstants.STALL_THRESHOLD;
 
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -10,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.Optional;
 import monologue.Logged;
+import monologue.Annotations.Log;
+
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 
@@ -61,6 +65,8 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
     return run(() -> hardware.setPower(-IntakeConstants.INTAKE_SPEED)).withName("backward");
   }
 
+
+
   /**
    * Whether the intake currently contains a note.
    *
@@ -70,6 +76,11 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
     return new Trigger(hardware::beambreak)
         .negate()
         .debounce(DEBOUNCE_TIME.in(Seconds), DebounceType.kFalling);
+  }
+
+  @Log.NT
+  public boolean stallingCurrent() {
+    return hardware.current() > STALL_THRESHOLD.in(Amp);
   }
 
   @Override

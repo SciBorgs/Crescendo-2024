@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot.feeder;
 
+import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
@@ -70,6 +71,11 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
     return new Trigger(feeder::beambreak)
         .negate()
         .debounce(DEBOUNCE_TIME.in(Seconds), DebounceType.kFalling);
+  }
+
+  @Log.NT
+  public boolean stallingCurrent() {
+    return feeder.current() > STALL_THRESHOLD.in(Amp);
   }
 
   @Override
