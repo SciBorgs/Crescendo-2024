@@ -15,8 +15,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -117,10 +115,10 @@ public class Robot extends CommandRobot implements Logged {
       URCL.start();
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
-      addPeriodic(() -> vision.simulationPeriodic(drive.getPose()), PERIOD.in(Seconds));
+      addPeriodic(() -> vision.simulationPeriodic(drive.pose()), PERIOD.in(Seconds));
       NoteVisualizer.setSuppliers(
-          drive::getPose,
-          this::shooterPose,
+          drive::pose,
+          shooting::shooterPose,
           drive::getFieldRelativeChassisSpeeds,
           shooter::tangentialVelocity);
       NoteVisualizer.startPublishing();
@@ -141,7 +139,8 @@ public class Robot extends CommandRobot implements Logged {
     // register named commands for auto
     NamedCommands.registerCommand("lock", drive.lock());
     NamedCommands.registerCommand(
-        "shoot", shooting.pivotThenShoot(PRESET_PODIUM_ANGLE, 80).withTimeout(1.2));
+        "shoot",
+        shooting.shootWithPivot(() -> PRESET_PODIUM_ANGLE.in(Radians), () -> 80).withTimeout(1.2));
     NamedCommands.registerCommand(
         "reset", pivot.runPivot(() -> STARTING_ANGLE.in(Radians)).withTimeout(1));
     NamedCommands.registerCommand(
@@ -154,7 +153,7 @@ public class Robot extends CommandRobot implements Logged {
 
     // configure auto
     AutoBuilder.configureHolonomic(
-        drive::getPose,
+        drive::pose,
         drive::resetOdometry,
         drive::getRobotRelativeChassisSpeeds,
         drive::driveRobotRelative,
@@ -199,10 +198,15 @@ public class Robot extends CommandRobot implements Logged {
         .toggleOnTrue(
             pivot.manualPivot(
                 InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
-    operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE, 85));
-    operator.x().whileTrue(shooting.pivotThenShoot(Radians.of(0.194), 650));
-    // operator.x().whileTrue(shooting.shootWhileDriving(null, null))
-    operator.y().whileTrue(shooting.pivotThenShoot(Radians.of(0.35), 330));
+    operator.b().whileTrue(shooting.shootWithPivot(() -> PRESET_AMP_ANGLE.in(Radians), () -> 0.1));
+    operator
+        .y()
+        .whileTrue(
+            shooting.shootWhileDriving(
+                createJoystickStream(
+                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+                createJoystickStream(
+                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
 
     operator
         .leftBumper()
@@ -229,9 +233,5 @@ public class Robot extends CommandRobot implements Logged {
               driver.getHID().setRumble(rumbleType, 0);
               operator.getHID().setRumble(rumbleType, 0);
             });
-  }
-
-  public Pose3d shooterPose() {
-    return new Pose3d(drive.getPose()).transformBy(pivot.transform());
   }
 }

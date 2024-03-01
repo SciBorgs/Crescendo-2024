@@ -7,6 +7,7 @@ import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
+import org.sciborgs1155.robot.commands.Shooting;
 
 public class ShooterConstants {
   public static final double GEARING = 1;

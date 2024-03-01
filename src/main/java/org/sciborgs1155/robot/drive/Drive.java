@@ -112,7 +112,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     odometry =
         new SwerveDrivePoseEstimator(
             kinematics,
-            getHeading(),
+            gyro.getRotation2d(),
             getModulePositions(),
             new Pose2d(new Translation2d(), Rotation2d.fromDegrees(180)));
 
@@ -124,6 +124,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     gyro.reset();
 
     rotationController.enableContinuousInput(0, 2 * Math.PI);
+    rotationController.setTolerance(0.1);
 
     SmartDashboard.putData("drive quasistatic forward", sysIdQuasistatic(Direction.kForward));
     SmartDashboard.putData("drive dynamic forward", sysIdDynamic(Direction.kForward));
@@ -137,13 +138,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @return The pose.
    */
   @Log.NT
-  public Pose2d getPose() {
+  public Pose2d pose() {
     return odometry.getEstimatedPosition();
-  }
-
-  @Log.NT
-  public Rotation2d getHeading() {
-    return gyro.getRotation2d();
   }
 
   /**
@@ -152,7 +148,11 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
-    odometry.resetPosition(getHeading(), getModulePositions(), pose);
+    odometry.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
+  }
+
+  public Rotation2d heading() {
+    return pose().getRotation();
   }
 
   /**
@@ -165,16 +165,17 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    */
   public Command driveFacingTarget(
       DoubleSupplier vx, DoubleSupplier vy, Supplier<Translation2d> translation) {
-    return drive(vx, vy, () -> translation.get().minus(getPose().getTranslation()).getAngle());
+    return drive(vx, vy, () -> translation.get().minus(pose().getTranslation()).getAngle());
   }
 
   public boolean isFacing(Translation2d target) {
     return Math.abs(
-            getHeading().getRadians()
-                - target.minus(getPose().getTranslation()).getAngle().getRadians())
+            gyro.getRotation2d().getRadians()
+                - target.minus(pose().getTranslation()).getAngle().getRadians())
         < rotationController.getPositionTolerance();
   }
 
+  @Log.NT
   public boolean atHeadingGoal() {
     return rotationController.atGoal();
   }
@@ -197,7 +198,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                     vx.getAsDouble(),
                     vy.getAsDouble(),
                     vOmega.getAsDouble(),
-                    getPose().getRotation().plus(allianceRotation()))));
+                    heading().plus(allianceRotation()))));
   }
 
   /**
@@ -214,9 +215,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return drive(
         vx,
         vy,
-        () ->
-            rotationController.calculate(
-                getPose().getRotation().getRadians(), heading.get().getRadians()));
+        () -> rotationController.calculate(heading().getRadians(), heading.get().getRadians()));
   }
 
   /**
@@ -225,7 +224,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param speeds The desired field relative chassis speeds.
    */
   public void driveFieldRelative(ChassisSpeeds speeds) {
-    driveRobotRelative(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getPose().getRotation()));
+    driveRobotRelative(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, heading()));
   }
 
   /**
@@ -293,8 +292,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   /** Returns the field relative chassis speeds. */
+  @Log.NT
   public ChassisSpeeds getFieldRelativeChassisSpeeds() {
-    return ChassisSpeeds.fromRobotRelativeSpeeds(getRobotRelativeChassisSpeeds(), getHeading());
+    return ChassisSpeeds.fromRobotRelativeSpeeds(getRobotRelativeChassisSpeeds(), heading());
   }
 
   /** Updates pose estimation based on provided {@link EstimatedRobotPose} */
@@ -315,14 +315,14 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   @Override
   public void periodic() {
-    odometry.update(Robot.isReal() ? getHeading() : simRotation, getModulePositions());
+    odometry.update(Robot.isReal() ? gyro.getRotation2d() : simRotation, getModulePositions());
 
-    field2d.setRobotPose(getPose());
+    field2d.setRobotPose(pose());
 
     for (int i = 0; i < modules2d.length; i++) {
       var module = modules.get(i);
       var transform = new Transform2d(MODULE_OFFSET[i], module.position().angle);
-      modules2d[i].setPose(getPose().transformBy(transform));
+      modules2d[i].setPose(pose().transformBy(transform));
     }
 
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));

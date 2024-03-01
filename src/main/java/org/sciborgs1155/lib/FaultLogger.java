@@ -104,7 +104,7 @@ public final class FaultLogger {
     totalFaults.clear();
   }
 
-  /** Clears fault suppliers */
+  /** Clears fault suppliers. */
   public static void unregisterAll() {
     faultSuppliers.clear();
   }
