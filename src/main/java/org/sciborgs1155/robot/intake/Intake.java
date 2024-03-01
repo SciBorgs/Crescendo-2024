@@ -11,9 +11,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.Optional;
-import monologue.Logged;
 import monologue.Annotations.Log;
-
+import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 
@@ -64,8 +63,6 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
   public Command backward() {
     return run(() -> hardware.setPower(-IntakeConstants.INTAKE_SPEED)).withName("backward");
   }
-
-
 
   /**
    * Whether the intake currently contains a note.
