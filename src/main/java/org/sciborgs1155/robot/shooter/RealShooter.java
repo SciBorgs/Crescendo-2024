@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import java.util.Set;
+import monologue.Annotations.Log;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
@@ -55,6 +56,12 @@ public class RealShooter implements ShooterIO {
   public void setVoltage(double voltage) {
     topMotor.setVoltage(voltage);
     FaultLogger.check(topMotor);
+  }
+
+  @Override
+  @Log.NT
+  public double getCurrent() {
+    return topMotor.getOutputCurrent();
   }
 
   @Override

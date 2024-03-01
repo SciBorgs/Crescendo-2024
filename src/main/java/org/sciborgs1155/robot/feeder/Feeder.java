@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot.feeder;
 
 import static edu.wpi.first.units.Units.Seconds;
-import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -30,27 +29,47 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
 
   public Feeder(FeederIO feeder) {
     this.feeder = feeder;
+    setDefaultCommand(runOnce(() -> feeder.set(0)).andThen(Commands.idle()).withName("idle"));
   }
 
   public Command runFeeder(double power) {
-    return runOnce(() -> feeder.set(power)).andThen(Commands.idle()).finallyDo(() -> feeder.set(0));
+    return runOnce(() -> feeder.set(power));
   }
 
   public Command forward() {
-    return runFeeder(POWER).alongWith(NoteVisualizer.shoot());
+    return runFeeder(POWER).withName("forward");
   }
 
   public Command backward() {
-    return runFeeder(-POWER / 2.0);
+    return runFeeder(-POWER).withName("backward");
+  }
+
+  /**
+   * Runs the feeder forward until a note exits it.
+   *
+   * @return A command to eject a note from the feeder.
+   */
+  public Command eject() {
+    return Commands.waitUntil(noteAtShooter())
+        .andThen(Commands.waitUntil(noteAtShooter().negate()))
+        .deadlineWith(forward())
+        .alongWith(NoteVisualizer.shoot())
+        .withName("eject");
   }
 
   public Command retract() {
-    return backward().withTimeout(0.15);
+    return backward().withTimeout(TIMEOUT.in(Seconds));
   }
 
-  public Trigger atShooter() {
-    return new Trigger(() -> !feeder.beambreak())
-        .debounce(PERIOD.times(3).in(Seconds), DebounceType.kBoth);
+  /**
+   * Whether there currently is a note at the top of the feeder, touching the shooter.
+   *
+   * @return A trigger based on the upper feeder beambreak.
+   */
+  public Trigger noteAtShooter() {
+    return new Trigger(feeder::beambreak)
+        .negate()
+        .debounce(DEBOUNCE_TIME.in(Seconds), DebounceType.kFalling);
   }
 
   @Override

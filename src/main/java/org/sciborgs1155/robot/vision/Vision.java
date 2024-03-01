@@ -1,5 +1,7 @@
 package org.sciborgs1155.robot.vision;
 
+import static edu.wpi.first.units.Units.Meters;
+import static org.sciborgs1155.robot.Constants.*;
 import static org.sciborgs1155.robot.vision.VisionConstants.*;
 
 import edu.wpi.first.math.Matrix;
@@ -40,7 +42,7 @@ public class Vision implements Logged {
 
   /** A factory to create new vision classes with our two configured cameras */
   public static Vision create() {
-    return new Vision(VisionConstants.LEFT_CAMERA, VisionConstants.RIGHT_CAMERA);
+    return new Vision(LEFT_CAMERA, RIGHT_CAMERA);
   }
 
   public Vision(CameraConfig... configs) {
@@ -100,10 +102,21 @@ public class Vision implements Logged {
       var result = cameras[i].getLatestResult();
       var estimate = estimators[i].update(result);
       log("estimates present " + i, estimate.isPresent());
-      estimate.ifPresent(
-          e ->
-              estimates.add(
-                  new PoseEstimate(e, getEstimationStdDevs(e.estimatedPose.toPose2d(), result))));
+      estimate
+          .filter(
+              f ->
+                  f.estimatedPose.getX() > 0
+                      && f.estimatedPose.getX() < Field.LENGTH.in(Meters)
+                      && f.estimatedPose.getY() > 0
+                      && f.estimatedPose.getY() < Field.WIDTH.in(Meters)
+                      && Math.abs(f.estimatedPose.getZ()) < MAX_HEIGHT
+                      && Math.abs(f.estimatedPose.getRotation().getY()) < MAX_ANGLE
+                      && Math.abs(f.estimatedPose.getRotation().getX()) < MAX_ANGLE)
+          .ifPresent(
+              e ->
+                  estimates.add(
+                      new PoseEstimate(
+                          e, getEstimationStdDevs(e.estimatedPose.toPose2d(), result))));
     }
     return estimates.toArray(PoseEstimate[]::new);
   }

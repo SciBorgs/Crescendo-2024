@@ -16,7 +16,7 @@ import org.sciborgs1155.robot.vision.Vision.CameraConfig;
 
 public class VisionConstants {
   public static final AprilTagFieldLayout TAG_LAYOUT =
-      AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+      AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
 
   public static final CameraConfig LEFT_CAMERA =
       new CameraConfig(
@@ -36,6 +36,10 @@ public class VisionConstants {
   public static final int HEIGHT = 600;
   public static final Rotation2d FOV = Rotation2d.fromDegrees(100);
 
-  public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(3, 3, 8);
-  public static final Matrix<N3, N1> MULTIPLE_TAG_STD_DEVS = VecBuilder.fill(0.8, 0.8, 4);
+  public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(2, 2, 8);
+  public static final Matrix<N3, N1> MULTIPLE_TAG_STD_DEVS = VecBuilder.fill(0.2, 0.2, 3);
+
+  public static final double MAX_HEIGHT = 0.305;
+  public static final double MIN_HEIGHT = -0.305;
+  public static final double MAX_ANGLE = 0.4;
 }

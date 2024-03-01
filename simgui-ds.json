@@ -4,7 +4,7 @@
       "visible": false
     }
   },
-  "Keyboard 0 Settings": {
+  "Keyboard 1 Settings": {
     "window": {
       "visible": true
     }
@@ -29,7 +29,7 @@
       "axisCount": 3,
       "buttonCount": 8,
       "buttonKeys": [
-        90,
+        -1,
         88,
         67,
         86,

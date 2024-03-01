@@ -149,7 +149,7 @@ public class Robot extends CommandRobot implements Logged {
         intake
             .intake()
             .alongWith(feeder.forward())
-            .until(feeder.atShooter())
+            .until(feeder.noteAtShooter())
             .andThen(feeder.retract()));
 
     // configure auto
@@ -199,7 +199,7 @@ public class Robot extends CommandRobot implements Logged {
         .toggleOnTrue(
             pivot.manualPivot(
                 InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
-    operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE, RadiansPerSecond.of(70)));
+    operator.b().whileTrue(shooting.pivotThenShoot(PRESET_AMP_ANGLE, RadiansPerSecond.of(85)));
     operator.x().whileTrue(shooting.stationaryTurretShooting());
     operator
         .y()
@@ -212,19 +212,21 @@ public class Robot extends CommandRobot implements Logged {
 
     operator
         .leftBumper()
-        .and(() -> pivot.atPosition(STARTING_ANGLE.in(Radians)))
-        .whileTrue(intake.intake().alongWith(feeder.forward()))
-        .onFalse(feeder.retract());
+        .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
+        .whileTrue(intake.intake().deadlineWith(feeder.forward()));
+
     operator.rightBumper().whileTrue(feeder.forward());
     operator.povUp().whileTrue(shooter.runShooter(() -> 300));
     operator.povDown().whileTrue(shooter.runShooter(() -> 200));
 
-    intake.inIntake().onTrue(rumble(RumbleType.kBothRumble, 0.5));
+    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.5));
+    // feeder.atShooter().onFalse(rumble(RumbleType.kRightRumble, 0.5));
   }
 
-  public Command rumble(RumbleType RumbleType, double strength) {
-    return Commands.run(() -> operator.getHID().setRumble(RumbleType, strength))
-        .alongWith(Commands.run(() -> driver.getHID().setRumble(RumbleType, strength)));
+  public Command rumble(RumbleType rumbleType, double strength) {
+    return Commands.run(() -> operator.getHID().setRumble(rumbleType, strength))
+        .alongWith(Commands.run(() -> driver.getHID().setRumble(rumbleType, strength)))
+        .withTimeout(0.1);
   }
 
   public Pose3d shooterPose() {

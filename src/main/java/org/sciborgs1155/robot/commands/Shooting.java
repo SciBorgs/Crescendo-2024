@@ -69,8 +69,8 @@ public class Shooting {
    * @param shootCondition Condition after which the feeder will run.
    */
   public Command shoot(DoubleSupplier desiredVelocity, BooleanSupplier shootCondition) {
-    return (Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean())
-            .andThen(feeder.forward().withTimeout(0.15)))
+    return Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean())
+        .andThen(feeder.eject())
         .deadlineWith(shooter.runShooter(desiredVelocity));
   }
 
