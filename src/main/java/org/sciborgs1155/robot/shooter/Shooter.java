@@ -47,7 +47,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(Volts.per(Second).of(1), Volts.of(11.0), Seconds.of(11)),
-            new SysIdRoutine.Mechanism(v -> shooter.setVoltage(v.in(Volts)), null, this));
+            new SysIdRoutine.Mechanism(v -> shooter.voltage(v.in(Volts)), null, this));
 
     pid.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
 
@@ -56,7 +56,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("shooter dynamic backward", dynamicBack());
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
 
-    setDefaultCommand(run(() -> shooter.setVoltage(0)));
+    setDefaultCommand(run(() -> shooter.voltage(0)));
   }
 
   /**
@@ -67,8 +67,8 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
    */
   public Command runShooter(DoubleSupplier velocity) {
     return run(() ->
-            shooter.setVoltage(
-                pid.calculate(shooter.getVelocity(), velocity.getAsDouble())
+            shooter.voltage(
+                pid.calculate(shooter.velocity(), velocity.getAsDouble())
                     + ff.calculate(velocity.getAsDouble())))
         .finallyDo(
             () -> {
@@ -91,7 +91,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
    */
   @Log.NT
   public double rotationalVelocity() {
-    return shooter.getVelocity();
+    return shooter.velocity();
   }
 
   @Log.NT
@@ -127,7 +127,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
-    filter.calculate(shooter.getCurrent());
+    filter.calculate(shooter.current());
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
   }
 

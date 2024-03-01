@@ -24,29 +24,29 @@ public class SimModule implements ModuleIO {
           1 / Turning.MOTOR_GEARING);
 
   @Override
-  public void setDriveVoltage(double voltage) {
+  public void driveVoltage(double voltage) {
     drive.setInputVoltage(voltage);
     drive.update(Constants.PERIOD.in(Seconds));
   }
 
   @Override
-  public void setTurnVoltage(double voltage) {
+  public void turnVoltage(double voltage) {
     turn.setInputVoltage(voltage);
     turn.update(Constants.PERIOD.in(Seconds));
   }
 
   @Override
-  public double getDrivePosition() {
+  public double drivePosition() {
     return drive.getAngularPositionRad();
   }
 
   @Override
-  public double getDriveVelocity() {
+  public double driveVelocity() {
     return drive.getAngularVelocityRadPerSec();
   }
 
   @Override
-  public Rotation2d getRotation() {
+  public Rotation2d rotation() {
     return Rotation2d.fromRadians(turn.getAngularPositionRad());
   }
 

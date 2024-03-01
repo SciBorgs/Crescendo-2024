@@ -15,18 +15,18 @@ public class SimShooter implements ShooterIO {
           LinearSystemId.identifyVelocitySystem(kV, kA), DCMotor.getNeoVortex(2), GEARING);
 
   @Override
-  public void setVoltage(double voltage) {
+  public void voltage(double voltage) {
     sim.setInputVoltage(voltage);
     sim.update(Constants.PERIOD.in(Seconds));
   }
 
   @Override
-  public double getVelocity() {
+  public double velocity() {
     return sim.getAngularVelocityRadPerSec();
   }
 
   @Override
-  public double getCurrent() {
+  public double current() {
     // TODO Auto-generated method stub
     return 0;
   }

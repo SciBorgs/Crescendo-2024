@@ -53,19 +53,19 @@ public class RealShooter implements ShooterIO {
   }
 
   @Override
-  public void setVoltage(double voltage) {
+  public void voltage(double voltage) {
     topMotor.setVoltage(voltage);
     FaultLogger.check(topMotor);
   }
 
   @Override
   @Log.NT
-  public double getCurrent() {
+  public double current() {
     return topMotor.getOutputCurrent();
   }
 
   @Override
-  public double getVelocity() {
+  public double velocity() {
     return encoder.getVelocity();
   }
 

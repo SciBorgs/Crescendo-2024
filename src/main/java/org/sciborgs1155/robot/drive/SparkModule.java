@@ -82,19 +82,19 @@ public class SparkModule implements ModuleIO {
   }
 
   @Override
-  public void setDriveVoltage(double voltage) {
+  public void driveVoltage(double voltage) {
     driveMotor.setVoltage(voltage);
     FaultLogger.check(driveMotor);
   }
 
   @Override
-  public void setTurnVoltage(double voltage) {
+  public void turnVoltage(double voltage) {
     turnMotor.setVoltage(voltage);
     FaultLogger.check(turnMotor);
   }
 
   @Override
-  public double getDrivePosition() {
+  public double drivePosition() {
     double driveRot = driveEncoder.getPosition();
     // account for rotation of turn motor on rotation of drive motor
     driveRot -= turningEncoder.getPosition() * COUPLING_RATIO;
@@ -102,12 +102,12 @@ public class SparkModule implements ModuleIO {
   }
 
   @Override
-  public double getDriveVelocity() {
+  public double driveVelocity() {
     return driveEncoder.getVelocity();
   }
 
   @Override
-  public Rotation2d getRotation() {
+  public Rotation2d rotation() {
     return Rotation2d.fromRadians(turningEncoder.getPosition()).minus(angularOffset);
   }
 

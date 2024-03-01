@@ -4,7 +4,7 @@ import monologue.Annotations.Log;
 
 public class NoIntake implements IntakeIO {
   @Override
-  public void setPower(double percentage) {}
+  public void power(double percentage) {}
 
   @Override
   @Log.NT

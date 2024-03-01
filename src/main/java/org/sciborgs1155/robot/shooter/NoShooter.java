@@ -2,15 +2,15 @@ package org.sciborgs1155.robot.shooter;
 
 public class NoShooter implements ShooterIO {
   @Override
-  public void setVoltage(double voltage) {}
+  public void voltage(double voltage) {}
 
   @Override
-  public double getVelocity() {
+  public double velocity() {
     return 0;
   }
 
   @Override
-  public double getCurrent() {
+  public double current() {
     return 0;
   }
 

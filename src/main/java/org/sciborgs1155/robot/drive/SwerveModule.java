@@ -48,7 +48,7 @@ public class SwerveModule implements Logged, AutoCloseable {
    */
   @Log.NT
   public SwerveModuleState state() {
-    return new SwerveModuleState(module.getDriveVelocity(), module.getRotation());
+    return new SwerveModuleState(module.driveVelocity(), module.rotation());
   }
 
   /**
@@ -58,7 +58,7 @@ public class SwerveModule implements Logged, AutoCloseable {
    */
   @Log.NT
   public SwerveModulePosition position() {
-    return new SwerveModulePosition(module.getDrivePosition(), module.getRotation());
+    return new SwerveModulePosition(module.drivePosition(), module.rotation());
   }
 
   /**
@@ -70,9 +70,9 @@ public class SwerveModule implements Logged, AutoCloseable {
    */
   public void updateDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
-    setpoint = SwerveModuleState.optimize(desiredState, module.getRotation());
+    setpoint = SwerveModuleState.optimize(desiredState, module.rotation());
     // Calculate cosine of turning error
-    double cosScalar = (setpoint.angle.minus(module.getRotation())).getCos();
+    double cosScalar = (setpoint.angle.minus(module.rotation())).getCos();
     updateDriveSpeed(setpoint.speedMetersPerSecond * Math.abs(cosScalar));
     updateTurnRotation(setpoint.angle);
   }
@@ -86,8 +86,8 @@ public class SwerveModule implements Logged, AutoCloseable {
    */
   void updateDriveSpeed(double speed) {
     double driveFF = driveFeedforward.calculate(speed);
-    double driveVoltage = driveFF + driveFeedback.calculate(module.getDriveVelocity(), speed);
-    module.setDriveVoltage(driveVoltage);
+    double driveVoltage = driveFF + driveFeedback.calculate(module.driveVelocity(), speed);
+    module.driveVoltage(driveVoltage);
   }
 
   /**
@@ -99,8 +99,8 @@ public class SwerveModule implements Logged, AutoCloseable {
    */
   void updateTurnRotation(Rotation2d rotation) {
     double turnVoltage =
-        turnFeedback.calculate(module.getRotation().getRadians(), rotation.getRadians());
-    module.setTurnVoltage(turnVoltage);
+        turnFeedback.calculate(module.rotation().getRadians(), rotation.getRadians());
+    module.turnVoltage(turnVoltage);
   }
 
   @Log.NT
@@ -109,11 +109,11 @@ public class SwerveModule implements Logged, AutoCloseable {
   }
 
   public void setDriveVoltage(double voltage) {
-    module.setDriveVoltage(voltage);
+    module.driveVoltage(voltage);
   }
 
   public void setTurnVoltage(double voltage) {
-    module.setTurnVoltage(voltage);
+    module.turnVoltage(voltage);
   }
 
   public void resetEncoders() {
