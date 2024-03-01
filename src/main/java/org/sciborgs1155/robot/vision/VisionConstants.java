@@ -32,9 +32,9 @@ public class VisionConstants {
               new Rotation3d(0, -Math.PI / 6, -5 * Math.PI / 6)));
 
   // OV9281 constants for our configuration
-  public static final int WIDTH = 800;
-  public static final int HEIGHT = 600;
-  public static final Rotation2d FOV = Rotation2d.fromDegrees(100);
+  public static final int WIDTH = 1280;
+  public static final int HEIGHT = 800;
+  public static final Rotation2d FOV = Rotation2d.fromDegrees(70);
 
   public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(2, 2, 8);
   public static final Matrix<N3, N1> MULTIPLE_TAG_STD_DEVS = VecBuilder.fill(0.2, 0.2, 3);
