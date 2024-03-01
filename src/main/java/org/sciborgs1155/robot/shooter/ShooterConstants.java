@@ -7,6 +7,7 @@ import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
+import org.sciborgs1155.robot.commands.Shooting;
 
 public class ShooterConstants {
   public static final double GEARING = 1;
@@ -20,6 +21,10 @@ public class ShooterConstants {
   public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
   public static final Measure<Velocity<Angle>> VELOCITY_TOLERANCE = RadiansPerSecond.of(5);
+
+  public static Measure<Velocity<Angle>> MAX_FLYWHEEL_SPEED = RadiansPerSecond.of(400);
+  public static Measure<Velocity<Distance>> MAX_NOTE_SPEED =
+      MetersPerSecond.of(Shooting.flywheelToNoteSpeed(MAX_FLYWHEEL_SPEED.in(RadiansPerSecond)));
 
   public static final double kP = 0.18;
   public static final double kI = 0;

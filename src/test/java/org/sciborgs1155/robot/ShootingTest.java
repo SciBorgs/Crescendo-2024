@@ -45,7 +45,7 @@ public class ShootingTest {
 
   @AfterEach
   public void destroy() throws Exception {
-    // reset(pivot, shooter, feeder, drive);
+    reset(pivot, shooter, feeder, drive);
   }
 
   @Test
@@ -82,7 +82,7 @@ public class ShootingTest {
   @ParameterizedTest
   @ValueSource(doubles = {-200, -100, -15, 0, 15, 100, 200})
   public void testShootStoredNote(double vel) {
-    run(shooting.shoot(vel));
+    run(shooting.shoot(RadiansPerSecond.of(vel)));
     fastForward();
 
     assertEquals(vel, shooter.rotationalVelocity(), VELOCITY_TOLERANCE.in(RadiansPerSecond));
@@ -91,7 +91,7 @@ public class ShootingTest {
   @Disabled
   @Test
   public void testPivotThenShoot() {
-    run(shooting.pivotThenShoot(Radians.of(Math.PI / 4), 4));
+    run(shooting.shootWithPivot(() -> Math.PI / 4, () -> 4));
     fastForward();
 
     assertEquals(
@@ -110,8 +110,8 @@ public class ShootingTest {
           fastForward(10);
           assert !c.isFinished();
         };
-    testEndCondition.accept(shooting.pivotThenShoot(Radians.of(4), 5));
+    testEndCondition.accept(shooting.shootWithPivot(() -> 4, () -> 100));
     // testEndCondition.accept(shooting.stationaryTurretShooting()); // worked before it was proxied
-    testEndCondition.accept(shooting.shoot(150));
+    testEndCondition.accept(shooting.shoot(RadiansPerSecond.of(150)));
   }
 }
