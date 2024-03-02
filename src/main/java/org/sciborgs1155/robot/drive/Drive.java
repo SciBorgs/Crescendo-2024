@@ -7,6 +7,7 @@ import static org.sciborgs1155.robot.drive.DriveConstants.*;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -51,6 +52,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   private final GyroIO gyro;
   private static Rotation2d simRotation = new Rotation2d();
+  
+  private final SlewRateLimiter rateLimiter;
 
   public final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_OFFSET);
 
@@ -126,6 +129,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     rotationController.enableContinuousInput(0, 2 * Math.PI);
     rotationController.setTolerance(0.1);
 
+    rateLimiter = new SlewRateLimiter(9.5, Double.NEGATIVE_INFINITY, 0);
     SmartDashboard.putData("drive quasistatic forward", sysIdQuasistatic(Direction.kForward));
     SmartDashboard.putData("drive dynamic forward", sysIdDynamic(Direction.kForward));
     SmartDashboard.putData("drive quasistatic backward", sysIdQuasistatic(Direction.kReverse));
@@ -235,6 +239,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param speeds The desired robot relative chassis speeds.
    */
   public void driveRobotRelative(ChassisSpeeds speeds) {
+    speeds.vxMetersPerSecond = rateLimiter.calculate(speeds.vxMetersPerSecond);
     setModuleStates(
         kinematics.toSwerveModuleStates(
             ChassisSpeeds.discretize(speeds, Constants.PERIOD.in(Seconds))));
