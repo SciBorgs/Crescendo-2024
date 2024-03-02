@@ -26,18 +26,12 @@
         {
           "type": "named",
           "data": {
-            "name": "reset"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "lock"
           }
         }
       ]
     }
   },
-  "folder": "Bottom Autos",
+  "folder": null,
   "choreoAuto": true
 }

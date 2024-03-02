@@ -24,12 +24,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "reset"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "R_8(2)"
@@ -51,12 +45,6 @@
           "type": "named",
           "data": {
             "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "reset"
           }
         },
         {
@@ -86,18 +74,12 @@
         {
           "type": "named",
           "data": {
-            "name": "reset"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "lock"
           }
         }
       ]
     }
   },
-  "folder": "Bottom Autos",
+  "folder": null,
   "choreoAuto": true
 }

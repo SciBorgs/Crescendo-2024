@@ -2,55 +2,44 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.9481438398361206,
-      "y": 6.971286773681641
+      "x": 1.2172749042510986,
+      "y": 6.813176155090332
     },
-    "rotation": 0.0
+    "rotation": 39.0938730408847
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "L_1"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "shoot"
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "reset"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.4
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intake"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "T_1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
             "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "reset"
           }
         },
         {
@@ -62,6 +51,6 @@
       ]
     }
   },
-  "folder": "Top Autos",
+  "folder": null,
   "choreoAuto": true
 }

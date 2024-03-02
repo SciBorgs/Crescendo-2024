@@ -140,16 +140,10 @@ public class Robot extends CommandRobot implements Logged {
     NamedCommands.registerCommand("lock", drive.lock());
     NamedCommands.registerCommand(
         "shoot",
-        shooting.shootWithPivot(() -> PRESET_PODIUM_ANGLE.in(Radians), () -> 80).withTimeout(1.2));
-    NamedCommands.registerCommand(
-        "reset", pivot.runPivot(() -> STARTING_ANGLE.in(Radians)).withTimeout(1));
+        shooting.shootWithPivot());
     NamedCommands.registerCommand(
         "intake",
-        intake
-            .intake()
-            .alongWith(feeder.forward())
-            .until(feeder.noteAtShooter())
-            .andThen(feeder.retract()));
+        intake.intake().deadlineWith(feeder.forward()));
 
     // configure auto
     AutoBuilder.configureHolonomic(
