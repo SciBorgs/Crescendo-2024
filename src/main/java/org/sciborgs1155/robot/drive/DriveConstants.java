@@ -46,13 +46,13 @@ public final class DriveConstants {
   public static final Rotation3d GYRO_OFFSET = new Rotation3d(0, 0, Math.PI);
 
   public static final class Translation {
-    public static final double P = 0.6;
+    public static final double P = 6;
     public static final double I = 0.0;
     public static final double D = 0.0;
   }
 
   public static final class Turn {
-    public static final double P = 2;
+    public static final double P = 6;
     public static final double I = 0.0;
     public static final double D = 0.0;
   }

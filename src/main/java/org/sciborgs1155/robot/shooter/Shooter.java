@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.commands.Shooting;
 
@@ -56,7 +58,8 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("shooter dynamic backward", dynamicBack());
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
 
-    setDefaultCommand(run(() -> shooter.setVoltage(0)));
+    // setDefaultCommand(run(() -> shooter.setVoltage(0)));
+    setDefaultCommand(runShooter(300));
   }
 
   /**
@@ -76,6 +79,14 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
               pid.setSetpoint(0);
             })
         .withName("running shooter");
+  }
+
+  public Command manualShooter(DoubleSupplier stickInput) {
+    return runShooter(
+        InputStream.of(stickInput)
+            .scale(10)
+            .scale(Constants.PERIOD.in(Seconds))
+            .add(pid::getSetpoint));
   }
 
   public Command runShooter(double velocity) {

@@ -20,7 +20,7 @@ public class PivotConstants {
   public static final Measure<Distance> RADIUS = Meters.of(1);
   public static final Measure<Distance> CIRCUMFERENCE = Meters.of(2 * Math.PI * RADIUS.in(Meters));
 
-  public static final Measure<Angle> POSITION_FACTOR = Rotations.of(THROUGBORE_GEARING);
+  public static final Measure<Angle> POSITION_FACTOR = Rotations.of(MOTOR_GEARING);
   public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
   /** Offset from the center of the robot to the pivot's axis of rotation */
@@ -53,7 +53,7 @@ public class PivotConstants {
   public static final Measure<Angle> PRESET_AMP_ANGLE = Radians.of(-0.55);
   public static final Measure<Angle> PRESET_PODIUM_ANGLE = Radians.of(0.5);
 
-  public static final Measure<Current> CURRENT_LIMIT = Amps.of(30);
+  public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 
   public static final double kP = 8;
   public static final double kI = 0;
@@ -65,15 +65,12 @@ public class PivotConstants {
   public static final double kG = 0.12055;
 
   public static final class ClimbConstants {
-    public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(0.2);
-    public static final Measure<Velocity<Velocity<Angle>>> MAX_ACCEL = MAX_VELOCITY.per(Second);
-
-    public static final double kP = 100;
+    public static final double kP = 16;
     public static final double kI = 0;
     public static final double kD = 0;
 
-    public static final double kS = 0;
-    public static final double kG = 36;
-    public static final double kV = 0;
+    // public static final double kS = 0;
+    // public static final double kG = 36;
+    // public static final double kV = 0;
   }
 }

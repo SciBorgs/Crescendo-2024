@@ -52,7 +52,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   private final GyroIO gyro;
   private static Rotation2d simRotation = new Rotation2d();
-  
+
   private final SlewRateLimiter rateLimiter;
 
   public final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_OFFSET);
@@ -333,6 +333,11 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
       var transform = new Transform2d(MODULE_OFFSET[i], module.position().angle);
       modules2d[i].setPose(pose().transformBy(transform));
     }
+
+    log(
+        "turning target",
+        new Pose2d(
+            pose().getTranslation(), new Rotation2d(rotationController.getSetpoint().position)));
 
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
   }

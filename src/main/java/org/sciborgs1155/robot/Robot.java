@@ -104,6 +104,8 @@ public class Robot extends CommandRobot implements Logged {
     Monologue.setupMonologue(this, "/Robot", false, true);
     addPeriodic(Monologue::updateAll, PERIOD.in(Seconds));
     addPeriodic(FaultLogger::update, 1);
+    addPeriodic(
+        () -> log("dist", Shooting.distFromSpeaker(drive.pose().getTranslation())), kDefaultPeriod);
 
     // Log PDH
     FaultLogger.register(new PowerDistribution());
@@ -198,7 +200,13 @@ public class Robot extends CommandRobot implements Logged {
         .toggleOnTrue(
             pivot.manualPivot(
                 InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
-    operator.b().whileTrue(shooting.shootWithPivot(() -> PRESET_AMP_ANGLE.in(Radians), () -> 0.1));
+    operator
+        .b()
+        .toggleOnTrue(
+            shooter.manualShooter(
+                InputStream.of(operator::getRightY).negate().deadband(Constants.DEADBAND, 1)));
+    // operator.b().whileTrue(shooting.shootWithPivot(() -> PRESET_AMP_ANGLE.in(Radians), () ->
+    // 95));
     // operator.y().whileTrue(shooting.shootWithPivot());
     operator
         .y()
@@ -211,7 +219,7 @@ public class Robot extends CommandRobot implements Logged {
 
     operator
         .leftBumper()
-        .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
+        // .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
         .whileTrue(intake.intake().deadlineWith(feeder.forward()));
 
     operator.rightBumper().whileTrue(feeder.forward());

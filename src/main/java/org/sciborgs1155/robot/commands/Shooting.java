@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.Angle;
@@ -47,7 +48,7 @@ public class Shooting implements Logged {
    * The conversion between shooter tangential velocity and note launch velocity. Perhaps. This may
    * also account for other errors with our model.
    */
-  public static final double SIGGYS_CONSTANT = 5;
+  public static final double SIGGYS_CONSTANT = 3.7;
 
   @IgnoreLogged private final Shooter shooter;
   @IgnoreLogged private final Pivot pivot;
@@ -141,20 +142,19 @@ public class Shooting implements Logged {
     ChassisSpeeds speeds = drive.getFieldRelativeChassisSpeeds();
     Vector<N3> robotVelocity =
         VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
+    double shotVelocity = velocities.get(distFromSpeaker(robotPose.getTranslation()));
+    double shotPitch = angles.get(distFromSpeaker(robotPose.getTranslation()));
     Rotation3d noteOrientation =
         new Rotation3d(
             0,
-            -calculateStationaryPitch(
-                robotPoseFacingSpeaker(robotPose.getTranslation()),
-                DEFAULT_NOTE_VELOCITY.in(MetersPerSecond),
-                pivot.position()),
+            // -calculateStationaryPitch(
+            //     robotPoseFacingSpeaker(robotPose.getTranslation()),
+            //     shotVelocity,
+            //     pivot.position()),
+            -shotPitch,
             yawToSpeaker(robotPose.getTranslation()).getRadians());
     Vector<N3> noteVelocity =
-        new Translation3d(1, 0, 0)
-            .rotateBy(noteOrientation)
-            .toVector()
-            .unit()
-            .times(DEFAULT_NOTE_VELOCITY.in(MetersPerSecond));
+        new Translation3d(1, 0, 0).rotateBy(noteOrientation).toVector().unit().times(shotVelocity);
 
     return noteVelocity.minus(robotVelocity);
   }
@@ -244,6 +244,10 @@ public class Shooting implements Logged {
     return speaker().toTranslation2d().minus(robotTranslation).getAngle();
   }
 
+  public static double distFromSpeaker(Translation2d translation) {
+    return speaker().toTranslation2d().minus(translation).getNorm();
+  }
+
   /**
    * Calculates a stationary pitch from a pose so that the note goes into the speaker.
    *
@@ -272,5 +276,13 @@ public class Shooting implements Logged {
       return pitch;
     }
     return calculateStationaryPitch(robotPose, velocity, pitch, i + 1);
+  }
+
+  // private static final InterpolatingTreeMap<Double, Shot> test = new
+  // InterpolatingTreeMap<>((start, end, y) -> y, (start, end, x) -> new Shot(, SIGGYS_CONSTANT))
+  private static final InterpolatingDoubleTreeMap angles = new InterpolatingDoubleTreeMap();
+  private static final InterpolatingDoubleTreeMap velocities = new InterpolatingDoubleTreeMap();
+
+  static {
   }
 }

@@ -3,6 +3,7 @@ package org.sciborgs1155.lib;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.REVLibError;
+import edu.wpi.first.wpilibj.Timer;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.sciborgs1155.lib.FaultLogger.FaultType;
@@ -62,6 +63,7 @@ public class SparkUtils {
     configure(spark, () -> spark.setCANTimeout(50), 1);
     for (var f : config) {
       configure(spark, f::get, 1);
+      Timer.delay(0.01);
     }
     configure(spark, () -> spark.setCANTimeout(20), 1);
     spark.burnFlash();
@@ -80,6 +82,12 @@ public class SparkUtils {
     if (attempt >= MAX_ATTEMPTS) {
       FaultLogger.report(name(spark), "FAILED TO SET PARAMETER", FaultType.ERROR);
       return;
+    }
+    if (attempt >= 1) {
+      FaultLogger.report(
+          name(spark),
+          "setting parameter failed: " + attempt + "/" + MAX_ATTEMPTS,
+          FaultType.WARNING);
     }
     REVLibError error = config.get();
     if (error != REVLibError.kOk) {

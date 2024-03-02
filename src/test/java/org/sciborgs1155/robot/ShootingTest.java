@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
-import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.VELOCITY_TOLERANCE;
 
 import edu.wpi.first.math.MathUtil;
@@ -68,15 +67,6 @@ public class ShootingTest {
         MathUtil.clamp(theta, MIN_ANGLE.in(Radians), MAX_ANGLE.in(Radians)),
         pivot.rotation().getY(),
         0.15);
-  }
-
-  @ParameterizedTest
-  @ValueSource(doubles = {1.104793, 3 * Math.PI / 8})
-  public void testClimb(double theta) {
-    run(pivot.climb(theta));
-    fastForward(1000);
-
-    assertEquals(STARTING_ANGLE.in(Radians), pivot.rotation().getY(), DELTA);
   }
 
   @ParameterizedTest

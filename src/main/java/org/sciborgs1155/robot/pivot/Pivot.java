@@ -102,16 +102,16 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    *
    * @return The command to set the pivot's angle.
    */
-  public Command climb(double goalAngle) {
+  public Command climb(DoubleSupplier stickInput) {
     return runOnce(() -> pid.setPID(ClimbConstants.kP, ClimbConstants.kI, ClimbConstants.kD))
-        .andThen(() -> update(goalAngle))
+        .andThen(manualPivot(stickInput))
         .finallyDo(() -> pid.setPID(kP, kI, kD));
   }
 
   public Command manualPivot(DoubleSupplier stickInput) {
     return runPivot(
         InputStream.of(stickInput)
-            .scale(MAX_VELOCITY.in(RadiansPerSecond) / 2)
+            .scale(MAX_VELOCITY.in(RadiansPerSecond) / 4)
             .scale(Constants.PERIOD.in(Seconds))
             .add(() -> pid.getGoal().position));
   }
@@ -199,7 +199,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
-    positionVisualizer.setState(rotation().getY());
+    positionVisualizer.setState(hardware.getPosition());
     setpointVisualizer.setState(setpoint().getY());
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
   }
