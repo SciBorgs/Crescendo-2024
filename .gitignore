@@ -6,8 +6,8 @@ __pycache__/
 include/
 venv
 
-# Log files
-# *.wpilog
+# Log files in /
+/*.wpilog
 
 ### C++ ###
 # Prerequisites

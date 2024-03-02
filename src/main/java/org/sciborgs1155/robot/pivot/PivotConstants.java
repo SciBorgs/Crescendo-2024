@@ -2,6 +2,8 @@ package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
@@ -21,9 +23,14 @@ public class PivotConstants {
   public static final Measure<Angle> POSITION_FACTOR = Rotations.of(THROUGBORE_GEARING);
   public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
-  // Offset from the center of the robot to the pivot's axis of rotation
-  public static final Translation3d OFFSET =
-      new Translation3d(Inches.of(-10.465), Inches.of(0), Inches.of(25));
+  /** Offset from the center of the robot to the pivot's axis of rotation */
+  public static final Translation3d AXLE_FROM_CHASSIS =
+      new Translation3d(Inches.of(-10.465), Inches.zero(), Inches.of(25));
+
+  /** Offset from the pivot's axis of rotation to the shooter beambreak. */
+  public static final Transform3d SHOOTER_FROM_AXLE =
+      new Transform3d(
+          new Translation3d(Inches.of(9.118), Inches.zero(), Inches.of(5.868)), new Rotation3d());
 
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);

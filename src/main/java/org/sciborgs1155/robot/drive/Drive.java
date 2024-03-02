@@ -212,10 +212,10 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @return The driving command.
    */
   public Command drive(DoubleSupplier vx, DoubleSupplier vy, Supplier<Rotation2d> heading) {
-    return drive(
+    return runOnce(() -> rotationController.reset(heading.get().getRadians())).andThen(drive(
         vx,
         vy,
-        () -> rotationController.calculate(heading().getRadians(), heading.get().getRadians()));
+        () -> rotationController.calculate(heading().getRadians(), heading.get().getRadians())));
   }
 
   /**

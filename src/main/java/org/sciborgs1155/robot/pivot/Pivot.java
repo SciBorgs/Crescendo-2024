@@ -137,7 +137,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   @Log.NT
   public Transform3d transform() {
-    return new Transform3d(OFFSET, rotation());
+    return new Transform3d(AXLE_FROM_CHASSIS, rotation());
   }
 
   @Log.NT
