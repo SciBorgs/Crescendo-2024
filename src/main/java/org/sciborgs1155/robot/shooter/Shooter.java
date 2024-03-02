@@ -1,6 +1,5 @@
 package org.sciborgs1155.robot.shooter;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
@@ -21,6 +20,7 @@ import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
+import org.sciborgs1155.robot.commands.Shooting;
 
 public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   private final ShooterIO shooter;
@@ -96,7 +96,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   @Log.NT
   public double tangentialVelocity() {
-    return rotationalVelocity() * RADIUS.in(Meters);
+    return Shooting.flywheelToNoteSpeed(rotationalVelocity());
   }
 
   @Log.NT

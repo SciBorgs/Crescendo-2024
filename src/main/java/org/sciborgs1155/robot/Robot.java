@@ -199,6 +199,7 @@ public class Robot extends CommandRobot implements Logged {
             pivot.manualPivot(
                 InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
     operator.b().whileTrue(shooting.shootWithPivot(() -> PRESET_AMP_ANGLE.in(Radians), () -> 0.1));
+    // operator.y().whileTrue(shooting.shootWithPivot());
     operator
         .y()
         .whileTrue(
