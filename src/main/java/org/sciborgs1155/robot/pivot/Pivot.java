@@ -141,6 +141,15 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   @Log.NT
+  public static Transform3d transform(double position) {
+    return new Transform3d(AXLE_FROM_CHASSIS, new Rotation3d(0.0, position, 0.0));
+  }
+
+  public double position() {
+    return hardware.getPosition();
+  }
+
+  @Log.NT
   public boolean atGoal() {
     return pid.atGoal();
   }
