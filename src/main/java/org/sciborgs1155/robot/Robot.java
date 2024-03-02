@@ -6,6 +6,7 @@ import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -178,6 +179,8 @@ public class Robot extends CommandRobot implements Logged {
 
     // operator.a().toggleOnTrue(pivot.manualPivot(operator::getLeftY));
     operator.a().toggleOnTrue(pivot.runPivot(() -> Rotation2d.fromDegrees(15)));
+
+    operator.b().onTrue(drive.goTo(new Pose2d(new Translation2d(5, 5), new Rotation2d(1))));
 
     // operator.b().onTrue(pivot.runPivot(() -> )))
 

@@ -45,7 +45,7 @@ public final class DriveConstants {
   public static final class Translation {
     public static final double P = 0.6;
     public static final double I = 0.0;
-    public static final double D = 0.0;
+    public static final double D = 0.2;
   }
 
   public static final class Rotation {

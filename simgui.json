@@ -20,6 +20,7 @@
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
       "/Robot/drive/rotationController": "ProfiledPIDController",
+      "/Robot/drive/translationController": "ProfiledPIDController",
       "/Robot/feeder/pid": "PIDController",
       "/Robot/flywheel": "Subsystem",
       "/Robot/flywheel/flywheelPID": "PIDController",
@@ -68,11 +69,6 @@
       "/SmartDashboard/turn quasistatic forward": "Command"
     },
     "windows": {
-      "/Robot/autos": {
-        "window": {
-          "visible": true
-        }
-      },
       "/Robot/drive/field2d": {
         "Robot": {
           "arrows": false,
@@ -144,11 +140,6 @@
           "visible": true
         }
       },
-      "/Robot/pivot/measurement": {
-        "window": {
-          "visible": true
-        }
-      },
       "/Robot/pivot/setpoint": {
         "window": {
           "visible": true
@@ -178,6 +169,9 @@
             "Rotation2d##v_rotation": {
               "open": true
             },
+            "Translation2d##v_translation": {
+              "open": true
+            },
             "open": true
           },
           "frontRight": {
@@ -196,6 +190,10 @@
             "driveFeedback": {
               "open": true
             }
+          },
+          "open": true,
+          "translationController": {
+            "open": true
           }
         },
         "open": true,
@@ -203,7 +201,6 @@
           "measurement": {
             "open": true
           },
-          "open": true,
           "pid": {
             "open": true
           },
@@ -218,7 +215,6 @@
           "mech": {
             "open": true
           },
-          "open": true,
           "pid": {
             "open": true
           },
@@ -234,6 +230,9 @@
           "setpoint": {
             "open": true
           }
+        },
+        "vision": {
+          "open": true
         }
       },
       "Shuffleboard": {
@@ -242,9 +241,6 @@
     }
   },
   "NetworkTables Info": {
-    "Server": {
-      "open": true
-    },
     "visible": true
   },
   "Plot": {
@@ -281,7 +277,8 @@
         }
       ],
       "window": {
-        "name": "Pivot"
+        "name": "Pivot",
+        "visible": false
       }
     }
   }

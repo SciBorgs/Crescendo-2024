@@ -74,6 +74,14 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
           Rotation.D,
           new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
 
+  @Log.NT
+  private final ProfiledPIDController translationController =
+      new ProfiledPIDController(
+          Translation.P,
+          Translation.I,
+          Translation.D,
+          new TrapezoidProfile.Constraints(MAX_SPEED, MAX_ACCEL));
+
   /**
    * A factory to create a new drive subsystem based on whether the robot is being ran in simulation
    * or not.
@@ -133,6 +141,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
       modules2d[i] = field2d.getObject("module-" + module.name);
     }
 
+    translationController.setTolerance(.05);
     rotationController.enableContinuousInput(0, 2 * Math.PI);
 
     SmartDashboard.putData("drive quasistatic forward", driveSysIdQuasistatic(Direction.kForward));
@@ -219,36 +228,26 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command goTo(Pose2d targetPose) {
-    // store current position to calculate nessesary components
-    Pose2d initialPose = getPose();
+    return run(
+        () -> {
+          var difference = targetPose.minus(getPose());
+          // calculates components of 3D vector
+          double deltaX = difference.getX();
+          double deltaY = difference.getY();
+          double deltaTheta = difference.getRotation().getRadians();
+          //double deltaTheta = 0;
+          double magnitude = Math.hypot(difference.getTranslation().getNorm(), deltaTheta);
+          // magninutde of vector
+          
+          double output = translationController.calculate(0, magnitude);
+          double vx, vy, theta;
+          // Scaling every individual component
+          vx = output * (deltaX);
+          vy = output * (deltaY);
+          theta = output * (deltaTheta);
 
-    // calculates components of 3D vector
-    double deltaX = targetPose.getX() - initialPose.getX();
-    double deltaY = targetPose.getY() - initialPose.getY();
-    double deltaTheta =
-        targetPose.getRotation().getRadians() - initialPose.getRotation().getRadians();
-
-    // calulates magninutde of vector
-    // sqrt((x)^2 + (y)^2 + (w*r)^2)
-    double magnitude =
-        Math.sqrt(
-            Math.pow(deltaX, 2)
-                + Math.pow(deltaY, 2)
-                + Math.pow(deltaTheta * DriveToConstants.ANGULAR_RADIUS, 2));
-
-    var pid =
-        new ProfiledPIDController(
-            DriveToConstants.PID.P,
-            DriveToConstants.PID.I,
-            DriveToConstants.PID.D,
-            new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
-    double output = pid.calculate(magnitude);
-    double vx, vy, theta;
-    // Scaling every individual component
-    vx = output * (deltaX / magnitude);
-    vy = output * (deltaY / magnitude);
-    theta = output * (deltaTheta / magnitude);
-    return run(() -> driveFieldRelative(new ChassisSpeeds(vx, vy, theta)));
+          driveFieldRelative(new ChassisSpeeds(vx, vy, theta));
+        }).until(translationController::atSetpoint);
   }
 
   /**
