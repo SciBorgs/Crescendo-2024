@@ -138,12 +138,8 @@ public class Robot extends CommandRobot implements Logged {
   public void configureAuto() {
     // register named commands for auto
     NamedCommands.registerCommand("lock", drive.lock());
-    NamedCommands.registerCommand(
-        "shoot",
-        shooting.shootWithPivot());
-    NamedCommands.registerCommand(
-        "intake",
-        intake.intake().deadlineWith(feeder.forward()));
+    NamedCommands.registerCommand("shoot", shooting.shootWithPivot());
+    NamedCommands.registerCommand("intake", intake.intake().deadlineWith(feeder.forward()));
 
     // configure auto
     AutoBuilder.configureHolonomic(
