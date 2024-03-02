@@ -1,11 +1,10 @@
 package org.sciborgs1155.robot.intake;
 
-import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.robot.intake.IntakeConstants.DEBOUNCE_TIME;
-import static org.sciborgs1155.robot.intake.IntakeConstants.STALL_THRESHOLD;
 
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -76,8 +75,8 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   @Log.NT
-  public boolean stallingCurrent() {
-    return hardware.current() > STALL_THRESHOLD.in(Amp);
+  public boolean stalling() {
+    return hardware.current() > DCMotor.getNeoVortex(1).stallCurrentAmps;
   }
 
   @Override

@@ -1,10 +1,10 @@
 package org.sciborgs1155.robot.feeder;
 
-import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -74,8 +74,8 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   @Log.NT
-  public boolean stallingCurrent() {
-    return feeder.current() > STALL_THRESHOLD.in(Amp);
+  public boolean stalling() {
+    return feeder.current() > DCMotor.getNeoVortex(1).stallCurrentAmps;
   }
 
   @Override
