@@ -17,6 +17,10 @@ public class NoteVision implements Logged {
     FaultLogger.register(camera);
   }
 
+  public void resetLast() {
+    last = new Translation2d();
+  }
+
   public Optional<Translation2d> nearestNote() {
     Optional<Translation2d> note =
         Optional.ofNullable(camera.getLatestResult().getBestTarget())
@@ -32,7 +36,6 @@ public class NoteVision implements Logged {
   }
 
   public Translation2d note() {
-    var target = nearestNote();
-    return target.isPresent() ? target.get() : last;
+    return nearestNote().orElse(lastNote());
   }
 }
