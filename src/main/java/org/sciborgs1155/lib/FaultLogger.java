@@ -102,6 +102,8 @@ public final class FaultLogger {
   /** Clears total faults. */
   public static void clear() {
     totalFaults.clear();
+    activeFaults.clear();
+    newFaults.clear();
   }
 
   /** Clears fault suppliers. */

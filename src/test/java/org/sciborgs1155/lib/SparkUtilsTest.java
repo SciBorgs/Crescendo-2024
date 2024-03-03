@@ -37,13 +37,13 @@ public class SparkUtilsTest {
         () -> motor.setSmartCurrentLimit(30),
         () -> encoder.setPositionConversionFactor(0.5),
         () -> encoder.setVelocityConversionFactor(0.25),
-        () -> encoder.setMeasurementPeriod(4),
+        () -> encoder.setMeasurementPeriod(8),
         () -> encoder.setAverageDepth(2));
 
     assertEquals(IdleMode.kBrake, motor.getIdleMode());
     assertEquals(0.5, encoder.getPositionConversionFactor());
     assertEquals(0.25, encoder.getVelocityConversionFactor());
-    assertEquals(4, encoder.getMeasurementPeriod());
+    assertEquals(8, encoder.getMeasurementPeriod());
     assertEquals(2, encoder.getAverageDepth());
 
     motor.close();
