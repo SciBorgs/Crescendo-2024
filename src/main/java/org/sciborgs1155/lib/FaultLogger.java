@@ -4,6 +4,7 @@ import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.FaultID;
 import com.revrobotics.REVLibError;
+import edu.wpi.first.hal.PowerDistributionFaults;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringArrayPublisher;
@@ -39,6 +40,11 @@ public final class FaultLogger {
     }
   }
 
+  @FunctionalInterface
+  public static interface FaultReporter {
+    void report();
+  }
+
   /**
    * The type of fault, used for detecting whether the fallible is in a failure state and displaying
    * to NetworkTables.
@@ -71,7 +77,7 @@ public final class FaultLogger {
   }
 
   // DATA
-  private static final List<Supplier<Optional<Fault>>> faultSuppliers = new ArrayList<>();
+  private static final List<FaultReporter> faultReporters = new ArrayList<>();
   private static final Set<Fault> newFaults = new HashSet<>();
   private static final Set<Fault> activeFaults = new HashSet<>();
   private static final Set<Fault> totalFaults = new HashSet<>();
@@ -85,11 +91,7 @@ public final class FaultLogger {
   public static void update() {
     activeFaults.clear();
 
-    faultSuppliers.stream()
-        .map(s -> s.get())
-        .flatMap(Optional::stream)
-        .forEach(FaultLogger::report);
-
+    faultReporters.forEach(FaultReporter::report);
     activeFaults.addAll(newFaults);
     newFaults.clear();
 
@@ -108,7 +110,7 @@ public final class FaultLogger {
 
   /** Clears fault suppliers. */
   public static void unregisterAll() {
-    faultSuppliers.clear();
+    faultReporters.clear();
   }
 
   /**
@@ -160,7 +162,7 @@ public final class FaultLogger {
    * @param supplier A supplier of an optional fault.
    */
   public static void register(Supplier<Optional<Fault>> supplier) {
-    faultSuppliers.add(supplier);
+    faultReporters.add(() -> supplier.get().ifPresent(FaultLogger::report));
   }
 
   /**
@@ -172,11 +174,12 @@ public final class FaultLogger {
    */
   public static void register(
       BooleanSupplier condition, String name, String description, FaultType type) {
-    faultSuppliers.add(
-        () ->
-            condition.getAsBoolean()
-                ? Optional.of(new Fault(name, description, type))
-                : Optional.empty());
+    faultReporters.add(
+        () -> {
+          if (condition.getAsBoolean()) {
+            report(name, description, type);
+          }
+        });
   }
 
   /**
@@ -185,9 +188,14 @@ public final class FaultLogger {
    * @param spark The Spark Max or Spark Flex to manage.
    */
   public static void register(CANSparkBase spark) {
-    for (FaultID fault : FaultID.values()) {
-      register(() -> spark.getFault(fault), SparkUtils.name(spark), fault.name(), FaultType.ERROR);
-    }
+    faultReporters.add(
+        () -> {
+          for (FaultID fault : FaultID.values()) {
+            if (spark.getFault(fault)) {
+              report(SparkUtils.name(spark), fault.name(), FaultType.ERROR);
+            }
+          }
+        });
     register(
         () -> spark.getMotorTemperature() > 100,
         SparkUtils.name(spark),
@@ -223,19 +231,19 @@ public final class FaultLogger {
    * @param powerDistribution The power distribution to manage.
    */
   public static void register(PowerDistribution powerDistribution) {
-    for (Field field : PowerDistribution.class.getFields()) {
-      register(
-          () -> {
+    Field[] fields = PowerDistributionFaults.class.getFields();
+    faultReporters.add(
+        () -> {
+          PowerDistributionFaults faults = powerDistribution.getFaults();
+          for (Field fault : fields) {
             try {
-              if (field.getBoolean(powerDistribution)) {
-                return Optional.of(
-                    new Fault("Power Distribution", field.getName(), FaultType.ERROR));
+              if (fault.getBoolean(faults)) {
+                report("Power Distribution", fault.getName(), FaultType.ERROR);
               }
             } catch (Exception e) {
             }
-            return Optional.empty();
-          });
-    }
+          }
+        });
   }
 
   /**
