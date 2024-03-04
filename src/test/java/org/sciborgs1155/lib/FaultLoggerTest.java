@@ -14,6 +14,7 @@ public class FaultLoggerTest {
 
   @BeforeAll
   public static void reset() {
+    FaultLogger.clear();
     FaultLogger.unregisterAll();
   }
 

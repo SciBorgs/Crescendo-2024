@@ -53,7 +53,7 @@ public class SwerveTest {
     double xVelocitySetpoint = -2;
     double yVelocitySetpoint = 4;
     run(drive.drive(() -> xVelocitySetpoint, () -> yVelocitySetpoint, drive::heading));
-    fastForward(200);
+    fastForward(400);
 
     ChassisSpeeds chassisSpeed = drive.getFieldRelativeChassisSpeeds();
 
