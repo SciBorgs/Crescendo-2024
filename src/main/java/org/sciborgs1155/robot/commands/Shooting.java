@@ -22,7 +22,9 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.math.interpolation.Interpolator;
+import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.Angle;
@@ -49,6 +51,10 @@ public class Shooting implements Logged {
    * also account for other errors with our model.
    */
   public static final double SIGGYS_CONSTANT = 3.7;
+
+  private final InterpolatingTreeMap<Double, ShootingState> shotLookup =
+      new InterpolatingTreeMap<Double, ShootingState>(
+          InverseInterpolator.forDouble(), ShootingState.interpolator());
 
   @IgnoreLogged private final Shooter shooter;
   @IgnoreLogged private final Pivot pivot;
@@ -142,8 +148,7 @@ public class Shooting implements Logged {
     ChassisSpeeds speeds = drive.getFieldRelativeChassisSpeeds();
     Vector<N3> robotVelocity =
         VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
-    double shotVelocity = velocities.get(distFromSpeaker(robotPose.getTranslation()));
-    double shotPitch = angles.get(distFromSpeaker(robotPose.getTranslation()));
+    ShootingState shot = shotLookup.get(distFromSpeaker(robotPose.getTranslation()));
     Rotation3d noteOrientation =
         new Rotation3d(
             0,
@@ -151,10 +156,14 @@ public class Shooting implements Logged {
             //     robotPoseFacingSpeaker(robotPose.getTranslation()),
             //     shotVelocity,
             //     pivot.position()),
-            -shotPitch,
+            -shot.pitch,
             yawToSpeaker(robotPose.getTranslation()).getRadians());
     Vector<N3> noteVelocity =
-        new Translation3d(1, 0, 0).rotateBy(noteOrientation).toVector().unit().times(shotVelocity);
+        new Translation3d(1, 0, 0)
+            .rotateBy(noteOrientation)
+            .toVector()
+            .unit()
+            .times(shot.flywheelSpeed);
 
     return noteVelocity.minus(robotVelocity);
   }
@@ -278,11 +287,13 @@ public class Shooting implements Logged {
     return calculateStationaryPitch(robotPose, velocity, pitch, i + 1);
   }
 
-  // private static final InterpolatingTreeMap<Double, Shot> test = new
-  // InterpolatingTreeMap<>((start, end, y) -> y, (start, end, x) -> new Shot(, SIGGYS_CONSTANT))
-  private static final InterpolatingDoubleTreeMap angles = new InterpolatingDoubleTreeMap();
-  private static final InterpolatingDoubleTreeMap velocities = new InterpolatingDoubleTreeMap();
-
-  static {
+  private static final record ShootingState(double pitch, double flywheelSpeed) {
+    public static Interpolator<ShootingState> interpolator() {
+      return (start, end, distance) -> {
+        double pitch = start.pitch * (1 - distance) + end.pitch * distance;
+        double flywheelSpeed = start.flywheelSpeed * (1 - distance) + end.flywheelSpeed * distance;
+        return new ShootingState(pitch, flywheelSpeed);
+      };
+    }
   }
 }
