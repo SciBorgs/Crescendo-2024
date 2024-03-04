@@ -4,14 +4,12 @@ import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.FaultID;
 import com.revrobotics.REVLibError;
-import edu.wpi.first.hal.PowerDistributionFaults;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringArrayPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -231,19 +229,19 @@ public final class FaultLogger {
    * @param powerDistribution The power distribution to manage.
    */
   public static void register(PowerDistribution powerDistribution) {
-    Field[] fields = PowerDistributionFaults.class.getFields();
-    faultReporters.add(
-        () -> {
-          PowerDistributionFaults faults = powerDistribution.getFaults();
-          for (Field fault : fields) {
-            try {
-              if (fault.getBoolean(faults)) {
-                report("Power Distribution", fault.getName(), FaultType.ERROR);
-              }
-            } catch (Exception e) {
-            }
-          }
-        });
+    // Field[] fields = PowerDistributionFaults.class.getFields();
+    // faultReporters.add(
+    //     () -> {
+    //       try {
+    //       PowerDistributionFaults faults = powerDistribution.getFaults();
+    //       for (Field fault : fields) {
+    //           if (fault.getBoolean(faults)) {
+    //             report("Power Distribution", fault.getName(), FaultType.ERROR);
+    //           }
+    //         }
+    //       } catch (Exception e) {
+    //     }
+    //     });
   }
 
   /**

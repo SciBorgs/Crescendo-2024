@@ -5,7 +5,6 @@ import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.REVLibError;
-import com.revrobotics.jni.CANSparkMaxJNI;
 import edu.wpi.first.wpilibj.Timer;
 import java.lang.reflect.Field;
 import java.util.Set;
@@ -223,11 +222,12 @@ public class SparkUtils {
    *     https://www.chiefdelphi.com/t/psa-default-neo-sparkmax-velocity-readings-are-still-bad-for-flywheels/454453/91?u=anglesideangle
    */
   public static REVLibError setFlexEncoderAverageDepth(CANSparkFlex spark, int depth) {
-    if (depth < 1 || depth > 64) {
-      throw new IllegalArgumentException(
-          "Quadrature average depth must be in the range of [1, 64]");
-    }
-    return REVLibError.fromInt(CANSparkMaxJNI.c_SparkMax_SetAverageDepth(handle(spark), depth));
+    return REVLibError.kOk;
+    // if (depth < 1 || depth > 64) {
+    //   throw new IllegalArgumentException(
+    //       "Quadrature average depth must be in the range of [1, 64]");
+    // }
+    // return REVLibError.fromInt(CANSparkMaxJNI.c_SparkMax_SetAverageDepth(handle(spark), depth));
   }
 
   /**
@@ -240,11 +240,12 @@ public class SparkUtils {
    *     https://www.chiefdelphi.com/t/psa-default-neo-sparkmax-velocity-readings-are-still-bad-for-flywheels/454453/91?u=anglesideangle
    */
   public static REVLibError setFlexEncoderMeasurementPeriod(CANSparkFlex spark, int period_ms) {
-    if (period_ms < 1 || period_ms > 100) {
-      throw new IllegalArgumentException(
-          "Quadrature measurement period must be in the range of [1, 100]");
-    }
-    return REVLibError.fromInt(
-        CANSparkMaxJNI.c_SparkMax_SetMeasurementPeriod(handle(spark), period_ms));
+    return REVLibError.kOk;
+    // if (period_ms < 1 || period_ms > 100) {
+    //   throw new IllegalArgumentException(
+    //       "Quadrature measurement period must be in the range of [1, 100]");
+    // }
+    // return REVLibError.fromInt(
+    //     CANSparkMaxJNI.c_SparkMax_SetMeasurementPeriod(handle(spark), period_ms));
   }
 }

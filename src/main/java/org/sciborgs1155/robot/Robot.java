@@ -141,18 +141,8 @@ public class Robot extends CommandRobot implements Logged {
   public void configureAuto() {
     // register named commands for auto
     NamedCommands.registerCommand("lock", drive.lock());
-    NamedCommands.registerCommand(
-        "shoot",
-        shooting.shootWithPivot(() -> PRESET_PODIUM_ANGLE.in(Radians), () -> 80).withTimeout(1.2));
-    NamedCommands.registerCommand(
-        "reset", pivot.runPivot(() -> STARTING_ANGLE.in(Radians)).withTimeout(1));
-    NamedCommands.registerCommand(
-        "intake",
-        intake
-            .intake()
-            .alongWith(feeder.forward())
-            .until(feeder.noteAtShooter())
-            .andThen(feeder.retract()));
+    NamedCommands.registerCommand("shoot", shooting.shootWithPivot());
+    NamedCommands.registerCommand("intake", intake.intake().deadlineWith(feeder.forward()));
 
     // configure auto
     AutoBuilder.configureHolonomic(
@@ -163,7 +153,7 @@ public class Robot extends CommandRobot implements Logged {
         new HolonomicPathFollowerConfig(
             new PIDConstants(Translation.P, Translation.I, Translation.D),
             new PIDConstants(Turn.P, Turn.I, Turn.D),
-            DriveConstants.MAX_SPEED.in(MetersPerSecond),
+            DriveConstants.MAX_SPEED.in(MetersPerSecond) / 2,
             DriveConstants.TRACK_WIDTH.divide(2).in(Meters),
             new ReplanningConfig()),
         () -> alliance() == Alliance.Red,
@@ -199,18 +189,22 @@ public class Robot extends CommandRobot implements Logged {
     operator
         .a()
         .toggleOnTrue(
-            pivot.manualPivot(
-                InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
-    operator
-        .b()
-        .toggleOnTrue(
-            shooter.manualShooter(
-                InputStream.of(operator::getRightY).negate().deadband(Constants.DEADBAND, 1)));
+            pivot
+                .manualPivot(
+                    InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1))
+                .deadlineWith(shooter.run(() -> {})));
+
+    operator.b().whileTrue(pivot.lockedIn().deadlineWith(shooter.run(() -> {})));
+    // operator
+    //     .b()
+    //     .toggleOnTrue(
+    //         shooter.manualShooter(
+    //             InputStream.of(operator::getRightY).negate().deadband(Constants.DEADBAND, 1)));
     // operator.b().whileTrue(shooting.shootWithPivot(() -> PRESET_AMP_ANGLE.in(Radians), () ->
     // 95));
     // operator.y().whileTrue(shooting.shootWithPivot());
-    operator
-        .y()
+    driver
+        .x()
         .whileTrue(
             shooting.shootWhileDriving(
                 createJoystickStream(
@@ -220,7 +214,8 @@ public class Robot extends CommandRobot implements Logged {
 
     operator
         .leftBumper()
-        // .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
+        .or(driver.rightTrigger())
+        .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
         .whileTrue(intake.intake().deadlineWith(feeder.forward()));
 
     operator.rightBumper().whileTrue(feeder.forward());
