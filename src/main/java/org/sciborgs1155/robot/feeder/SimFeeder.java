@@ -27,7 +27,7 @@ public class SimFeeder implements FeederIO {
 
   @Override
   public double current() {
-    return 0;
+    return sim.getCurrentDrawAmps();
   }
 
   @Override

@@ -41,6 +41,12 @@ public class RealIntake implements IntakeIO {
   }
 
   @Override
+  @Log.NT
+  public double current() {
+    return spark.getOutputCurrent();
+  }
+
+  @Override
   public void close() {
     beambreak.close();
     spark.close();
