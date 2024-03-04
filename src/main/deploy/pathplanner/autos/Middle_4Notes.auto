@@ -2,19 +2,38 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7993888854980469,
-      "y": 4.013235092163086
+      "x": 1.2736657857894895,
+      "y": 4.436619281768799
     },
-    "rotation": 1.3364580342345409e-30
+    "rotation": -37.69423819999534
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "M_3"
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "M_3"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
           }
         },
         {
@@ -24,45 +43,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "reset"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.4
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "reset"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "M_3-2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intake"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "M_3-2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
           }
         },
         {
@@ -72,33 +68,28 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "reset"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "M_2-1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intake"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "M_2-1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
             "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "reset"
           }
         },
         {
@@ -116,6 +107,6 @@
       ]
     }
   },
-  "folder": "Middle Autos",
+  "folder": null,
   "choreoAuto": true
 }
