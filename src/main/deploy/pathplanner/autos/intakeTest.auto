@@ -12,15 +12,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Test1"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.0
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Test1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
           }
         },
         {
@@ -32,6 +39,6 @@
       ]
     }
   },
-  "folder": "Tests",
+  "folder": null,
   "choreoAuto": true
 }
