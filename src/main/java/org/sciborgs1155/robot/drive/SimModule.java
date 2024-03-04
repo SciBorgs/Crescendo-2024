@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot.drive;
 
 import static edu.wpi.first.units.Units.Seconds;
-import static org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.*;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;

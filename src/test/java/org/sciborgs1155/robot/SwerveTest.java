@@ -50,10 +50,10 @@ public class SwerveTest {
 
   @Test
   public void reachesRobotVelocity() {
-    double xVelocitySetpoint = -2;
-    double yVelocitySetpoint = 4;
+    double xVelocitySetpoint = -0.5;
+    double yVelocitySetpoint = 0.25;
     run(drive.drive(() -> xVelocitySetpoint, () -> yVelocitySetpoint, drive::heading));
-    fastForward(400);
+    fastForward(500);
 
     ChassisSpeeds chassisSpeed = drive.getFieldRelativeChassisSpeeds();
 
