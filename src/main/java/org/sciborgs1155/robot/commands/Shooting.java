@@ -22,9 +22,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
-import edu.wpi.first.math.interpolation.Interpolator;
-import edu.wpi.first.math.interpolation.InverseInterpolator;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.Angle;
@@ -52,9 +50,11 @@ public class Shooting implements Logged {
    */
   public static final double SIGGYS_CONSTANT = 3.7;
 
-  private final InterpolatingTreeMap<Double, ShootingState> shotLookup =
-      new InterpolatingTreeMap<Double, ShootingState>(
-          InverseInterpolator.forDouble(), ShootingState.interpolator());
+  // private final InterpolatingTreeMap<Double, ShootingState> shotLookup =
+  //     new InterpolatingTreeMap<Double, ShootingState>(
+  //         InverseInterpolator.forDouble(), ShootingState.interpolator());
+  private static final InterpolatingDoubleTreeMap shotVelocityLookup =
+      new InterpolatingDoubleTreeMap();
 
   @IgnoreLogged private final Shooter shooter;
   @IgnoreLogged private final Pivot pivot;
@@ -66,6 +66,11 @@ public class Shooting implements Logged {
     this.pivot = pivot;
     this.feeder = feeder;
     this.drive = drive;
+
+    shotVelocityLookup.put(0.0, 300.0);
+    shotVelocityLookup.put(1.0, 450.0);
+    shotVelocityLookup.put(4.0, 550.0);
+    shotVelocityLookup.put(5.0, MAX_VELOCITY.in(RadiansPerSecond));
   }
 
   /**
@@ -134,7 +139,10 @@ public class Shooting implements Logged {
 
   public static Pose2d robotPoseFacingSpeaker(Translation2d robotTranslation) {
     return new Pose2d(
-        robotTranslation, yawToSpeaker(robotTranslation).plus(Rotation2d.fromRadians(Math.PI / 2)));
+        robotTranslation,
+        translationToSpeaker(robotTranslation)
+            .getAngle()
+            .plus(Rotation2d.fromRadians(Math.PI / 2)));
   }
 
   /**
@@ -148,22 +156,16 @@ public class Shooting implements Logged {
     ChassisSpeeds speeds = drive.getFieldRelativeChassisSpeeds();
     Vector<N3> robotVelocity =
         VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
-    ShootingState shot = shotLookup.get(distFromSpeaker(robotPose.getTranslation()));
+    Translation2d difference = translationToSpeaker(robotPose.getTranslation());
+    double shotVelocity = calculateStationaryVelocity(difference.getNorm());
     Rotation3d noteOrientation =
         new Rotation3d(
             0,
-            // -calculateStationaryPitch(
-            //     robotPoseFacingSpeaker(robotPose.getTranslation()),
-            //     shotVelocity,
-            //     pivot.position()),
-            -shot.pitch,
-            yawToSpeaker(robotPose.getTranslation()).getRadians());
+            -calculateStationaryPitch(
+                robotPoseFacingSpeaker(robotPose.getTranslation()), shotVelocity, pivot.position()),
+            difference.getAngle().getRadians());
     Vector<N3> noteVelocity =
-        new Translation3d(1, 0, 0)
-            .rotateBy(noteOrientation)
-            .toVector()
-            .unit()
-            .times(shot.flywheelSpeed);
+        new Translation3d(1, 0, 0).rotateBy(noteOrientation).toVector().unit().times(shotVelocity);
 
     return noteVelocity.minus(robotVelocity);
   }
@@ -244,17 +246,12 @@ public class Shooting implements Logged {
     return flywheelSpeed * RADIUS.in(Meters) / SIGGYS_CONSTANT;
   }
 
-  /**
-   * Calculates heading needed to face the speaker.
-   *
-   * @param robotTranslation Translation2d of the robot
-   */
-  public static Rotation2d yawToSpeaker(Translation2d robotTranslation) {
-    return speaker().toTranslation2d().minus(robotTranslation).getAngle();
+  public static Translation2d translationToSpeaker(Translation2d robotTranslation) {
+    return speaker().toTranslation2d().minus(robotTranslation);
   }
 
-  public static double distFromSpeaker(Translation2d translation) {
-    return speaker().toTranslation2d().minus(translation).getNorm();
+  public static double calculateStationaryVelocity(double distance) {
+    return flywheelToNoteSpeed(shotVelocityLookup.get(distance));
   }
 
   /**
@@ -274,7 +271,8 @@ public class Shooting implements Logged {
     double G = 9.81;
     Translation3d shooterTranslation =
         shooterPose(Pivot.transform(-prevPitch), robotPose).getTranslation();
-    double dist = speaker().minus(shooterTranslation).toTranslation2d().getNorm();
+    // double dist = speaker().minus(shooterTranslation).toTranslation2d().getNorm();
+    double dist = translationToSpeaker(shooterTranslation.toTranslation2d()).getNorm();
     double h = speaker().getZ() - shooterTranslation.getZ();
     double denom = (G * pow(dist, 2));
     double rad =
@@ -287,13 +285,14 @@ public class Shooting implements Logged {
     return calculateStationaryPitch(robotPose, velocity, pitch, i + 1);
   }
 
-  private static final record ShootingState(double pitch, double flywheelSpeed) {
-    public static Interpolator<ShootingState> interpolator() {
-      return (start, end, distance) -> {
-        double pitch = start.pitch * (1 - distance) + end.pitch * distance;
-        double flywheelSpeed = start.flywheelSpeed * (1 - distance) + end.flywheelSpeed * distance;
-        return new ShootingState(pitch, flywheelSpeed);
-      };
-    }
-  }
+  // private static final record ShootingState(double pitch, double flywheelSpeed) {
+  //   public static Interpolator<ShootingState> interpolator() {
+  //     return (start, end, distance) -> {
+  //       double pitch = start.pitch * (1 - distance) + end.pitch * distance;
+  //       double flywheelSpeed = start.flywheelSpeed * (1 - distance) + end.flywheelSpeed *
+  // distance;
+  //       return new ShootingState(pitch, flywheelSpeed);
+  //     };
+  //   }
+  // }
 }

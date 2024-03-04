@@ -105,7 +105,8 @@ public class Robot extends CommandRobot implements Logged {
     addPeriodic(Monologue::updateAll, PERIOD.in(Seconds));
     addPeriodic(FaultLogger::update, 1);
     addPeriodic(
-        () -> log("dist", Shooting.distFromSpeaker(drive.pose().getTranslation())), kDefaultPeriod);
+        () -> log("dist", Shooting.translationToSpeaker(drive.pose().getTranslation()).getNorm()),
+        kDefaultPeriod);
 
     // Log PDH
     FaultLogger.register(new PowerDistribution());
