@@ -30,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import org.sciborgs1155.robot.drive.Drive;
-import org.sciborgs1155.robot.drive.DriveConstants.Translation;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.shooter.Shooter;
@@ -239,7 +238,7 @@ public class Shooting {
   }
 
   public static double calculateStationaryPitch2(Pose3d shooterPose, double velocity) {
-    //Possibly increases ability of notes to get into speaker
+    // Possibly increases ability of notes to get into speaker
     double G = 9.81;
     Translation3d shooterPos = shooterPose.getTranslation();
     Translation3d speakerMaxEntry = speaker().minus(new Translation3d(0.451, 0.46, 0.211));
@@ -254,14 +253,16 @@ public class Shooting {
     double radMax =
         pow(distMaxEntry, 2) * pow(velocity, 4)
             - G * pow(distMaxEntry, 2) * (G * pow(distMaxEntry, 2) + 2 * hMax * pow(velocity, 2));
-    double thetaMax = Math.atan((1 / (denomMax)) * (distMaxEntry * pow(velocity, 2) - Math.sqrt(radMax)));
+    double thetaMax =
+        Math.atan((1 / (denomMax)) * (distMaxEntry * pow(velocity, 2) - Math.sqrt(radMax)));
 
     double denomMin = (G * pow(distMinEntry, 2));
     double radMin =
         pow(distMaxEntry, 2) * pow(velocity, 4)
             - G * pow(distMinEntry, 2) * (G * pow(distMinEntry, 2) + 2 * hMin * pow(velocity, 2));
-    double thetaMin = Math.atan((1 / (denomMin)) * (distMinEntry * pow(velocity, 2) - Math.sqrt(radMin)));
-    
+    double thetaMin =
+        Math.atan((1 / (denomMin)) * (distMinEntry * pow(velocity, 2) - Math.sqrt(radMin)));
+
     return (thetaMin + thetaMax) / 2;
   }
 }
