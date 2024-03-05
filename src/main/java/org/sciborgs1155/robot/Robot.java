@@ -41,7 +41,9 @@ import org.sciborgs1155.robot.drive.DriveConstants.Turn;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
+import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
+import org.sciborgs1155.robot.shooter.ShooterConstants;
 import org.sciborgs1155.robot.vision.Vision;
 
 /** A command based, declarative, representation of our entire robot. */
@@ -192,17 +194,10 @@ public class Robot extends CommandRobot implements Logged {
             pivot
                 .manualPivot(
                     InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1))
-                .deadlineWith(shooter.run(() -> {})));
+                .deadlineWith(Commands.idle(shooter)));
 
-    operator.b().whileTrue(pivot.lockedIn().deadlineWith(shooter.run(() -> {})));
-    // operator
-    //     .b()
-    //     .toggleOnTrue(
-    //         shooter.manualShooter(
-    //             InputStream.of(operator::getRightY).negate().deadband(Constants.DEADBAND, 1)));
-    // operator.b().whileTrue(shooting.shootWithPivot(() -> PRESET_AMP_ANGLE.in(Radians), () ->
-    // 95));
-    // operator.y().whileTrue(shooting.shootWithPivot());
+    operator.b().whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
+
     driver
         .x()
         .whileTrue(
@@ -212,14 +207,20 @@ public class Robot extends CommandRobot implements Logged {
                 createJoystickStream(
                     driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
 
-    operator
-        .leftBumper()
-        .or(driver.rightTrigger())
+    driver
+        .y()
+        .or(operator.povUp())
+        .whileTrue(
+            shooting.shootWithPivot(
+                PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.IDLE_VELOCITY));
+
+    driver
+        .rightTrigger()
+        .or(operator.leftBumper())
         .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
         .whileTrue(intake.intake().deadlineWith(feeder.forward()));
 
     operator.rightBumper().whileTrue(feeder.forward());
-    operator.povUp().whileTrue(shooter.runShooter(() -> 630));
     operator.povDown().whileTrue(shooter.runShooter(() -> 500));
 
     intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3));

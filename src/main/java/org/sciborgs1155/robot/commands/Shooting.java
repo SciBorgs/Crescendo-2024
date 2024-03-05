@@ -103,6 +103,11 @@ public class Shooting implements Logged {
     return shoot(targetAngularVelocity, pivot::atGoal).deadlineWith(pivot.runPivot(targetAngle));
   }
 
+  public Command shootWithPivot(
+      Measure<Angle> targetAngle, Measure<Velocity<Angle>> targetVelocity) {
+    return shootWithPivot(() -> targetAngle.in(Radians), () -> targetVelocity.in(RadiansPerSecond));
+  }
+
   /** Shoots while stationary at correct flywheel speed and pivot angle, doesn't auto-turret. */
   public Command shootWithPivot() {
     return shootWithPivot(
