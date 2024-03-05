@@ -40,9 +40,6 @@ public class SwerveTest {
     drive.resetEncoders();
   }
 
-  @Test
-  public void init() {}
-
   @AfterEach
   public void destroy() throws Exception {
     TestingUtil.reset(drive);

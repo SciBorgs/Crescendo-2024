@@ -265,7 +265,6 @@ public class Shooting implements Logged {
     double G = 9.81;
     Translation3d shooterTranslation =
         shooterPose(Pivot.transform(-prevPitch), robotPose).getTranslation();
-    // double dist = speaker().minus(shooterTranslation).toTranslation2d().getNorm();
     double dist = translationToSpeaker(shooterTranslation.toTranslation2d()).getNorm();
     double h = speaker().getZ() - shooterTranslation.getZ();
     double denom = (G * pow(dist, 2));
