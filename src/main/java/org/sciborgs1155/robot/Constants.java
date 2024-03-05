@@ -94,9 +94,7 @@ public class Constants {
 
     /** Returns the translation of the speaker for the robot's alliance. */
     public static Translation3d speaker() {
-      return alliance() == Alliance.Red
-          ? RED_SPEAKER_POSE.minus(SPEAKER_X_OFFSET)
-          : BLUE_SPEAKER_POSE.plus(SPEAKER_X_OFFSET);
+      return alliance() == Alliance.Red ? RED_SPEAKER_POSE : BLUE_SPEAKER_POSE;
     }
 
     /** Returns whether the provided position is within the boundaries of the field. */
