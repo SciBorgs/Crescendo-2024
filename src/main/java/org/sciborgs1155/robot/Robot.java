@@ -2,13 +2,11 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Constants.alliance;
-import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -141,19 +139,10 @@ public class Robot extends CommandRobot implements Logged {
   public void configureAuto() {
     // register named commands for auto
     NamedCommands.registerCommand("lock", drive.lock());
-    NamedCommands.registerCommand(
-        "shoot",
-        shooting.shootWithPivot(() -> PRESET_PODIUM_ANGLE.in(Radians), () -> 80).withTimeout(1.2));
-    NamedCommands.registerCommand(
-        "reset", pivot.runPivot(() -> STARTING_ANGLE.in(Radians)).withTimeout(1));
-    NamedCommands.registerCommand(
-        "intake",
-        intake
-            .intake()
-            .alongWith(feeder.forward())
-            .until(feeder.noteAtShooter())
-            .andThen(feeder.retract()));
+    NamedCommands.registerCommand("shoot", shooting.shootWithPivot());
+    NamedCommands.registerCommand("intake", intake.intake().deadlineWith(feeder.forward()));
 
+    // configure auto
     // configure auto
     AutoBuilder.configureHolonomic(
         drive::pose,

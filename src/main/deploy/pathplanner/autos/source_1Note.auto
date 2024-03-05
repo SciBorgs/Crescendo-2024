@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7493789792060852,
-      "y": 3.876234531402588
+      "x": 0.8089830279350281,
+      "y": 3.076049327850342
     },
-    "rotation": 0.0
+    "rotation": -1.974950476857686
   },
   "command": {
     "type": "sequential",
@@ -14,19 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "M_1"
+            "pathName": "B_shoot"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": null
           }
         },
         {

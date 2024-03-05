@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7993888854980469,
-      "y": 4.013235092163086
+      "x": 0.8089830279350281,
+      "y": 3.076049327850342
     },
-    "rotation": 1.3364580342345409e-30
+    "rotation": -1.974950476857686
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "M_3"
+            "pathName": "B_shoot"
           }
         },
         {
@@ -24,33 +24,34 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": null
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "B_7(i)"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
           }
         },
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 0.4
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intake"
+            "pathName": "B_7(s)"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": null
           }
         },
         {

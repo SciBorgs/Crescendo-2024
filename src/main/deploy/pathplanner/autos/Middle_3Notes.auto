@@ -26,7 +26,7 @@
         {
           "type": "named",
           "data": {
-            "name": "reset"
+            "name": null
           }
         },
         {
@@ -50,7 +50,7 @@
         {
           "type": "named",
           "data": {
-            "name": "reset"
+            "name": null
           }
         },
         {
@@ -74,7 +74,7 @@
         {
           "type": "named",
           "data": {
-            "name": "reset"
+            "name": null
           }
         },
         {
@@ -92,6 +92,6 @@
       ]
     }
   },
-  "folder": "Middle Autos",
+  "folder": null,
   "choreoAuto": true
 }
