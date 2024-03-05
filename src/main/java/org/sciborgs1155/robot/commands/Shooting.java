@@ -242,9 +242,9 @@ public class Shooting {
     double G = 9.81;
     Translation3d shooterPos = shooterPose.getTranslation();
     Translation3d speakerMaxEntry = speaker().minus(new Translation3d(0.451, 0.46, 0.211));
-    double hMax = speakerMaxEntry.getZ() - shooterPos.getZ();
+    double hMax = speakerMaxEntry.getZ() - shooterPos.getZ() - 0.05;
     Translation3d speakerMinEntry = speaker().minus(new Translation3d(0.451, 0, 0.198));
-    double hMin = speakerMinEntry.getZ() - shooterPos.getZ();
+    double hMin = speakerMinEntry.getZ() - shooterPos.getZ() + 0.05;
 
     double distMaxEntry = speakerMaxEntry.minus(shooterPos).toTranslation2d().getNorm();
     double distMinEntry = speakerMinEntry.minus(shooterPos).toTranslation2d().getNorm();
