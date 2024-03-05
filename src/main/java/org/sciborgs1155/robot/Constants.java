@@ -60,8 +60,8 @@ public class Constants {
     public static final Measure<Distance> LENGTH = Inches.of(651.223);
     public static final Measure<Distance> WIDTH = Inches.of(323.277);
 
-    public static final Translation3d BLUE_SPEAKER_POSE = new Translation3d(0.2167, 5.549, 2.12);
-    public static final Translation3d RED_SPEAKER_POSE = new Translation3d(16.3, 5.549, 2.12);
+    public static final Translation3d BLUE_SPEAKER_POSE = new Translation3d(0.2167, 5.549, 2.12 + 0.1);
+    public static final Translation3d RED_SPEAKER_POSE = new Translation3d(16.3, 5.549, 2.12 + 0.1);
     public static final Translation3d SPEAKER_X_OFFSET = new Translation3d(0.451 * 1 / 3, 0, 0);
 
     // found from
