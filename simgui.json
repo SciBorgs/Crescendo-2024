@@ -4,6 +4,11 @@
       "window": {
         "visible": false
       }
+    },
+    "Timing": {
+      "window": {
+        "visible": false
+      }
     }
   },
   "NTProvider": {
@@ -112,5 +117,8 @@
   },
   "NetworkTables Info": {
     "visible": true
+  },
+  "NetworkTables View": {
+    "visible": false
   }
 }

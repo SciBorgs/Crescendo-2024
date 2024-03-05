@@ -2,44 +2,62 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.747413158416748,
-      "y": 6.697556018829346
+      "x": 0.8089830279350281,
+      "y": 3.076049327850342
     },
-    "rotation": 60.255111514732945
+    "rotation": -1.974950476857686
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": null
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "left"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": null
-                }
-              }
-            ]
+            "pathName": "B_shoot"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "shoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "B_8(i)"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_8(s)"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "lock"
           }
         }
       ]

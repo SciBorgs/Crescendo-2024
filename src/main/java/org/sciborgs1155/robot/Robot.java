@@ -8,7 +8,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Constants.alliance;
-import static org.sciborgs1155.robot.pivot.PivotConstants.*;
+import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -144,6 +144,7 @@ public class Robot extends CommandRobot implements Logged {
     NamedCommands.registerCommand("shoot", shooting.shootWithPivot());
     NamedCommands.registerCommand("intake", intake.intake().deadlineWith(feeder.forward()));
 
+    // configure auto
     // configure auto
     AutoBuilder.configureHolonomic(
         drive::pose,
