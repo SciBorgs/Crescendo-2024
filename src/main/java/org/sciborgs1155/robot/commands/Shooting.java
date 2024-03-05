@@ -30,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Function;
-
 import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -270,7 +269,7 @@ public class Shooting implements Logged {
     double G = 9.81;
     Translation3d shooterTranslation =
         shooterPose(Pivot.transform(-prevPitch), robotPose).getTranslation();
-    Function<Translation3d, Double> solve = 
+    Function<Translation3d, Double> solve =
         target -> {
           double h = target.getZ() - shooterTranslation.getZ();
           double dist = target.toTranslation2d().minus(robotPose.getTranslation()).getNorm();

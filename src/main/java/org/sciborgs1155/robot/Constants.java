@@ -94,15 +94,13 @@ public class Constants {
 
     /** Returns the translation of the speaker for the robot's alliance. */
     public static Translation3d speaker() {
-      return alliance() == Alliance.Red
-          ? RED_SPEAKER_POSE
-          : BLUE_SPEAKER_POSE;
+      return alliance() == Alliance.Red ? RED_SPEAKER_POSE : BLUE_SPEAKER_POSE;
     }
 
     public static Translation3d hood() {
-        return alliance() == Alliance.Red
-            ? RED_SPEAKER_POSE.plus(new Translation3d(-HOOD_OFFSET.getX(), 0, HOOD_OFFSET.getZ()))
-            : BLUE_SPEAKER_POSE.plus(HOOD_OFFSET);
+      return alliance() == Alliance.Red
+          ? RED_SPEAKER_POSE.plus(new Translation3d(-HOOD_OFFSET.getX(), 0, HOOD_OFFSET.getZ()))
+          : BLUE_SPEAKER_POSE.plus(HOOD_OFFSET);
     }
 
     /** Returns whether the provided position is within the boundaries of the field. */
