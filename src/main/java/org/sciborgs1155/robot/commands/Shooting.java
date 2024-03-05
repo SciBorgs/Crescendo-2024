@@ -29,6 +29,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Function;
+
 import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -268,13 +270,17 @@ public class Shooting implements Logged {
     double G = 9.81;
     Translation3d shooterTranslation =
         shooterPose(Pivot.transform(-prevPitch), robotPose).getTranslation();
-    double dist = translationToSpeaker(shooterTranslation.toTranslation2d()).getNorm();
-    double h = speaker().getZ() - shooterTranslation.getZ();
-    double denom = (G * pow(dist, 2));
-    double rad =
-        pow(dist, 2) * pow(velocity, 4)
-            - G * pow(dist, 2) * (G * pow(dist, 2) + 2 * h * pow(velocity, 2));
-    double pitch = Math.atan((1 / (denom)) * (dist * pow(velocity, 2) - Math.sqrt(rad)));
+    Function<Translation3d, Double> solve = 
+        target -> {
+          double h = target.getZ() - shooterTranslation.getZ();
+          double dist = target.toTranslation2d().minus(robotPose.getTranslation()).getNorm();
+          double denom = (G * pow(dist, 2));
+          double rad =
+              pow(dist, 2) * pow(velocity, 4)
+                  - G * pow(dist, 2) * (G * pow(dist, 2) + 2 * h * pow(velocity, 2));
+          return Math.atan((1 / (denom)) * (dist * pow(velocity, 2) - Math.sqrt(rad)));
+        };
+    double pitch = (solve.apply(speaker()) + solve.apply(hood())) / 2;
     if (Math.abs(pitch - prevPitch) < 0.005 || i > 100) {
       return pitch;
     }

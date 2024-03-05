@@ -62,7 +62,7 @@ public class Constants {
 
     public static final Translation3d BLUE_SPEAKER_POSE = new Translation3d(0.2167, 5.549, 2.12);
     public static final Translation3d RED_SPEAKER_POSE = new Translation3d(16.3, 5.549, 2.12);
-    public static final Translation3d SPEAKER_X_OFFSET = new Translation3d(0.451 * 1 / 3, 0, 0);
+    public static final Translation3d HOOD_OFFSET = new Translation3d(0.451, 0, 0.122);
 
     // found from
     // https://github.com/Mechanical-Advantage/RobotCode2024/blob/main/src/main/java/org/littletonrobotics/frc2024/FieldConstants.java
@@ -95,8 +95,14 @@ public class Constants {
     /** Returns the translation of the speaker for the robot's alliance. */
     public static Translation3d speaker() {
       return alliance() == Alliance.Red
-          ? RED_SPEAKER_POSE.minus(SPEAKER_X_OFFSET)
-          : BLUE_SPEAKER_POSE.plus(SPEAKER_X_OFFSET);
+          ? RED_SPEAKER_POSE
+          : BLUE_SPEAKER_POSE;
+    }
+
+    public static Translation3d hood() {
+        return alliance() == Alliance.Red
+            ? RED_SPEAKER_POSE.plus(new Translation3d(-HOOD_OFFSET.getX(), 0, HOOD_OFFSET.getZ()))
+            : BLUE_SPEAKER_POSE.plus(HOOD_OFFSET);
     }
 
     /** Returns whether the provided position is within the boundaries of the field. */
