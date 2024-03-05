@@ -236,4 +236,33 @@ public class Shooting {
             - G * pow(dist, 2) * (G * pow(dist, 2) + 2 * h * pow(velocity, 2));
     return Math.atan((1 / (denom)) * (dist * pow(velocity, 2) - Math.sqrt(rad)));
   }
+
+  public static double calculateStationaryPitch2(Pose3d shooterPose, double velocity) {
+    // Possibly increases ability of notes to get into speaker
+    double G = 9.81;
+    Translation3d shooterPos = shooterPose.getTranslation();
+    Translation3d speakerMaxEntry = speaker().minus(new Translation3d(0.451, 0.46, 0.211));
+    double hMax = speakerMaxEntry.getZ() - shooterPos.getZ() - 0.05;
+    Translation3d speakerMinEntry = speaker().minus(new Translation3d(0.451, 0, 0.198));
+    double hMin = speakerMinEntry.getZ() - shooterPos.getZ() + 0.05;
+
+    double distMaxEntry = speakerMaxEntry.minus(shooterPos).toTranslation2d().getNorm();
+    double distMinEntry = speakerMinEntry.minus(shooterPos).toTranslation2d().getNorm();
+
+    double denomMax = (G * pow(distMaxEntry, 2));
+    double radMax =
+        pow(distMaxEntry, 2) * pow(velocity, 4)
+            - G * pow(distMaxEntry, 2) * (G * pow(distMaxEntry, 2) + 2 * hMax * pow(velocity, 2));
+    double thetaMax =
+        Math.atan((1 / (denomMax)) * (distMaxEntry * pow(velocity, 2) - Math.sqrt(radMax)));
+
+    double denomMin = (G * pow(distMinEntry, 2));
+    double radMin =
+        pow(distMaxEntry, 2) * pow(velocity, 4)
+            - G * pow(distMinEntry, 2) * (G * pow(distMinEntry, 2) + 2 * hMin * pow(velocity, 2));
+    double thetaMin =
+        Math.atan((1 / (denomMin)) * (distMinEntry * pow(velocity, 2) - Math.sqrt(radMin)));
+
+    return (thetaMin + thetaMax) / 2;
+  }
 }
