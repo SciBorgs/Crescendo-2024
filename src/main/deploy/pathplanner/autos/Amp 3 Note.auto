@@ -14,7 +14,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "shoo"
           }
         },
         {
@@ -66,77 +66,6 @@
           "data": {
             "name": "shoot"
           }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Amp 3 Note.2"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intake"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
-          }
-<<<<<<<< HEAD:src/main/deploy/pathplanner/autos/Amp 3 Note.auto
-========
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "shoot-intake"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "T_4(i)"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intake"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "T_4(s)"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "lock"
-          }
->>>>>>>> f5e78256985568eeb2f643c863118022c8dab117:src/main/deploy/pathplanner/autos/amp_5Notes(1,2,4,5).auto
         }
       ]
     }
