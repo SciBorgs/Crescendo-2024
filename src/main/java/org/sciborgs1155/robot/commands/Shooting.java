@@ -100,7 +100,8 @@ public class Shooting implements Logged {
    * @return The command to run the pivot to its desired angle and then shoot.
    */
   public Command shootWithPivot(DoubleSupplier targetAngle, DoubleSupplier targetAngularVelocity) {
-    return shoot(targetAngularVelocity, pivot::atGoal).deadlineWith(pivot.runPivot(targetAngle));
+    return shoot(targetAngularVelocity, () -> pivot.atPosition(targetAngle.getAsDouble()))
+        .deadlineWith(pivot.runPivot(targetAngle));
   }
 
   /** Shoots while stationary at correct flywheel speed and pivot angle, doesn't auto-turret. */
@@ -120,7 +121,9 @@ public class Shooting implements Logged {
   public Command shootWhileDriving(DoubleSupplier vx, DoubleSupplier vy) {
     return shoot(
             () -> rotationalVelocityFromNoteVelocity(calculateNoteVelocity()),
-            () -> pivot.atGoal() && drive.atHeadingGoal())
+            () ->
+                pivot.atPosition(pitchFromNoteVelocity(calculateNoteVelocity()))
+                    && drive.atHeadingGoal())
         .deadlineWith(
             drive.drive(vx, vy, () -> yawFromNoteVelocity(calculateNoteVelocity())),
             pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
