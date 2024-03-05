@@ -38,6 +38,14 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
       new ProfiledPIDController(
           kP, kI, kD, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCEL));
 
+  @Log.NT
+  private final ProfiledPIDController climbPID =
+      new ProfiledPIDController(
+          ClimbConstants.kP,
+          ClimbConstants.kI,
+          ClimbConstants.kD,
+          new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCEL));
+
   private final ArmFeedforward ff = new ArmFeedforward(kS, kG, kV);
 
   // Visualization
@@ -102,10 +110,21 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    *
    * @return The command to set the pivot's angle.
    */
-  public Command climb(DoubleSupplier stickInput) {
-    return runOnce(() -> pid.setPID(ClimbConstants.kP, ClimbConstants.kI, ClimbConstants.kD))
-        .andThen(manualPivot(stickInput))
-        .finallyDo(() -> pid.setPID(kP, kI, kD));
+  // public Command climb(DoubleSupplier stickInput) {
+  //   return runOnce(() -> pid.setPID(ClimbConstants.kP, ClimbConstants.kI, ClimbConstants.kD))
+  //   .andThen(Commands.print("p" + ClimbConstants.kP))
+  //       .andThen(manualPivot(stickInput))
+  //       .finallyDo(() -> pid.setPID(kP, kI, kD));
+  // }
+
+  /**
+   * Locked in rn
+   *
+   * @return
+   */
+  public Command lockedIn() {
+    return run(() -> hardware.setVoltage(12))
+        .until(() -> hardware.getPosition() > STARTING_ANGLE.in(Radians));
   }
 
   public Command manualPivot(DoubleSupplier stickInput) {

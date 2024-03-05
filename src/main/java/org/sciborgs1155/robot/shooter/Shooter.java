@@ -59,7 +59,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
 
     // setDefaultCommand(run(() -> shooter.setVoltage(0)));
-    setDefaultCommand(runShooter(300));
+    setDefaultCommand(runShooter(200));
   }
 
   /**
