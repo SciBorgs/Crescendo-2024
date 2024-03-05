@@ -73,11 +73,11 @@ public class Robot extends CommandRobot implements Logged {
         default -> Feeder.create();
       };
 
-  private final Pivot pivot =
-      switch (Constants.ROBOT_TYPE) {
-        case COMPLETE -> Pivot.create();
-        default -> Pivot.none();
-      };
+  private final Pivot pivot = Pivot.none();
+  // switch (Constants.ROBOT_TYPE) {
+  //   case COMPLETE -> Pivot.create();
+  //   default -> Pivot.none();
+  // };
 
   private final Vision vision = Vision.create();
 
@@ -155,7 +155,7 @@ public class Robot extends CommandRobot implements Logged {
         new HolonomicPathFollowerConfig(
             new PIDConstants(Translation.P, Translation.I, Translation.D),
             new PIDConstants(Turn.P, Turn.I, Turn.D),
-            DriveConstants.MAX_SPEED.in(MetersPerSecond) / 2,
+            DriveConstants.MAX_SPEED.in(MetersPerSecond),
             DriveConstants.TRACK_WIDTH.divide(2).in(Meters),
             new ReplanningConfig()),
         () -> alliance() == Alliance.Red,
