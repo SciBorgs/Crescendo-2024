@@ -22,6 +22,8 @@ public class ShooterConstants {
 
   public static final Measure<Velocity<Angle>> VELOCITY_TOLERANCE = RadiansPerSecond.of(5);
 
+  public static final Measure<Velocity<Angle>> IDLE_VELOCITY = RadiansPerSecond.of(200);
+
   public static final Measure<Velocity<Angle>> DEFAULT_VELOCITY = RadiansPerSecond.of(550);
   public static final Measure<Velocity<Distance>> DEFAULT_NOTE_VELOCITY =
       MetersPerSecond.of(Shooting.flywheelToNoteSpeed(DEFAULT_VELOCITY.in(RadiansPerSecond)));

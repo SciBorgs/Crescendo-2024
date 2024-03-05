@@ -1,0 +1,100 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.748814046382904,
+      "y": 6.667093753814697
+    },
+    "rotation": 59.03625099832261
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Subwoofer 4 Note.1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Subwoofer 4 Note.2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Subwoofer 4 Note.3"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}

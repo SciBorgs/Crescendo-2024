@@ -1,0 +1,100 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.355714201927185,
+      "y": 5.5466628074646
+    },
+    "rotation": -8.006144517530569e-25
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Center 4 Note.1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Center 4 Note.2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Center 4 Note.3"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}
