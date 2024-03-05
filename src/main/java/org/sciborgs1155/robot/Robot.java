@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -141,7 +140,7 @@ public class Robot extends CommandRobot implements Logged {
   public void configureAuto() {
     // register named commands for auto
     NamedCommands.registerCommand("lock", drive.lock());
-    NamedCommands.registerCommand("shoot", shooting.shootWithPivot());
+    NamedCommands.registerCommand("shoot", shooting.shootWithPivot().withTimeout(2));
     NamedCommands.registerCommand("intake", intake.intake().deadlineWith(feeder.forward()));
 
     // configure auto
@@ -178,7 +177,7 @@ public class Robot extends CommandRobot implements Logged {
 
   /** Configures trigger -> command bindings */
   private void configureBindings() {
-    autonomous().whileTrue(new ProxyCommand(autos::getSelected));
+    autonomous().whileTrue(Commands.deferredProxy(autos::getSelected));
 
     driver.b().whileTrue(drive.zeroHeading());
     driver

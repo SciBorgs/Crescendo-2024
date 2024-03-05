@@ -1,15 +1,12 @@
 package org.sciborgs1155.robot.commands;
 
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static java.lang.Math.pow;
 import static org.sciborgs1155.robot.Constants.Field.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_NOTE_VELOCITY;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.MAX_VELOCITY;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.RADIUS;
 
@@ -30,7 +27,6 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.IgnoreLogged;
@@ -109,16 +105,9 @@ public class Shooting implements Logged {
 
   /** Shoots while stationary at correct flywheel speed and pivot angle, doesn't auto-turret. */
   public Command shootWithPivot() {
-    return new ProxyCommand(
-        () -> {
-          double pitch =
-              calculateStationaryPitch(
-                  robotPoseFacingSpeaker(drive.pose().getTranslation()),
-                  DEFAULT_NOTE_VELOCITY.in(MetersPerSecond),
-                  pivot.position());
-          return Commands.print("pitch: " + Rotation2d.fromRadians(pitch))
-              .andThen(shootWithPivot(() -> pitch, () -> DEFAULT_VELOCITY.in(RadiansPerSecond)));
-        });
+    return shootWithPivot(
+        () -> pitchFromNoteVelocity(calculateNoteVelocity()),
+        () -> rotationalVelocityFromNoteVelocity(calculateNoteVelocity()));
   }
 
   /**

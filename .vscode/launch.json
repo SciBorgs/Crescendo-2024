@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "org.sciborgs1155.robot.Main",
+      "projectName": "Crescendo-2024"
+    },
+    {
+      "type": "java",
       "name": "Robot",
       "request": "launch",
       "mainClass": "org.sciborgs1155.robot.Robot",
