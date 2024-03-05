@@ -59,7 +59,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
 
     // setDefaultCommand(run(() -> shooter.setVoltage(0)));
-    setDefaultCommand(runShooter(200));
+    setDefaultCommand(run(() -> update(200)));
   }
 
   /**
@@ -69,16 +69,14 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
    * @return The command to set the shooter's velocity.
    */
   public Command runShooter(DoubleSupplier velocity) {
-    return run(() ->
-            shooter.setVoltage(
-                pid.calculate(shooter.velocity(), velocity.getAsDouble())
-                    + ff.calculate(velocity.getAsDouble())))
+    return run(() -> update(velocity.getAsDouble()))
         .finallyDo(
             () -> {
               pid.reset();
               pid.setSetpoint(0);
             })
-        .withName("running shooter");
+        .withName("running shooter")
+        .asProxy();
   }
 
   public Command manualShooter(DoubleSupplier stickInput) {
@@ -94,7 +92,15 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command setSetpoint(DoubleSupplier velocity) {
-    return runOnce(() -> pid.setSetpoint(velocity.getAsDouble()));
+    return runOnce(() -> pid.setSetpoint(velocity.getAsDouble())).asProxy();
+  }
+
+  private void update(double setpointVelocity) {
+    double feedback = pid.calculate(shooter.velocity(), setpointVelocity);
+    double feedforward = ff.calculate(setpointVelocity);
+    log("feedback output", feedback);
+    log("feedforward output", feedforward);
+    shooter.setVoltage(feedback + feedforward);
   }
 
   /**

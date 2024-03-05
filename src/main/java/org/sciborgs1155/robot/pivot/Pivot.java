@@ -26,7 +26,6 @@ import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
-import org.sciborgs1155.robot.pivot.PivotConstants.ClimbConstants;
 
 public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   private final PivotIO hardware;
@@ -37,14 +36,6 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   private final ProfiledPIDController pid =
       new ProfiledPIDController(
           kP, kI, kD, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCEL));
-
-  @Log.NT
-  private final ProfiledPIDController climbPID =
-      new ProfiledPIDController(
-          ClimbConstants.kP,
-          ClimbConstants.kI,
-          ClimbConstants.kD,
-          new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCEL));
 
   private final ArmFeedforward ff = new ArmFeedforward(kS, kG, kV);
 
@@ -104,24 +95,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     return runPivot(() -> goal.in(Radians));
   }
 
-  /**
-   * Smoothly angle the pivot to a desired angle using a separately tuned {@link
-   * ProfiledPIDController} for climbing.
-   *
-   * @return The command to set the pivot's angle.
-   */
-  // public Command climb(DoubleSupplier stickInput) {
-  //   return runOnce(() -> pid.setPID(ClimbConstants.kP, ClimbConstants.kI, ClimbConstants.kD))
-  //   .andThen(Commands.print("p" + ClimbConstants.kP))
-  //       .andThen(manualPivot(stickInput))
-  //       .finallyDo(() -> pid.setPID(kP, kI, kD));
-  // }
-
-  /**
-   * Locked in rn
-   *
-   * @return
-   */
+  /** Chainmaxxing fr */
   public Command lockedIn() {
     return run(() -> hardware.setVoltage(12))
         .until(() -> hardware.getPosition() > STARTING_ANGLE.in(Radians));

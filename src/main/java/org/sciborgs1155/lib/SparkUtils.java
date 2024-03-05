@@ -1,12 +1,9 @@
 package org.sciborgs1155.lib;
 
 import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.REVLibError;
 import edu.wpi.first.wpilibj.Timer;
-import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.sciborgs1155.lib.FaultLogger.FaultType;
@@ -195,57 +192,5 @@ public class SparkUtils {
   public static REVLibError setInverted(CANSparkBase spark, boolean isInverted) {
     spark.setInverted(isInverted);
     return spark.getLastError();
-  }
-
-  /**
-   * Abuse
-   *
-   * <p>Do not use this method
-   */
-  private static long handle(CANSparkBase spark) {
-    try {
-      Field handle = CANSparkLowLevel.class.getField("sparkMaxHandle");
-      handle.setAccessible(true);
-      return handle.getLong(spark);
-    } catch (Exception e) {
-      return 0;
-    }
-  }
-
-  /**
-   * Workaround for issue where SPARK Flex API doesn't allow you to set this.
-   *
-   * @param spark CANSparkFlex to set
-   * @param depth Encoder Average depth in the range [1, 64] default is 64
-   * @return REVLibError::kOk if all is good
-   * @see
-   *     https://www.chiefdelphi.com/t/psa-default-neo-sparkmax-velocity-readings-are-still-bad-for-flywheels/454453/91?u=anglesideangle
-   */
-  public static REVLibError setFlexEncoderAverageDepth(CANSparkFlex spark, int depth) {
-    return REVLibError.kOk;
-    // if (depth < 1 || depth > 64) {
-    //   throw new IllegalArgumentException(
-    //       "Quadrature average depth must be in the range of [1, 64]");
-    // }
-    // return REVLibError.fromInt(CANSparkMaxJNI.c_SparkMax_SetAverageDepth(handle(spark), depth));
-  }
-
-  /**
-   * Workaround for issue where SPARK Flex API doesn't allow you to set this.
-   *
-   * @param spark CANSparkFlex to set
-   * @param period_ms the sample delta period is milliseconds (derivative delta) default is 100
-   * @return REVLibError::kOk if all is good
-   * @see
-   *     https://www.chiefdelphi.com/t/psa-default-neo-sparkmax-velocity-readings-are-still-bad-for-flywheels/454453/91?u=anglesideangle
-   */
-  public static REVLibError setFlexEncoderMeasurementPeriod(CANSparkFlex spark, int period_ms) {
-    return REVLibError.kOk;
-    // if (period_ms < 1 || period_ms > 100) {
-    //   throw new IllegalArgumentException(
-    //       "Quadrature measurement period must be in the range of [1, 100]");
-    // }
-    // return REVLibError.fromInt(
-    //     CANSparkMaxJNI.c_SparkMax_SetMeasurementPeriod(handle(spark), period_ms));
   }
 }

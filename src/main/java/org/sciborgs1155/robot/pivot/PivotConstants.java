@@ -63,14 +63,4 @@ public class PivotConstants {
   public static final double kV = 1.7305;
   public static final double kA = 0.12055;
   public static final double kG = 0.12055;
-
-  public static final class ClimbConstants {
-    public static final double kP = 64;
-    public static final double kI = 0;
-    public static final double kD = 0;
-
-    // public static final double kS = 0;
-    // public static final double kG = 36;
-    // public static final double kV = 0;
-  }
 }

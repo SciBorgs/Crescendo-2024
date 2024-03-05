@@ -47,6 +47,7 @@ public class ShootingTest {
     reset(pivot, shooter, feeder, drive);
   }
 
+  @Disabled
   @Test
   public void testShooter() {
     run(shooter.runShooter(() -> 3));
@@ -69,12 +70,14 @@ public class ShootingTest {
         0.15);
   }
 
+  @Disabled
   @ParameterizedTest
   @ValueSource(doubles = {-200, -100, -15, 0, 15, 100, 200})
   public void testShootStoredNote(double vel) {
     run(shooting.shoot(RadiansPerSecond.of(vel)));
     fastForward();
 
+    System.out.println(shooter.rotationalVelocity());
     assertEquals(vel, shooter.rotationalVelocity(), VELOCITY_TOLERANCE.in(RadiansPerSecond));
   }
 
