@@ -62,7 +62,7 @@ public class Constants {
 
     public static final Translation3d BLUE_SPEAKER_POSE = new Translation3d(0.2167, 5.549, 2.12);
     public static final Translation3d RED_SPEAKER_POSE = new Translation3d(16.3, 5.549, 2.12);
-    public static final Translation3d SPEAKER_X_OFFSET = new Translation3d(0.451 * 2 / 3, 0, 0);
+    public static final Translation3d SPEAKER_X_OFFSET = new Translation3d(0.451 * 1 / 3, 0, 0);
 
     // found from
     // https://github.com/Mechanical-Advantage/RobotCode2024/blob/main/src/main/java/org/littletonrobotics/frc2024/FieldConstants.java
