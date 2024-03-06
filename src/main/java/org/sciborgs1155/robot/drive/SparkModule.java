@@ -50,7 +50,7 @@ public class SparkModule implements ModuleIO {
         () -> driveMotor.setSmartCurrentLimit((int) Driving.CURRENT_LIMIT.in(Amps)),
         () -> driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Meters)),
         () -> driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(MetersPerSecond)),
-        () -> driveEncoder.setAverageDepth(8),
+        () -> driveEncoder.setAverageDepth(16),
         () -> driveEncoder.setMeasurementPeriod(32));
 
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);

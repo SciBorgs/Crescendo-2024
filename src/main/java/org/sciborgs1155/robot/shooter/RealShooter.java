@@ -37,7 +37,7 @@ public class RealShooter implements ShooterIO {
         () -> SparkUtils.setInverted(topMotor, true),
         () -> encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians)),
         () -> encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)),
-        () -> encoder.setAverageDepth(8),
+        () -> encoder.setAverageDepth(16),
         () -> encoder.setMeasurementPeriod(32));
 
     bottomMotor = new CANSparkFlex(BOTTOM_MOTOR, MotorType.kBrushless);

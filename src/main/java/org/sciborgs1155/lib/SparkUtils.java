@@ -73,7 +73,6 @@ public class SparkUtils {
     }
     REVLibError error = config.get();
     if (error != REVLibError.kOk) {
-      Timer.delay(0.01);
       configure(spark, config, attempt + 1);
     }
   }

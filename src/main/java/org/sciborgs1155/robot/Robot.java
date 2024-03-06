@@ -73,11 +73,11 @@ public class Robot extends CommandRobot implements Logged {
         default -> Feeder.create();
       };
 
-  private final Pivot pivot =
-      switch (Constants.ROBOT_TYPE) {
-        case COMPLETE -> Pivot.create();
-        default -> Pivot.none();
-      };
+  private final Pivot pivot = Pivot.none();
+      // switch (Constants.ROBOT_TYPE) {
+      //   case COMPLETE -> Pivot.create();
+      //   default -> Pivot.none();
+      // };
 
   private final Vision vision = Vision.create();
 
@@ -221,7 +221,7 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(intake.intake().deadlineWith(feeder.forward()));
 
     operator.rightBumper().whileTrue(feeder.forward());
-    operator.povDown().whileTrue(shooter.runShooter(() -> 500));
+    operator.povDown().whileTrue(shooter.runShooter(() -> 300));
 
     intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3));
     feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3));
