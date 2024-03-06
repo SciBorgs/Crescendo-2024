@@ -35,7 +35,7 @@ public class PivotConstants {
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);
 
-  public static final Measure<Angle> POSITION_TOLERANCE = Degrees.of(3.0);
+  public static final Measure<Angle> POSITION_TOLERANCE = Degrees.of(2.0);
 
   public static final Measure<Mass> MASS = Kilograms.of(1);
   public static final Measure<Distance> LENGTH = Inches.of(16);

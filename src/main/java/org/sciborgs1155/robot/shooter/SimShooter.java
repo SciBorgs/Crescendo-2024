@@ -27,7 +27,6 @@ public class SimShooter implements ShooterIO {
 
   @Override
   public double current() {
-    // TODO Auto-generated method stub
     return 0;
   }
 

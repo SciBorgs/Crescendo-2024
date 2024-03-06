@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Volts;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -70,11 +71,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
    */
   public Command runShooter(DoubleSupplier velocity) {
     return run(() -> update(velocity.getAsDouble()))
-        .finallyDo(
-            () -> {
-              pid.reset();
-              pid.setSetpoint(0);
-            })
+        .beforeStarting(pid::reset)
         .withName("running shooter")
         .asProxy();
   }
@@ -97,10 +94,10 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   private void update(double setpointVelocity) {
     double feedback = pid.calculate(shooter.velocity(), setpointVelocity);
-    double feedforward = ff.calculate(setpointVelocity);
+    double feedforward = ff.calculate(shooter.velocity(), setpointVelocity, PERIOD.in(Seconds));
     log("feedback output", feedback);
     log("feedforward output", feedforward);
-    shooter.setVoltage(feedback + feedforward);
+    shooter.setVoltage(MathUtil.clamp(feedback + feedforward, -12, 12));
   }
 
   /**

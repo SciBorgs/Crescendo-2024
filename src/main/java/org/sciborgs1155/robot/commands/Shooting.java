@@ -277,7 +277,7 @@ public class Shooting implements Logged {
         pow(dist, 2) * pow(velocity, 4)
             - G * pow(dist, 2) * (G * pow(dist, 2) + 2 * h * pow(velocity, 2));
     double pitch = Math.atan((1 / (denom)) * (dist * pow(velocity, 2) - Math.sqrt(rad)));
-    if (Math.abs(pitch - prevPitch) < 0.005 || i > 100) {
+    if (Math.abs(pitch - prevPitch) < 0.005 || i > 50) {
       return pitch;
     }
     return calculateStationaryPitch(robotPose, velocity, pitch, i + 1);

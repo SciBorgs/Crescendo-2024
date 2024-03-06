@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot.drive;
 
 import static edu.wpi.first.units.Units.*;
-import static org.sciborgs1155.robot.drive.DriveConstants.TRACK_WIDTH;
 
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -19,16 +18,17 @@ public final class DriveConstants {
   public static final Measure<Distance> TRACK_WIDTH = Meters.of(0.5715);
   // Distance between front and back wheels on robot
   public static final Measure<Distance> WHEEL_BASE = Meters.of(0.5715);
+  // Distance from the center to any wheel of the robot
+  public static final Measure<Distance> RADIUS = TRACK_WIDTH.divide(2).times(Math.sqrt(2));
 
   public static final Measure<Velocity<Distance>> MAX_SPEED = MetersPerSecond.of(5.74);
   public static final Measure<Velocity<Velocity<Distance>>> MAX_ACCEL =
       MetersPerSecondPerSecond.of(14.0);
 
   public static final Measure<Velocity<Angle>> MAX_ANGULAR_SPEED =
-      RadiansPerSecond.of(MAX_SPEED.in(MetersPerSecond) / TRACK_WIDTH.in(Meters));
+      RadiansPerSecond.of(MAX_SPEED.in(MetersPerSecond) / RADIUS.in(Meters));
   public static final Measure<Velocity<Velocity<Angle>>> MAX_ANGULAR_ACCEL =
-      RadiansPerSecond.per(Second)
-          .of(MAX_ACCEL.in(MetersPerSecondPerSecond) / TRACK_WIDTH.in(Meters));
+      RadiansPerSecond.per(Second).of(MAX_ACCEL.in(MetersPerSecondPerSecond) / RADIUS.in(Meters));
 
   public static final Translation2d[] MODULE_OFFSET = {
     new Translation2d(WHEEL_BASE.divide(2), TRACK_WIDTH.divide(2)), // front left
@@ -60,7 +60,7 @@ public final class DriveConstants {
     public static final double I = 0.0;
     public static final double D = 0.1;
 
-    public static final Measure<Angle> TOLERANCE = Degrees.of(6);
+    public static final Measure<Angle> TOLERANCE = Degrees.of(5);
   }
 
   public static final PathConstraints CONSTRAINTS =

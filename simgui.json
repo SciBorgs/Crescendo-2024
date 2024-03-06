@@ -24,7 +24,7 @@
       "/Robot/drive/rearLeft/turnFeedback": "PIDController",
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
-      "/Robot/drive/rotationController": "ProfiledPIDController",
+      "/Robot/drive/rotationController": "PIDController",
       "/Robot/pivot/climbPID": "ProfiledPIDController",
       "/Robot/pivot/pid": "ProfiledPIDController",
       "/Robot/pivot/positionVisualizer": "Mechanism2d",

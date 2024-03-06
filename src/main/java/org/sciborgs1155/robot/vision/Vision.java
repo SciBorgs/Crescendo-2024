@@ -72,13 +72,13 @@ public class Vision implements Logged {
       for (int i = 0; i < cameras.length; i++) {
         var prop = new SimCameraProperties();
         prop.setCalibration(WIDTH, HEIGHT, FOV);
-        prop.setCalibError(0.35, 0.10);
+        prop.setCalibError(0.15, 0.05);
         prop.setFPS(45);
         prop.setAvgLatencyMs(12);
         prop.setLatencyStdDevMs(3.5);
 
         PhotonCameraSim cameraSim = new PhotonCameraSim(cameras[i], prop);
-        cameraSim.setMaxSightRange(7);
+        cameraSim.setMaxSightRange(5);
         cameraSim.enableRawStream(true);
         cameraSim.enableProcessedStream(true);
         cameraSim.enableDrawWireframe(true);
@@ -103,7 +103,11 @@ public class Vision implements Logged {
       log("estimates present " + i, estimate.isPresent());
       estimate
           .filter(
-              f -> Field.inField(f.estimatedPose) && Math.abs(f.estimatedPose.getZ()) < MAX_HEIGHT)
+              f ->
+                  Field.inField(f.estimatedPose)
+                      && Math.abs(f.estimatedPose.getZ()) < MAX_HEIGHT
+                      && Math.abs(f.estimatedPose.getRotation().getX()) > MAX_ANGLE
+                      && Math.abs(f.estimatedPose.getRotation().getY()) > MAX_ANGLE)
           .ifPresent(
               e ->
                   estimates.add(

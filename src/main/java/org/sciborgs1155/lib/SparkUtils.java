@@ -3,7 +3,6 @@ package org.sciborgs1155.lib;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.REVLibError;
-import edu.wpi.first.wpilibj.Timer;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.sciborgs1155.lib.FaultLogger.FaultType;

@@ -8,7 +8,7 @@ import static org.sciborgs1155.robot.Constants.allianceRotation;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -20,7 +20,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -69,12 +68,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   private final SysIdRoutine sysid;
 
   @Log.NT
-  private final ProfiledPIDController rotationController =
-      new ProfiledPIDController(
-          Rotation.P,
-          Rotation.I,
-          Rotation.D,
-          new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
+  private final PIDController rotationController =
+      new PIDController(Rotation.P, Rotation.I, Rotation.D);
 
   /**
    * A factory to create a new swerve drive based on whether the robot is being ran in simulation or
@@ -219,7 +214,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @return The driving command.
    */
   public Command drive(DoubleSupplier vx, DoubleSupplier vy, Supplier<Rotation2d> heading) {
-    return runOnce(() -> rotationController.reset(heading.get().getRadians()))
+    return runOnce(rotationController::reset)
         .andThen(
             drive(
                 vx,
@@ -339,8 +334,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
     log(
         "turning target",
-        new Pose2d(
-            pose().getTranslation(), new Rotation2d(rotationController.getSetpoint().position)));
+        new Pose2d(pose().getTranslation(), new Rotation2d(rotationController.getSetpoint())));
 
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
   }

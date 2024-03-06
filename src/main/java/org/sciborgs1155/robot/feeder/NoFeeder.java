@@ -11,7 +11,6 @@ public class NoFeeder implements FeederIO {
 
   @Override
   public double current() {
-    // TODO Auto-generated method stub
     return 0;
   }
 
