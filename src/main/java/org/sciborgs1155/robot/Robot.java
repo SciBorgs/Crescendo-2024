@@ -36,8 +36,8 @@ import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
+import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 import org.sciborgs1155.robot.drive.DriveConstants.Translation;
-import org.sciborgs1155.robot.drive.DriveConstants.Turn;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -73,11 +73,11 @@ public class Robot extends CommandRobot implements Logged {
         default -> Feeder.create();
       };
 
-  private final Pivot pivot = Pivot.none();
-  // switch (Constants.ROBOT_TYPE) {
-  //   case COMPLETE -> Pivot.create();
-  //   default -> Pivot.none();
-  // };
+  private final Pivot pivot =
+      switch (Constants.ROBOT_TYPE) {
+        case COMPLETE -> Pivot.create();
+        default -> Pivot.none();
+      };
 
   private final Vision vision = Vision.create();
 
@@ -154,7 +154,7 @@ public class Robot extends CommandRobot implements Logged {
         drive::driveRobotRelative,
         new HolonomicPathFollowerConfig(
             new PIDConstants(Translation.P, Translation.I, Translation.D),
-            new PIDConstants(Turn.P, Turn.I, Turn.D),
+            new PIDConstants(Rotation.P, Rotation.I, Rotation.D),
             DriveConstants.MAX_SPEED.in(MetersPerSecond),
             DriveConstants.TRACK_WIDTH.divide(2).in(Meters),
             new ReplanningConfig()),

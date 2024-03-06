@@ -1,6 +1,9 @@
 package org.sciborgs1155.robot.drive;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 import static org.sciborgs1155.robot.Constants.allianceRotation;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
@@ -37,7 +40,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
-import org.sciborgs1155.robot.drive.DriveConstants.Turn;
+import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 import org.sciborgs1155.robot.vision.Vision.PoseEstimate;
 
 public class Drive extends SubsystemBase implements Logged, AutoCloseable {
@@ -68,9 +71,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   @Log.NT
   private final ProfiledPIDController rotationController =
       new ProfiledPIDController(
-          Turn.P,
-          Turn.I,
-          Turn.D,
+          Rotation.P,
+          Rotation.I,
+          Rotation.D,
           new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
 
   /**
@@ -127,7 +130,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     gyro.reset();
 
     rotationController.enableContinuousInput(0, 2 * Math.PI);
-    rotationController.setTolerance(0.1);
+    rotationController.setTolerance(Rotation.TOLERANCE.in(Radians));
 
     rateLimiter = new SlewRateLimiter(9.5, Double.NEGATIVE_INFINITY, 0);
     SmartDashboard.putData("drive quasistatic forward", sysIdQuasistatic(Direction.kForward));
@@ -180,8 +183,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   @Log.NT
-  public boolean atHeadingGoal() {
-    return rotationController.atGoal();
+  public boolean atHeadingSetpoint() {
+    return rotationController.atSetpoint();
   }
 
   /**

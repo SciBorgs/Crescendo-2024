@@ -32,6 +32,7 @@ import java.util.function.DoubleSupplier;
 import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -123,14 +124,15 @@ public class Shooting implements Logged {
    * @param vy The field relative y velocity to drive in.
    * @return A command to shote while moving.
    */
-  public Command shootWhileDriving(DoubleSupplier vx, DoubleSupplier vy) {
+  public Command shootWhileDriving(InputStream vx, InputStream vy) {
     return shoot(
             () -> rotationalVelocityFromNoteVelocity(calculateNoteVelocity()),
             () ->
                 pivot.atPosition(pitchFromNoteVelocity(calculateNoteVelocity()))
-                    && drive.atHeadingGoal())
+                    && drive.atHeadingSetpoint())
         .deadlineWith(
-            drive.drive(vx, vy, () -> yawFromNoteVelocity(calculateNoteVelocity())),
+            drive.drive(
+                vx.scale(0.5), vy.scale(0.5), () -> yawFromNoteVelocity(calculateNoteVelocity())),
             pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
   }
 
@@ -151,8 +153,9 @@ public class Shooting implements Logged {
   public Vector<N3> calculateNoteVelocity() {
     Pose2d robotPose = drive.pose();
     ChassisSpeeds speeds = drive.getFieldRelativeChassisSpeeds();
+    // robot velocity is negated because our shooter is on the opposite end of our robot
     Vector<N3> robotVelocity =
-        VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
+        VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0).times(-1);
     Translation2d difference = translationToSpeaker(robotPose.getTranslation());
     double shotVelocity = calculateStationaryVelocity(difference.getNorm());
     Rotation3d noteOrientation =
@@ -161,6 +164,7 @@ public class Shooting implements Logged {
             -calculateStationaryPitch(
                 robotPoseFacingSpeaker(robotPose.getTranslation()), shotVelocity, pivot.position()),
             difference.getAngle().getRadians());
+    // rotate unit forward vector by note orientation and scale by our shot velocity
     Vector<N3> noteVelocity =
         new Translation3d(1, 0, 0).rotateBy(noteOrientation).toVector().unit().times(shotVelocity);
 
@@ -228,7 +232,6 @@ public class Shooting implements Logged {
    * @return Flywheel speed (rads / s)
    */
   public static double rotationalVelocityFromNoteVelocity(Vector<N3> velocity) {
-    // TODO account for lost energy! (with regression probably)
     return velocity.norm() / RADIUS.in(Meters) * SIGGYS_CONSTANT;
   }
 
@@ -239,7 +242,6 @@ public class Shooting implements Logged {
    * @return Note speed in meters per second
    */
   public static double flywheelToNoteSpeed(double flywheelSpeed) {
-    // TODO account for lost energy! (with regression probably)
     return flywheelSpeed * RADIUS.in(Meters) / SIGGYS_CONSTANT;
   }
 
@@ -280,15 +282,4 @@ public class Shooting implements Logged {
     }
     return calculateStationaryPitch(robotPose, velocity, pitch, i + 1);
   }
-
-  // private static final record ShootingState(double pitch, double flywheelSpeed) {
-  //   public static Interpolator<ShootingState> interpolator() {
-  //     return (start, end, distance) -> {
-  //       double pitch = start.pitch * (1 - distance) + end.pitch * distance;
-  //       double flywheelSpeed = start.flywheelSpeed * (1 - distance) + end.flywheelSpeed *
-  // distance;
-  //       return new ShootingState(pitch, flywheelSpeed);
-  //     };
-  //   }
-  // }
 }
