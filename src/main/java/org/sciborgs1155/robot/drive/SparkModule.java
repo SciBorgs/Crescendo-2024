@@ -28,6 +28,9 @@ public class SparkModule implements ModuleIO {
 
   private final Rotation2d angularOffset;
 
+  private double lastVelocity;
+  private double lastPosition;
+
   /**
    * Constructs a SwerveModule for rev's MAX Swerve.
    *
@@ -79,6 +82,9 @@ public class SparkModule implements ModuleIO {
     resetEncoders();
 
     this.angularOffset = angularOffset;
+
+    lastVelocity = driveEncoder.getVelocity();
+    lastPosition = driveEncoder.getPosition() * (1 - COUPLING_RATIO);
   }
 
   @Override
@@ -98,12 +104,24 @@ public class SparkModule implements ModuleIO {
     double driveRot = driveEncoder.getPosition();
     // account for rotation of turn motor on rotation of drive motor
     driveRot -= turningEncoder.getPosition() * COUPLING_RATIO;
-    return driveRot;
+    if (FaultLogger.check(driveMotor)) {
+      return lastPosition;
+    } else {
+      lastPosition = driveRot;
+      return driveRot;
+    }
   }
 
   @Override
   public double driveVelocity() {
-    return driveEncoder.getVelocity();
+    double velocity = driveEncoder.getVelocity();
+    if (FaultLogger.check(driveMotor)) {
+      return lastVelocity;
+      // no need to report error because check() does that for us
+    } else {
+      lastVelocity = velocity;
+      return velocity;
+    }
   }
 
   @Override

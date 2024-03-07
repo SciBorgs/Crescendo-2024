@@ -219,7 +219,7 @@ public final class FaultLogger {
    * Registers fault suppliers for a power distribution hub/panel.
    *
    * @param powerDistribution The power distribution to manage.
-   */ 
+   */
   public static void register(PowerDistribution powerDistribution) {
     for (Field field : PowerDistribution.class.getFields()) {
       register(
