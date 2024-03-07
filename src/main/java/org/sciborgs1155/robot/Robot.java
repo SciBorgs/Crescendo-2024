@@ -169,12 +169,10 @@ public class Robot extends CommandRobot implements Logged {
   private void configureSubsystemDefaults() {
     drive.setDefaultCommand(
         drive.drive(
-            createJoystickStream(
-                driver::getLeftY, // account for roborio (and navx) facing wrong direction
-                DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+            createJoystickStream(driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
             createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
             createJoystickStream(
-                driver::getRightX, DriveConstants.MAX_ANGULAR_SPEED.in(RadiansPerSecond))));
+                driver::getRightX, DriveConstants.TELEOP_ANGULAR_SPEED.in(RadiansPerSecond))));
   }
 
   /** Configures trigger -> command bindings */

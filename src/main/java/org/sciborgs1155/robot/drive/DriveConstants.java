@@ -21,14 +21,18 @@ public final class DriveConstants {
   // Distance from the center to any wheel of the robot
   public static final Measure<Distance> RADIUS = TRACK_WIDTH.divide(2).times(Math.sqrt(2));
 
+  // Maximum achievable translational and rotation velocities and accelerations of the robot.
   public static final Measure<Velocity<Distance>> MAX_SPEED = MetersPerSecond.of(5.74);
   public static final Measure<Velocity<Velocity<Distance>>> MAX_ACCEL =
       MetersPerSecondPerSecond.of(14.0);
-
   public static final Measure<Velocity<Angle>> MAX_ANGULAR_SPEED =
       RadiansPerSecond.of(MAX_SPEED.in(MetersPerSecond) / RADIUS.in(Meters));
   public static final Measure<Velocity<Velocity<Angle>>> MAX_ANGULAR_ACCEL =
       RadiansPerSecond.per(Second).of(MAX_ACCEL.in(MetersPerSecondPerSecond) / RADIUS.in(Meters));
+
+  // Arbitrary max rotational velocity for the driver to effectively control the robot
+  public static final Measure<Velocity<Angle>> TELEOP_ANGULAR_SPEED =
+      Radians.per(Second).of(2 * Math.PI);
 
   public static final Translation2d[] MODULE_OFFSET = {
     new Translation2d(WHEEL_BASE.divide(2), TRACK_WIDTH.divide(2)), // front left
