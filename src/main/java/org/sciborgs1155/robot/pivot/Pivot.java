@@ -26,7 +26,6 @@ import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
-import org.sciborgs1155.robot.pivot.PivotConstants.ClimbConstants;
 
 public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   private final PivotIO hardware;
@@ -96,22 +95,16 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     return runPivot(() -> goal.in(Radians));
   }
 
-  /**
-   * Smoothly angle the pivot to a desired angle using a separately tuned {@link
-   * ProfiledPIDController} for climbing.
-   *
-   * @return The command to set the pivot's angle.
-   */
-  public Command climb(double goalAngle) {
-    return runOnce(() -> pid.setPID(ClimbConstants.kP, ClimbConstants.kI, ClimbConstants.kD))
-        .andThen(() -> update(goalAngle))
-        .finallyDo(() -> pid.setPID(kP, kI, kD));
+  /** Chainmaxxing fr */
+  public Command lockedIn() {
+    return run(() -> hardware.setVoltage(12));
+    // .until(() -> hardware.getPosition() > STARTING_ANGLE.in(Radians));
   }
 
   public Command manualPivot(DoubleSupplier stickInput) {
     return runPivot(
         InputStream.of(stickInput)
-            .scale(MAX_VELOCITY.in(RadiansPerSecond) / 2)
+            .scale(MAX_VELOCITY.in(RadiansPerSecond) / 4)
             .scale(Constants.PERIOD.in(Seconds))
             .add(() -> pid.getGoal().position));
   }
@@ -137,7 +130,16 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   @Log.NT
   public Transform3d transform() {
-    return new Transform3d(OFFSET, rotation());
+    return new Transform3d(AXLE_FROM_CHASSIS, rotation());
+  }
+
+  @Log.NT
+  public static Transform3d transform(double position) {
+    return new Transform3d(AXLE_FROM_CHASSIS, new Rotation3d(0.0, position, 0.0));
+  }
+
+  public double position() {
+    return hardware.getPosition();
   }
 
   @Log.NT
@@ -190,7 +192,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
-    positionVisualizer.setState(rotation().getY());
+    positionVisualizer.setState(hardware.getPosition());
     setpointVisualizer.setState(setpoint().getY());
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
   }

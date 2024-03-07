@@ -144,7 +144,7 @@ public class NoteVisualizer implements Logged {
                       .finallyDo(
                           () -> {
                             shotNotePub.set(new Pose3d());
-                            // notePathPub.set(new Pose3d[0]);
+                            notePathPub.set(new Pose3d[0]);
                           });
                 },
                 Set.of()))

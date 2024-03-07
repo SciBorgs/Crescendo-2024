@@ -4,6 +4,11 @@
       "window": {
         "visible": false
       }
+    },
+    "Timing": {
+      "window": {
+        "visible": false
+      }
     }
   },
   "NTProvider": {
@@ -19,11 +24,26 @@
       "/Robot/drive/rearLeft/turnFeedback": "PIDController",
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
-      "/Robot/drive/rotationController": "ProfiledPIDController",
+      "/Robot/drive/rotationController": "PIDController",
+      "/Robot/pivot/climbPID": "ProfiledPIDController",
       "/Robot/pivot/pid": "ProfiledPIDController",
       "/Robot/pivot/positionVisualizer": "Mechanism2d",
       "/Robot/pivot/setpointVisualizer": "Mechanism2d",
       "/Robot/shooter/pid": "PIDController",
+      "/Robot/shooting/drive/field2d": "Field2d",
+      "/Robot/shooting/drive/frontLeft/driveFeedback": "PIDController",
+      "/Robot/shooting/drive/frontLeft/turnFeedback": "PIDController",
+      "/Robot/shooting/drive/frontRight/driveFeedback": "PIDController",
+      "/Robot/shooting/drive/frontRight/turnFeedback": "PIDController",
+      "/Robot/shooting/drive/rearLeft/driveFeedback": "PIDController",
+      "/Robot/shooting/drive/rearLeft/turnFeedback": "PIDController",
+      "/Robot/shooting/drive/rearRight/driveFeedback": "PIDController",
+      "/Robot/shooting/drive/rearRight/turnFeedback": "PIDController",
+      "/Robot/shooting/drive/rotationController": "ProfiledPIDController",
+      "/Robot/shooting/pivot/pid": "ProfiledPIDController",
+      "/Robot/shooting/pivot/positionVisualizer": "Mechanism2d",
+      "/Robot/shooting/pivot/setpointVisualizer": "Mechanism2d",
+      "/Robot/shooting/shooter/pid": "PIDController",
       "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",
@@ -97,5 +117,8 @@
   },
   "NetworkTables Info": {
     "visible": true
+  },
+  "NetworkTables View": {
+    "visible": false
   }
 }

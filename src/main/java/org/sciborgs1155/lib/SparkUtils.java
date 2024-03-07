@@ -31,23 +31,6 @@ public class SparkUtils {
   }
 
   /**
-   * This is a workaround since {@link CANSparkBase#setInverted(boolean)} does not return a {@code
-   * REVLibError} because it is overriding {@link
-   * edu.wpi.first.wpilibj.motorcontrol.MotorController}.
-   *
-   * <p>This call has no effect if the controller is a follower. To invert a follower, see the
-   * follow() method.
-   *
-   * @param spark The spark to set inversion of.
-   * @param isInverted The state of inversion, true is inverted.
-   * @return {@link REVLibError#kOk} if successful.
-   */
-  public static REVLibError setInverted(CANSparkBase spark, boolean isInverted) {
-    spark.setInverted(isInverted);
-    return spark.getLastError();
-  }
-
-  /**
    * Fully configures a Spark Max/Flex with all provided configs.
    *
    * <p>Each config is applied until success, or until the number of attempts exceed {@code
@@ -80,6 +63,12 @@ public class SparkUtils {
     if (attempt >= MAX_ATTEMPTS) {
       FaultLogger.report(name(spark), "FAILED TO SET PARAMETER", FaultType.ERROR);
       return;
+    }
+    if (attempt >= 1) {
+      FaultLogger.report(
+          name(spark),
+          "setting parameter failed: " + attempt + "/" + MAX_ATTEMPTS,
+          FaultType.WARNING);
     }
     REVLibError error = config.get();
     if (error != REVLibError.kOk) {
@@ -184,5 +173,22 @@ public class SparkUtils {
    */
   public static REVLibError configureNothingFrameStrategy(CANSparkBase spark) {
     return configureFrameStrategy(spark, Set.of(), Set.of(), false);
+  }
+
+  /**
+   * This is a workaround since {@link CANSparkBase#setInverted(boolean)} does not return a {@code
+   * REVLibError} because it is overriding {@link
+   * edu.wpi.first.wpilibj.motorcontrol.MotorController}.
+   *
+   * <p>This call has no effect if the controller is a follower. To invert a follower, see the
+   * follow() method.
+   *
+   * @param spark The spark to set inversion of.
+   * @param isInverted The state of inversion, true is inverted.
+   * @return {@link REVLibError#kOk} if successful.
+   */
+  public static REVLibError setInverted(CANSparkBase spark, boolean isInverted) {
+    spark.setInverted(isInverted);
+    return spark.getLastError();
   }
 }

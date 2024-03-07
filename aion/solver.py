@@ -16,7 +16,7 @@ field_width = 8.2296  # 27 ft
 field_length = 16.4592  # 54 ft
 
 g = 9.806
-max_launch_velocity = 30
+max_launch_velocity = 20
 
 min_launch_angle = 0
 max_launch_angle = 1.1
@@ -41,6 +41,8 @@ target_radius = 0.61
 
 # height of shooter
 shooter_z = 0.635
+shooter_offset_x = 0.2315972
+shooter_offset_z = 0.1490472
 
 
 def lerp(a, b, t):
@@ -191,13 +193,13 @@ class Solver:
         self.v_y = self.X[4, :]
         self.v_z = self.X[5, :]
 
-        def point(i):
-            return (self.p_x[i], self.p_y[i], self.p_z[i])
+        # def point(i):
+        #     return (self.p_x[i], self.p_y[i], self.p_z[i])
 
-        for i in range(11, self.N - 5):
-            self._opti.subject_to(
-                danger_zone(point(i), point(i + 1)) == 0
-            )  # checking that it's false
+        # for i in range(11, self.N - 5):
+        #     self._opti.subject_to(
+        #         danger_zone(point(i), point(i + 1)) == 0
+        #     )  # checking that it's false
 
         # Require initial launch velocity is below max
         # √{v_x² + v_y² + v_z²) <= vₘₐₓ
@@ -207,30 +209,35 @@ class Solver:
             <= max_launch_velocity**2
         )
 
+        # Require final position is in center of the speaker
+        self._opti.subject_to(self.p_x[-1] == 0.2167)
+        self._opti.subject_to(self.p_y[-1] == 5.549)
+        self._opti.subject_to(self.p_z[-1] == 2.12)
+
         # Require final position is within speaker wall bounds
-        self._opti.subject_to(self.p_x[-1] < 0)  # note will be at wall
-        self._opti.subject_to(
-            (field_width - note_diameter) / 2 - delta_y / 2 < self.p_y[-1]
-        )
-        self._opti.subject_to(
-            (field_width - note_diameter) / 2 + delta_y / 2 > self.p_y[-1]
-        )
-        self._opti.subject_to(
-            speaker_low_edge - (delta_z - note_width) / 2 < self.p_z[-1]
-        )
-        self._opti.subject_to(
-            speaker_low_edge + (delta_z - note_width) / 2 > self.p_z[-1]
-        )
+        # self._opti.subject_to(self.p_x[-1] < 0)  # note will be at wall
+        # self._opti.subject_to(
+        #     (field_width - note_diameter) / 2 - delta_y / 2 < self.p_y[-1]
+        # )
+        # self._opti.subject_to(
+        #     (field_width - note_diameter) / 2 + delta_y / 2 > self.p_y[-1]
+        # )
+        # self._opti.subject_to(
+        #     speaker_low_edge - (delta_z - note_width) / 2 < self.p_z[-1]
+        # )
+        # self._opti.subject_to(
+        #     speaker_low_edge + (delta_z - note_width) / 2 > self.p_z[-1]
+        # )
 
         # Require all velocities are going towards the wall
         self._opti.subject_to(self.v_x < 0)
 
         # Calculate initial pitch
-        pitch = ca.atan2(self.v_z[0], hypot(self.v_x[0], self.v_y[0]))
+        self.pitch = ca.atan2(self.v_z[0], hypot(self.v_x[0], self.v_y[0]))
         # pitch = math.pi / 2.0 - ca.asin(ca.norm_1(self.X[:3, 0]) / ca.norm_1(self.X[:3, 0]))
         # Constrain starting angle
-        self._opti.subject_to(pitch > min_launch_angle)
-        self._opti.subject_to(pitch < max_launch_angle)
+        self._opti.subject_to(self.pitch > min_launch_angle)
+        self._opti.subject_to(self.pitch < max_launch_angle)
 
         # Dynamics constraints - RK4 integration
         for k in range(self.N - 1):
@@ -238,10 +245,10 @@ class Solver:
             x_k = self.X[:, k]
             x_k1 = self.X[:, k + 1]
 
-            k1 = f(x_k, pitch)
-            k2 = f(x_k + h / 2 * k1, pitch)
-            k3 = f(x_k + h / 2 * k2, pitch)
-            k4 = f(x_k + h * k3, pitch)
+            k1 = f(x_k, self.pitch)
+            k2 = f(x_k + h / 2 * k1, self.pitch)
+            k3 = f(x_k + h / 2 * k2, self.pitch)
+            k4 = f(x_k + h * k3, self.pitch)
             self._opti.subject_to(x_k1 == x_k + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4))
 
         # Minimize distance from goal over time
@@ -251,7 +258,9 @@ class Solver:
         self._opti.minimize(J)
 
     def solve(self, x, y):
-        shooter = np.array([[x], [y], [shooter_z]])
+        # x and y are pivot positions (i am lazy)
+        # we offset pivot positons
+        shooter = np.array([[x], [y], [shooter_z ]]) # + shooter_offset_z * ca.cos(self.pitch) + shooter_offset_x * ca.sin(self.pitch)
         # Position initial guess is linear interpolation between start and end position
         for k in range(self.N):
             self._opti.set_initial(self.p_x[k], lerp(x, target_x, k / self.N))

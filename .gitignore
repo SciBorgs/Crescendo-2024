@@ -6,8 +6,8 @@ __pycache__/
 include/
 venv
 
-# Log files
-*.wpilog
+# Log files in /
+/*.wpilog
 
 ### C++ ###
 # Prerequisites
@@ -168,3 +168,5 @@ bin/
 
 # Simulation GUI and other tools window save file
 *-window.json
+
+*.wpilog

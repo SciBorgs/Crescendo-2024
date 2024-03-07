@@ -8,7 +8,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Constants.alliance;
-import static org.sciborgs1155.robot.pivot.PivotConstants.*;
+import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -37,12 +36,14 @@ import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
+import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 import org.sciborgs1155.robot.drive.DriveConstants.Translation;
-import org.sciborgs1155.robot.drive.DriveConstants.Turn;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
+import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
+import org.sciborgs1155.robot.shooter.ShooterConstants;
 import org.sciborgs1155.robot.vision.Vision;
 
 /** A command based, declarative, representation of our entire robot. */
@@ -104,6 +105,9 @@ public class Robot extends CommandRobot implements Logged {
     Monologue.setupMonologue(this, "/Robot", false, true);
     addPeriodic(Monologue::updateAll, PERIOD.in(Seconds));
     addPeriodic(FaultLogger::update, 1);
+    addPeriodic(
+        () -> log("dist", Shooting.translationToSpeaker(drive.pose().getTranslation()).getNorm()),
+        kDefaultPeriod);
 
     // Log PDH
     FaultLogger.register(new PowerDistribution());
@@ -138,19 +142,10 @@ public class Robot extends CommandRobot implements Logged {
   public void configureAuto() {
     // register named commands for auto
     NamedCommands.registerCommand("lock", drive.lock());
-    NamedCommands.registerCommand(
-        "shoot",
-        shooting.shootWithPivot(() -> PRESET_PODIUM_ANGLE.in(Radians), () -> 80).withTimeout(1.2));
-    NamedCommands.registerCommand(
-        "reset", pivot.runPivot(() -> STARTING_ANGLE.in(Radians)).withTimeout(1));
-    NamedCommands.registerCommand(
-        "intake",
-        intake
-            .intake()
-            .alongWith(feeder.forward())
-            .until(feeder.noteAtShooter())
-            .andThen(feeder.retract()));
+    NamedCommands.registerCommand("shoot", shooting.shootWithPivot().withTimeout(2));
+    NamedCommands.registerCommand("intake", intake.intake().deadlineWith(feeder.forward()));
 
+    // configure auto
     // configure auto
     AutoBuilder.configureHolonomic(
         drive::pose,
@@ -159,9 +154,9 @@ public class Robot extends CommandRobot implements Logged {
         drive::driveRobotRelative,
         new HolonomicPathFollowerConfig(
             new PIDConstants(Translation.P, Translation.I, Translation.D),
-            new PIDConstants(Turn.P, Turn.I, Turn.D),
+            new PIDConstants(Rotation.P, Rotation.I, Rotation.D),
             DriveConstants.MAX_SPEED.in(MetersPerSecond),
-            DriveConstants.TRACK_WIDTH.divide(2).in(Meters),
+            DriveConstants.RADIUS.in(Meters),
             new ReplanningConfig()),
         () -> alliance() == Alliance.Red,
         drive);
@@ -174,17 +169,15 @@ public class Robot extends CommandRobot implements Logged {
   private void configureSubsystemDefaults() {
     drive.setDefaultCommand(
         drive.drive(
-            createJoystickStream(
-                driver::getLeftY, // account for roborio (and navx) facing wrong direction
-                DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+            createJoystickStream(driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
             createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
             createJoystickStream(
-                driver::getRightX, DriveConstants.MAX_ANGULAR_SPEED.in(RadiansPerSecond))));
+                driver::getRightX, DriveConstants.TELEOP_ANGULAR_SPEED.in(RadiansPerSecond))));
   }
 
   /** Configures trigger -> command bindings */
   private void configureBindings() {
-    autonomous().whileTrue(new ProxyCommand(autos::getSelected));
+    autonomous().whileTrue(Commands.deferredProxy(autos::getSelected));
 
     driver.b().whileTrue(drive.zeroHeading());
     driver
@@ -196,11 +189,15 @@ public class Robot extends CommandRobot implements Logged {
     operator
         .a()
         .toggleOnTrue(
-            pivot.manualPivot(
-                InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1)));
-    operator.b().whileTrue(shooting.shootWithPivot(() -> PRESET_AMP_ANGLE.in(Radians), () -> 0.1));
-    operator
-        .y()
+            pivot
+                .manualPivot(
+                    InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1))
+                .deadlineWith(Commands.idle(shooter)));
+
+    operator.b().whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
+
+    driver
+        .x()
         .whileTrue(
             shooting.shootWhileDriving(
                 createJoystickStream(
@@ -208,22 +205,37 @@ public class Robot extends CommandRobot implements Logged {
                 createJoystickStream(
                     driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
 
-    operator
-        .leftBumper()
+    driver
+        .y()
+        .or(operator.povUp())
+        .whileTrue(
+            shooting.shootWithPivot(
+                PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.IDLE_VELOCITY));
+
+    driver
+        .rightTrigger()
+        .or(operator.leftBumper())
         .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
         .whileTrue(intake.intake().deadlineWith(feeder.forward()));
 
     operator.rightBumper().whileTrue(feeder.forward());
-    operator.povUp().whileTrue(shooter.runShooter(() -> 300));
-    operator.povDown().whileTrue(shooter.runShooter(() -> 200));
+    operator.povDown().whileTrue(shooting.shoot(ShooterConstants.IDLE_VELOCITY));
 
-    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.5));
-    // feeder.atShooter().onFalse(rumble(RumbleType.kRightRumble, 0.5));
+    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3));
+    feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3));
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {
-    return Commands.run(() -> operator.getHID().setRumble(rumbleType, strength))
-        .alongWith(Commands.run(() -> driver.getHID().setRumble(rumbleType, strength)))
-        .withTimeout(0.1);
+    return Commands.runOnce(
+            () -> {
+              driver.getHID().setRumble(rumbleType, strength);
+              operator.getHID().setRumble(rumbleType, strength);
+            })
+        .andThen(Commands.waitSeconds(0.3))
+        .finallyDo(
+            () -> {
+              driver.getHID().setRumble(rumbleType, 0);
+              operator.getHID().setRumble(rumbleType, 0);
+            });
   }
 }

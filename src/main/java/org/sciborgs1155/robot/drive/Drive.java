@@ -1,12 +1,16 @@
 package org.sciborgs1155.robot.drive;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 import static org.sciborgs1155.robot.Constants.allianceRotation;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,7 +20,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -36,7 +39,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
-import org.sciborgs1155.robot.drive.DriveConstants.Turn;
+import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 import org.sciborgs1155.robot.vision.Vision.PoseEstimate;
 
 public class Drive extends SubsystemBase implements Logged, AutoCloseable {
@@ -52,6 +55,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   private final GyroIO gyro;
   private static Rotation2d simRotation = new Rotation2d();
 
+  private final SlewRateLimiter rateLimiter;
+
   public final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_OFFSET);
 
   // Odometry and pose estimation
@@ -63,12 +68,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   private final SysIdRoutine sysid;
 
   @Log.NT
-  private final ProfiledPIDController rotationController =
-      new ProfiledPIDController(
-          Turn.P,
-          Turn.I,
-          Turn.D,
-          new TrapezoidProfile.Constraints(MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCEL));
+  private final PIDController rotationController =
+      new PIDController(Rotation.P, Rotation.I, Rotation.D);
 
   /**
    * A factory to create a new swerve drive based on whether the robot is being ran in simulation or
@@ -124,8 +125,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     gyro.reset();
 
     rotationController.enableContinuousInput(0, 2 * Math.PI);
-    rotationController.setTolerance(0.1);
+    rotationController.setTolerance(Rotation.TOLERANCE.in(Radians));
 
+    rateLimiter = new SlewRateLimiter(9.5, Double.NEGATIVE_INFINITY, 0);
     SmartDashboard.putData("drive quasistatic forward", sysIdQuasistatic(Direction.kForward));
     SmartDashboard.putData("drive dynamic forward", sysIdDynamic(Direction.kForward));
     SmartDashboard.putData("drive quasistatic backward", sysIdQuasistatic(Direction.kReverse));
@@ -176,8 +178,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   @Log.NT
-  public boolean atHeadingGoal() {
-    return rotationController.atGoal();
+  public boolean atHeadingSetpoint() {
+    return rotationController.atSetpoint();
   }
 
   /**
@@ -212,10 +214,14 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @return The driving command.
    */
   public Command drive(DoubleSupplier vx, DoubleSupplier vy, Supplier<Rotation2d> heading) {
-    return drive(
-        vx,
-        vy,
-        () -> rotationController.calculate(heading().getRadians(), heading.get().getRadians()));
+    return runOnce(rotationController::reset)
+        .andThen(
+            drive(
+                vx,
+                vy,
+                () ->
+                    rotationController.calculate(
+                        heading().getRadians(), heading.get().getRadians())));
   }
 
   /**
@@ -235,6 +241,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param speeds The desired robot relative chassis speeds.
    */
   public void driveRobotRelative(ChassisSpeeds speeds) {
+    speeds.vxMetersPerSecond = rateLimiter.calculate(speeds.vxMetersPerSecond);
     setModuleStates(
         kinematics.toSwerveModuleStates(
             ChassisSpeeds.discretize(speeds, Constants.PERIOD.in(Seconds))));
@@ -324,6 +331,10 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
       var transform = new Transform2d(MODULE_OFFSET[i], module.position().angle);
       modules2d[i].setPose(pose().transformBy(transform));
     }
+
+    log(
+        "turning target",
+        new Pose2d(pose().getTranslation(), new Rotation2d(rotationController.getSetpoint())));
 
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
   }
