@@ -106,8 +106,8 @@ public class Vision implements Logged {
               f ->
                   Field.inField(f.estimatedPose)
                       && Math.abs(f.estimatedPose.getZ()) < MAX_HEIGHT
-                      && Math.abs(f.estimatedPose.getRotation().getX()) > MAX_ANGLE
-                      && Math.abs(f.estimatedPose.getRotation().getY()) > MAX_ANGLE)
+                      && Math.abs(f.estimatedPose.getRotation().getX()) < MAX_ANGLE
+                      && Math.abs(f.estimatedPose.getRotation().getY()) < MAX_ANGLE)
           .ifPresent(
               e ->
                   estimates.add(

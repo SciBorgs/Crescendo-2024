@@ -141,9 +141,9 @@ public class Robot extends CommandRobot implements Logged {
 
   public void configureAuto() {
     // register named commands for auto
-    NamedCommands.registerCommand("lock", drive.lock());
     NamedCommands.registerCommand("shoot", shooting.shootWithPivot().withTimeout(2));
     NamedCommands.registerCommand("intake", intake.intake().deadlineWith(feeder.forward()));
+    // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
 
     // configure auto
     // configure auto
@@ -151,7 +151,7 @@ public class Robot extends CommandRobot implements Logged {
         drive::pose,
         drive::resetOdometry,
         drive::getRobotRelativeChassisSpeeds,
-        drive::driveRobotRelative,
+        drive::setChassisSpeeds,
         new HolonomicPathFollowerConfig(
             new PIDConstants(Translation.P, Translation.I, Translation.D),
             new PIDConstants(Rotation.P, Rotation.I, Rotation.D),
@@ -194,7 +194,7 @@ public class Robot extends CommandRobot implements Logged {
                     InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1))
                 .deadlineWith(Commands.idle(shooter)));
 
-    operator.b().whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
+    operator.b().and(operator.rightTrigger()).whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
 
     driver
         .x()
@@ -219,7 +219,7 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(intake.intake().deadlineWith(feeder.forward()));
 
     operator.rightBumper().whileTrue(feeder.forward());
-    operator.povDown().whileTrue(shooting.shoot(ShooterConstants.IDLE_VELOCITY));
+    operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350)));
 
     intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3));
     feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3));
