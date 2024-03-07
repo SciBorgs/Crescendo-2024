@@ -59,7 +59,6 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("shooter dynamic backward", dynamicBack());
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
 
-    // setDefaultCommand(run(() -> shooter.setVoltage(0)));
     setDefaultCommand(run(() -> update(IDLE_VELOCITY.in(RadiansPerSecond))));
   }
 
@@ -94,7 +93,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   private void update(double setpointVelocity) {
     double feedback = pid.calculate(shooter.velocity(), setpointVelocity);
-    double feedforward = ff.calculate(shooter.velocity(), setpointVelocity, PERIOD.in(Seconds));
+    double feedforward = ff.calculate(setpointVelocity);
     log("feedback output", feedback);
     log("feedforward output", feedforward);
     shooter.setVoltage(MathUtil.clamp(feedback + feedforward, -12, 12));

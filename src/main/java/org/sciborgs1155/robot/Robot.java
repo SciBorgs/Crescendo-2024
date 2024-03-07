@@ -219,7 +219,7 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(intake.intake().deadlineWith(feeder.forward()));
 
     operator.rightBumper().whileTrue(feeder.forward());
-    operator.povDown().whileTrue(shooter.runShooter(() -> 300));
+    operator.povDown().whileTrue(shooting.shoot(ShooterConstants.IDLE_VELOCITY));
 
     intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3));
     feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3));
