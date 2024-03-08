@@ -141,6 +141,7 @@ public class NoteVisualizer implements Logged {
                             step++;
                           })
                       .until(() -> step >= poses.length - 1)
+                      .andThen(Commands.waitSeconds(1))
                       .finallyDo(
                           () -> {
                             shotNotePub.set(new Pose3d());

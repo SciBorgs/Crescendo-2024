@@ -3,6 +3,8 @@ package org.sciborgs1155.lib;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.REVLibError;
+
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.sciborgs1155.lib.FaultLogger.FaultType;
@@ -173,6 +175,20 @@ public class SparkUtils {
    */
   public static REVLibError configureNothingFrameStrategy(CANSparkBase spark) {
     return configureFrameStrategy(spark, Set.of(), Set.of(), false);
+  }
+
+  /**
+   * Wraps the value of a call depending 
+   * @param <T>
+   * @param spark
+   * @param value
+   * @return
+   */
+  public static <T> Optional<T> wrapCall(CANSparkBase spark, T value) {
+    if (FaultLogger.check(spark)) {
+      return Optional.of(value);
+    }
+    return Optional.empty();
   }
 
   /**
