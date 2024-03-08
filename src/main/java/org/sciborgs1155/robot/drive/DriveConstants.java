@@ -101,7 +101,7 @@ public final class DriveConstants {
       public static final class FF {
         public static final double S = 0.18438;
         public static final double V = 2.1653;
-        public static final double A = 0.15546;
+        public static final double A = 0.24291;
       }
     }
 

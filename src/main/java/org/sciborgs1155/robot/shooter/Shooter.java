@@ -87,6 +87,10 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     return runShooter(() -> velocity);
   }
 
+  public Command ejectStuck(double velocity) {
+    return runShooter(velocity);
+  }
+
   public Command setSetpoint(DoubleSupplier velocity) {
     return runOnce(() -> pid.setSetpoint(velocity.getAsDouble())).asProxy();
   }

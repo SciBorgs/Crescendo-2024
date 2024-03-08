@@ -133,8 +133,8 @@ public class Shooting implements Logged {
         .deadlineWith(
             drive.drive(
                 vx.scale(0.5), vy.scale(0.5), () -> yawFromNoteVelocity(calculateNoteVelocity())),
-            pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())))
-        .unless(() -> !canShoot());
+            pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
+        // .unless(() -> !canShoot());
   }
 
   public static Pose2d robotPoseFacingSpeaker(Translation2d robotTranslation) {
@@ -199,7 +199,7 @@ public class Shooting implements Logged {
     double pitch = pitchFromNoteVelocity(shot);
     return MIN_ANGLE.in(Radians) < pitch
         && pitch < MAX_ANGLE.in(Radians)
-        && rotationalVelocityFromNoteVelocity(shot) < MAX_VELOCITY.in(RadiansPerSecond);
+        && Math.abs(rotationalVelocityFromNoteVelocity(shot)) < MAX_VELOCITY.in(RadiansPerSecond);
   }
 
   /**

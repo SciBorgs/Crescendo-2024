@@ -9,6 +9,7 @@ import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Constants.alliance;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -145,6 +146,7 @@ public class Robot extends CommandRobot implements Logged {
         "shoot", shooting.shootWhileDriving(() -> 0, () -> 0).withTimeout(3));
     NamedCommands.registerCommand(
         "intake", intake.intake().deadlineWith(feeder.forward()).andThen(feeder.runFeeder(0)));
+    NamedCommands.registerCommand("subwoofer-shoot", shooting.shoot(DEFAULT_VELOCITY).withTimeout(3));
     // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
 
     // configure auto
@@ -215,15 +217,17 @@ public class Robot extends CommandRobot implements Logged {
         .or(operator.povUp())
         .whileTrue(
             shooting.shootWithPivot(
-                PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.IDLE_VELOCITY));
+                PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY));
 
     driver
         .rightTrigger()
         .or(operator.leftBumper())
         .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
         .whileTrue(intake.intake().deadlineWith(feeder.forward()));
+    
+    driver.povUp().whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
 
-    operator.rightBumper().whileTrue(feeder.forward());
+    operator.rightBumper().whileTrue(intake.backward());
     operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350)));
 
     intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3));
