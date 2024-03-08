@@ -134,7 +134,7 @@ public class Shooting implements Logged {
             drive.drive(
                 vx.scale(0.5), vy.scale(0.5), () -> yawFromNoteVelocity(calculateNoteVelocity())),
             pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
-        // .unless(() -> !canShoot());
+    // .unless(() -> !canShoot());
   }
 
   public static Pose2d robotPoseFacingSpeaker(Translation2d robotTranslation) {

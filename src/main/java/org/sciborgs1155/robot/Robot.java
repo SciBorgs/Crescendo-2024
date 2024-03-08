@@ -146,7 +146,8 @@ public class Robot extends CommandRobot implements Logged {
         "shoot", shooting.shootWhileDriving(() -> 0, () -> 0).withTimeout(3));
     NamedCommands.registerCommand(
         "intake", intake.intake().deadlineWith(feeder.forward()).andThen(feeder.runFeeder(0)));
-    NamedCommands.registerCommand("subwoofer-shoot", shooting.shoot(DEFAULT_VELOCITY).withTimeout(3));
+    NamedCommands.registerCommand(
+        "subwoofer-shoot", shooting.shoot(DEFAULT_VELOCITY).withTimeout(3));
     // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
 
     // configure auto
@@ -224,8 +225,10 @@ public class Robot extends CommandRobot implements Logged {
         .or(operator.leftBumper())
         .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
         .whileTrue(intake.intake().deadlineWith(feeder.forward()));
-    
-    driver.povUp().whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
+
+    driver
+        .povUp()
+        .whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
 
     operator.rightBumper().whileTrue(intake.backward());
     operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350)));

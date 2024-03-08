@@ -3,7 +3,6 @@ package org.sciborgs1155.lib;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.REVLibError;
-
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -178,7 +177,8 @@ public class SparkUtils {
   }
 
   /**
-   * Wraps the value of a call depending 
+   * Wraps the value of a call depending
+   *
    * @param <T>
    * @param spark
    * @param value
