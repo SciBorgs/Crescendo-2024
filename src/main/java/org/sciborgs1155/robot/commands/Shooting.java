@@ -133,7 +133,8 @@ public class Shooting implements Logged {
         .deadlineWith(
             drive.drive(
                 vx.scale(0.5), vy.scale(0.5), () -> yawFromNoteVelocity(calculateNoteVelocity())),
-            pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
+            pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())))
+        .unless(() -> !canShoot());
   }
 
   public static Pose2d robotPoseFacingSpeaker(Translation2d robotTranslation) {
@@ -192,12 +193,12 @@ public class Shooting implements Logged {
    *
    * @return Whether the robot can shoot from its current position at its current velocity.
    */
+  @Log.NT
   public boolean canShoot() {
     Vector<N3> shot = calculateNoteVelocity();
     double pitch = pitchFromNoteVelocity(shot);
     return MIN_ANGLE.in(Radians) < pitch
         && pitch < MAX_ANGLE.in(Radians)
-        && pitch > MIN_ANGLE.in(Radians)
         && rotationalVelocityFromNoteVelocity(shot) < MAX_VELOCITY.in(RadiansPerSecond);
   }
 

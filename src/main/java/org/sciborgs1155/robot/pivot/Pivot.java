@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.autonomous;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.teleop;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
@@ -68,7 +69,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
             new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(3), Seconds.of(6)),
             new SysIdRoutine.Mechanism(v -> pivot.setVoltage(v.in(Volts)), null, this));
 
-    pid.reset(hardware.getPosition());
+    pid.reset(MAX_ANGLE.in(Radians));
     pid.setTolerance(POSITION_TOLERANCE.in(Radians));
 
     SmartDashboard.putData("pivot quasistatic forward", quasistaticForward());
@@ -77,7 +78,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("pivot dynamic backward", dynamicBack());
 
     setDefaultCommand(run(() -> update(MAX_ANGLE.in(Radians))).withName("default position"));
-    teleop().onTrue(Commands.runOnce(() -> pid.reset(hardware.getPosition())));
+    teleop().or(autonomous()).onTrue(Commands.runOnce(() -> pid.reset(hardware.getPosition())));
   }
 
   /**
