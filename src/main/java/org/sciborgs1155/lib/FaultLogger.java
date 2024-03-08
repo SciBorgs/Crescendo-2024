@@ -264,11 +264,13 @@ public final class FaultLogger {
    *
    * @param spark The spark to report REVLibErrors from.
    */
-  public static void check(CANSparkBase spark) {
+  public static boolean check(CANSparkBase spark) {
     REVLibError error = spark.getLastError();
     if (error != REVLibError.kOk) {
       report(SparkUtils.name(spark), error.name(), FaultType.ERROR);
+      return false;
     }
+    return true;
   }
 
   /**

@@ -1,7 +1,9 @@
 package org.sciborgs1155.robot.feeder;
 
 import static edu.wpi.first.units.Units.Seconds;
-import static org.sciborgs1155.robot.feeder.FeederConstants.*;
+import static org.sciborgs1155.robot.feeder.FeederConstants.DEBOUNCE_TIME;
+import static org.sciborgs1155.robot.feeder.FeederConstants.POWER;
+import static org.sciborgs1155.robot.feeder.FeederConstants.TIMEOUT;
 
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.system.plant.DCMotor;

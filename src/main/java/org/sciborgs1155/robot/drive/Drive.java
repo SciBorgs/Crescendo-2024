@@ -157,6 +157,10 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return pose().getRotation();
   }
 
+  public Command brake() {
+    return run(() -> setChassisSpeeds(new ChassisSpeeds()));
+  }
+
   /**
    * Drives the robot while facing a target pose.
    *

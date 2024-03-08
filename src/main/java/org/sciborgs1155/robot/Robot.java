@@ -141,12 +141,15 @@ public class Robot extends CommandRobot implements Logged {
 
   public void configureAuto() {
     // register named commands for auto
-    NamedCommands.registerCommand("shoot", shooting.shootWithPivot().withTimeout(2));
-    NamedCommands.registerCommand("intake", intake.intake().deadlineWith(feeder.forward()));
+    NamedCommands.registerCommand(
+        "shoot", shooting.shootWithPivot().withTimeout(2).beforeStarting(Commands.waitSeconds(0.4
+        )));
+    NamedCommands.registerCommand(
+        "intake", intake.intake().deadlineWith(feeder.forward()).andThen(feeder.runFeeder(0)));
     // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
 
     // configure auto
-    // configure auto
+    // configure auto\
     AutoBuilder.configureHolonomic(
         drive::pose,
         drive::resetOdometry,
@@ -194,7 +197,10 @@ public class Robot extends CommandRobot implements Logged {
                     InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1))
                 .deadlineWith(Commands.idle(shooter)));
 
-    operator.b().and(operator.rightTrigger()).whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
+    operator
+        .b()
+        .and(operator.rightTrigger())
+        .whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
 
     driver
         .x()

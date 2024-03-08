@@ -96,6 +96,7 @@ public class SparkModule implements ModuleIO {
   @Override
   public double drivePosition() {
     double driveRot = driveEncoder.getPosition();
+    FaultLogger.check(driveMotor);
     // account for rotation of turn motor on rotation of drive motor
     driveRot -= turningEncoder.getPosition() * COUPLING_RATIO;
     return driveRot;
@@ -103,7 +104,9 @@ public class SparkModule implements ModuleIO {
 
   @Override
   public double driveVelocity() {
-    return driveEncoder.getVelocity();
+    double velocity = driveEncoder.getVelocity();
+    FaultLogger.check(driveMotor);
+    return velocity;
   }
 
   @Override

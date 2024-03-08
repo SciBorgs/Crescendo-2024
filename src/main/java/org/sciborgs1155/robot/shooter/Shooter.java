@@ -49,7 +49,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     this.shooter = shooter;
     sysId =
         new SysIdRoutine(
-            new SysIdRoutine.Config(Volts.per(Second).of(1), Volts.of(11.0), Seconds.of(11)),
+            new SysIdRoutine.Config(Volts.per(Second).of(1), Volts.of(10.0), Seconds.of(11)),
             new SysIdRoutine.Mechanism(v -> shooter.setVoltage(v.in(Volts)), null, this));
 
     pid.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
