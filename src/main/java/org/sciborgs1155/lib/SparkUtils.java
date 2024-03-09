@@ -177,12 +177,12 @@ public class SparkUtils {
   }
 
   /**
-   * Wraps the value of a call depending
+   * Wraps the value of a call into an optional depending on the spark's indicated last error.
    *
-   * @param <T>
-   * @param spark
-   * @param value
-   * @return
+   * @param <T> The type of value.
+   * @param spark The spark to check for errors.
+   * @param value The value to wrap.
+   * @return An optional that may contain the value.
    */
   public static <T> Optional<T> wrapCall(CANSparkBase spark, T value) {
     if (FaultLogger.check(spark)) {
