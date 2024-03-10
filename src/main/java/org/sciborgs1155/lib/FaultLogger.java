@@ -263,12 +263,15 @@ public final class FaultLogger {
    * <p>This should be called immediately after any call to the spark.
    *
    * @param spark The spark to report REVLibErrors from.
+   * @return If the spark is working without errors.
    */
-  public static void check(CANSparkBase spark) {
+  public static boolean check(CANSparkBase spark) {
     REVLibError error = spark.getLastError();
     if (error != REVLibError.kOk) {
       report(SparkUtils.name(spark), error.name(), FaultType.ERROR);
+      return false;
     }
+    return true;
   }
 
   /**
