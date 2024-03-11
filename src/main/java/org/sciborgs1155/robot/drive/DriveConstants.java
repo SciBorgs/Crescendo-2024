@@ -45,6 +45,20 @@ public final class DriveConstants {
 
   public static final Rotation3d GYRO_OFFSET = new Rotation3d(0, 0, Math.PI);
 
+  public static final Translation2d BLUE_STAGE_SPEAKERSIDE =
+      new Translation2d(); // TODO NEED TO MEASURE THESE
+  public static final Translation2d BLUE_STAGE_AMPSIDE =
+      new Translation2d(); // TODO NEED TO MEASURE THESE
+  public static final Translation2d BLUE_STAGE_SOURCESIDE =
+      new Translation2d(); // TODO NEED TO MEASURE THESE
+
+  public static final Translation2d RED_STAGE_SPEAKERSIDE =
+      new Translation2d(); // TODO NEED TO MEASURE THESE
+  public static final Translation2d RED_STAGE_AMPSIDE =
+      new Translation2d(); // TODO NEED TO MEASURE THESE
+  public static final Translation2d RED_STAGE_SOURCESIDE =
+      new Translation2d(); // TODO NEED TO MEASURE THESE
+
   public static final class Translation {
     public static final double P = 0.6;
     public static final double I = 0.0;
