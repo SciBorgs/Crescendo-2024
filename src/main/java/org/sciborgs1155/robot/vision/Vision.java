@@ -26,7 +26,6 @@ import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.sciborgs1155.lib.FaultLogger;
-import org.sciborgs1155.robot.Constants.Field;
 import org.sciborgs1155.robot.Robot;
 
 public class Vision implements Logged {
@@ -163,39 +162,6 @@ public class Vision implements Logged {
     else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
 
     return estStdDevs;
-  }
-
-  private double calculateCameraTrust(int i, Pose2d estimatedPose) {
-    var targets = cameras[i].getLatestResult().getTargets();
-    int numTags = 0;
-    double trust = 0;
-    for (var tgt : targets) {
-      var tagPose = TAG_LAYOUT.getTagPose(tgt.getFiducialId());
-      double distance =
-          tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
-      if (tagPose.isEmpty()) continue;
-      numTags++;
-      trust += 1 / distance; // In theory, the closer a tag is the more you can trust the camera
-    }
-    // Dont trust it when there are no tags
-    if (numTags == 0) {
-      return -999;
-    }
-    // Increase trust the more tags there are
-    return trust * numTags;
-  }
-
-  public PoseEstimate getEstimatedPose() {
-    PoseEstimate[] estimates = getEstimatedGlobalPoses();
-    double[] trusts = new double[cameras.length];
-    int best = 0;
-    for (int i = 0; i < cameras.length; i++) {
-      trusts[i] = calculateCameraTrust(i, estimates[i].estimatedPose.estimatedPose.toPose2d());
-      if (trusts[i] > trusts[best]) {
-        best = i;
-      }
-    }
-    return estimates[best];
   }
 
   /**
