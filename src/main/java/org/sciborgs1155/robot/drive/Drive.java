@@ -38,6 +38,7 @@ import monologue.Annotations.Log;
 import monologue.Logged;
 import org.photonvision.EstimatedRobotPose;
 import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.lib.SwerveUtils;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
@@ -52,7 +53,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   private final SwerveModule rearRight;
 
   @IgnoreLogged private final List<SwerveModule> modules;
-  @IgnoreLogged private final SwerveModuleState[] prevDesiredStates;
+  private SwerveModulePosition[] modulePositions;
+  private SwerveModuleState[] moduleSetpoints;
+  private SwerveModuleState[] moduleStates;
 
   private final GyroIO gyro;
   private static Rotation2d simRotation = new Rotation2d();
@@ -104,7 +107,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     this.rearRight = new SwerveModule(rearRight, ANGULAR_OFFSETS.get(3), " RR");
 
     modules = List.of(this.frontLeft, this.frontRight, this.rearLeft, this.rearRight);
-    prevDesiredStates = getModuleSetpoints();
+    moduleStates = modules.stream().map(SwerveModule::state).toArray(SwerveModuleState[]::new);
+    modulePositions = modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
+    moduleSetpoints = modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
     modules2d = new FieldObject2d[modules.size()];
 
     sysid =
@@ -259,29 +264,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
             ChassisSpeeds.discretize(speeds, Constants.PERIOD.in(Seconds))));
   }
 
-  public void desaturateWheelAcceleration(
-      SwerveModuleState[] moduleStates, double attainableMaxAcceleration) {
-    // acceleration we give it that is potentially bad
-    double givenMaxAcceleration = 0;
-    for (int i = 0; i < moduleStates.length; i++) {
-      givenMaxAcceleration =
-          Math.max(
-              givenMaxAcceleration,
-              Math.abs(
-                  moduleStates[i].speedMetersPerSecond
-                      - prevDesiredStates[i].speedMetersPerSecond));
-    }
-    if (givenMaxAcceleration > attainableMaxAcceleration) {
-      for (int i = 0; i < moduleStates.length; i++) {
-        moduleStates[i].speedMetersPerSecond =
-            (moduleStates[i].speedMetersPerSecond - prevDesiredStates[i].speedMetersPerSecond)
-                    / givenMaxAcceleration
-                    * attainableMaxAcceleration
-                + prevDesiredStates[i].speedMetersPerSecond;
-      }
-    }
-  }
-
   /**
    * Sets the swerve ModuleStates.
    *
@@ -292,7 +274,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
       throw new IllegalArgumentException("desiredStates must have the same length as modules");
     }
 
-    desaturateWheelAcceleration(desiredStates, MAX_ACCEL.in(MetersPerSecondPerSecond));
+    SwerveUtils.desaturateWheelAcceleration(desiredStates, getModuleSetpoints(), MAX_ACCEL.in(MetersPerSecondPerSecond));
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_SPEED.in(MetersPerSecond));
 
     for (int i = 0; i < modules.size(); i++) {
@@ -313,19 +295,19 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   /** Returns the module states. */
   @Log.NT
   public SwerveModuleState[] getModuleStates() {
-    return modules.stream().map(SwerveModule::state).toArray(SwerveModuleState[]::new);
+    return moduleStates;
   }
 
   /** Returns the module states. */
   @Log.NT
   private SwerveModuleState[] getModuleSetpoints() {
-    return modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
+    return moduleSetpoints;
   }
 
   /** Returns the module positions */
   @Log.NT
   public SwerveModulePosition[] getModulePositions() {
-    return modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
+    return modulePositions;
   }
 
   /** Returns the robot relative chassis speeds. */
@@ -373,6 +355,11 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         new Pose2d(pose().getTranslation(), new Rotation2d(rotationController.getSetpoint())));
 
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
+
+    //updating the modules
+    moduleStates = modules.stream().map(SwerveModule::state).toArray(SwerveModuleState[]::new);
+    modulePositions = modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
+    moduleSetpoints = modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
   }
 
   @Override
