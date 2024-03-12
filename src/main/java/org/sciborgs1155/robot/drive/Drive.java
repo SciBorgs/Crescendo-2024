@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.drive;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -51,6 +52,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   private final SwerveModule rearRight;
 
   @IgnoreLogged private final List<SwerveModule> modules;
+  @IgnoreLogged private final SwerveModuleState[] prevDesiredStates;
 
   private final GyroIO gyro;
   private static Rotation2d simRotation = new Rotation2d();
@@ -102,6 +104,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     this.rearRight = new SwerveModule(rearRight, ANGULAR_OFFSETS.get(3), " RR");
 
     modules = List.of(this.frontLeft, this.frontRight, this.rearLeft, this.rearRight);
+    prevDesiredStates = getModuleSetpoints();
     modules2d = new FieldObject2d[modules.size()];
 
     sysid =
@@ -256,6 +259,29 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
             ChassisSpeeds.discretize(speeds, Constants.PERIOD.in(Seconds))));
   }
 
+  public void desaturateWheelAcceleration(
+      SwerveModuleState[] moduleStates, double attainableMaxAcceleration) {
+    // acceleration we give it that is potentially bad
+    double givenMaxAcceleration = 0;
+    for (int i = 0; i < moduleStates.length; i++) {
+      givenMaxAcceleration =
+          Math.max(
+              givenMaxAcceleration,
+              Math.abs(
+                  moduleStates[i].speedMetersPerSecond
+                      - prevDesiredStates[i].speedMetersPerSecond));
+    }
+    if (givenMaxAcceleration > attainableMaxAcceleration) {
+      for (int i = 0; i < moduleStates.length; i++) {
+        moduleStates[i].speedMetersPerSecond =
+            (moduleStates[i].speedMetersPerSecond - prevDesiredStates[i].speedMetersPerSecond)
+                    / givenMaxAcceleration
+                    * attainableMaxAcceleration
+                + prevDesiredStates[i].speedMetersPerSecond;
+      }
+    }
+  }
+
   /**
    * Sets the swerve ModuleStates.
    *
@@ -266,6 +292,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
       throw new IllegalArgumentException("desiredStates must have the same length as modules");
     }
 
+    desaturateWheelAcceleration(desiredStates, MAX_ACCEL.in(MetersPerSecondPerSecond));
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_SPEED.in(MetersPerSecond));
 
     for (int i = 0; i < modules.size(); i++) {
