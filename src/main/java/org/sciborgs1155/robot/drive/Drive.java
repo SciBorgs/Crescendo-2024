@@ -108,8 +108,10 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
     modules = List.of(this.frontLeft, this.frontRight, this.rearLeft, this.rearRight);
     moduleStates = modules.stream().map(SwerveModule::state).toArray(SwerveModuleState[]::new);
-    modulePositions = modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
-    moduleSetpoints = modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
+    modulePositions =
+        modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
+    moduleSetpoints =
+        modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
     modules2d = new FieldObject2d[modules.size()];
 
     sysid =
@@ -274,7 +276,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
       throw new IllegalArgumentException("desiredStates must have the same length as modules");
     }
 
-    SwerveUtils.desaturateWheelAcceleration(desiredStates, getModuleSetpoints(), MAX_ACCEL.in(MetersPerSecondPerSecond));
+    SwerveUtils.desaturateWheelAcceleration(
+        desiredStates, getModuleSetpoints(), MAX_ACCEL.in(MetersPerSecondPerSecond));
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_SPEED.in(MetersPerSecond));
 
     for (int i = 0; i < modules.size(); i++) {
@@ -356,10 +359,12 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
 
-    //updating the modules
+    // updating the modules
     moduleStates = modules.stream().map(SwerveModule::state).toArray(SwerveModuleState[]::new);
-    modulePositions = modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
-    moduleSetpoints = modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
+    modulePositions =
+        modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
+    moduleSetpoints =
+        modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
   }
 
   @Override
