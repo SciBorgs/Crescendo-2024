@@ -161,6 +161,10 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return run(() -> setChassisSpeeds(new ChassisSpeeds()));
   }
 
+  public double angularVelocity() {
+    return gyro.getRate();
+  }
+
   /**
    * Drives the robot while facing a target pose.
    *

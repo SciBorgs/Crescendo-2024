@@ -8,6 +8,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
@@ -31,6 +32,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
+import org.sciborgs1155.robot.shooter.ShooterConstants;
 
 public class NoteVisualizer implements Logged {
   // notes
@@ -55,7 +57,8 @@ public class NoteVisualizer implements Logged {
   private static Supplier<Pose2d> drive = Pose2d::new;
   private static Supplier<Pose3d> shooter = Pose3d::new;
   private static Supplier<ChassisSpeeds> speeds = ChassisSpeeds::new;
-  private static DoubleSupplier velocity = () -> 0;
+  private static DoubleSupplier shooterVelocity = () -> 0;
+  private static DoubleSupplier angularVelocity = () -> 0;
 
   private static final Vector<N3> GRAVITY = VecBuilder.fill(0, 0, -9.81);
 
@@ -73,11 +76,13 @@ public class NoteVisualizer implements Logged {
       Supplier<Pose2d> drivePose,
       Supplier<Pose3d> pivotPose,
       Supplier<ChassisSpeeds> driveSpeeds,
-      DoubleSupplier shotVelocity) {
+      DoubleSupplier shotVelocity,
+      DoubleSupplier turnVelocity) {
     drive = drivePose;
     shooter = pivotPose;
     speeds = driveSpeeds;
-    velocity = shotVelocity;
+    shooterVelocity = shotVelocity;
+    angularVelocity = turnVelocity;
   }
 
   /** Set up NT publisher. Call only once before beginning to log notes. */
@@ -137,7 +142,7 @@ public class NoteVisualizer implements Logged {
                   notePathPub.set(poses);
                   return Commands.run(
                           () -> {
-                            if(step % 2 == 0){
+                            if (step % 2 == 0) {
                               shotNotePub.set(poses[step]);
                             }
                             step++;
@@ -147,7 +152,6 @@ public class NoteVisualizer implements Logged {
                       .finallyDo(
                           () -> {
                             shotNotePub.set(new Pose3d());
-                            notePathPub.set(new Pose3d[0]);
                           });
                 },
                 Set.of()))
@@ -157,12 +161,22 @@ public class NoteVisualizer implements Logged {
   }
 
   private static Pose3d[] generatePath() {
-    double shotVelocity = velocity.getAsDouble();
     ChassisSpeeds driveSpeeds = speeds.get();
+    double tangentialVelocityOfShooterRotationalVelocity =
+        driveSpeeds.omegaRadiansPerSecond * ShooterConstants.OFFSET.getX(); // danny wrote this
+
+    Pose2d robotPose = drive.get();
+    Rotation2d robotRotation = robotPose.getRotation();
+    double shotVelocity = shooterVelocity.getAsDouble();
 
     Pose3d pose = shooter.get();
     Vector<N3> position = pose.getTranslation().toVector();
 
+    Vector<N3> driveRotationVelocity =
+        VecBuilder.fill(
+            tangentialVelocityOfShooterRotationalVelocity * robotRotation.getSin(),
+            tangentialVelocityOfShooterRotationalVelocity * robotRotation.getCos(),
+            0);
     Vector<N3> driveVelocity =
         VecBuilder.fill(driveSpeeds.vxMetersPerSecond, driveSpeeds.vyMetersPerSecond, 0);
 
@@ -173,6 +187,7 @@ public class NoteVisualizer implements Logged {
             .unit()
             .times(shotVelocity)
             .plus(driveVelocity)
+            .plus(driveRotationVelocity)
             .times(-1);
 
     pathPosition = new ArrayList<>();
