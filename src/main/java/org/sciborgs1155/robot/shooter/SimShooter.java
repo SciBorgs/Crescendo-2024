@@ -27,7 +27,7 @@ public class SimShooter implements ShooterIO {
 
   @Override
   public double current() {
-    return sim.getCurrentDrawAmps();
+    return 0;
   }
 
   @Override

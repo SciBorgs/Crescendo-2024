@@ -36,7 +36,7 @@ public final class Ports {
   }
 
   public static final class Intake {
-    public static final int BEAMBREAK = 8;
+    public static final int BEAMBREAK = 7;
     public static final int INTAKE_SPARK = 5;
   }
 }

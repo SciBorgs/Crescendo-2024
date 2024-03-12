@@ -41,7 +41,7 @@ class Trajectory:
         delta_theta = optimizer.variable()
         delta_v = optimizer.variable()
 
-        initial_v = 0.0001
+        initial_v = max_launch_speed
         initial_theta = 0.0001
         heading = abs(np.arctan(self.posY / self.posX)) if self.posX != 0 else np.pi / 2
 
@@ -87,3 +87,5 @@ class Trajectory:
             (solutions.value(delta_v) + initial_v),
             (solutions.value(delta_theta) + initial_theta),
         ]
+t1 = Trajectory(1, 3)
+print(t1.get_optimal_settings())

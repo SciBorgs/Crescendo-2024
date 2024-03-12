@@ -1,6 +1,5 @@
 package org.sciborgs1155.robot.shooter;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
@@ -8,6 +7,7 @@ import static edu.wpi.first.units.Units.Volts;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -20,7 +20,10 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
+import org.sciborgs1155.robot.commands.Shooting;
 
 public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   private final ShooterIO shooter;
@@ -46,7 +49,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     this.shooter = shooter;
     sysId =
         new SysIdRoutine(
-            new SysIdRoutine.Config(Volts.per(Second).of(1), Volts.of(11.0), Seconds.of(11)),
+            new SysIdRoutine.Config(Volts.per(Second).of(1), Volts.of(10.0), Seconds.of(11)),
             new SysIdRoutine.Mechanism(v -> shooter.setVoltage(v.in(Volts)), null, this));
 
     pid.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
@@ -56,7 +59,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("shooter dynamic backward", dynamicBack());
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
 
-    setDefaultCommand(run(() -> shooter.setVoltage(0)));
+    setDefaultCommand(run(() -> update(IDLE_VELOCITY.in(RadiansPerSecond))));
   }
 
   /**
@@ -66,24 +69,38 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
    * @return The command to set the shooter's velocity.
    */
   public Command runShooter(DoubleSupplier velocity) {
-    return run(() ->
-            shooter.setVoltage(
-                pid.calculate(shooter.velocity(), velocity.getAsDouble())
-                    + ff.calculate(velocity.getAsDouble())))
-        .finallyDo(
-            () -> {
-              pid.reset();
-              pid.setSetpoint(0);
-            })
-        .withName("running shooter");
+    return run(() -> update(velocity.getAsDouble()))
+        .beforeStarting(pid::reset)
+        .withName("running shooter")
+        .asProxy();
+  }
+
+  public Command manualShooter(DoubleSupplier stickInput) {
+    return runShooter(
+        InputStream.of(stickInput)
+            .scale(10)
+            .scale(Constants.PERIOD.in(Seconds))
+            .add(pid::getSetpoint));
   }
 
   public Command runShooter(double velocity) {
     return runShooter(() -> velocity);
   }
 
+  public Command ejectStuck(double velocity) {
+    return runShooter(velocity);
+  }
+
   public Command setSetpoint(DoubleSupplier velocity) {
-    return runOnce(() -> pid.setSetpoint(velocity.getAsDouble()));
+    return runOnce(() -> pid.setSetpoint(velocity.getAsDouble())).asProxy();
+  }
+
+  private void update(double setpointVelocity) {
+    double feedback = pid.calculate(shooter.velocity(), setpointVelocity);
+    double feedforward = ff.calculate(setpointVelocity);
+    log("feedback output", feedback);
+    log("feedforward output", feedforward);
+    shooter.setVoltage(MathUtil.clamp(feedback + feedforward, -12, 12));
   }
 
   /**
@@ -96,7 +113,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   @Log.NT
   public double tangentialVelocity() {
-    return rotationalVelocity() * RADIUS.in(Meters);
+    return Shooting.flywheelToNoteSpeed(rotationalVelocity());
   }
 
   @Log.NT

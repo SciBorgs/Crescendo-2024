@@ -47,7 +47,7 @@ if __name__ == "__main__":
         list(
             filter(
                 lambda x: x is not None,
-                multiprocessing.Pool(multiprocessing.cpu_count() // 4).map(
+                multiprocessing.Pool(multiprocessing.cpu_count() // 6).map(
                     optimal_values, cases
                 ),
             )

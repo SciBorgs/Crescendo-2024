@@ -10,7 +10,6 @@ import edu.wpi.first.networktables.StringArrayPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +36,11 @@ public final class FaultLogger {
     public String toString() {
       return name + ": " + description;
     }
+  }
+
+  @FunctionalInterface
+  public static interface FaultReporter {
+    void report();
   }
 
   /**
@@ -71,7 +75,7 @@ public final class FaultLogger {
   }
 
   // DATA
-  private static final List<Supplier<Optional<Fault>>> faultSuppliers = new ArrayList<>();
+  private static final List<FaultReporter> faultReporters = new ArrayList<>();
   private static final Set<Fault> newFaults = new HashSet<>();
   private static final Set<Fault> activeFaults = new HashSet<>();
   private static final Set<Fault> totalFaults = new HashSet<>();
@@ -85,11 +89,7 @@ public final class FaultLogger {
   public static void update() {
     activeFaults.clear();
 
-    faultSuppliers.stream()
-        .map(s -> s.get())
-        .flatMap(Optional::stream)
-        .forEach(FaultLogger::report);
-
+    faultReporters.forEach(FaultReporter::report);
     activeFaults.addAll(newFaults);
     newFaults.clear();
 
@@ -102,11 +102,13 @@ public final class FaultLogger {
   /** Clears total faults. */
   public static void clear() {
     totalFaults.clear();
+    activeFaults.clear();
+    newFaults.clear();
   }
 
-  /** Clears fault suppliers */
+  /** Clears fault suppliers. */
   public static void unregisterAll() {
-    faultSuppliers.clear();
+    faultReporters.clear();
   }
 
   /**
@@ -158,7 +160,7 @@ public final class FaultLogger {
    * @param supplier A supplier of an optional fault.
    */
   public static void register(Supplier<Optional<Fault>> supplier) {
-    faultSuppliers.add(supplier);
+    faultReporters.add(() -> supplier.get().ifPresent(FaultLogger::report));
   }
 
   /**
@@ -170,11 +172,12 @@ public final class FaultLogger {
    */
   public static void register(
       BooleanSupplier condition, String name, String description, FaultType type) {
-    faultSuppliers.add(
-        () ->
-            condition.getAsBoolean()
-                ? Optional.of(new Fault(name, description, type))
-                : Optional.empty());
+    faultReporters.add(
+        () -> {
+          if (condition.getAsBoolean()) {
+            report(name, description, type);
+          }
+        });
   }
 
   /**
@@ -183,9 +186,14 @@ public final class FaultLogger {
    * @param spark The Spark Max or Spark Flex to manage.
    */
   public static void register(CANSparkBase spark) {
-    for (FaultID fault : FaultID.values()) {
-      register(() -> spark.getFault(fault), SparkUtils.name(spark), fault.name(), FaultType.ERROR);
-    }
+    faultReporters.add(
+        () -> {
+          for (FaultID fault : FaultID.values()) {
+            if (spark.getFault(fault)) {
+              report(SparkUtils.name(spark), fault.name(), FaultType.ERROR);
+            }
+          }
+        });
     register(
         () -> spark.getMotorTemperature() > 100,
         SparkUtils.name(spark),
@@ -221,19 +229,19 @@ public final class FaultLogger {
    * @param powerDistribution The power distribution to manage.
    */
   public static void register(PowerDistribution powerDistribution) {
-    for (Field field : PowerDistribution.class.getFields()) {
-      register(
-          () -> {
-            try {
-              if (field.getBoolean(powerDistribution)) {
-                return Optional.of(
-                    new Fault("Power Distribution", field.getName(), FaultType.ERROR));
-              }
-            } catch (Exception e) {
-            }
-            return Optional.empty();
-          });
-    }
+    // Field[] fields = PowerDistributionFaults.class.getFields();
+    // faultReporters.add(
+    //     () -> {
+    //       try {
+    //       PowerDistributionFaults faults = powerDistribution.getFaults();
+    //       for (Field fault : fields) {
+    //           if (fault.getBoolean(faults)) {
+    //             report("Power Distribution", fault.getName(), FaultType.ERROR);
+    //           }
+    //         }
+    //       } catch (Exception e) {
+    //     }
+    //     });
   }
 
   /**
@@ -255,15 +263,15 @@ public final class FaultLogger {
    * <p>This should be called immediately after any call to the spark.
    *
    * @param spark The spark to report REVLibErrors from.
+   * @return If the spark is working without errors.
    */
   public static boolean check(CANSparkBase spark) {
     REVLibError error = spark.getLastError();
     if (error != REVLibError.kOk) {
       report(SparkUtils.name(spark), error.name(), FaultType.ERROR);
-      return true;
-    } else {
       return false;
     }
+    return true;
   }
 
   /**

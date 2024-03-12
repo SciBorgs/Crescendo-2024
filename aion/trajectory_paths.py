@@ -1,34 +1,64 @@
 import numpy as np
 
-class Trajectory:
-    density_of_air = 1.204 #kg/m^3
-    dynamic_viscosity = 1.825 * (10 ** -5) #kg/(m*s)
-    note_small_radius = 0.05 / 2 #m
-    note_large_radius = 0.36 / 2 #m
-    note_thickness = 0.05 #m
 
-    volume = 2 * np.pi * note_large_radius * (note_small_radius ** 2)
+class Trajectory:
+    density_of_air = 1.204  # kg/m^3
+    dynamic_viscosity = 1.825 * (10**-5)  # kg/(m*s)
+    note_small_radius = 0.05 / 2  # m
+    note_large_radius = 0.36 / 2  # m
+    note_thickness = 0.05  # m
+
+    volume = 2 * np.pi * note_large_radius * (note_small_radius**2)
     surface_area = 4 * np.pi * note_small_radius * note_large_radius
     characteristic_length = volume / surface_area
     note_frontal_area = np.pi * (note_large_radius) ** 2
-    aspect_ratio = (2*(note_large_radius - note_small_radius)) / (2 * note_small_radius)
+    aspect_ratio = (2 * (note_large_radius - note_small_radius)) / (
+        2 * note_small_radius
+    )
 
     def __init__(self, v, theta):
-        self.v = v #initial velocity
+        self.v = v  # initial velocity
         self.theta = theta
-        self.vx = np.cos(theta) #initial horizontal velocity
-        self.vy = np.sin(theta) #initial vertical velocity
-    
-    def net_force(self):
-        Re = 2 * self.density_of_air * self.v * self.note_large_radius / self.dynamic_viscosity
-        drag_coefficent = 0.207485 * ( self.aspect_ratio ** (0.626308) ) * np.cos(2 * self.theta) + (5.781323) * Re ** (-0.468003)
-        drag_force = 0.5 * drag_coefficent * self.density_of_air * (self.v ** 2) * self.note_frontal_area * np.sin(self.theta)
-        lift_coefficent = 0.987067 * self.aspect_ratio ** (-0.115132) * Re ** (-0.298905) * np.sin(2*self.theta)
-        lift_force = 0.5 * lift_coefficent * self.density_of_air * (self.v ** 2) * self.note_frontal_area * np.sin(self.theta)
-        return lift_force, drag_force
-    
+        self.vx = np.cos(theta)  # initial horizontal velocity
+        self.vy = np.sin(theta)  # initial vertical velocity
 
-t1 = Trajectory(3, np.pi/3)
+    def net_force(self):
+        Re = (
+            2
+            * self.density_of_air
+            * self.v
+            * self.note_large_radius
+            / self.dynamic_viscosity
+        )
+        drag_coefficent = 0.207485 * (self.aspect_ratio ** (0.626308)) * np.cos(
+            2 * self.theta
+        ) + (5.781323) * Re ** (-0.468003)
+        drag_force = (
+            0.5
+            * drag_coefficent
+            * self.density_of_air
+            * (self.v**2)
+            * self.note_frontal_area
+            * np.sin(self.theta)
+        )
+        lift_coefficent = (
+            0.987067
+            * self.aspect_ratio ** (-0.115132)
+            * Re ** (-0.298905)
+            * np.sin(2 * self.theta)
+        )
+        lift_force = (
+            0.5
+            * lift_coefficent
+            * self.density_of_air
+            * (self.v**2)
+            * self.note_frontal_area
+            * np.sin(self.theta)
+        )
+        return lift_force, drag_force
+
+
+t1 = Trajectory(3, np.pi / 3)
 print(t1.net_force())
 
 

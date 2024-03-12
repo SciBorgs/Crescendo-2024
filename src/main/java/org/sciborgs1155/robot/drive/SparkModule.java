@@ -28,8 +28,8 @@ public class SparkModule implements ModuleIO {
 
   private final Rotation2d angularOffset;
 
-  private double lastVelocity;
   private double lastPosition;
+  private double lastVelocity;
 
   /**
    * Constructs a SwerveModule for rev's MAX Swerve.
@@ -53,8 +53,8 @@ public class SparkModule implements ModuleIO {
         () -> driveMotor.setSmartCurrentLimit((int) Driving.CURRENT_LIMIT.in(Amps)),
         () -> driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Meters)),
         () -> driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(MetersPerSecond)),
-        () -> driveEncoder.setMeasurementPeriod(4),
-        () -> driveEncoder.setAverageDepth(2));
+        () -> driveEncoder.setAverageDepth(16),
+        () -> driveEncoder.setMeasurementPeriod(32));
 
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
     turningEncoder = turnMotor.getAbsoluteEncoder();
@@ -101,27 +101,15 @@ public class SparkModule implements ModuleIO {
 
   @Override
   public double drivePosition() {
-    double driveRot = driveEncoder.getPosition();
+    lastPosition = SparkUtils.wrapCall(driveMotor, driveEncoder.getPosition()).orElse(lastPosition);
     // account for rotation of turn motor on rotation of drive motor
-    driveRot -= turningEncoder.getPosition() * COUPLING_RATIO;
-    if (FaultLogger.check(driveMotor)) {
-      return lastPosition;
-    } else {
-      lastPosition = driveRot;
-      return driveRot;
-    }
+    return lastPosition - turningEncoder.getPosition() * COUPLING_RATIO;
   }
 
   @Override
   public double driveVelocity() {
-    double velocity = driveEncoder.getVelocity();
-    if (FaultLogger.check(driveMotor)) {
-      return lastVelocity;
-      // no need to report error because check() does that for us
-    } else {
-      lastVelocity = velocity;
-      return velocity;
-    }
+    lastVelocity = SparkUtils.wrapCall(driveMotor, driveEncoder.getVelocity()).orElse(lastVelocity);
+    return lastVelocity;
   }
 
   @Override
