@@ -137,7 +137,9 @@ public class NoteVisualizer implements Logged {
                   notePathPub.set(poses);
                   return Commands.run(
                           () -> {
-                            shotNotePub.set(poses[step]);
+                            if(step % 2 == 0){
+                              shotNotePub.set(poses[step]);
+                            }
                             step++;
                           })
                       .until(() -> step >= poses.length - 1)
