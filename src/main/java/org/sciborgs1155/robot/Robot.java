@@ -33,6 +33,7 @@ import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
+import org.sciborgs1155.robot.commands.Climbing;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
@@ -86,6 +87,7 @@ public class Robot extends CommandRobot implements Logged {
   @Log.NT private final SendableChooser<Command> autos;
 
   private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
+  private final Climbing climbing = new Climbing(drive);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
@@ -190,6 +192,13 @@ public class Robot extends CommandRobot implements Logged {
         .or(driver.rightBumper())
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
+
+    driver.x().whileTrue(climbing.snapToStage(
+      createJoystickStream(
+        driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+      createJoystickStream(
+        driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)), 
+        () -> drive.pose().getTranslation()));
 
     operator
         .a()

@@ -53,19 +53,19 @@ public final class DriveConstants {
 
   public static final Rotation3d GYRO_OFFSET = new Rotation3d(0, 0, Math.PI);
 
-  public static final Translation2d BLUE_STAGE_SPEAKERSIDE =
-      new Translation2d(); // TODO NEED TO MEASURE THESE
+  public static final Translation2d BLUE_STAGE_MIDSIDE =
+      new Translation2d(Inches.of(224.125), Inches.of(162));
   public static final Translation2d BLUE_STAGE_AMPSIDE =
-      new Translation2d(); // TODO NEED TO MEASURE THESE
+      new Translation2d(Inches.of(175.5625), Inches.of(190.05));
   public static final Translation2d BLUE_STAGE_SOURCESIDE =
-      new Translation2d(); // TODO NEED TO MEASURE THESE
+      new Translation2d(Inches.of(175.5625), Inches.of(133.95));
 
-  public static final Translation2d RED_STAGE_SPEAKERSIDE =
-      new Translation2d(); // TODO NEED TO MEASURE THESE
+  public static final Translation2d RED_STAGE_MIDSIDE =
+      new Translation2d(Inches.of(423.875), Inches.of(162));
   public static final Translation2d RED_STAGE_AMPSIDE =
-      new Translation2d(); // TODO NEED TO MEASURE THESE
+      new Translation2d(Inches.of(472.4375), Inches.of(190.05));
   public static final Translation2d RED_STAGE_SOURCESIDE =
-      new Translation2d(); // TODO NEED TO MEASURE THESE
+      new Translation2d(Inches.of(472.4375), Inches.of(133.95));
 
   public static final class Translation {
     public static final double P = 6.0;
