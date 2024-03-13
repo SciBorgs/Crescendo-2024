@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.drive.Drive;
 
@@ -24,16 +23,14 @@ public class Climbing {
    * @param coordinates current coordinates of the robot as a Translation2d supplier in meters as
    *     units.
    */
-  public Rotation2d findChainAngle(Translation2d coordinates) {
+  public Rotation2d findChainAngle(/* Translation2d coordinates */ ) {
     Translation2d nearest;
+    Translation2d coords = drive.pose().getTranslation();
     if (Constants.alliance() == Alliance.Blue) {
       nearest =
-          coordinates.nearest(
-              List.of(BLUE_STAGE_AMPSIDE, BLUE_STAGE_SOURCESIDE, BLUE_STAGE_MIDSIDE));
+          coords.nearest(List.of(BLUE_STAGE_AMPSIDE, BLUE_STAGE_SOURCESIDE, BLUE_STAGE_MIDSIDE));
     }
-    nearest =
-        coordinates.nearest(
-            List.of(RED_STAGE_AMPSIDE, RED_STAGE_SOURCESIDE, RED_STAGE_MIDSIDE));
+    nearest = coords.nearest(List.of(RED_STAGE_AMPSIDE, RED_STAGE_SOURCESIDE, RED_STAGE_MIDSIDE));
 
     // TODO forgive me lord for I have sinned
     if (nearest == BLUE_STAGE_AMPSIDE) {
@@ -54,10 +51,9 @@ public class Climbing {
     }
   }
 
-  /**
-   * Turns the robot such that its heading is perpendicular to its nearest stage climbing chain.
-   */
-  public Command snapToStage(DoubleSupplier vx, DoubleSupplier vy, Supplier<Translation2d> coords) {
-    return drive.drive(vx, vy, () -> findChainAngle(coords.get()));
+  /** Turns the robot such that its heading is perpendicular to its nearest stage climbing chain. */
+  public Command snapToStage(
+      DoubleSupplier vx, DoubleSupplier vy /*, Supplier<Translation2d> coords*/) {
+    return drive.drive(vx, vy, () -> findChainAngle(/* coords */ ));
   }
 }
