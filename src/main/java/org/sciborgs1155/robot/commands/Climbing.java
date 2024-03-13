@@ -26,6 +26,7 @@ public class Climbing {
   public Rotation2d findChainAngle(/* Translation2d coordinates */ ) {
     Translation2d nearest;
     Translation2d coords = drive.pose().getTranslation();
+    
     if (Constants.alliance() == Alliance.Blue) {
       nearest =
           coords.nearest(List.of(BLUE_STAGE_AMPSIDE, BLUE_STAGE_SOURCESIDE, BLUE_STAGE_MIDSIDE));
@@ -34,17 +35,17 @@ public class Climbing {
 
     // TODO forgive me lord for I have sinned
     if (nearest == BLUE_STAGE_AMPSIDE) {
-      return Rotation2d.fromRadians(0);
+      return Rotation2d.fromRadians(Math.PI * 5 / 3);
     } else if (nearest == BLUE_STAGE_SOURCESIDE) {
-      return Rotation2d.fromRadians(Math.PI * 2 / 3);
+      return Rotation2d.fromRadians(Math.PI / 3);
     } else if (nearest == BLUE_STAGE_MIDSIDE) {
-      return Rotation2d.fromRadians(Math.PI * 4 / 3);
-    } else if (nearest == RED_STAGE_AMPSIDE) {
-      return Rotation2d.fromRadians(Math.PI * 11 / 6);
-    } else if (nearest == RED_STAGE_SOURCESIDE) {
-      return Rotation2d.fromRadians(Math.PI / 6);
-    } else if (nearest == RED_STAGE_MIDSIDE) {
       return Rotation2d.fromRadians(Math.PI);
+    } else if (nearest == RED_STAGE_AMPSIDE) {
+      return Rotation2d.fromRadians(Math.PI * 4 / 3);
+    } else if (nearest == RED_STAGE_SOURCESIDE) {
+      return Rotation2d.fromRadians(Math.PI * 2 / 3);
+    } else if (nearest == RED_STAGE_MIDSIDE) {
+      return Rotation2d.fromRadians(0);
     } else {
       throw new NoSuchElementException(
           "Oops. That's not supposed to happen. Climbing did an oopsie");

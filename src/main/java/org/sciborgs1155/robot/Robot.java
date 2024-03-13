@@ -194,14 +194,13 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     driver
-        .x()
+        .a()
         .whileTrue(
             climbing.snapToStage(
                 createJoystickStream(
-                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
                 createJoystickStream(
-                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
-    // TODO is this all good?
+                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
 
     operator
         .a()
