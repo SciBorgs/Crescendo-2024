@@ -145,19 +145,21 @@ public class Vision implements Logged {
     var targets = pipelineResult.getTargets();
     int numTags = 0;
     double avgDist = 0;
-    double totalWeight = 0;
+    double avgWeight = 0;
     for (var tgt : targets) {
       var tagPose = TAG_LAYOUT.getTagPose(tgt.getFiducialId());
       if (tagPose.isEmpty()) continue;
       numTags++;
       avgDist +=
           tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
-      totalWeight += TAG_WEIGHTS[tgt.getFiducialId()];
+      avgWeight += TAG_WEIGHTS[tgt.getFiducialId()];
     }
     if (numTags == 0) return estStdDevs;
 
     // weighted average distance
-    avgDist /= totalWeight;
+    avgDist /= numTags;
+    avgWeight /= numTags;
+    avgDist *= avgWeight;
 
     // Decrease std devs if multiple targets are visibleX
     if (numTags > 1) estStdDevs = VisionConstants.MULTIPLE_TAG_STD_DEVS;
