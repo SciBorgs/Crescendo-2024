@@ -125,8 +125,7 @@ public class Robot extends CommandRobot implements Logged {
           drive::pose,
           shooting::shooterPose,
           drive::getFieldRelativeChassisSpeeds,
-          shooter::tangentialVelocity,
-          drive::angularVelocity);
+          shooter::tangentialVelocity);
       NoteVisualizer.startPublishing();
     }
   }

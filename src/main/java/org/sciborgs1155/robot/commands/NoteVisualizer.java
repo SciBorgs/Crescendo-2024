@@ -58,7 +58,6 @@ public class NoteVisualizer implements Logged {
   private static Supplier<Pose3d> shooter = Pose3d::new;
   private static Supplier<ChassisSpeeds> speeds = ChassisSpeeds::new;
   private static DoubleSupplier shooterVelocity = () -> 0;
-  private static DoubleSupplier angularVelocity = () -> 0;
 
   private static final Vector<N3> GRAVITY = VecBuilder.fill(0, 0, -9.81);
 
@@ -76,13 +75,11 @@ public class NoteVisualizer implements Logged {
       Supplier<Pose2d> drivePose,
       Supplier<Pose3d> pivotPose,
       Supplier<ChassisSpeeds> driveSpeeds,
-      DoubleSupplier shotVelocity,
-      DoubleSupplier turnVelocity) {
+      DoubleSupplier shotVelocity) {
     drive = drivePose;
     shooter = pivotPose;
     speeds = driveSpeeds;
     shooterVelocity = shotVelocity;
-    angularVelocity = turnVelocity;
   }
 
   /** Set up NT publisher. Call only once before beginning to log notes. */
@@ -142,7 +139,7 @@ public class NoteVisualizer implements Logged {
                   notePathPub.set(poses);
                   return Commands.run(
                           () -> {
-                            if (step % 2 == 0) {
+                            if (step % 3 == 0) {
                               shotNotePub.set(poses[step]);
                             }
                             step++;
@@ -151,7 +148,7 @@ public class NoteVisualizer implements Logged {
                       .andThen(Commands.waitSeconds(1))
                       .finallyDo(
                           () -> {
-                            shotNotePub.set(new Pose3d());
+                            shotNotePub.set(poses[poses.length - 1]);
                           });
                 },
                 Set.of()))
@@ -192,16 +189,21 @@ public class NoteVisualizer implements Logged {
 
     pathPosition = new ArrayList<>();
 
+    int step = 0;
     while (inField(pose) && pose.getZ() > 0) {
-      pathPosition.add(pose);
+      if (step % 3 == 0) {
+        pathPosition.add(pose);
+      }
 
       pose = new Pose3d(new Translation3d(position), pose.getRotation());
 
       position = position.plus(velocity.times(PERIOD.in(Seconds)));
       velocity = velocity.plus(GRAVITY.times(PERIOD.in(Seconds)));
+      step++;
     }
     // carryingNote = false;
     // notePathPub.set(pathPosition.toArray(new Pose3d[0]));
+    pathPosition.add(pose);
     return pathPosition.toArray(Pose3d[]::new);
   }
 }
