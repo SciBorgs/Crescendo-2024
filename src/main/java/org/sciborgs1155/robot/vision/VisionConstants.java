@@ -42,10 +42,14 @@ public class VisionConstants {
   public static final double MAX_HEIGHT = 0.305;
   public static final double MAX_ANGLE = 0.3;
 
-  // Total of 16 AprilTags https://firstfrc.blob.core.windows.net/frc2024/Manual/2024GameManual.pdf (page 35 and more)
+  // Total of 16 AprilTags
+  // https://firstfrc.blob.core.windows.net/frc2024/Manual/2024GameManual.pdf (page 35 and more)
   // Tag Locations (1-16) | Source: 1,2,9,10 | Speaker: 3,4,7,8 | Amp: 5,6 | Stage 11,12,13,14,15,16
-  // First half of locations are on red side, second half on blue side (ex. source: 1,2 is red, 9,10 is blue)
+  // First half of locations are on red side, second half on blue side
+  // (ex. source: 1,2 is red, 9,10)
 
   // Unsure if getFudicialID() returns the tags from 1-16 or 0-15 (assuming 0-15)
-  public static final double[] TAG_WEIGHTS = {1, 1, 0.9, 1, 0.8, 0.8, 1, 0.9, 1, 1, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8};
+  public static final double[] TAG_WEIGHTS = {
+    1, 1, 0.9, 1, 0.8, 0.8, 1, 0.9, 1, 1, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8
+  };
 }

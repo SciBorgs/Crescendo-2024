@@ -158,7 +158,7 @@ public class Vision implements Logged {
 
     // weighted average distance
     avgDist /= totalWeight;
-    
+
     // Decrease std devs if multiple targets are visibleX
     if (numTags > 1) estStdDevs = VisionConstants.MULTIPLE_TAG_STD_DEVS;
     // Increase std devs based on (average) distance
