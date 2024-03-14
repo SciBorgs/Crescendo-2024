@@ -50,6 +50,6 @@ public class VisionConstants {
 
   // Unsure if getFudicialID() returns the tags from 1-16 or 0-15 (assuming 0-15)
   public static final double[] TAG_WEIGHTS = {
-    1, 1, 0.9, 1, 0.8, 0.8, 1, 0.9, 1, 1, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
   };
 }
