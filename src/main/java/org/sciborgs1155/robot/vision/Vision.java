@@ -156,10 +156,8 @@ public class Vision implements Logged {
     }
     if (numTags == 0) return estStdDevs;
 
-    // weighted average distance
     avgDist /= numTags;
     avgWeight /= numTags;
-    avgDist *= avgWeight;
 
     // Decrease std devs if multiple targets are visibleX
     if (numTags > 1) estStdDevs = VisionConstants.MULTIPLE_TAG_STD_DEVS;
@@ -167,6 +165,8 @@ public class Vision implements Logged {
     if (numTags == 1 && avgDist > 4)
       estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
+    
+    estStdDevs.times(avgWeight);
 
     return estStdDevs;
   }
