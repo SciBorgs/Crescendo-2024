@@ -1,6 +1,7 @@
 package org.sciborgs1155.lib;
 
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -27,7 +28,7 @@ public class TestingUtil {
    * @param command The command to run.
    */
   public static void run(Command command) {
-    command.ignoringDisable(true).schedule();
+    command.schedule();
     CommandScheduler.getInstance().run();
   }
 
@@ -38,13 +39,16 @@ public class TestingUtil {
    * @param runs The number of times CommandScheduler is run.
    */
   public static void run(Command command, int runs) {
-    command.ignoringDisable(true).schedule();
+    command.schedule();
     fastForward(runs);
   }
 
-  /** Initializes HAL with default values and asserts that it doesn't fail. */
-  public static void setupHAL() {
+  /** Sets up DS and initializes HAL with default values and asserts that it doesn't fail. */
+  public static void setupTests() {
     assert HAL.initialize(500, 0);
+    DriverStationSim.setEnabled(true);
+    DriverStationSim.setTest(true);
+    DriverStationSim.notifyNewData();
   }
 
   /**

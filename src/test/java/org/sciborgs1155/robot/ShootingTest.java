@@ -3,17 +3,18 @@ package org.sciborgs1155.robot;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sciborgs1155.lib.TestingUtil.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.VELOCITY_TOLERANCE;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -34,7 +35,7 @@ public class ShootingTest {
 
   @BeforeEach
   public void setup() {
-    setupHAL();
+    setupTests();
     pivot = Pivot.create();
     shooter = Shooter.create();
     feeder = Feeder.create();
@@ -42,12 +43,16 @@ public class ShootingTest {
     shooting = new Shooting(shooter, pivot, feeder, drive);
   }
 
+  @Test
+  public void enabled() {
+    assertTrue(DriverStation.isEnabled());
+  }
+
   @AfterEach
   public void destroy() throws Exception {
     reset(pivot, shooter, feeder, drive);
   }
 
-  @Disabled
   @Test
   public void testShooter() {
     run(shooter.runShooter(() -> 3));
@@ -56,7 +61,6 @@ public class ShootingTest {
     assertEquals(3, shooter.rotationalVelocity(), DELTA);
   }
 
-  @Disabled
   @ParameterizedTest
   @ValueSource(doubles = {1.104793, 3 * Math.PI / 8})
   public void testPivot(double theta) {
@@ -70,7 +74,6 @@ public class ShootingTest {
         0.15);
   }
 
-  @Disabled
   @ParameterizedTest
   @ValueSource(doubles = {-200, -100, -15, 0, 15, 100, 200})
   public void testShootStoredNote(double vel) {
@@ -81,7 +84,6 @@ public class ShootingTest {
     assertEquals(vel, shooter.rotationalVelocity(), VELOCITY_TOLERANCE.in(RadiansPerSecond));
   }
 
-  @Disabled
   @Test
   public void testPivotThenShoot() {
     run(shooting.shootWithPivot(() -> Math.PI / 4, () -> 4));
