@@ -166,7 +166,7 @@ public class Vision implements Logged {
       estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
 
-    estStdDevs.times(avgWeight);
+    estStdDevs = estStdDevs.times(avgWeight);
 
     return estStdDevs;
   }
