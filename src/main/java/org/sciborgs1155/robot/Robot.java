@@ -41,6 +41,8 @@ import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 import org.sciborgs1155.robot.drive.DriveConstants.Translation;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
+import org.sciborgs1155.robot.led.LedStrip;
+import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
@@ -79,6 +81,8 @@ public class Robot extends CommandRobot implements Logged {
         case COMPLETE -> Pivot.create();
         default -> Pivot.none();
       };
+
+  private final LedStrip led = new LedStrip();
 
   private final Vision vision = Vision.create();
 
@@ -165,6 +169,8 @@ public class Robot extends CommandRobot implements Logged {
             new ReplanningConfig()),
         () -> alliance() == Alliance.Red,
         drive);
+
+    led.setLEDTheme(LEDTheme.RAINBOW);
   }
 
   /**
@@ -178,6 +184,7 @@ public class Robot extends CommandRobot implements Logged {
             createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
             createJoystickStream(
                 driver::getRightX, DriveConstants.TELEOP_ANGULAR_SPEED.in(RadiansPerSecond))));
+    led.setDefaultCommand(led.setLEDTheme(LEDTheme.FIRE));
   }
 
   /** Configures trigger -> command bindings */
@@ -235,6 +242,17 @@ public class Robot extends CommandRobot implements Logged {
 
     intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3));
     feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3));
+    
+    intake
+        .hasNote()
+        .onTrue(led.setLEDTheme(LEDTheme.CHASE))
+        .onFalse(led.setLEDTheme(LEDTheme.FIRE));
+    feeder
+        .noteAtShooter()
+        .onFalse(
+            led.setLEDTheme(LEDTheme.RAINDROP)
+                .andThen(Commands.waitSeconds(0.5))
+                .andThen(led.setLEDTheme(LEDTheme.FIRE)));
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {

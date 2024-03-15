@@ -29,7 +29,9 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     AUTO(
         () ->
             movingColor(
-                Color.kLawnGreen, Color.kCrimson, 3)), // Yellow Green 33%, Green 33%, Gold 33% , moving
+                Color.kLawnGreen,
+                Color.kCrimson,
+                3)), // Yellow Green 33%, Green 33%, Gold 33% , moving
     CHASE(
         () ->
             movingColor(
