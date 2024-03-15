@@ -32,7 +32,6 @@ import org.littletonrobotics.urcl.URCL;
 import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
-import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
@@ -103,12 +102,6 @@ public class Robot extends CommandRobot implements Logged {
   /** Configures basic behavior during different parts of the game. */
   private void configureGameBehavior() {
     // Configure logging with DataLogManager, Monologue, and FailureManagement
-    var entry = Tuning.entry("/Robot/hi", 1.0);
-    var dbleEnt = Tuning.entry("/Robot/testingDouble", 2.2309);
-    var intEnt = Tuning.entry("/Robot/testingInt", 1291310);
-    var strEnt = Tuning.entry("/Robot/testingString", "Hello, World!");
-    var boolEnt = Tuning.entry("/Robot/testingBoolean", false); // will get rid of this after PR
-
     DataLogManager.start();
     Monologue.setupMonologue(this, "/Robot", false, true);
     addPeriodic(Monologue::updateAll, PERIOD.in(Seconds));
