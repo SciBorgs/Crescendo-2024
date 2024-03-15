@@ -1,5 +1,6 @@
 package org.sciborgs1155.lib;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.FaultID;
@@ -255,6 +256,15 @@ public final class FaultLogger {
         "Photon Camera [" + camera.getName() + "]",
         "disconnected",
         FaultType.ERROR);
+  }
+
+  /**
+   * Registers fault suppliers for a TalonFX
+   *
+   * @param talon The talon to manage.
+   */
+  public static void register(TalonFX talon) {
+    // TODO: Fix
   }
 
   /**
