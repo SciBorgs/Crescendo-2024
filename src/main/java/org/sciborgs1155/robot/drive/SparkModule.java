@@ -82,9 +82,6 @@ public class SparkModule implements ModuleIO {
     resetEncoders();
 
     this.angularOffset = angularOffset;
-
-    lastVelocity = driveEncoder.getVelocity();
-    lastPosition = driveEncoder.getPosition() * (1 - COUPLING_RATIO);
   }
 
   @Override

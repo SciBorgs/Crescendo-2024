@@ -59,6 +59,11 @@
       "/SmartDashboard/shooter quasistatic forward": "Command"
     },
     "windows": {
+      "/FMSInfo": {
+        "window": {
+          "visible": true
+        }
+      },
       "/Robot/autos": {
         "window": {
           "visible": true

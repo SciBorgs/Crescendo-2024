@@ -4,10 +4,10 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Seconds;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Distance;
@@ -94,20 +94,20 @@ public class Constants {
     public static Pose3d CENTER_NOTE_FIVE =
         new Pose3d(new Translation3d(8.2705321, 7.4584052, 0), new Rotation3d());
 
-    // The 2d coordinates of the centers of the climbing chains.
-    public static final Translation2d BLUE_STAGE_MIDSIDE =
-        new Translation2d(Inches.of(224.125), Inches.of(162));
-    public static final Translation2d BLUE_STAGE_AMPSIDE =
-        new Translation2d(Inches.of(175.5625), Inches.of(190.05));
-    public static final Translation2d BLUE_STAGE_SOURCESIDE =
-        new Translation2d(Inches.of(175.5625), Inches.of(133.95));
-
-    public static final Translation2d RED_STAGE_MIDSIDE =
-        new Translation2d(Inches.of(423.875), Inches.of(162));
-    public static final Translation2d RED_STAGE_AMPSIDE =
-        new Translation2d(Inches.of(472.4375), Inches.of(190.05));
-    public static final Translation2d RED_STAGE_SOURCESIDE =
-        new Translation2d(Inches.of(472.4375), Inches.of(133.95));
+    // Pose2d which contain the coordinates of the middles of the stage chains, as well as the
+    // rotation perpendicular to them.
+    public static final Pose2d BLUE_STAGE_MIDSIDE =
+        new Pose2d(224.125, 162, Rotation2d.fromRadians(Math.PI));
+    public static final Pose2d BLUE_STAGE_AMPSIDE =
+        new Pose2d(175.5625, 190.05, Rotation2d.fromRadians(Math.PI * 5 / 3));
+    public static final Pose2d BLUE_STAGE_SOURCESIDE =
+        new Pose2d(175.5625, 133.95, Rotation2d.fromRadians(Math.PI / 3));
+    public static final Pose2d RED_STAGE_MIDSIDE =
+        new Pose2d(423.875, 162, Rotation2d.fromRadians(0));
+    public static final Pose2d RED_STAGE_AMPSIDE =
+        new Pose2d(472.4375, 190.05, Rotation2d.fromRadians(Math.PI * 4 / 3));
+    public static final Pose2d RED_STAGE_SOURCESIDE =
+        new Pose2d(472.4375, 133.95, Rotation2d.fromRadians(Math.PI * 2 / 3));
 
     /** Returns the translation of the speaker for the robot's alliance. */
     public static Translation3d speaker() {
@@ -116,10 +116,11 @@ public class Constants {
           : BLUE_SPEAKER_POSE.plus(TARGET_OFFSET);
     }
 
-    public static List<Translation2d> chainCoordinateList() {
-      return alliance() == Alliance.Red
-          ? List.of(RED_STAGE_AMPSIDE, RED_STAGE_SOURCESIDE, RED_STAGE_MIDSIDE)
-          : List.of(BLUE_STAGE_AMPSIDE, BLUE_STAGE_SOURCESIDE, BLUE_STAGE_MIDSIDE);
+    // ** Returns a list of 2d coordinates for the middle of the current alliance's stage chains */
+    public static List<Pose2d> chainCoordinates() {
+      return alliance() == Alliance.Blue
+          ? List.of(BLUE_STAGE_AMPSIDE, BLUE_STAGE_MIDSIDE, BLUE_STAGE_SOURCESIDE)
+          : List.of(RED_STAGE_AMPSIDE, RED_STAGE_MIDSIDE, RED_STAGE_SOURCESIDE);
     }
 
     /** Returns whether the provided position is within the boundaries of the field. */
