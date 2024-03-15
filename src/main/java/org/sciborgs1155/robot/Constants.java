@@ -97,17 +97,17 @@ public class Constants {
     // Pose2d which contain the coordinates of the middles of the stage chains, as well as the
     // rotation perpendicular to them.
     public static final Pose2d BLUE_STAGE_MIDSIDE =
-        new Pose2d(224.125, 162, Rotation2d.fromRadians(Math.PI));
+        new Pose2d(Inches.of(224.125), Inches.of(162), Rotation2d.fromRadians(Math.PI));
     public static final Pose2d BLUE_STAGE_AMPSIDE =
-        new Pose2d(175.5625, 190.05, Rotation2d.fromRadians(Math.PI * 5 / 3));
+        new Pose2d(Inches.of(175.5625), Inches.of(190.05), Rotation2d.fromRadians(Math.PI * 5 / 3));
     public static final Pose2d BLUE_STAGE_SOURCESIDE =
-        new Pose2d(175.5625, 133.95, Rotation2d.fromRadians(Math.PI / 3));
+        new Pose2d(Inches.of(175.5625), Inches.of(133.95), Rotation2d.fromRadians(Math.PI / 3));
     public static final Pose2d RED_STAGE_MIDSIDE =
-        new Pose2d(423.875, 162, Rotation2d.fromRadians(0));
+        new Pose2d(Inches.of(423.875), Inches.of(162), Rotation2d.fromRadians(0));
     public static final Pose2d RED_STAGE_AMPSIDE =
-        new Pose2d(472.4375, 190.05, Rotation2d.fromRadians(Math.PI * 4 / 3));
+        new Pose2d(Inches.of(472.4375), Inches.of(190.05), Rotation2d.fromRadians(Math.PI * 4 / 3));
     public static final Pose2d RED_STAGE_SOURCESIDE =
-        new Pose2d(472.4375, 133.95, Rotation2d.fromRadians(Math.PI * 2 / 3));
+        new Pose2d(Inches.of(472.4375), Inches.of(133.95), Rotation2d.fromRadians(Math.PI * 2 / 3));
 
     /** Returns the translation of the speaker for the robot's alliance. */
     public static Translation3d speaker() {
