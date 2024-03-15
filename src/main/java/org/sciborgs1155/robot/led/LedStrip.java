@@ -66,6 +66,8 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
         });
   }
 
+  
+
   // documentation:
   // https://docs.wpilib.org/en/stable/docs/software/hardware-apis/misc/addressable-leds.html
   // some inspiration by:

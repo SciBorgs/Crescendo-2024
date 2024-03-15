@@ -19,7 +19,7 @@ public class LedTest {
 
   @BeforeEach
   public void setup() {
-    setupHAL();
+    setupTests();
     led = new LedStrip();
   }
 
