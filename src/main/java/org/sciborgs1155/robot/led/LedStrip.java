@@ -23,13 +23,13 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     CANSHOOT(() -> movingColor(Color.kGreen, Color.kLime, 5)),
     FIRE(LedStrip::fire), // Suppose to look like fire
     RAINBOW(LedStrip::rainbow), // RGB Gamer Robot
-    SCIBORGS(() -> alternatingColor(Color.kDarkGray, Color.kYellow)), // Yellow 50%, Dark Grey 50%
+    SCIBORGS(() -> movingColor(Color.kYellow, Color.kYellow, 4)), // Yellow 50%, Dark Grey 50%
     FEMAIDENS(() -> alternatingColor(Color.kPurple, Color.kLime)), // Yellow 50%, Green 50%
     ALLIANCE(() -> allianceColor()),
     AUTO(
         () ->
             movingColor(
-                Color.kBlack, Color.kYellow, 3)), // Yellow Green 33%, Green 33%, Gold 33% , moving
+                Color.kLawnGreen, Color.kCrimson, 3)), // Yellow Green 33%, Green 33%, Gold 33% , moving
     CHASE(
         () ->
             movingColor(
