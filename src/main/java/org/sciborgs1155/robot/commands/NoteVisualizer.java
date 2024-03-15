@@ -32,7 +32,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Logged;
 import org.sciborgs1155.robot.Robot;
-import org.sciborgs1155.robot.shooter.ShooterConstants;
+import org.sciborgs1155.robot.pivot.PivotConstants;
 
 public class NoteVisualizer implements Logged {
   // notes
@@ -139,9 +139,7 @@ public class NoteVisualizer implements Logged {
                   notePathPub.set(poses);
                   return Commands.run(
                           () -> {
-                            if (step % 3 == 0) {
-                              shotNotePub.set(poses[step]);
-                            }
+                            shotNotePub.set(poses[step]);
                             step++;
                           })
                       .until(() -> step >= poses.length - 1)
@@ -159,8 +157,8 @@ public class NoteVisualizer implements Logged {
 
   private static Pose3d[] generatePath() {
     ChassisSpeeds driveSpeeds = speeds.get();
-    double tangentialVelocityOfShooterRotationalVelocity =
-        driveSpeeds.omegaRadiansPerSecond * ShooterConstants.OFFSET.getX(); // danny wrote this
+    double shooterTangentialVelocity =
+        driveSpeeds.omegaRadiansPerSecond * PivotConstants.AXLE_FROM_CHASSIS.getX();
 
     Pose2d robotPose = drive.get();
     Rotation2d robotRotation = robotPose.getRotation();
@@ -169,10 +167,10 @@ public class NoteVisualizer implements Logged {
     Pose3d pose = shooter.get();
     Vector<N3> position = pose.getTranslation().toVector();
 
-    Vector<N3> driveRotationVelocity =
+    Vector<N3> shooterTangentialVelocityVector =
         VecBuilder.fill(
-            tangentialVelocityOfShooterRotationalVelocity * robotRotation.getSin(),
-            tangentialVelocityOfShooterRotationalVelocity * robotRotation.getCos(),
+            shooterTangentialVelocity * robotRotation.getSin(),
+            shooterTangentialVelocity * robotRotation.getCos(),
             0);
     Vector<N3> driveVelocity =
         VecBuilder.fill(driveSpeeds.vxMetersPerSecond, driveSpeeds.vyMetersPerSecond, 0);
@@ -184,7 +182,7 @@ public class NoteVisualizer implements Logged {
             .unit()
             .times(shotVelocity)
             .plus(driveVelocity)
-            .plus(driveRotationVelocity)
+            .plus(shooterTangentialVelocityVector)
             .times(-1);
 
     pathPosition = new ArrayList<>();
