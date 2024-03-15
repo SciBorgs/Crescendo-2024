@@ -39,4 +39,8 @@ public final class Ports {
     public static final int BEAMBREAK = 7;
     public static final int INTAKE_SPARK = 5;
   }
+
+  public static final class Led {
+    public static final int LED_PORT = 9; // led port
+  }
 }
