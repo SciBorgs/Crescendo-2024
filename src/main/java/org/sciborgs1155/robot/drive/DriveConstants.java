@@ -67,6 +67,19 @@ public final class DriveConstants {
     public static final Measure<Angle> TOLERANCE = Degrees.of(5);
   }
 
+    public static final class AmpAutoTranslation {
+    public static final double P = 0.6;
+    public static final double I = 0.0;
+    public static final double D = 0.2;
+  }
+
+  public static final class AmpAutoRotation {
+    public static final double P = 2;
+    public static final double I = 0.0;
+    public static final double D = 0.0;
+  }
+
+
   public static final PathConstraints CONSTRAINTS =
       new PathConstraints(
           MAX_SPEED.in(MetersPerSecond),
