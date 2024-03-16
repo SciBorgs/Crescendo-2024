@@ -87,7 +87,7 @@ public class Robot extends CommandRobot implements Logged {
   @Log.NT private final SendableChooser<Command> autos;
 
   private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
-  private final Climbing climbing = new Climbing(drive);
+  private final Climbing climbing = new Climbing(drive, pivot);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
@@ -196,11 +196,13 @@ public class Robot extends CommandRobot implements Logged {
     driver
         .a()
         .whileTrue(
-            climbing.snapToStage(
-                createJoystickStream(
-                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-                createJoystickStream(
-                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
+            climbing
+                .snapToStage(
+                    createJoystickStream(
+                        driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+                    createJoystickStream(
+                        driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)))
+                .alongWith(climbing.angleClimber())); // stop holding the button in order to climb with the pivot manually
 
     operator
         .a()
