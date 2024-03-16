@@ -9,6 +9,7 @@ import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -20,6 +21,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -70,6 +72,15 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   @Log.NT
   private final PIDController rotationController =
       new PIDController(Rotation.P, Rotation.I, Rotation.D);
+
+    @Log.NT
+  private final ProfiledPIDController translationController =
+      new ProfiledPIDController(
+          Translation.P,
+          Translation.I,
+          Translation.D,
+          new TrapezoidProfile.Constraints(MAX_SPEED, MAX_ACCEL));
+
 
   /**
    * A factory to create a new swerve drive based on whether the robot is being ran in simulation or
@@ -126,6 +137,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
     rotationController.enableContinuousInput(0, 2 * Math.PI);
     rotationController.setTolerance(Rotation.TOLERANCE.in(Radians));
+
+    translationController.setTolerance(.05);
 
     rateLimiter = new SlewRateLimiter(9.5, Double.NEGATIVE_INFINITY, 0);
     SmartDashboard.putData("drive quasistatic forward", sysIdQuasistatic(Direction.kForward));
