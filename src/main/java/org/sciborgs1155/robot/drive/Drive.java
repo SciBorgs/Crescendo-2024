@@ -134,6 +134,29 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     SmartDashboard.putData("drive dynamic backward", sysIdDynamic(Direction.kReverse));
   }
 
+  public Command goTo(Pose2d targetPose) {
+    return run(
+        () -> {
+          var difference = targetPose.minus(pose());
+          // calculates components of 3D vector
+          double deltaX = difference.getX();
+          double deltaY = difference.getY();
+          double deltaTheta = difference.getRotation().getRadians();
+          //double deltaTheta = 0;
+          double magnitude = Math.hypot(difference.getTranslation().getNorm(), deltaTheta);
+          // magninutde of vector
+          
+          double output = translationController.calculate(0, magnitude);
+          double vx, vy, theta;
+          // Scaling every individual component
+          vx = output * (deltaX);
+          vy = output * (deltaY);
+          theta = output * (deltaTheta);
+
+          driveFieldRelative(new ChassisSpeeds(vx, vy, theta));
+        }).until(translationController::atSetpoint);
+  }
+
   /**
    * Returns the currently-estimated pose of the robot.
    *
