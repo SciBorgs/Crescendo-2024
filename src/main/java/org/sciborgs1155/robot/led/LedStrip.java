@@ -20,7 +20,6 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
 
   public static enum LEDTheme {
     BXSCIFLASH(() -> movingColor(Color.kGreen, Color.kYellow, 5)), // Yellow ??%, Green ??%, moving
-    CANSHOOT(() -> movingColor(Color.kGreen, Color.kLime, 5)),
     FIRE(LedStrip::fire), // Suppose to look like fire
     RAINBOW(LedStrip::rainbow), // RGB Gamer Robot
     SCIBORGS(() -> movingColor(Color.kYellow, Color.kYellow, 4)), // Yellow 75%, Yellow 25%

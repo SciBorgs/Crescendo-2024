@@ -4,7 +4,8 @@ import edu.wpi.first.wpilibj.util.Color;
 
 public class LedConstants {
   public static final Color CAN_SHOOT_COLOR = Color.kGreen;
-  public static final Color CANT_SHOOT_COLOR = Color.kRed; // CAN't BUS
+  public static final Color CANT_SHOOT_COLOR = Color.kRed;
 
-  public static final int LEDLENGTH = 60; // change to be length of LED strip?
+  // Change to be length of LED strip
+  public static final int LEDLENGTH = 60; 
 }
