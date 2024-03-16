@@ -9,7 +9,6 @@ import edu.wpi.first.networktables.IntegerEntry;
 import edu.wpi.first.networktables.StringEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sciborgs1155.lib.Tuning.*;
 
 public class TuningTest {
   private DoubleEntry dbleEnt;
