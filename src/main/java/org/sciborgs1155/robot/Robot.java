@@ -248,9 +248,10 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(led.setLEDTheme(LEDTheme.FIRE));
     feeder
         .noteAtShooter()
+        .onTrue(led.setLEDTheme(LEDTheme.CHASE))
         .onFalse(
             led.setLEDTheme(LEDTheme.RAINDROP)
-                .andThen(Commands.waitSeconds(0.5))
+                .andThen(Commands.waitSeconds(1))
                 .andThen(led.setLEDTheme(LEDTheme.FIRE)));
   }
 
