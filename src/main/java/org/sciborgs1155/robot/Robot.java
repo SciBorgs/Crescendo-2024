@@ -155,7 +155,6 @@ public class Robot extends CommandRobot implements Logged {
     // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
 
     // configure auto
-    // configure auto\
     AutoBuilder.configureHolonomic(
         drive::pose,
         drive::resetOdometry,

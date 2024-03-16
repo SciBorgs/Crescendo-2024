@@ -64,7 +64,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     led.start();
   }
 
-  /** New Command to set LedTheme LEDs (look at enum) */
+  /** Command to set LedTheme LEDs (look at enum) */
   public Command setLEDTheme(LEDTheme ledTheme) {
     return run(
         () -> {

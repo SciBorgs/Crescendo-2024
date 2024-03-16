@@ -29,8 +29,6 @@ public class LedTest {
       correct += (i % 2 == 0) ? "#FFFF00," : "#A9A9A9,";
     }
     correct += (LedConstants.LEDLENGTH % 2 == 0) ? "#A9A9A9]" : "#FFFF00]";
-    System.out.println(LEDTheme.TEST.ledBuffer.get());
-    System.out.println(correct);
 
     assertEquals(correct, LedStrip.getBufferDataString(LEDTheme.TEST.ledBuffer.get()));
   }
