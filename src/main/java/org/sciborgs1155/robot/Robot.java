@@ -242,7 +242,7 @@ public class Robot extends CommandRobot implements Logged {
 
     intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3));
     feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3));
-    
+
     intake
         .hasNote()
         .onTrue(led.setLEDTheme(LEDTheme.CHASE))
