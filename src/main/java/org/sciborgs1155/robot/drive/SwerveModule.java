@@ -8,11 +8,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.DoubleEntry;
 import monologue.Annotations.Log;
 import monologue.Logged;
-
 import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Driving;
 import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Turning;
-import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Driving.PID;
 
 /** Class to encapsulate a REV Max Swerve module */
 public class SwerveModule implements Logged, AutoCloseable {

@@ -22,9 +22,8 @@ public final class Tuning {
    * @param value The configurable double that you would like to correspond to the topic.
    * @return The DoubleEntry - contains all methods of DoublePublisher, DoubleSubscriber.
    */
-  public static DoubleEntry entry(String path, double value) 
-  
-  {
+  public static DoubleEntry entry(String path, double value) {
+
     DoubleEntry entry = NetworkTableInstance.getDefault().getDoubleTopic(path).getEntry(value);
     entry.set(value);
 
