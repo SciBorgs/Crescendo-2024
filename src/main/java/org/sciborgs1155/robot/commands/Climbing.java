@@ -2,7 +2,6 @@ package org.sciborgs1155.robot.commands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-
 import java.util.function.DoubleSupplier;
 import org.sciborgs1155.robot.Constants.Field;
 import org.sciborgs1155.robot.drive.Drive;
