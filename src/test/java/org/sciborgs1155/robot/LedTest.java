@@ -7,14 +7,13 @@ import static org.sciborgs1155.lib.TestingUtil.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.sciborgs1155.robot.led.LedConstants;
 import org.sciborgs1155.robot.led.LedStrip;
 import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 
 public class LedTest {
   LedStrip led;
   String temp = "";
-  String correct =
-      "[#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00,#A9A9A9,#FFFF00]";
   String latest = "";
 
   @BeforeEach
@@ -25,7 +24,15 @@ public class LedTest {
 
   @Test
   public void testThemeSet() {
-    assertEquals(correct, LedStrip.getBufferDataString(LEDTheme.SCIBORGS.ledBuffer.get()));
+    String correct = "[";
+    for (int i = 0; i < LedConstants.LEDLENGTH - 1; i++) {
+      correct += (i % 2 == 0) ? "#FFFF00," : "#A9A9A9,";
+    }
+    correct += (LedConstants.LEDLENGTH % 2 == 0) ? "#A9A9A9]" : "#FFFF00]";
+    System.out.println(LEDTheme.TEST.ledBuffer.get());
+    System.out.println(correct);
+
+    assertEquals(correct, LedStrip.getBufferDataString(LEDTheme.TEST.ledBuffer.get()));
   }
 
   @Test

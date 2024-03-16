@@ -169,8 +169,6 @@ public class Robot extends CommandRobot implements Logged {
             new ReplanningConfig()),
         () -> alliance() == Alliance.Red,
         drive);
-
-    led.setLEDTheme(LEDTheme.RAINBOW);
   }
 
   /**
@@ -190,6 +188,7 @@ public class Robot extends CommandRobot implements Logged {
   /** Configures trigger -> command bindings */
   private void configureBindings() {
     autonomous().whileTrue(Commands.deferredProxy(autos::getSelected));
+    autonomous().whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     driver.b().whileTrue(drive.zeroHeading());
     driver

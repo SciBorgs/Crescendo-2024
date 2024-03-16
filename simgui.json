@@ -104,6 +104,9 @@
             "open": true
           }
         },
+        "intake": {
+          "open": true
+        },
         "open": true,
         "pivot": {
           "hardware": {
@@ -122,8 +125,5 @@
   },
   "NetworkTables Info": {
     "visible": true
-  },
-  "NetworkTables View": {
-    "visible": false
   }
 }

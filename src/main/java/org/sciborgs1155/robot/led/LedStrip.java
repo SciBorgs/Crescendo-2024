@@ -23,7 +23,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     CANSHOOT(() -> movingColor(Color.kGreen, Color.kLime, 5)),
     FIRE(LedStrip::fire), // Suppose to look like fire
     RAINBOW(LedStrip::rainbow), // RGB Gamer Robot
-    SCIBORGS(() -> movingColor(Color.kYellow, Color.kYellow, 4)), // Yellow 50%, Dark Grey 50%
+    SCIBORGS(() -> movingColor(Color.kYellow, Color.kYellow, 4)), // Yellow 75%, Yellow 25%
     FEMAIDENS(() -> alternatingColor(Color.kPurple, Color.kLime)), // Yellow 50%, Green 50%
     ALLIANCE(() -> allianceColor()),
     AUTO(
@@ -39,6 +39,11 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
                 Color.kCrimson,
                 5)), // Looks like those store lights chasing eachother in a loop
     RAINDROP(LedStrip::raindrop), // falling notes thing, random colors drop from the top
+    TEST(
+        () ->
+            alternatingColor(
+                Color.kYellow,
+                Color.kDarkGray)), // theme used for tests (DO NOT CHANGE) Yellow 50%, Dark Grey 25%
     NONE(LedStrip::nothing); // does nothing
 
     public final Supplier<AddressableLEDBuffer> ledBuffer;
