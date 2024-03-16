@@ -10,6 +10,7 @@ import edu.wpi.first.networktables.StringEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sciborgs1155.lib.Tuning.*;
+import org.sciborgs1155.robot.drive.Drive;
 
 public class TuningTest {
   private DoubleEntry dbleEnt;
@@ -21,6 +22,8 @@ public class TuningTest {
   private long intVal = 7823; // IntgerTopic.getEntry() accepts longs for default values
   private String strVal = "Hello, World! <3";
   private boolean boolVal = true;
+
+  private Drive drive = Drive.create();
 
   @BeforeEach
   public void setup() {

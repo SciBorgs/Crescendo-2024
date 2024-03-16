@@ -18,11 +18,13 @@ public final class Tuning {
   /**
    * Logs a DoubleEntry on Network Tables.
    *
-   * @param path the file path, "/[FOLDER_NAME]/[TOPIC_NAME]", ie: "/Robot/exampleTopicName".
-   * @param value the configurable double that you would like to correspond to the topic.
-   * @return the DoubleEntry - contains all methods of DoublePublisher, DoubleSubscriber.
+   * @param path The file path, "/[FOLDER_NAME]/[TOPIC_NAME]", ie: "/Robot/exampleTopicName".
+   * @param value The configurable double that you would like to correspond to the topic.
+   * @return The DoubleEntry - contains all methods of DoublePublisher, DoubleSubscriber.
    */
-  public static DoubleEntry entry(String path, double value) {
+  public static DoubleEntry entry(String path, double value) 
+  
+  {
     DoubleEntry entry = NetworkTableInstance.getDefault().getDoubleTopic(path).getEntry(value);
     entry.set(value);
 
@@ -32,9 +34,9 @@ public final class Tuning {
   /**
    * Logs a IntegerEntry on Network Tables.
    *
-   * @param path the file path, "/[FOLDER_NAME]/[TOPIC_NAME]", ie: "/Robot/exampleTopicName".
-   * @param value the configurable (int)long that you would like to correspond to the topic.
-   * @return the IntegerEntry - contains all methods of IntegerPublisher, IntegerSubscriber.
+   * @param path The file path, "/[FOLDER_NAME]/[TOPIC_NAME]", ie: "/Robot/exampleTopicName".
+   * @param value The configurable (int)long that you would like to correspond to the topic.
+   * @return The IntegerEntry - contains all methods of IntegerPublisher, IntegerSubscriber.
    */
   public static IntegerEntry entry(String path, long value) {
     IntegerEntry entry = NetworkTableInstance.getDefault().getIntegerTopic(path).getEntry(value);
@@ -46,9 +48,9 @@ public final class Tuning {
   /**
    * Logs a StringEntry on Network Tables.
    *
-   * @param path the file path, "/[FOLDER_NAME]/[TOPIC_NAME]", ie: "/Robot/exampleTopicName".
-   * @param value the configurable String that you would like to correspond to the topic.
-   * @return the StringEntry - contains all methods of StringPublisher, StringSubscriber.
+   * @param path The file path, "/[FOLDER_NAME]/[TOPIC_NAME]", ie: "/Robot/exampleTopicName".
+   * @param value The configurable String that you would like to correspond to the topic.
+   * @return The StringEntry - contains all methods of StringPublisher, StringSubscriber.
    */
   public static StringEntry entry(String path, String value) {
     StringEntry entry = NetworkTableInstance.getDefault().getStringTopic(path).getEntry(value);
@@ -60,9 +62,9 @@ public final class Tuning {
   /**
    * Logs a BooleanEntry on Network Tables.
    *
-   * @param path the file path, "/[FOLDER_NAME]/[TOPIC_NAME]", ie: "/Robot/exampleTopicName".
-   * @param value the configurable boolean that you would like to correspond to the topic.
-   * @return the BooleanEntry - contains all methods of BooleanPublisher, BooleanSubscriber.
+   * @param path The file path, "/[FOLDER_NAME]/[TOPIC_NAME]", ie: "/Robot/exampleTopicName".
+   * @param value The configurable boolean that you would like to correspond to the topic.
+   * @return The BooleanEntry - contains all methods of BooleanPublisher, BooleanSubscriber.
    */
   public static BooleanEntry entry(String path, boolean value) {
     BooleanEntry entry = NetworkTableInstance.getDefault().getBooleanTopic(path).getEntry(value);
