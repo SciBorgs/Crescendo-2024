@@ -345,6 +345,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         new Pose2d(pose().getTranslation(), new Rotation2d(rotationController.getSetpoint())));
 
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
+
+    modules.forEach(SwerveModule::updatePID);
   }
 
   @Override

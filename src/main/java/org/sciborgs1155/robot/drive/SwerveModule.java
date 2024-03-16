@@ -5,8 +5,10 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.DoubleEntry;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Driving;
 import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Turning;
 
@@ -14,14 +16,22 @@ import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Turning;
 public class SwerveModule implements Logged, AutoCloseable {
   private final ModuleIO module;
 
-  @Log.NT private final PIDController driveFeedback;
-  @Log.NT private final PIDController turnFeedback;
+  private final PIDController driveFeedback;
+  private final PIDController turnFeedback;
 
   private final SimpleMotorFeedforward driveFeedforward;
 
   private SwerveModuleState setpoint = new SwerveModuleState();
 
   public final String name;
+
+  private final DoubleEntry drivingD = Tuning.entry("/Robot/drive/driving/D", Driving.PID.D);
+  private final DoubleEntry drivingI = Tuning.entry("/Robot/drive/driving/I", Driving.PID.I);
+  private final DoubleEntry drivingP = Tuning.entry("/Robot/drive/driving/P", Driving.PID.P);
+
+  private final DoubleEntry turningD = Tuning.entry("/Robot/drive/turning/D", Turning.PID.D);
+  private final DoubleEntry turningI = Tuning.entry("/Robot/drive/turning/I", Turning.PID.I);
+  private final DoubleEntry turningP = Tuning.entry("/Robot/drive/turning/P", Turning.PID.P);
 
   /**
    * Constructs a SwerveModule for rev's MAX Swerve using vortexes (flex) or krakens (talon).
@@ -118,6 +128,11 @@ public class SwerveModule implements Logged, AutoCloseable {
 
   public void resetEncoders() {
     module.resetEncoders();
+  }
+
+  public void updatePID() {
+    driveFeedback.setPID(drivingP.get(), drivingI.get(), drivingD.get());
+    turnFeedback.setPID(turningP.get(), turningI.get(), turningD.get());
   }
 
   @Override
