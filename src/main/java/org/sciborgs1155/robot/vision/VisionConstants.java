@@ -48,6 +48,6 @@ public class VisionConstants {
   // First half of locations are on red side, second half on blue side
   // (ex. source: 1,2 is red, 9,10)
 
-  // Unsure if getFudicialID() returns the tags from 1-16 or 0-15 (assuming 0-15)
+  // TAG_WEIGHTS[0] is for the April Tag with ID 1 and so on
   public static final double[] TAG_WEIGHTS = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 }
