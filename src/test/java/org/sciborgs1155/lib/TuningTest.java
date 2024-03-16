@@ -27,7 +27,7 @@ public class TuningTest {
   }
 
   @Test
-  public void fullEntryTest() {
+  void fullEntryTest() {
     dbleEnt = Tuning.entry("/Robot/a", dbleVal);
     intEnt = Tuning.entry("/Robot/b", intVal);
     strEnt = Tuning.entry("/Robot/c", strVal);
