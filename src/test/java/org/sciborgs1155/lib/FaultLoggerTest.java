@@ -1,7 +1,7 @@
 package org.sciborgs1155.lib;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sciborgs1155.lib.TestingUtil.setupHAL;
+import static org.sciborgs1155.lib.TestingUtil.setupTests;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -20,7 +20,7 @@ public class FaultLoggerTest {
 
   @BeforeEach
   public void setup() {
-    setupHAL();
+    setupTests();
     FaultLogger.clear();
   }
 

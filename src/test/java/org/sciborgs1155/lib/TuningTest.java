@@ -1,7 +1,7 @@
 package org.sciborgs1155.lib;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sciborgs1155.lib.TestingUtil.setupHAL;
+import static org.sciborgs1155.lib.TestingUtil.setupTests;
 
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.DoubleEntry;
@@ -27,11 +27,11 @@ public class TuningTest {
 
   @BeforeEach
   public void setup() {
-    setupHAL();
+    setupTests();
   }
 
   @Test
-  public void fullEntryTest() {
+  void fullEntryTest() {
     dbleEnt = Tuning.entry("/Robot/a", dbleVal);
     intEnt = Tuning.entry("/Robot/b", intVal);
     strEnt = Tuning.entry("/Robot/c", strVal);

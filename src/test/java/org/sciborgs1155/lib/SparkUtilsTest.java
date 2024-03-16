@@ -1,7 +1,7 @@
 package org.sciborgs1155.lib;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sciborgs1155.lib.TestingUtil.setupHAL;
+import static org.sciborgs1155.lib.TestingUtil.setupTests;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
@@ -17,7 +17,7 @@ public class SparkUtilsTest {
 
   @BeforeEach
   public void setup() {
-    setupHAL();
+    setupTests();
   }
 
   @Test

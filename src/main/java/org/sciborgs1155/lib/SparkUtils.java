@@ -11,7 +11,11 @@ import org.sciborgs1155.lib.FaultLogger.FaultType;
 /** Utility class for configuration of Spark motor controllers */
 public class SparkUtils {
 
-  public static final int FRAME_STRATEGY_DISABLED = 65535;
+  // REV's docs have the size of a signed value of 65535ms for the max period
+  // https://docs.revrobotics.com/brushless/spark-max/control-interfaces#periodic-status-frames
+  // The actual max is half of this (32767ms)
+  // https://www.chiefdelphi.com/t/revlibs-documented-maximum-status-frame-period-limit-is-wrong/458845, https://www.chiefdelphi.com/t/extreme-can-utilization-but-parameters-set-ok/456613/6
+  public static final int FRAME_STRATEGY_DISABLED = 32767;
   public static final int FRAME_STRATEGY_SLOW = 400;
   public static final int FRAME_STRATEGY_MEDIUM = 100;
   public static final int FRAME_STRATEGY_FAST = 20;
