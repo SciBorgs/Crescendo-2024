@@ -313,13 +313,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return ChassisSpeeds.fromRobotRelativeSpeeds(getRobotRelativeChassisSpeeds(), heading());
   }
 
-  private void updatePIDs() {
-    frontLeft.updatePID();
-    frontRight.updatePID();
-    rearLeft.updatePID();
-    rearRight.updatePID();
-  }
-
   /** Updates pose estimation based on provided {@link EstimatedRobotPose} */
   public void updateEstimates(PoseEstimate... poses) {
     Pose3d[] loggedEstimates = new Pose3d[poses.length];
@@ -354,7 +347,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
 
-    updatePIDs();
+    modules.forEach(SwerveModule::updatePID);
   }
 
   @Override
