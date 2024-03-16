@@ -54,7 +54,7 @@ public class PivotConstants {
   public static final Measure<Angle> PRESET_PODIUM_ANGLE = Radians.of(0.5);
 
   public static final Measure<Angle> PRESET_CLIMBING_ANGLE =
-      Radians.of(0); // TODO made up value. will measure later.
+      Radians.of(-0.195); // TODO made up value. will measure later.
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(60);
 
