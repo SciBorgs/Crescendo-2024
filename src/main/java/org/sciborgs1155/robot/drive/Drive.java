@@ -245,7 +245,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param speeds The desired robot relative chassis speeds.
    */
   public void driveRobotRelative(ChassisSpeeds speeds) {
-    speeds.vxMetersPerSecond = rateLimiter.calculate(speeds.vxMetersPerSecond);
     setChassisSpeeds(speeds);
   }
 

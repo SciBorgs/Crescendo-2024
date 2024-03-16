@@ -67,13 +67,6 @@ public final class DriveConstants {
     public static final Measure<Angle> TOLERANCE = Degrees.of(5);
   }
 
-  public static final PathConstraints CONSTRAINTS =
-      new PathConstraints(
-          MAX_SPEED.in(MetersPerSecond),
-          MAX_ACCEL.in(MetersPerSecondPerSecond),
-          MAX_ANGULAR_SPEED.in(RadiansPerSecond),
-          MAX_ANGULAR_ACCEL.in(RadiansPerSecond.per(Second)));
-
   public static final class ModuleConstants {
     public static final double COUPLING_RATIO = 0;
 
@@ -119,7 +112,7 @@ public final class DriveConstants {
       public static final class PID {
         public static final double P = 8;
         public static final double I = 0.0;
-        public static final double D = 0.004;
+        public static final double D = 0.005;
       }
 
       // system constants only used in simulation

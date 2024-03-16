@@ -152,7 +152,7 @@ public class Vision implements Logged {
       numTags++;
       avgDist +=
           tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
-      avgWeight += TAG_WEIGHTS[tgt.getFiducialId()];
+      avgWeight += TAG_WEIGHTS[tgt.getFiducialId() - 1];
     }
     if (numTags == 0) return estStdDevs;
 
