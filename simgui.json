@@ -59,6 +59,11 @@
       "/SmartDashboard/shooter quasistatic forward": "Command"
     },
     "windows": {
+      "/FMSInfo": {
+        "window": {
+          "visible": true
+        }
+      },
       "/Robot/autos": {
         "window": {
           "visible": true
@@ -81,10 +86,7 @@
         "left": 150,
         "right": 2961,
         "top": 79,
-        "width": 16.541748046875,
-        "window": {
-          "visible": true
-        }
+        "width": 16.541748046875
       }
     }
   },
@@ -96,6 +98,13 @@
       "Robot": {
         "drive": {
           "ChassisSpeeds##v_/Robot/drive/getFieldRelativeChassisSpeeds": {
+            "open": true
+          },
+          "driving": {
+            "open": true
+          },
+          "open": true,
+          "turning": {
             "open": true
           }
         },
@@ -116,9 +125,8 @@
     }
   },
   "NetworkTables Info": {
-    "visible": true
-  },
-  "NetworkTables View": {
-    "visible": false
+    "Server": {
+      "open": true
+    }
   }
 }
