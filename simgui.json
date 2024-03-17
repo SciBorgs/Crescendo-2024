@@ -25,6 +25,7 @@
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
       "/Robot/drive/rotationController": "PIDController",
+      "/Robot/drive/translationController": "ProfiledPIDController",
       "/Robot/pivot/climbPID": "ProfiledPIDController",
       "/Robot/pivot/pid": "ProfiledPIDController",
       "/Robot/pivot/positionVisualizer": "Mechanism2d",
@@ -86,11 +87,17 @@
         "left": 150,
         "right": 2961,
         "top": 79,
-        "width": 16.541748046875
+        "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
       }
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
     "Retained Values": {
       "open": false
     },
@@ -127,6 +134,7 @@
   "NetworkTables Info": {
     "Server": {
       "open": true
-    }
+    },
+    "visible": true
   }
 }

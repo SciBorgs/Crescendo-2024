@@ -2,7 +2,6 @@ package org.sciborgs1155.robot.drive;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -54,9 +53,11 @@ public final class DriveConstants {
   public static final Rotation3d GYRO_OFFSET = new Rotation3d(0, 0, Math.PI);
 
   public static final class Translation {
-    public static final double P = 6.0;
+    public static final double P = 5.0;
     public static final double I = 0.0;
     public static final double D = 0.0;
+
+    public static final Measure<Distance> TOLERANCE = Centimeters.of(5);
   }
 
   public static final class Rotation {
@@ -66,13 +67,6 @@ public final class DriveConstants {
 
     public static final Measure<Angle> TOLERANCE = Degrees.of(5);
   }
-
-  public static final PathConstraints CONSTRAINTS =
-      new PathConstraints(
-          MAX_SPEED.in(MetersPerSecond),
-          MAX_ACCEL.in(MetersPerSecondPerSecond),
-          MAX_ANGULAR_SPEED.in(RadiansPerSecond),
-          MAX_ANGULAR_ACCEL.in(RadiansPerSecond.per(Second)));
 
   public static final class ModuleConstants {
     public static final double COUPLING_RATIO = 0;
