@@ -264,7 +264,131 @@ public final class FaultLogger {
    * @param talon The talon to manage.
    */
   public static void register(TalonFX talon) {
-    // TODO: Fix
+    register(
+        (BooleanSupplier) talon.getFault_Hardware(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Hardware fault occurred",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_ProcTemp(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Processor temperature exceeded limit",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_DeviceTemp(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Device temperature exceeded limit",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_Undervoltage(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Device supply voltage dropped to near brownout levels",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_BootDuringEnable(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Device boot while detecting the enable signal",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_UnlicensedFeatureInUse(),
+        "Talon ID: " + talon.getDeviceID(),
+        "An unlicensed feature is in use, device may not behave as expected.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_BridgeBrownout(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Bridge was disabled most likely due to supply voltage dropping too low.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_RemoteSensorReset(),
+        "Talon ID: " + talon.getDeviceID(),
+        "The remote sensor has reset.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_MissingDifferentialFX(),
+        "Talon ID: " + talon.getDeviceID(),
+        "The remote Talon FX used for differential control is not present on CAN Bus.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_RemoteSensorPosOverflow(),
+        "Talon ID: " + talon.getDeviceID(),
+        "The remote sensor position has overflowed.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_OverSupplyV(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Supply Voltage has exceeded the maximum voltage rating of device.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_UnstableSupplyV(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Supply Voltage is unstable.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_ReverseHardLimit(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Reverse limit switch has been asserted.  Output is set to neutral.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_ForwardHardLimit(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Forward limit switch has been asserted.  Output is set to neutral.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_ReverseSoftLimit(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Reverse soft limit has been asserted.  Output is set to neutral.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_ForwardSoftLimit(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Forward soft limit has been asserted.  Output is set to neutral.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_RemoteSensorDataInvalid(),
+        "Talon ID: " + talon.getDeviceID(),
+        "The remote sensor's data is no longer trusted.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_FusedSensorOutOfSync(),
+        "Talon ID: " + talon.getDeviceID(),
+        "The remote sensor used for fusion has fallen out of sync to the local sensor.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_StatorCurrLimit(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Stator current limit occured.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_SupplyCurrLimit(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Supply current limit occured.",
+        FaultType.ERROR);
+
+    register(
+        (BooleanSupplier) talon.getFault_UsingFusedCANcoderWhileUnlicensed(),
+        "Talon ID: " + talon.getDeviceID(),
+        "Using Fused CANcoder feature while unlicensed. Device has fallen back to remote CANcoder.",
+        FaultType.ERROR);
   }
 
   /**
