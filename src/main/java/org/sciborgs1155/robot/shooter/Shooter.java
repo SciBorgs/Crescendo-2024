@@ -4,13 +4,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
-import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,20 +15,12 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
-import org.sciborgs1155.lib.InputStream;
-import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.commands.Shooting;
 
 public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   private final ShooterIO shooter;
   private final SysIdRoutine sysId; // sysIdoogabooga
-
-  @Log.NT private final PIDController pid = new PIDController(kP, kI, kD);
-
-  private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kV, kA);
-
-  private final LinearFilter filter = LinearFilter.highPass(0.5, PERIOD.in(Seconds));
 
   /** Creates real or simulated shooter based on {@link Robot#isReal()}. */
   public static Shooter create() {
@@ -52,14 +39,12 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
             new SysIdRoutine.Config(Volts.per(Second).of(1), Volts.of(10.0), Seconds.of(11)),
             new SysIdRoutine.Mechanism(v -> shooter.setVoltage(v.in(Volts)), null, this));
 
-    pid.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
-
     SmartDashboard.putData("shooter quasistatic backward", quasistaticBack());
     SmartDashboard.putData("shooter quasistatic forward", quasistaticForward());
     SmartDashboard.putData("shooter dynamic backward", dynamicBack());
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
 
-    setDefaultCommand(run(() -> update(IDLE_VELOCITY.in(RadiansPerSecond))));
+    setDefaultCommand(run(() -> shooter.setSetpoint(IDLE_VELOCITY.in(RadiansPerSecond))));
   }
 
   /**
@@ -69,19 +54,18 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
    * @return The command to set the shooter's velocity.
    */
   public Command runShooter(DoubleSupplier velocity) {
-    return run(() -> update(velocity.getAsDouble()))
-        .beforeStarting(pid::reset)
+    return run(() -> shooter.setSetpoint(velocity.getAsDouble()))
         .withName("running shooter")
         .asProxy();
   }
 
-  public Command manualShooter(DoubleSupplier stickInput) {
-    return runShooter(
-        InputStream.of(stickInput)
-            .scale(10)
-            .scale(Constants.PERIOD.in(Seconds))
-            .add(pid::getSetpoint));
-  }
+  // public Command manualShooter(DoubleSupplier stickInput) {
+  //   return runShooter(
+  //       InputStream.of(stickInput)
+  //           .scale(10)
+  //           .scale(Constants.PERIOD.in(Seconds))
+  //           .add(pid::getSetpoint));
+  // }
 
   public Command runShooter(double velocity) {
     return runShooter(() -> velocity);
@@ -91,24 +75,24 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     return runShooter(velocity);
   }
 
-  public Command setSetpoint(DoubleSupplier velocity) {
-    return runOnce(() -> pid.setSetpoint(velocity.getAsDouble())).asProxy();
-  }
+  // public Command setSetpoint(DoubleSupplier velocity) {
+  //   return runOnce(() -> pid.setSetpoint(velocity.getAsDouble())).asProxy();
+  // }
 
-  private void update(double setpointVelocity) {
-    double feedback = pid.calculate(shooter.velocity(), setpointVelocity);
-    double feedforward = ff.calculate(setpointVelocity);
-    log("feedback output", feedback);
-    log("feedforward output", feedforward);
-    shooter.setVoltage(MathUtil.clamp(feedback + feedforward, -12, 12));
-  }
+  // private void update(double setpointVelocity) {
+  //   double feedback = pid.calculate(shooter.topVelocity(), setpointVelocity);
+  //   double feedforward = ff.calculate(setpointVelocity);
+  //   log("feedback output", feedback);
+  //   log("feedforward output", feedforward);
+  //   shooter.setVoltage(MathUtil.clamp(feedback + feedforward, -12, 12));
+  // }
 
   /**
    * @return Shooter velocity in radians per second
    */
   @Log.NT
   public double rotationalVelocity() {
-    return shooter.velocity();
+    return shooter.topVelocity();
   }
 
   @Log.NT
@@ -118,12 +102,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   @Log.NT
   public boolean atSetpoint() {
-    return pid.atSetpoint();
-  }
-
-  @Log.NT
-  public double currentFilter() {
-    return filter.lastValue();
+    return shooter.atSetpoint();
   }
 
   public Command quasistaticBack() {
@@ -144,7 +123,6 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
-    filter.calculate(shooter.current());
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
   }
 

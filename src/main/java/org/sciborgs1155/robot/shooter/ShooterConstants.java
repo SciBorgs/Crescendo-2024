@@ -32,7 +32,7 @@ public class ShooterConstants {
   public static final Measure<Velocity<Distance>> MAX_NOTE_VELOCITY =
       MetersPerSecond.of(Shooting.flywheelToNoteSpeed(MAX_VELOCITY.in(RadiansPerSecond)));
 
-  public static final double kP = 0.02;
+  public static final double kP = 0.03;
   public static final double kI = 0.0;
   public static final double kD = 0.0;
 

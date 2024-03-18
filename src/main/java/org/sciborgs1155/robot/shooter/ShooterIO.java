@@ -3,12 +3,13 @@ package org.sciborgs1155.robot.shooter;
 import monologue.Logged;
 
 public interface ShooterIO extends AutoCloseable, Logged {
+  void setSetpoint(double velocity);
+
   void setVoltage(double voltage);
 
-  double current();
+  double topVelocity();
 
-  /**
-   * @return Shooter velocity in radians per second.
-   */
-  double velocity();
+  double bottomVelocity();
+
+  boolean atSetpoint();
 }
