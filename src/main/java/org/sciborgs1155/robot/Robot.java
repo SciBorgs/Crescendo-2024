@@ -243,15 +243,14 @@ public class Robot extends CommandRobot implements Logged {
 
     intake
         .hasNote()
-        .onTrue(led.setLEDTheme(LEDTheme.CHASE))
-        .onFalse(led.setLEDTheme(LEDTheme.FIRE));
+        .onTrue(rumble(RumbleType.kLeftRumble, 0.3))
+        .whileTrue(led.setLEDTheme(LEDTheme.CHASE));
     feeder
         .noteAtShooter()
-        .onTrue(led.setLEDTheme(LEDTheme.CHASE))
-        .onFalse(
-            led.setLEDTheme(LEDTheme.RAINDROP)
-                .andThen(Commands.waitSeconds(1))
-                .andThen(led.setLEDTheme(LEDTheme.FIRE)));
+        .onFalse(rumble(RumbleType.kRightRumble, 0.3))
+        .whileTrue(led.setLEDTheme(LEDTheme.CHASE));
+      // testing pattern
+    operator.x().whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {
