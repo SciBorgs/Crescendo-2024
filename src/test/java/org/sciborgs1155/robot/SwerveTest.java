@@ -85,7 +85,13 @@ public class SwerveTest {
 
     double deltaX = xVelocitySetpoint * 4;
     double deltaY = yVelocitySetpoint * 4;
-    run(drive.drive(() -> xVelocitySetpoint, () -> yVelocitySetpoint, drive::heading));
+    run(
+        drive.run(
+            () ->
+                drive.setChassisSpeeds(
+                    ChassisSpeeds.fromRobotRelativeSpeeds(
+                        xVelocitySetpoint, yVelocitySetpoint, 0, drive.heading()),
+                    ControlMode.CLOSED_LOOP_VELOCITY)));
 
     fastForward(); // 200 ticks, 50 ticks/s = 4 seconds
 
