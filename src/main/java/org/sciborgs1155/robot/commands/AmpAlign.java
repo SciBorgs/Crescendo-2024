@@ -30,7 +30,8 @@ public class AmpAlign {
    * held, moves the pivot arm to the required angle for the note to go into the amp.
    */
   public Command snapToAmp(DoubleSupplier vx, DoubleSupplier vy) {
-    return drive.drive(vx, vy, this::findAmpAngle);
+    return drive.driveTo(null) // do math ah
+        .andThen(drive.drive(vx, vy, this::findAmpAngle));
   }
 
   public Command shootAmp() {
