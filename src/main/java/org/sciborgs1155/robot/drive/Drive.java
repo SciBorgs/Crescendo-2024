@@ -250,6 +250,21 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param target The pose to drive to.
    * @return A command that drives to the target and then ends.
    */
+  public void driveFieldRelative(ChassisSpeeds speeds) {
+    driveRobotRelative(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, heading()));
+  }
+
+  /**
+   * Drives the robot based on profided {@link ChassisSpeeds}.
+   *
+   * <p>This method uses {@link ChassisSpeeds#discretize(ChassisSpeeds, double)} to reduce skew.
+   *
+   * @param speeds The desired robot relative chassis speeds.
+   */
+  public void driveRobotRelative(ChassisSpeeds speeds) {
+    setChassisSpeeds(speeds);
+  }
+
   public Command driveTo(Pose2d target) {
     return run(() -> {
           Transform2d transform = target.minus(pose());
