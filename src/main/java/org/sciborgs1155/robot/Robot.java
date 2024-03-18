@@ -40,6 +40,7 @@ import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 import org.sciborgs1155.robot.drive.DriveConstants.Translation;
+import org.sciborgs1155.robot.drive.SwerveModule.ControlMode;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -158,7 +159,7 @@ public class Robot extends CommandRobot implements Logged {
         drive::pose,
         drive::resetOdometry,
         drive::getRobotRelativeChassisSpeeds,
-        drive::setChassisSpeeds,
+        s -> drive.setChassisSpeeds(s, ControlMode.CLOSED_LOOP_VELOCITY),
         new HolonomicPathFollowerConfig(
             new PIDConstants(Translation.P, Translation.I, Translation.D),
             new PIDConstants(Rotation.P, Rotation.I, Rotation.D),
