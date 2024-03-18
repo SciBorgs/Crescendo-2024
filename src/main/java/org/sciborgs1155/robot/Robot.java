@@ -2,6 +2,7 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -137,21 +138,30 @@ public class Robot extends CommandRobot implements Logged {
         .negate()
         .signedPow(2)
         .scale(maxSpeed)
-        .scale(() -> speedMultiplier);
+        .scale(() -> speedMultiplier)
+        .rateLimit(DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond));
   }
 
   public void configureAuto() {
     // register named commands for auto
     NamedCommands.registerCommand(
-        "shoot", shooting.shootWhileDriving(() -> 0, () -> 0).withTimeout(3));
+        "shoot", shooting.shootWhileDriving(() -> 0, () -> 0).withTimeout(2));
     NamedCommands.registerCommand(
-        "intake", intake.intake().deadlineWith(feeder.forward()).andThen(feeder.runFeeder(0)));
+        "intake",
+        intake
+            .intake()
+            .deadlineWith(feeder.forward())
+            .andThen(
+                intake
+                    .stop()
+                    .alongWith(feeder.runFeeder(0))
+                    .alongWith(Commands.waitSeconds(0.5).andThen(shooting.aimWithoutShooting()))));
     NamedCommands.registerCommand(
         "subwoofer-shoot", shooting.shoot(DEFAULT_VELOCITY).withTimeout(3));
     // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
 
     // configure auto
-    // configure auto\
+    // configure auto
     AutoBuilder.configureHolonomic(
         drive::pose,
         drive::resetOdometry,

@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
@@ -33,6 +34,7 @@ import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
@@ -45,11 +47,8 @@ public class Shooting implements Logged {
    * The conversion between shooter tangential velocity and note launch velocity. Perhaps. This may
    * also account for other errors with our model.
    */
-  public static final double SIGGYS_CONSTANT = 3.7;
+  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 3.5);
 
-  // private final InterpolatingTreeMap<Double, ShootingState> shotLookup =
-  //     new InterpolatingTreeMap<Double, ShootingState>(
-  //         InverseInterpolator.forDouble(), ShootingState.interpolator());
   private static final InterpolatingDoubleTreeMap shotVelocityLookup =
       new InterpolatingDoubleTreeMap();
 
@@ -65,8 +64,8 @@ public class Shooting implements Logged {
     this.drive = drive;
 
     shotVelocityLookup.put(0.0, 250.0);
-    shotVelocityLookup.put(1.0, 450.0);
-    shotVelocityLookup.put(4.0, 550.0);
+    // shotVelocityLookup.put(1.0, 450.0);
+    // shotVelocityLookup.put(4.0, 550.0);
     shotVelocityLookup.put(5.0, MAX_VELOCITY.in(RadiansPerSecond));
   }
 
@@ -117,6 +116,10 @@ public class Shooting implements Logged {
         () -> rotationalVelocityFromNoteVelocity(calculateNoteVelocity()));
   }
 
+  public Command aimWithoutShooting() {
+    return pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity()));
+  }
+
   /**
    * Shoots while driving at a manually inputted translational velocity.
    *
@@ -156,7 +159,7 @@ public class Shooting implements Logged {
     ChassisSpeeds speeds = drive.getFieldRelativeChassisSpeeds();
     // robot velocity is negated because our shooter is on the opposite end of our robot
     Vector<N3> robotVelocity =
-        VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0).times(-1);
+        VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
     Translation2d difference = translationToSpeaker(robotPose.getTranslation());
     double shotVelocity = calculateStationaryVelocity(difference.getNorm());
     Rotation3d noteOrientation =
@@ -233,7 +236,7 @@ public class Shooting implements Logged {
    * @return Flywheel speed (rads / s)
    */
   public static double rotationalVelocityFromNoteVelocity(Vector<N3> velocity) {
-    return velocity.norm() / RADIUS.in(Meters) * SIGGYS_CONSTANT;
+    return velocity.norm() / RADIUS.in(Meters) * siggysConstant.get();
   }
 
   /**
@@ -243,7 +246,7 @@ public class Shooting implements Logged {
    * @return Note speed in meters per second
    */
   public static double flywheelToNoteSpeed(double flywheelSpeed) {
-    return flywheelSpeed * RADIUS.in(Meters) / SIGGYS_CONSTANT;
+    return flywheelSpeed * RADIUS.in(Meters) / siggysConstant.get();
   }
 
   public static Translation2d translationToSpeaker(Translation2d robotTranslation) {

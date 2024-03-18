@@ -2,7 +2,6 @@ package org.sciborgs1155.robot.drive;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -24,7 +23,7 @@ public final class DriveConstants {
   // Maximum achievable translational and rotation velocities and accelerations of the robot.
   public static final Measure<Velocity<Distance>> MAX_SPEED = MetersPerSecond.of(5.74);
   public static final Measure<Velocity<Velocity<Distance>>> MAX_ACCEL =
-      MetersPerSecondPerSecond.of(14.0);
+      MetersPerSecondPerSecond.of(12.0);
   public static final Measure<Velocity<Angle>> MAX_ANGULAR_SPEED =
       RadiansPerSecond.of(MAX_SPEED.in(MetersPerSecond) / RADIUS.in(Meters));
   public static final Measure<Velocity<Velocity<Angle>>> MAX_ANGULAR_ACCEL =
@@ -92,9 +91,9 @@ public final class DriveConstants {
       }
 
       public static final class FF {
-        public static final double S = 0.18438;
-        public static final double V = 2.1653;
-        public static final double A = 0.24291;
+        public static final double S = 0.088468;
+        public static final double V = 2.1314;
+        public static final double A = 0.33291;
       }
     }
 
@@ -110,9 +109,9 @@ public final class DriveConstants {
       public static final Measure<Current> CURRENT_LIMIT = Amps.of(20);
 
       public static final class PID {
-        public static final double P = 8;
+        public static final double P = 9;
         public static final double I = 0.0;
-        public static final double D = 0.005;
+        public static final double D = 0.05;
       }
 
       // system constants only used in simulation
