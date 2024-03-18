@@ -109,6 +109,17 @@ public class Constants {
     public static final Pose2d RED_STAGE_SOURCESIDE =
         new Pose2d(Inches.of(472.4375), Inches.of(133.95), Rotation2d.fromRadians(Math.PI * 2 / 3));
 
+    // Pose2D which contain the coordinates where the robot best aligns with the amp, as well as
+    // the rotation perpendicular to them.
+    public static final Pose2d BLUE_AMP =
+        new Pose2d(Inches.of(), Inches.of(), Rotation2d.fromRadians(Math.PI * 3 / 2));
+    public static final Pose2d RED_AMP =
+        new Pose2d(Inches.of(), Inches.of(), Rotation2d.fromRadians(Math.PI * 3 / 2));
+
+    // GET THE COORDINATES
+
+    // Methoeds
+
     /** Returns the translation of the speaker for the robot's alliance. */
     public static Translation3d speaker() {
       return alliance() == Alliance.Red
@@ -121,6 +132,11 @@ public class Constants {
       return alliance() == Alliance.Blue
           ? List.of(BLUE_STAGE_AMPSIDE, BLUE_STAGE_MIDSIDE, BLUE_STAGE_SOURCESIDE)
           : List.of(RED_STAGE_AMPSIDE, RED_STAGE_MIDSIDE, RED_STAGE_SOURCESIDE);
+    }
+
+    // ** Returns the Pose2D of the amp on the robot's alliance. */
+    public static Pose2d ampCoordinates() {
+      return alliance() == Alliance.Blue ? BLUE_AMP : RED_AMP;
     }
 
     /** Returns whether the provided position is within the boundaries of the field. */

@@ -34,6 +34,7 @@ import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
+import org.sciborgs1155.robot.commands.AmpAlign;
 import org.sciborgs1155.robot.commands.Climbing;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
@@ -89,6 +90,7 @@ public class Robot extends CommandRobot implements Logged {
 
   private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
   private final Climbing climbing = new Climbing(drive, pivot);
+  private final AmpAlign ampAlign = new AmpAlign(drive, pivot, shooting);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
