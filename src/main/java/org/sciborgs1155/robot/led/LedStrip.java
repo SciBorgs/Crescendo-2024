@@ -14,9 +14,15 @@ import java.util.function.Supplier;
 import monologue.Logged;
 
 public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
-  private final AddressableLED led = new AddressableLED(LED_PORT); // led as a class
+  private final AddressableLED led = new AddressableLED(LED_PORT);
 
   // NOTE: THERE CAN ONLY BE ONE ADDRESABLELED (because roborio)
+
+  // Current LEDThemes:
+  // Autonoumous - Rainbow
+  // Default (not doing anything speical) - Fire
+  // Robot Has A Note - Chase
+  // Note Has Left The Robot - Raindrop for 0.5s
 
   public static enum LEDTheme {
     BXSCIFLASH(() -> movingColor(Color.kGreen, Color.kYellow, 5)), // Yellow ??%, Green ??%, moving
@@ -28,15 +34,15 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     AUTO(
         () ->
             movingColor(
-                Color.kLawnGreen,
+                Color.kSkyBlue,
                 Color.kCrimson,
-                3)), // Yellow Green 33%, Green 33%, Gold 33% , moving
+                2)), // Yellow Green 33%, Green 33%, Gold 33%, moving
     CHASE(
         () ->
             movingColor(
                 Color.kDeepSkyBlue,
                 Color.kCrimson,
-                5)), // Looks like those store lights chasing eachother in a loop
+                5)), // Looks like those store lights with lights chasing each other in a loop
     RAINDROP(LedStrip::raindrop), // falling notes thing, random colors drop from the top
     TEST(
         () ->
