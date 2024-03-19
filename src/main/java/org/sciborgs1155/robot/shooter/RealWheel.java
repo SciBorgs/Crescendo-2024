@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import java.util.Set;
+import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
@@ -34,6 +35,8 @@ public class RealWheel implements WheelIO {
         () -> encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)),
         () -> encoder.setAverageDepth(16),
         () -> encoder.setMeasurementPeriod(32));
+
+    FaultLogger.register(motor);
   }
 
   @Override

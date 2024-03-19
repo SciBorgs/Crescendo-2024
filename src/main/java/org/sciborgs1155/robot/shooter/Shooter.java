@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
+import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.Tuning;
@@ -27,7 +28,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   private final WheelIO top;
   private final WheelIO bottom;
 
-  private double setpoint;
+  @Log.NT private double setpoint;
 
   private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(kS, kV, kA);
 
@@ -35,17 +36,19 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   private final DoubleEntry i = Tuning.entry("/Robot/shooter/I", kI);
   private final DoubleEntry d = Tuning.entry("/Robot/shooter/D", kD);
 
-  private final PIDController topPID = new PIDController(kP, kI, kD);
-  private final PIDController bottomPID = new PIDController(kP, kI, kD);
+  @Log.NT private final PIDController topPID = new PIDController(kP, kI, kD);
+  @Log.NT private final PIDController bottomPID = new PIDController(kP, kI, kD);
 
   private final SysIdRoutine sysId;
 
+  /** Creates real or simulated shooter based on {@link Robot#isReal()}. */
   public static Shooter create() {
     return Robot.isReal()
         ? new Shooter(new RealWheel(TOP_MOTOR), new RealWheel(BOTTOM_MOTOR))
         : new Shooter(new SimWheel(), new SimWheel());
   }
 
+  /** Creates a fake shooter. */
   public static Shooter none() {
     return new Shooter(new NoWheel(), new NoWheel());
   }
@@ -55,6 +58,9 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     this.bottom = bottom;
 
     top.setInverted(true);
+
+    topPID.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
+    bottomPID.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
 
     sysId =
         new SysIdRoutine(
@@ -74,10 +80,12 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     bottom.setVoltage(voltage);
   }
 
+  @Log.NT
   public double topVelocity() {
     return top.velocity();
   }
 
+  @Log.NT
   public double bottomVelocity() {
     return bottom.velocity();
   }
@@ -92,6 +100,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     setpoint = velocity;
   }
 
+  @Log.NT
   public boolean atSetpoint() {
     return topPID.atSetpoint() && bottomPID.atSetpoint();
   }
@@ -105,6 +114,12 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     bottomPID.setPID(p.get(), i.get(), d.get());
   }
 
+  /**
+   * Run the shooter at a specified velocity.
+   *
+   * @param velocity The desired velocity in radians per second.
+   * @return The command to set the shooter's velocity.
+   */
   public Command runShooter(DoubleSupplier velocity) {
     return run(() -> setSetpoint(velocity.getAsDouble())).withName("running shooter").asProxy();
   }
@@ -122,10 +137,15 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     return runShooter(velocity);
   }
 
+  /**
+   * @return Shooter velocity in radians per second
+   */
+  @Log.NT
   public double rotationalVelocity() {
     return top.velocity();
   }
 
+  @Log.NT
   public double tangentialVelocity() {
     return Shooting.flywheelToNoteSpeed(rotationalVelocity());
   }
