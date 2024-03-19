@@ -69,10 +69,10 @@ public class SparkUtils {
       FaultLogger.report(name(spark), "FAILED TO SET PARAMETER", FaultType.ERROR);
       return;
     }
-    if (attempt >= 1) {
+    if (attempt > 1) {
       FaultLogger.report(
           name(spark),
-          "setting parameter failed: " + attempt + "/" + MAX_ATTEMPTS,
+          "setting parameter failed: " + (attempt - 1) + "/" + MAX_ATTEMPTS,
           FaultType.WARNING);
     }
     REVLibError error = config.get();
