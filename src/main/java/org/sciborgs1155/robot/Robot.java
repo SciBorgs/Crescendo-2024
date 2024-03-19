@@ -222,7 +222,8 @@ public class Robot extends CommandRobot implements Logged {
                     createJoystickStream(
                         driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
                     createJoystickStream(
-                        driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
+                        driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
+              .onFalse(ampAlign.shootAmp());
 
     operator
         .a()

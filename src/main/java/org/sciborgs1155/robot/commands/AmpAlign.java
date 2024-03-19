@@ -2,6 +2,7 @@ package org.sciborgs1155.robot.commands;
 
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_AMP_ANGLE;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -42,6 +43,6 @@ public class AmpAlign {
   public Command shootAmp() {
     return pivot
         .runPivot(PRESET_AMP_ANGLE)
-        .andThen(shooting.shoot(RadiansPerSecond.of(50))); // CURRENTLY A MADE UP NUMBER
+        .andThen(shooting.shoot(AMP_VELOCITY));
   }
 }
