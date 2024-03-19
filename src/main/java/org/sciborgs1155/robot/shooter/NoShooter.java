@@ -25,4 +25,9 @@ public class NoShooter implements ShooterIO {
   public boolean atSetpoint() {
     return false;
   }
+
+  @Override
+  public double setpoint() {
+    return 0;
+  }
 }

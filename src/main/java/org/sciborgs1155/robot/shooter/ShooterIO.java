@@ -12,4 +12,6 @@ public interface ShooterIO extends AutoCloseable, Logged {
   double bottomVelocity();
 
   boolean atSetpoint();
+
+  double setpoint();
 }

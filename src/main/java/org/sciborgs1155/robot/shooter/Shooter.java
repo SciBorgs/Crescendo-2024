@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
+import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,12 +16,13 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.commands.Shooting;
 
 public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   private final ShooterIO shooter;
-  private final SysIdRoutine sysId; // sysIdoogabooga
+  private final SysIdRoutine sysId;
 
   /** Creates real or simulated shooter based on {@link Robot#isReal()}. */
   public static Shooter create() {
@@ -59,13 +61,10 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
         .asProxy();
   }
 
-  // public Command manualShooter(DoubleSupplier stickInput) {
-  //   return runShooter(
-  //       InputStream.of(stickInput)
-  //           .scale(10)
-  //           .scale(Constants.PERIOD.in(Seconds))
-  //           .add(pid::getSetpoint));
-  // }
+  public Command manualShooter(DoubleSupplier stickInput) {
+    return runShooter(
+        InputStream.of(stickInput).scale(10).scale(PERIOD.in(Seconds)).add(shooter::setpoint));
+  }
 
   public Command runShooter(double velocity) {
     return runShooter(() -> velocity);
@@ -74,18 +73,6 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   public Command ejectStuck(double velocity) {
     return runShooter(velocity);
   }
-
-  // public Command setSetpoint(DoubleSupplier velocity) {
-  //   return runOnce(() -> pid.setSetpoint(velocity.getAsDouble())).asProxy();
-  // }
-
-  // private void update(double setpointVelocity) {
-  //   double feedback = pid.calculate(shooter.topVelocity(), setpointVelocity);
-  //   double feedforward = ff.calculate(setpointVelocity);
-  //   log("feedback output", feedback);
-  //   log("feedforward output", feedforward);
-  //   shooter.setVoltage(MathUtil.clamp(feedback + feedforward, -12, 12));
-  // }
 
   /**
    * @return Shooter velocity in radians per second

@@ -12,12 +12,14 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.networktables.DoubleEntry;
 import java.util.Set;
 import monologue.Annotations.Log;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
+import org.sciborgs1155.lib.Tuning;
 
 public class RealShooter implements ShooterIO {
   private final CANSparkFlex topMotor;
@@ -28,6 +30,11 @@ public class RealShooter implements ShooterIO {
   @Log.NT private double setpoint;
 
   private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(kS, kV, kA);
+
+  private final DoubleEntry p = Tuning.entry("/Robot/shooter/P", kP);
+  private final DoubleEntry i = Tuning.entry("/Robot/shooter/I", kI);
+  private final DoubleEntry d = Tuning.entry("/Robot/shooter/D", kD);
+
   @Log.NT private final PIDController topPID = new PIDController(kP, kI, kD);
   @Log.NT private final PIDController bottomPID = new PIDController(kP, kI, kD);
 
@@ -72,6 +79,11 @@ public class RealShooter implements ShooterIO {
     bottomPID.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
   }
 
+  public void updatePID() {
+    topPID.setPID(p.get(), i.get(), d.get());
+    bottomPID.setPID(p.get(), i.get(), d.get());
+  }
+
   @Override
   public void setSetpoint(double velocity) {
     double ff = feedforward.calculate(setpoint, velocity, PERIOD.in(Seconds));
@@ -111,5 +123,10 @@ public class RealShooter implements ShooterIO {
   public void close() throws Exception {
     topMotor.close();
     bottomMotor.close();
+  }
+
+  @Override
+  public double setpoint() {
+    return setpoint;
   }
 }
