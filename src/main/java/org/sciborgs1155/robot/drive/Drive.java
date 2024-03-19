@@ -310,7 +310,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     }
 
     for (int i = 0; i < desiredStates.length; i++) {
-      desiredStates[i] = SwerveModuleState.optimize(desiredStates[i], getModuleSetpoints()[i].angle);
+      desiredStates[i] =
+          SwerveModuleState.optimize(desiredStates[i], getModuleSetpoints()[i].angle);
     }
 
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_SPEED.in(MetersPerSecond));
