@@ -43,6 +43,8 @@ import org.sciborgs1155.robot.drive.DriveConstants.Translation;
 import org.sciborgs1155.robot.drive.SwerveModule.ControlMode;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
+import org.sciborgs1155.robot.led.LedStrip;
+import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
@@ -81,6 +83,8 @@ public class Robot extends CommandRobot implements Logged {
         case COMPLETE -> Pivot.create();
         default -> Pivot.none();
       };
+
+  private final LedStrip led = new LedStrip();
 
   private final Vision vision = Vision.create();
 
@@ -163,7 +167,6 @@ public class Robot extends CommandRobot implements Logged {
     // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
 
     // configure auto
-    // configure auto
     AutoBuilder.configureHolonomic(
         drive::pose,
         drive::resetOdometry,
@@ -190,11 +193,14 @@ public class Robot extends CommandRobot implements Logged {
             createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
             createJoystickStream(
                 driver::getRightX, DriveConstants.TELEOP_ANGULAR_SPEED.in(RadiansPerSecond))));
+    led.setDefaultCommand(led.setLEDTheme(LEDTheme.CHASE));
   }
 
   /** Configures trigger -> command bindings */
   private void configureBindings() {
-    autonomous().whileTrue(Commands.deferredProxy(autos::getSelected));
+    autonomous()
+        .whileTrue(Commands.deferredProxy(autos::getSelected))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     driver.b().whileTrue(drive.zeroHeading());
     driver
@@ -222,7 +228,8 @@ public class Robot extends CommandRobot implements Logged {
             pivot
                 .manualPivot(
                     InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1))
-                .deadlineWith(Commands.idle(shooter)));
+                .deadlineWith(Commands.idle(shooter)))
+        .toggleOnTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
     operator
         .b()
@@ -236,30 +243,41 @@ public class Robot extends CommandRobot implements Logged {
                 createJoystickStream(
                     driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
                 createJoystickStream(
-                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
+                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
     driver
         .y()
         .or(operator.povUp())
         .whileTrue(
-            shooting.shootWithPivot(
-                PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY));
+            shooting.shootWithPivot(PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
     driver
         .rightTrigger()
         .or(operator.leftBumper())
         .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
-        .whileTrue(intake.intake().deadlineWith(feeder.forward()));
+        .whileTrue(intake.intake().deadlineWith(feeder.forward()))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
     driver
         .povUp()
         .whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
 
     operator.rightBumper().whileTrue(intake.backward());
-    operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350)));
+    operator
+        .povDown()
+        .whileTrue(shooting.shoot(RadiansPerSecond.of(350)))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
-    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3));
-    feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3));
+    intake
+        .hasNote()
+        .onTrue(rumble(RumbleType.kLeftRumble, 0.3))
+        .whileTrue(led.setLEDTheme(LEDTheme.BXSCIFLASH));
+    feeder
+        .noteAtShooter()
+        .onFalse(rumble(RumbleType.kRightRumble, 0.3))
+        .whileTrue(led.setLEDTheme(LEDTheme.BXSCIFLASH));
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {
