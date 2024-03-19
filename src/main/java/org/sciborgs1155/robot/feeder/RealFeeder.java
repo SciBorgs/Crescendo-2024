@@ -19,10 +19,12 @@ public class RealFeeder implements FeederIO {
 
   public RealFeeder() {
     motor = new CANSparkFlex(FEEDER_SPARK, MotorType.kBrushless);
-    
+
     SparkUtils.configureNothingFrameStrategy(motor);
-    FaultLogger.check(motor); motor.setIdleMode(IdleMode.kBrake);
-    FaultLogger.check(motor); motor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
+    FaultLogger.check(motor);
+    motor.setIdleMode(IdleMode.kBrake);
+    FaultLogger.check(motor);
+    motor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
     FaultLogger.check(motor);
 
     beambreak = new DigitalInput(BEAMBREAK);

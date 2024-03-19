@@ -20,10 +20,13 @@ public class RealIntake implements IntakeIO {
 
   public RealIntake() {
     SparkUtils.configureNothingFrameStrategy(spark);
-    FaultLogger.check(spark); SparkUtils.setInverted(spark, true);
-    FaultLogger.check(spark); spark.setIdleMode(IdleMode.kBrake);
-    FaultLogger.check(spark); spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
-    FaultLogger.check(spark); 
+    FaultLogger.check(spark);
+    SparkUtils.setInverted(spark, true);
+    FaultLogger.check(spark);
+    spark.setIdleMode(IdleMode.kBrake);
+    FaultLogger.check(spark);
+    spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
+    FaultLogger.check(spark);
     FaultLogger.register(spark);
   }
 
