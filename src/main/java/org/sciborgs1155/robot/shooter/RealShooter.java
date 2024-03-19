@@ -35,7 +35,8 @@ public class RealShooter implements ShooterIO {
     topMotor.setInverted(true);
     FaultLogger.check(topMotor);
     FaultLogger.check(topMotor, encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians)));
-    FaultLogger.check(topMotor, encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)));
+    FaultLogger.check(
+        topMotor, encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)));
     FaultLogger.check(topMotor, encoder.setAverageDepth(16));
     FaultLogger.check(topMotor, encoder.setMeasurementPeriod(32));
 

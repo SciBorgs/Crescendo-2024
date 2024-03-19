@@ -33,17 +33,21 @@ public class RealPivot implements PivotIO {
     encoder = lead.getEncoder();
     // encoder = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
 
-    FaultLogger.check(lead, SparkUtils.configureFrameStrategy(
+    FaultLogger.check(
         lead,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
-        Set.of(Sensor.ALTERNATE, Sensor.INTEGRATED),
-        true));
-    lead.setInverted(true); FaultLogger.check(lead);
+        SparkUtils.configureFrameStrategy(
+            lead,
+            Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
+            Set.of(Sensor.ALTERNATE, Sensor.INTEGRATED),
+            true));
+    lead.setInverted(true);
+    FaultLogger.check(lead);
     FaultLogger.check(lead, lead.setIdleMode(IdleMode.kBrake));
     FaultLogger.check(lead, lead.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
-    // FaultLogger.check(lead); encoder.setInverted(true);
+    // encoder.setInverted(true); FaultLogger.check(lead);
     FaultLogger.check(lead, encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians)));
-    FaultLogger.check(lead, encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)));
+    FaultLogger.check(
+        lead, encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)));
     FaultLogger.check(lead, encoder.setPosition(STARTING_ANGLE.in(Radians)));
 
     FaultLogger.check(leftBottom, SparkUtils.configureNothingFrameStrategy(leftBottom));
