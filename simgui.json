@@ -25,6 +25,7 @@
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
       "/Robot/drive/rotationController": "PIDController",
+      "/Robot/drive/translationController": "ProfiledPIDController",
       "/Robot/pivot/climbPID": "ProfiledPIDController",
       "/Robot/pivot/pid": "ProfiledPIDController",
       "/Robot/pivot/positionVisualizer": "Mechanism2d",
@@ -59,6 +60,11 @@
       "/SmartDashboard/shooter quasistatic forward": "Command"
     },
     "windows": {
+      "/FMSInfo": {
+        "window": {
+          "visible": true
+        }
+      },
       "/Robot/autos": {
         "window": {
           "visible": true
@@ -89,6 +95,9 @@
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
     "Retained Values": {
       "open": false
     },
@@ -96,6 +105,13 @@
       "Robot": {
         "drive": {
           "ChassisSpeeds##v_/Robot/drive/getFieldRelativeChassisSpeeds": {
+            "open": true
+          },
+          "driving": {
+            "open": true
+          },
+          "open": true,
+          "turning": {
             "open": true
           }
         },
@@ -116,5 +132,11 @@
         }
       }
     }
+  },
+  "NetworkTables Info": {
+    "Server": {
+      "open": true
+    },
+    "visible": true
   }
 }

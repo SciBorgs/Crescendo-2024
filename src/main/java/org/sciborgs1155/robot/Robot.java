@@ -2,6 +2,7 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -33,6 +34,7 @@ import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
+import org.sciborgs1155.robot.commands.Climbing;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
@@ -90,6 +92,7 @@ public class Robot extends CommandRobot implements Logged {
   @Log.NT private final SendableChooser<Command> autos;
 
   private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
+  private final Climbing climbing = new Climbing(drive, pivot);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
@@ -109,7 +112,7 @@ public class Robot extends CommandRobot implements Logged {
     DataLogManager.start();
     Monologue.setupMonologue(this, "/Robot", false, true);
     addPeriodic(Monologue::updateAll, PERIOD.in(Seconds));
-    addPeriodic(FaultLogger::update, 1);
+    addPeriodic(FaultLogger::update, 2);
     addPeriodic(
         () -> log("dist", Shooting.translationToSpeaker(drive.pose().getTranslation()).getNorm()),
         kDefaultPeriod);
@@ -141,15 +144,24 @@ public class Robot extends CommandRobot implements Logged {
         .negate()
         .signedPow(2)
         .scale(maxSpeed)
-        .scale(() -> speedMultiplier);
+        .scale(() -> speedMultiplier)
+        .rateLimit(DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond));
   }
 
   public void configureAuto() {
     // register named commands for auto
     NamedCommands.registerCommand(
-        "shoot", shooting.shootWhileDriving(() -> 0, () -> 0).withTimeout(3));
+        "shoot", shooting.shootWhileDriving(() -> 0, () -> 0).withTimeout(2));
     NamedCommands.registerCommand(
-        "intake", intake.intake().deadlineWith(feeder.forward()).andThen(feeder.runFeeder(0)));
+        "intake",
+        intake
+            .intake()
+            .deadlineWith(feeder.forward())
+            .andThen(
+                intake
+                    .stop()
+                    .alongWith(feeder.runFeeder(0))
+                    .alongWith(Commands.waitSeconds(0.5).andThen(shooting.aimWithoutShooting()))));
     NamedCommands.registerCommand(
         "subwoofer-shoot", shooting.shoot(DEFAULT_VELOCITY).withTimeout(3));
     // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
@@ -196,6 +208,19 @@ public class Robot extends CommandRobot implements Logged {
         .or(driver.rightBumper())
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
+
+    driver
+        .a()
+        .whileTrue(
+            climbing
+                .snapToStage(
+                    createJoystickStream(
+                        driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+                    createJoystickStream(
+                        driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)))
+                .alongWith(
+                    climbing.angleClimber())); // stop holding the button in order to climb with the
+    // pivot manually
 
     operator
         .a()
