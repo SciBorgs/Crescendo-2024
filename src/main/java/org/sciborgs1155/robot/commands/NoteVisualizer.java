@@ -139,7 +139,9 @@ public class NoteVisualizer implements Logged {
                   notePathPub.set(poses);
                   return Commands.run(
                           () -> {
-                            shotNotePub.set(poses[step]);
+                            if (step % 2 == 0) {
+                              shotNotePub.set(poses[step / 2]);
+                            }
                             step++;
                           })
                       .until(() -> step >= poses.length - 1)
@@ -186,18 +188,13 @@ public class NoteVisualizer implements Logged {
             .times(-1);
 
     pathPosition = new ArrayList<>();
-
-    int step = 0;
     while (inField(pose) && pose.getZ() > 0) {
-      if (step % 3 == 0) {
-        pathPosition.add(pose);
-      }
+      pathPosition.add(pose);
 
       pose = new Pose3d(new Translation3d(position), pose.getRotation());
 
       position = position.plus(velocity.times(PERIOD.in(Seconds)));
       velocity = velocity.plus(GRAVITY.times(PERIOD.in(Seconds)));
-      step++;
     }
     // carryingNote = false;
     // notePathPub.set(pathPosition.toArray(new Pose3d[0]));

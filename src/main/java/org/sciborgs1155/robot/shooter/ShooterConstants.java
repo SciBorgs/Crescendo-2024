@@ -2,7 +2,6 @@ package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.*;
 
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Distance;
@@ -15,10 +14,6 @@ public class ShooterConstants {
 
   public static final Measure<Distance> RADIUS = Inches.of(4);
   public static final Measure<Distance> CIRCUMFERENCE = RADIUS.times(2 * Math.PI);
-
-  // Translation from center of robot to
-  public static final Translation3d OFFSET =
-      new Translation3d(Inches.of(0), Inches.of(0), Inches.of(0));
 
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(40);
 
