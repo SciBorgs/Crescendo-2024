@@ -110,11 +110,11 @@ public class Constants {
         new Pose2d(Inches.of(472.4375), Inches.of(133.95), Rotation2d.fromRadians(Math.PI * 2 / 3));
 
     // Pose2D which contain the coordinates where the robot best aligns with the amp, as well as
-    // the rotation perpendicular to them.
+    // a rotation.
     public static final Pose2d BLUE_AMP =
-        new Pose2d(Inches.of(), Inches.of(), Rotation2d.fromRadians(Math.PI * 3 / 2));
+        new Pose2d(Inches.of(72.5), Inches.of(323.0), Rotation2d.fromRadians(Math.PI * 3 / 2));
     public static final Pose2d RED_AMP =
-        new Pose2d(Inches.of(), Inches.of(), Rotation2d.fromRadians(Math.PI * 3 / 2));
+        new Pose2d(Inches.of(578.77), Inches.of(323.0), Rotation2d.fromRadians(Math.PI * 3 / 2));       
 
     // GET THE COORDINATES
 
