@@ -41,52 +41,38 @@ public class SparkModule implements ModuleIO {
     driveMotor = new CANSparkFlex(drivePort, MotorType.kBrushless);
     driveEncoder = driveMotor.getEncoder();
 
-    driveMotor.restoreFactoryDefaults();
-    FaultLogger.check(driveMotor);
-    driveMotor.setIdleMode(IdleMode.kBrake);
-    FaultLogger.check(driveMotor);
-    driveMotor.setSmartCurrentLimit((int) Driving.CURRENT_LIMIT.in(Amps));
-    FaultLogger.check(driveMotor);
-    driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Meters));
-    FaultLogger.check(driveMotor);
-    driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(MetersPerSecond));
-    FaultLogger.check(driveMotor);
-    driveEncoder.setAverageDepth(16);
-    FaultLogger.check(driveMotor);
-    driveEncoder.setMeasurementPeriod(32);
-    FaultLogger.check(driveMotor);
-    SparkUtils.configureFrameStrategy(
-        driveMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
-        Set.of(Sensor.INTEGRATED),
-        false);
-    FaultLogger.check(driveMotor);
-    driveMotor.burnFlash();
-    FaultLogger.check(driveMotor);
+    FaultLogger.check(driveMotor, driveMotor.restoreFactoryDefaults());
+    FaultLogger.check(driveMotor, driveMotor.setIdleMode(IdleMode.kBrake));
+    FaultLogger.check(driveMotor, driveMotor.setSmartCurrentLimit((int) Driving.CURRENT_LIMIT.in(Amps)));
+    FaultLogger.check(driveMotor, driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Meters)));
+    FaultLogger.check(driveMotor, driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(MetersPerSecond)));
+    FaultLogger.check(driveMotor, driveEncoder.setAverageDepth(16));
+    FaultLogger.check(driveMotor, driveEncoder.setMeasurementPeriod(32));
+    FaultLogger.check(driveMotor, 
+      SparkUtils.configureFrameStrategy(
+          driveMotor,
+          Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
+          Set.of(Sensor.INTEGRATED),
+          false));
+    FaultLogger.check(driveMotor, driveMotor.burnFlash());
 
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
     turningEncoder = turnMotor.getAbsoluteEncoder();
 
-    turnMotor.setIdleMode(IdleMode.kBrake);
-    FaultLogger.check(turnMotor);
-    turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps));
-    FaultLogger.check(turnMotor);
+    FaultLogger.check(turnMotor, turnMotor.setIdleMode(IdleMode.kBrake));
+    FaultLogger.check(turnMotor, turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps)));
     turningEncoder.setInverted(Turning.ENCODER_INVERTED);
     FaultLogger.check(turnMotor);
-    turningEncoder.setPositionConversionFactor(Turning.POSITION_FACTOR.in(Radians));
-    FaultLogger.check(turnMotor);
-    turningEncoder.setVelocityConversionFactor(Turning.VELOCITY_FACTOR.in(RadiansPerSecond));
-    FaultLogger.check(turnMotor);
-    turningEncoder.setAverageDepth(2);
-    FaultLogger.check(turnMotor);
-    SparkUtils.configureFrameStrategy(
-        turnMotor,
-        Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
-        Set.of(Sensor.ABSOLUTE),
-        false);
-    FaultLogger.check(turnMotor);
-    turnMotor.burnFlash();
-    FaultLogger.check(turnMotor);
+    FaultLogger.check(turnMotor, turningEncoder.setPositionConversionFactor(Turning.POSITION_FACTOR.in(Radians)));
+    FaultLogger.check(turnMotor, turningEncoder.setVelocityConversionFactor(Turning.VELOCITY_FACTOR.in(RadiansPerSecond)));
+    FaultLogger.check(turnMotor, turningEncoder.setAverageDepth(2));
+    FaultLogger.check(turnMotor,
+      SparkUtils.configureFrameStrategy(
+          turnMotor,
+          Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
+          Set.of(Sensor.ABSOLUTE),
+          false));
+    FaultLogger.check(turnMotor, turnMotor.burnFlash());
 
     FaultLogger.register(driveMotor);
     FaultLogger.register(turnMotor);

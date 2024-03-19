@@ -19,14 +19,11 @@ public class RealIntake implements IntakeIO {
   private final DigitalInput beambreak = new DigitalInput(Ports.Intake.BEAMBREAK);
 
   public RealIntake() {
-    SparkUtils.configureNothingFrameStrategy(spark);
+    FaultLogger.check(spark, SparkUtils.configureNothingFrameStrategy(spark));
+    spark.setInverted(true);
     FaultLogger.check(spark);
-    SparkUtils.setInverted(spark, true);
-    FaultLogger.check(spark);
-    spark.setIdleMode(IdleMode.kBrake);
-    FaultLogger.check(spark);
-    spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
-    FaultLogger.check(spark);
+    FaultLogger.check(spark, spark.setIdleMode(IdleMode.kBrake));
+    FaultLogger.check(spark, spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
     FaultLogger.register(spark);
   }
 

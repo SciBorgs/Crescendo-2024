@@ -146,21 +146,4 @@ public class SparkUtils {
     }
     return Optional.empty();
   }
-
-  /**
-   * This is a workaround since {@link CANSparkBase#setInverted(boolean)} does not return a {@code
-   * REVLibError} because it is overriding {@link
-   * edu.wpi.first.wpilibj.motorcontrol.MotorController}.
-   *
-   * <p>This call has no effect if the controller is a follower. To invert a follower, see the
-   * follow() method.
-   *
-   * @param spark The spark to set inversion of.
-   * @param isInverted The state of inversion, true is inverted.
-   * @return {@link REVLibError#kOk} if successful.
-   */
-  public static REVLibError setInverted(CANSparkBase spark, boolean isInverted) {
-    spark.setInverted(isInverted);
-    return spark.getLastError();
-  }
 }

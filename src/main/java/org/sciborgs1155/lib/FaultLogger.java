@@ -274,6 +274,14 @@ public final class FaultLogger {
     return true;
   }
 
+  public static boolean check(CANSparkBase spark, REVLibError error) {
+    if (error != REVLibError.kOk) {
+      report(SparkUtils.name(spark), error.name(), FaultType.ERROR);
+      return false;
+    }
+    return true;
+  }
+
   /**
    * Returns an array of descriptions of all faults that match the specified type.
    *

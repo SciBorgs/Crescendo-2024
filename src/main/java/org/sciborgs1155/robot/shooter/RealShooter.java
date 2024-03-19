@@ -24,36 +24,26 @@ public class RealShooter implements ShooterIO {
     topMotor = new CANSparkFlex(TOP_MOTOR, MotorType.kBrushless);
     encoder = topMotor.getEncoder();
 
+    FaultLogger.check(topMotor);
     SparkUtils.configureFrameStrategy(
         topMotor,
         Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
         Set.of(Sensor.INTEGRATED),
         true);
+    FaultLogger.check(topMotor, topMotor.setIdleMode(IdleMode.kCoast));
+    FaultLogger.check(topMotor, topMotor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
+    topMotor.setInverted(true);
     FaultLogger.check(topMotor);
-    topMotor.setIdleMode(IdleMode.kCoast);
-    FaultLogger.check(topMotor);
-    topMotor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
-    FaultLogger.check(topMotor);
-    SparkUtils.setInverted(topMotor, true);
-    FaultLogger.check(topMotor);
-    encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
-    FaultLogger.check(topMotor);
-    encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
-    FaultLogger.check(topMotor);
-    encoder.setAverageDepth(16);
-    FaultLogger.check(topMotor);
-    encoder.setMeasurementPeriod(32);
-    FaultLogger.check(topMotor);
+    FaultLogger.check(topMotor, encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians)));
+    FaultLogger.check(topMotor, encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)));
+    FaultLogger.check(topMotor, encoder.setAverageDepth(16));
+    FaultLogger.check(topMotor, encoder.setMeasurementPeriod(32));
 
     bottomMotor = new CANSparkFlex(BOTTOM_MOTOR, MotorType.kBrushless);
-    SparkUtils.configureNothingFrameStrategy(bottomMotor);
-    FaultLogger.check(bottomMotor);
-    bottomMotor.setIdleMode(IdleMode.kCoast);
-    FaultLogger.check(bottomMotor);
-    bottomMotor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
-    FaultLogger.check(bottomMotor);
-    bottomMotor.follow(topMotor, true);
-    FaultLogger.check(bottomMotor);
+    FaultLogger.check(bottomMotor, SparkUtils.configureNothingFrameStrategy(bottomMotor));
+    FaultLogger.check(bottomMotor, bottomMotor.setIdleMode(IdleMode.kCoast));
+    FaultLogger.check(bottomMotor, bottomMotor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
+    FaultLogger.check(bottomMotor, bottomMotor.follow(topMotor, true));
 
     FaultLogger.register(topMotor);
     FaultLogger.register(bottomMotor);
