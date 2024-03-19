@@ -181,13 +181,14 @@ public class Robot extends CommandRobot implements Logged {
             createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
             createJoystickStream(
                 driver::getRightX, DriveConstants.TELEOP_ANGULAR_SPEED.in(RadiansPerSecond))));
-    led.setDefaultCommand(led.setLEDTheme(LEDTheme.FIRE));
+    led.setDefaultCommand(led.setLEDTheme(LEDTheme.CHASE));
   }
 
   /** Configures trigger -> command bindings */
   private void configureBindings() {
-    autonomous().whileTrue(Commands.deferredProxy(autos::getSelected));
-    autonomous().whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+    autonomous()
+        .whileTrue(Commands.deferredProxy(autos::getSelected))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     driver.b().whileTrue(drive.zeroHeading());
     driver
@@ -202,7 +203,8 @@ public class Robot extends CommandRobot implements Logged {
             pivot
                 .manualPivot(
                     InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1))
-                .deadlineWith(Commands.idle(shooter)));
+                .deadlineWith(Commands.idle(shooter)))
+        .toggleOnTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
     operator
         .b()
@@ -216,41 +218,41 @@ public class Robot extends CommandRobot implements Logged {
                 createJoystickStream(
                     driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
                 createJoystickStream(
-                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
+                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
     driver
         .y()
         .or(operator.povUp())
         .whileTrue(
-            shooting.shootWithPivot(
-                PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY));
+            shooting.shootWithPivot(PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
     driver
         .rightTrigger()
         .or(operator.leftBumper())
         .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
-        .whileTrue(intake.intake().deadlineWith(feeder.forward()));
+        .whileTrue(intake.intake().deadlineWith(feeder.forward()))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
     driver
         .povUp()
         .whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
 
     operator.rightBumper().whileTrue(intake.backward());
-    operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350)));
-
-    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3));
-    feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3));
+    operator
+        .povDown()
+        .whileTrue(shooting.shoot(RadiansPerSecond.of(350)))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
     intake
         .hasNote()
         .onTrue(rumble(RumbleType.kLeftRumble, 0.3))
-        .whileTrue(led.setLEDTheme(LEDTheme.CHASE));
+        .whileTrue(led.setLEDTheme(LEDTheme.BXSCIFLASH));
     feeder
         .noteAtShooter()
         .onFalse(rumble(RumbleType.kRightRumble, 0.3))
-        .whileTrue(led.setLEDTheme(LEDTheme.CHASE));
-      // testing pattern
-    operator.x().whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
+        .whileTrue(led.setLEDTheme(LEDTheme.BXSCIFLASH));
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {

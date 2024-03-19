@@ -28,7 +28,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     BXSCIFLASH(() -> movingColor(Color.kGreen, Color.kYellow, 5)), // Yellow ??%, Green ??%, moving
     FIRE(LedStrip::fire), // Suppose to look like fire
     RAINBOW(LedStrip::rainbow), // RGB Gamer Robot
-    SCIBORGS(() -> movingColor(Color.kYellow, Color.kYellow, 4)), // Yellow 75%, Yellow 25%
+    SCIBORGS(() -> movingColor(Color.kYellow, Color.kDarkViolet, 4)), // Yellow 75%, Yellow 25%
     FEMAIDENS(() -> alternatingColor(Color.kPurple, Color.kLime)), // Yellow 50%, Green 50%
     ALLIANCE(() -> allianceColor()),
     AUTO(
