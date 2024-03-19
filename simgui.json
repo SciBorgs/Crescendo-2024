@@ -99,6 +99,9 @@
             "open": true
           }
         },
+        "feeder": {
+          "open": true
+        },
         "intake": {
           "open": true
         },
@@ -107,18 +110,11 @@
           "hardware": {
             "open": true
           },
-          "open": true,
           "pid": {
             "open": true
           }
-        },
-        "shooter": {
-          "open": true
         }
       }
     }
-  },
-  "NetworkTables Info": {
-    "visible": true
   }
 }
