@@ -1,7 +1,6 @@
 package org.sciborgs1155.lib;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveUtils {
@@ -10,12 +9,6 @@ public class SwerveUtils {
       SwerveModuleState[] prevModuleStates,
       double maxAcceleration,
       double deltaTime) {
-    for (int i = 0; i < moduleStates.length; i++) {
-      if (moduleStates[i].angle.getDegrees() < 0) {
-        moduleStates[i].angle = new Rotation2d(Math.abs(moduleStates[i].angle.getRadians()));
-        moduleStates[i].speedMetersPerSecond *= -1;
-      }
-    }
     double minOffendingAcceleration = Double.POSITIVE_INFINITY;
     double associatedVelocity = 0;
     double associatedPrevVelocity = 0;
@@ -47,15 +40,11 @@ public class SwerveUtils {
             / associatedVelocity;
     if (Math.abs(minOffendingAcceleration) > maxAcceleration) {
       for (int i = 0; i < moduleStates.length; i++) {
-        System.out.println("prev: " + prevModuleStates[i].speedMetersPerSecond);
-        System.out.println("pre-transform: " + moduleStates[i].speedMetersPerSecond);
         moduleStates[i].speedMetersPerSecond =
             MathUtil.clamp(
                 moduleStates[i].speedMetersPerSecond * proportionFactor,
                 prevModuleStates[i].speedMetersPerSecond - maxAcceleration * deltaTime,
                 prevModuleStates[i].speedMetersPerSecond + maxAcceleration * deltaTime);
-        
-        System.out.println("post-transform: " + moduleStates[i].speedMetersPerSecond);
       }
     }
     System.out.println();

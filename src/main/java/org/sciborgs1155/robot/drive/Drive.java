@@ -276,17 +276,17 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
       throw new IllegalArgumentException("desiredStates must have the same length as modules");
     }
 
+    for (int i = 0; i < desiredStates.length; i++) {
+      desiredStates[i] = SwerveModuleState.optimize(desiredStates[i], getModuleSetpoints()[i].angle);
+    }
+
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_SPEED.in(MetersPerSecond));
     SwerveUtils.desaturateWheelAcceleration(
         desiredStates, getModuleSetpoints(), MAX_ACCEL.in(MetersPerSecondPerSecond), 0.02);
 
-    System.out.println("orignial: " + desiredStates[0]);
-
     for (int i = 0; i < modules.size(); i++) {
       modules.get(i).updateDesiredState(desiredStates[i]);
     }
-
-    System.out.println("post-updateDesiredStated: " + modules.get(0).desiredState());
   }
 
   /** Resets the drive encoders to currently read a position of 0. */
