@@ -114,7 +114,7 @@ public class Constants {
     public static final Pose2d BLUE_AMP =
         new Pose2d(Inches.of(72.5), Inches.of(323.0), Rotation2d.fromRadians(Math.PI * 3 / 2));
     public static final Pose2d RED_AMP =
-        new Pose2d(Inches.of(578.77), Inches.of(323.0), Rotation2d.fromRadians(Math.PI * 3 / 2));       
+        new Pose2d(Inches.of(578.77), Inches.of(323.0), Rotation2d.fromRadians(Math.PI * 3 / 2));
 
     // Methoeds
 
