@@ -109,8 +109,8 @@ public class Constants {
     public static final Pose2d RED_STAGE_SOURCESIDE =
         new Pose2d(Inches.of(472.4375), Inches.of(133.95), Rotation2d.fromRadians(Math.PI * 2 / 3));
 
-    // Pose2D which contain the coordinates where the robot best aligns with the amp, as well as
-    // a rotation.
+    // Pose2D which contain the coordinates ((x and y) of the AprilTag on the amp (which is directly
+    // above the amp scoring area), and the rotations.
     public static final Pose2d BLUE_AMP =
         new Pose2d(Inches.of(72.5), Inches.of(323.0), Rotation2d.fromRadians(Math.PI * 3 / 2));
     public static final Pose2d RED_AMP =

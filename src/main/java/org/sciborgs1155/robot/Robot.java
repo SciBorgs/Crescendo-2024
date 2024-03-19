@@ -205,18 +205,24 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
-    driver
-        .a()
-        .whileTrue(
-            climbing
-                .snapToStage(
+    // driver
+    //     .a()
+    //     .whileTrue(
+    //         climbing
+    //             .snapToStage(
+    //                 createJoystickStream(
+    //                     driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+    //                 createJoystickStream(
+    //                     driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)))
+    //             .alongWith(
+    //                 climbing.angleClimber())); // stop holding the button in order to climb with the
+    // // pivot manually
+
+    driver.a().whileTrue(ampAlign.snapToAmp(
                     createJoystickStream(
                         driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
                     createJoystickStream(
-                        driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)))
-                .alongWith(
-                    climbing.angleClimber())); // stop holding the button in order to climb with the
-    // pivot manually
+                        driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
 
     operator
         .a()

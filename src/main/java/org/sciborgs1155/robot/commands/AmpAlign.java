@@ -32,11 +32,11 @@ public class AmpAlign {
    */
   public Command snapToAmp(DoubleSupplier vx, DoubleSupplier vy) {
     return drive
-        .driveTo((Field.ampCoordinates().plus(new Transform2d(-28 / 2, -32.645 / 2, null))))
+        .driveTo((Field.ampCoordinates().plus(new Transform2d(-28 / 2, -32.645 / 2, new Rotation2d(0, 0)))))
         .andThen(drive.drive(vx, vy, this::getAmpRotation));
 
-    // Not sure if the math is right, but idea is using the amp's location and subtracting half
-    // the robot's dimensions from it so it is right in front of the amp
+    // Not sure if the math is right (+ - signs), but idea is using the amp's location and
+    // subtracting half the robot's dimensions from it so it is right in front of the amp
   }
 
   public Command shootAmp() {
