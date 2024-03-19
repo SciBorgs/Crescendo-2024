@@ -215,15 +215,19 @@ public class Robot extends CommandRobot implements Logged {
     //                 createJoystickStream(
     //                     driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)))
     //             .alongWith(
-    //                 climbing.angleClimber())); // stop holding the button in order to climb with the
+    //                 climbing.angleClimber())); // stop holding the button in order to climb with
+    // the
     // // pivot manually
 
-    driver.a().whileTrue(ampAlign.snapToAmp(
-                    createJoystickStream(
-                        driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-                    createJoystickStream(
-                        driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
-              .onFalse(ampAlign.shootAmp());
+    driver
+        .a()
+        .whileTrue(
+            ampAlign.snapToAmp(
+                createJoystickStream(
+                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+                createJoystickStream(
+                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
+        .onFalse(ampAlign.shootAmp());
 
     operator
         .a()

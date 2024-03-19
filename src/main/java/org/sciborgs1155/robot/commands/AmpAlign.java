@@ -1,6 +1,5 @@
 package org.sciborgs1155.robot.commands;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_AMP_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 
@@ -33,7 +32,9 @@ public class AmpAlign {
    */
   public Command snapToAmp(DoubleSupplier vx, DoubleSupplier vy) {
     return drive
-        .driveTo((Field.ampCoordinates().plus(new Transform2d(-28 / 2, -32.645 / 2, new Rotation2d(0, 0)))))
+        .driveTo(
+            (Field.ampCoordinates()
+                .plus(new Transform2d(-28 / 2, -32.645 / 2, new Rotation2d(0, 0)))))
         .andThen(drive.drive(vx, vy, this::getAmpRotation));
 
     // Not sure if the math is right (+ - signs), but idea is using the amp's location and
@@ -41,8 +42,6 @@ public class AmpAlign {
   }
 
   public Command shootAmp() {
-    return pivot
-        .runPivot(PRESET_AMP_ANGLE)
-        .andThen(shooting.shoot(AMP_VELOCITY));
+    return pivot.runPivot(PRESET_AMP_ANGLE).andThen(shooting.shoot(AMP_VELOCITY));
   }
 }
