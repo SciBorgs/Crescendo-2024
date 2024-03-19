@@ -1,11 +1,11 @@
 {
   "HALProvider": {
-    "Other Devices": {
+    "Addressable LEDs": {
       "window": {
-        "visible": false
+        "visible": true
       }
     },
-    "Timing": {
+    "Other Devices": {
       "window": {
         "visible": false
       }
@@ -25,6 +25,7 @@
       "/Robot/drive/rearRight/driveFeedback": "PIDController",
       "/Robot/drive/rearRight/turnFeedback": "PIDController",
       "/Robot/drive/rotationController": "PIDController",
+      "/Robot/drive/translationController": "ProfiledPIDController",
       "/Robot/pivot/climbPID": "ProfiledPIDController",
       "/Robot/pivot/pid": "ProfiledPIDController",
       "/Robot/pivot/positionVisualizer": "Mechanism2d",
@@ -59,6 +60,11 @@
       "/SmartDashboard/shooter quasistatic forward": "Command"
     },
     "windows": {
+      "/FMSInfo": {
+        "window": {
+          "visible": true
+        }
+      },
       "/Robot/autos": {
         "window": {
           "visible": true
@@ -89,6 +95,9 @@
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
     "Retained Values": {
       "open": false
     },
@@ -98,15 +107,18 @@
           "ChassisSpeeds##v_/Robot/drive/getFieldRelativeChassisSpeeds": {
             "open": true
           },
-          "SwerveModuleState[]##v_/Robot/drive/getModuleSetpoints": {
-            "SwerveModuleState##v_[0]": {
-              "Rotation2d##v_angle": {
-                "open": true
-              },
-              "open": true
-            },
+          "driving": {
             "open": true
           },
+          "open": true,
+          "turning": {
+            "open": true
+          }
+        },
+        "feeder": {
+          "open": true
+        },
+        "intake": {
           "open": true
         },
         "open": true,
@@ -114,44 +126,17 @@
           "hardware": {
             "open": true
           },
-          "open": true,
           "pid": {
             "open": true
           }
-        },
-        "shooter": {
-          "open": true
         }
       }
     }
   },
   "NetworkTables Info": {
+    "Server": {
+      "open": true
+    },
     "visible": true
-  },
-  "Plot": {
-    "Plot <0>": {
-      "plots": [
-        {
-          "backgroundColor": [
-            0.0,
-            0.0,
-            0.0,
-            0.8500000238418579
-          ],
-          "height": 344,
-          "series": [
-            {
-              "color": [
-                0.2980392277240753,
-                0.44705885648727417,
-                0.6901960968971252,
-                1.0
-              ],
-              "id": "NT:/Robot/drive/getModuleSetpoints[0]/speed"
-            }
-          ]
-        }
-      ]
-    }
   }
 }

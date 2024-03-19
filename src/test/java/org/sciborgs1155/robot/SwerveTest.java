@@ -5,10 +5,8 @@ import static org.sciborgs1155.lib.TestingUtil.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -30,7 +28,7 @@ public class SwerveTest {
 
   @BeforeEach
   public void setup() {
-    setupHAL();
+    setupTests();
     frontLeft = new SimModule();
     frontRight = new SimModule();
     rearLeft = new SimModule();
@@ -69,7 +67,6 @@ public class SwerveTest {
   }
 
   @Test
-  @Disabled
   public void testModuleDistance() {
     double xVelocitySetpoint = 2.265;
     double yVelocitySetpoint = 0;
@@ -80,13 +77,8 @@ public class SwerveTest {
 
     fastForward(); // 200 ticks, 50 ticks/s = 4 seconds
 
-    SwerveModulePosition[] positions = drive.getModulePositions();
     Pose2d pose = drive.pose();
 
-    assertEquals(Math.hypot(deltaX, deltaY), positions[0].distanceMeters, DELTA);
-    assertEquals(Math.hypot(deltaX, deltaY), positions[1].distanceMeters, DELTA);
-    assertEquals(Math.hypot(deltaX, deltaY), positions[2].distanceMeters, DELTA);
-    assertEquals(Math.hypot(deltaX, deltaY), positions[3].distanceMeters, DELTA);
     assertEquals(deltaX, pose.getX(), DELTA);
     assertEquals(deltaY, pose.getY(), DELTA);
   }

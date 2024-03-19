@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot.drive;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
@@ -9,7 +10,10 @@ import static org.sciborgs1155.robot.Constants.allianceRotation;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,6 +25,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -42,6 +48,7 @@ import org.sciborgs1155.lib.SwerveUtils;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
+import org.sciborgs1155.robot.drive.DriveConstants.Translation;
 import org.sciborgs1155.robot.vision.Vision.PoseEstimate;
 
 public class Drive extends SubsystemBase implements Logged, AutoCloseable {
@@ -71,6 +78,14 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   private final FieldObject2d[] modules2d;
 
   private final SysIdRoutine sysid;
+
+  @Log.NT
+  private final ProfiledPIDController translationController =
+      new ProfiledPIDController(
+          Translation.P,
+          Translation.I,
+          Translation.D,
+          new TrapezoidProfile.Constraints(MAX_SPEED, MAX_ACCEL));
 
   @Log.NT
   private final PIDController rotationController =
@@ -134,6 +149,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
     gyro.reset();
 
+    translationController.setTolerance(Translation.TOLERANCE.in(Meters));
     rotationController.enableContinuousInput(0, 2 * Math.PI);
     rotationController.setTolerance(Rotation.TOLERANCE.in(Radians));
 
@@ -209,7 +225,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   public Command drive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier vOmega) {
     return run(
         () ->
-            driveRobotRelative(
+            setChassisSpeeds(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                     vx.getAsDouble(),
                     vy.getAsDouble(),
@@ -228,20 +244,21 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @return The driving command.
    */
   public Command drive(DoubleSupplier vx, DoubleSupplier vy, Supplier<Rotation2d> heading) {
-    return runOnce(rotationController::reset)
-        .andThen(
-            drive(
-                vx,
-                vy,
-                () ->
-                    rotationController.calculate(
-                        heading().getRadians(), heading.get().getRadians())));
+    return drive(
+            vx,
+            vy,
+            () -> rotationController.calculate(heading().getRadians(), heading.get().getRadians()))
+        .beforeStarting(rotationController::reset);
   }
 
   /**
-   * Drives the robot relative to field based on provided {@link ChassisSpeeds} and current heading.
+   * Drives the robot to a specific {@link Pose2d} target.
    *
-   * @param speeds The desired field relative chassis speeds.
+   * <p>This method uses a trapezoid profile + pid controller to approach the target on x y and
+   * rotation axes simultaneously. It also does not avoid obstacles or other robots.
+   *
+   * @param target The pose to drive to.
+   * @return A command that drives to the target and then ends.
    */
   public void driveFieldRelative(ChassisSpeeds speeds) {
     driveRobotRelative(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, heading()));
@@ -255,8 +272,24 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param speeds The desired robot relative chassis speeds.
    */
   public void driveRobotRelative(ChassisSpeeds speeds) {
-    // speeds.vxMetersPerSecond = rateLimiter.calculate(speeds.vxMetersPerSecond);
     setChassisSpeeds(speeds);
+  }
+
+  public Command driveTo(Pose2d target) {
+    return run(() -> {
+          Transform2d transform = target.minus(pose());
+          Vector<N3> difference =
+              VecBuilder.fill(
+                  transform.getX(),
+                  transform.getY(),
+                  transform.getRotation().getRadians() * RADIUS.in(Meters));
+          double out = -translationController.calculate(difference.norm(), 0);
+          Vector<N3> velocities = difference.unit().times(out);
+          setChassisSpeeds(
+              new ChassisSpeeds(
+                  velocities.get(0), velocities.get(1), velocities.get(2) / RADIUS.in(Meters)));
+        })
+        .until(translationController::atGoal);
   }
 
   /** Robot relative chassis speeds */
@@ -369,6 +402,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
     moduleSetpoints =
         modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
+    modules.forEach(SwerveModule::updatePID);
   }
 
   @Override
@@ -382,7 +416,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   /** Stops drivetrain */
   public Command stop() {
-    return runOnce(() -> driveRobotRelative(new ChassisSpeeds()));
+    return runOnce(() -> setChassisSpeeds(new ChassisSpeeds()));
   }
 
   /** Sets the drivetrain to an "X" configuration, preventing movement */
