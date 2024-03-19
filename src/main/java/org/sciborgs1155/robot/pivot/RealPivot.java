@@ -33,36 +33,28 @@ public class RealPivot implements PivotIO {
     encoder = lead.getEncoder();
     // encoder = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
 
-    SparkUtils.configure(
-        lead,
-        () ->
-            SparkUtils.configureFrameStrategy(
-                lead,
-                Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
-                Set.of(Sensor.ALTERNATE, Sensor.INTEGRATED),
-                true),
-        () -> SparkUtils.setInverted(lead, true),
-        () -> lead.setIdleMode(IdleMode.kBrake),
-        () -> lead.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)),
-        // () -> encoder.setInverted(true),
-        () -> encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians)),
-        () -> encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)),
-        () -> encoder.setPosition(STARTING_ANGLE.in(Radians)));
+    SparkUtils.configureFrameStrategy(lead,Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),Set.of(Sensor.ALTERNATE, Sensor.INTEGRATED),true);
+    FaultLogger.check(lead); SparkUtils.setInverted(lead, true);
+    FaultLogger.check(lead); lead.setIdleMode(IdleMode.kBrake);
+    FaultLogger.check(lead); lead.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
+    // FaultLogger.check(lead); encoder.setInverted(true);
+    FaultLogger.check(lead); encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians));
+    FaultLogger.check(lead); encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond));
+    FaultLogger.check(lead); encoder.setPosition(STARTING_ANGLE.in(Radians));
+    FaultLogger.check(lead); 
 
-    SparkUtils.configure(
-        leftBottom,
-        () -> SparkUtils.configureNothingFrameStrategy(leftBottom),
-        () -> leftBottom.setIdleMode(IdleMode.kBrake),
-        () -> leftBottom.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)),
-        () -> leftBottom.follow(lead));
+    SparkUtils.configureNothingFrameStrategy(leftBottom);
+    FaultLogger.check(leftBottom); leftBottom.setIdleMode(IdleMode.kBrake);
+    FaultLogger.check(leftBottom); leftBottom.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
+    FaultLogger.check(leftBottom); leftBottom.follow(lead);
+    FaultLogger.check(leftBottom); 
 
     for (CANSparkMax right : List.of(rightTop, rightBottom)) {
-      SparkUtils.configure(
-          right,
-          () -> SparkUtils.configureNothingFrameStrategy(right),
-          () -> right.setIdleMode(IdleMode.kBrake),
-          () -> right.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)),
-          () -> right.follow(lead, true));
+      SparkUtils.configureNothingFrameStrategy(right);
+      FaultLogger.check(right); right.setIdleMode(IdleMode.kBrake);
+      FaultLogger.check(right); right.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps));
+      FaultLogger.check(right); right.follow(lead, true);
+      FaultLogger.check(right);
     }
 
     FaultLogger.register(lead);

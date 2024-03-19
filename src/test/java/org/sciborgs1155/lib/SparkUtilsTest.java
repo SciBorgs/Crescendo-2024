@@ -25,20 +25,13 @@ public class SparkUtilsTest {
     CANSparkFlex motor = new CANSparkFlex(1, MotorType.kBrushless);
     RelativeEncoder encoder = motor.getEncoder();
 
-    SparkUtils.configure(
-        motor,
-        () ->
-            SparkUtils.configureFrameStrategy(
-                motor,
-                Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
-                Set.of(Sensor.INTEGRATED),
-                false),
-        () -> motor.setIdleMode(IdleMode.kBrake),
-        () -> motor.setSmartCurrentLimit(30),
-        () -> encoder.setPositionConversionFactor(0.5),
-        () -> encoder.setVelocityConversionFactor(0.25),
-        () -> encoder.setMeasurementPeriod(8),
-        () -> encoder.setAverageDepth(2));
+    FaultLogger.check(motor); SparkUtils.configureFrameStrategy(motor,Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),Set.of(Sensor.INTEGRATED),false);
+    FaultLogger.check(motor); motor.setIdleMode(IdleMode.kBrake);
+    FaultLogger.check(motor); motor.setSmartCurrentLimit(30);
+    FaultLogger.check(motor); encoder.setPositionConversionFactor(0.5);
+    FaultLogger.check(motor); encoder.setVelocityConversionFactor(0.25);
+    FaultLogger.check(motor); encoder.setMeasurementPeriod(8);
+    FaultLogger.check(motor); encoder.setAverageDepth(2);
 
     assertEquals(IdleMode.kBrake, motor.getIdleMode());
     assertEquals(0.5, encoder.getPositionConversionFactor());
