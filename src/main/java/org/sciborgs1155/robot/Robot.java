@@ -244,21 +244,21 @@ public class Robot extends CommandRobot implements Logged {
                     driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
                 createJoystickStream(
                     driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     driver
         .y()
         .or(operator.povUp())
         .whileTrue(
             shooting.shootWithPivot(PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     driver
         .rightTrigger()
         .or(operator.leftBumper())
         .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
         .whileTrue(intake.intake().deadlineWith(feeder.forward()))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     driver
         .povUp()
@@ -268,7 +268,7 @@ public class Robot extends CommandRobot implements Logged {
     operator
         .povDown()
         .whileTrue(shooting.shoot(RadiansPerSecond.of(350)))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINDROP));
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     intake
         .hasNote()
