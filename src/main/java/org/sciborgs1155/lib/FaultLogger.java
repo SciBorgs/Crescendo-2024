@@ -276,7 +276,7 @@ public final class FaultLogger {
    * <p>This should be called immediately after any call to the spark.
    *
    * @param spark The spark to report REVLibErrors from.
-   * @param error Any REVLibErrors that may be returned from a method for a motor.
+   * @param error Any REVLibErrors that may be returned from a method for a spark.
    * @return If the spark is working without errors.
    */
   public static boolean check(CANSparkBase spark, REVLibError error) {
