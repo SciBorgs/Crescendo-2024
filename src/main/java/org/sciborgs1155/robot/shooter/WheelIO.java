@@ -16,6 +16,4 @@ public interface WheelIO extends AutoCloseable, Logged {
    * @return The velocity of the flywheel, in radians per seconds.
    */
   double velocity();
-
-  void setInverted(boolean inverted);
 }

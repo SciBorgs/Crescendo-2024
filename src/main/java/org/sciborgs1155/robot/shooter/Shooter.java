@@ -44,7 +44,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   /** Creates real or simulated shooter based on {@link Robot#isReal()}. */
   public static Shooter create() {
     return Robot.isReal()
-        ? new Shooter(new RealWheel(TOP_MOTOR), new RealWheel(BOTTOM_MOTOR))
+        ? new Shooter(new RealWheel(TOP_MOTOR, true), new RealWheel(BOTTOM_MOTOR, false))
         : new Shooter(new SimWheel(), new SimWheel());
   }
 
@@ -56,8 +56,6 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   public Shooter(WheelIO top, WheelIO bottom) {
     this.top = top;
     this.bottom = bottom;
-
-    top.setInverted(true);
 
     topPID.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
     bottomPID.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
@@ -72,7 +70,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("shooter dynamic backward", dynamicBack());
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
 
-    setDefaultCommand(run(() -> setSetpoint(IDLE_VELOCITY.in(RadiansPerSecond))));
+    setDefaultCommand(run(() -> update(IDLE_VELOCITY.in(RadiansPerSecond))));
   }
 
   public void setVoltage(double voltage) {
@@ -90,12 +88,14 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     return bottom.velocity();
   }
 
-  public void setSetpoint(double velocity) {
+  public void update(double velocity) {
     double ff = feedforward.calculate(setpoint, velocity, PERIOD.in(Seconds));
     double topOut = topPID.calculate(top.velocity(), velocity);
     double bottomOut = bottomPID.calculate(bottom.velocity(), velocity);
-    top.setVoltage(MathUtil.clamp(ff + topOut, -12, 12));
+    log("top output", topOut);
+    log("bottom output", bottomOut);
 
+    top.setVoltage(MathUtil.clamp(ff + topOut, -12, 12));
     bottom.setVoltage(MathUtil.clamp(ff + bottomOut, -12, 12));
     setpoint = velocity;
   }
@@ -109,11 +109,6 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     return setpoint;
   }
 
-  public void updatePID() {
-    topPID.setPID(p.get(), i.get(), d.get());
-    bottomPID.setPID(p.get(), i.get(), d.get());
-  }
-
   /**
    * Run the shooter at a specified velocity.
    *
@@ -121,7 +116,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
    * @return The command to set the shooter's velocity.
    */
   public Command runShooter(DoubleSupplier velocity) {
-    return run(() -> setSetpoint(velocity.getAsDouble())).withName("running shooter").asProxy();
+    return run(() -> update(velocity.getAsDouble())).withName("running shooter").asProxy();
   }
 
   public Command manualShooter(DoubleSupplier stickInput) {
@@ -138,11 +133,11 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   /**
-   * @return Shooter velocity in radians per second
+   * @return Average shooter velocity in radians per second
    */
   @Log.NT
   public double rotationalVelocity() {
-    return top.velocity();
+    return (topVelocity() + bottomVelocity()) / 2.0;
   }
 
   @Log.NT
@@ -170,7 +165,8 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   public void periodic() {
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
 
-    updatePID();
+    topPID.setPID(p.get(), i.get(), d.get());
+    bottomPID.setPID(p.get(), i.get(), d.get());
   }
 
   @Override

@@ -12,7 +12,4 @@ public class NoWheel implements WheelIO {
   public double velocity() {
     return 0.0;
   }
-
-  @Override
-  public void setInverted(boolean inverted) {}
 }

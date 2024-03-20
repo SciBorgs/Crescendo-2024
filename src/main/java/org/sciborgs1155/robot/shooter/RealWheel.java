@@ -17,7 +17,7 @@ public class RealWheel implements WheelIO {
   private final CANSparkFlex motor;
   private final RelativeEncoder encoder;
 
-  public RealWheel(int id) {
+  public RealWheel(int id, boolean inverted) {
     motor = new CANSparkFlex(id, MotorType.kBrushless);
     encoder = motor.getEncoder();
 
@@ -30,6 +30,7 @@ public class RealWheel implements WheelIO {
                 Set.of(Sensor.INTEGRATED),
                 false),
         () -> motor.setIdleMode(IdleMode.kCoast),
+        () -> SparkUtils.setInverted(motor, inverted),
         () -> motor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)),
         () -> encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians)),
         () -> encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)),
@@ -37,11 +38,6 @@ public class RealWheel implements WheelIO {
         () -> encoder.setMeasurementPeriod(32));
 
     FaultLogger.register(motor);
-  }
-
-  @Override
-  public void setInverted(boolean inverted) {
-    SparkUtils.setInverted(motor, inverted);
   }
 
   @Override
