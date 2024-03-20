@@ -1,5 +1,7 @@
 package org.sciborgs1155.robot.shooter;
 
+import static edu.wpi.first.units.Units.Seconds;
+import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.GEARING;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.kA;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.kV;
@@ -16,6 +18,7 @@ public class SimWheel implements WheelIO {
   @Override
   public void setVoltage(double voltage) {
     flywheel.setInputVoltage(voltage);
+    flywheel.update(PERIOD.in(Seconds));
   }
 
   @Override
@@ -25,7 +28,4 @@ public class SimWheel implements WheelIO {
 
   @Override
   public void close() throws Exception {}
-
-  @Override
-  public void setInverted(boolean inverted) {}
 }
