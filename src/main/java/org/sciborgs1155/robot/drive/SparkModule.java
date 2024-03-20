@@ -45,7 +45,9 @@ public class SparkModule implements ModuleIO {
     check(driveMotor, driveMotor.setIdleMode(IdleMode.kBrake));
     check(driveMotor, driveMotor.setSmartCurrentLimit((int) Driving.CURRENT_LIMIT.in(Amps)));
     check(driveMotor, driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Meters)));
-    check(driveMotor, driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(MetersPerSecond)));
+    check(
+        driveMotor,
+        driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(MetersPerSecond)));
     check(driveMotor, driveEncoder.setAverageDepth(16));
     check(driveMotor, driveEncoder.setMeasurementPeriod(32));
     check(
@@ -65,8 +67,11 @@ public class SparkModule implements ModuleIO {
     check(turnMotor, turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps)));
     turningEncoder.setInverted(Turning.ENCODER_INVERTED);
     check(turnMotor);
-    check(turnMotor, turningEncoder.setPositionConversionFactor(Turning.POSITION_FACTOR.in(Radians)));
-    check(turnMotor, turningEncoder.setVelocityConversionFactor(Turning.VELOCITY_FACTOR.in(RadiansPerSecond)));
+    check(
+        turnMotor, turningEncoder.setPositionConversionFactor(Turning.POSITION_FACTOR.in(Radians)));
+    check(
+        turnMotor,
+        turningEncoder.setVelocityConversionFactor(Turning.VELOCITY_FACTOR.in(RadiansPerSecond)));
     check(turnMotor, turningEncoder.setAverageDepth(2));
     check(
         turnMotor,

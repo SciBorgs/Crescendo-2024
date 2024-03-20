@@ -1,10 +1,10 @@
 package org.sciborgs1155.robot.feeder;
 
 import static edu.wpi.first.units.Units.Amps;
+import static org.sciborgs1155.lib.FaultLogger.*;
 import static org.sciborgs1155.robot.Ports.Feeder.*;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
 
-import static org.sciborgs1155.lib.FaultLogger.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;

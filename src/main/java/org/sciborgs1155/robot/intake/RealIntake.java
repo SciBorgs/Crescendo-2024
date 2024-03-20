@@ -1,9 +1,9 @@
 package org.sciborgs1155.robot.intake;
 
 import static edu.wpi.first.units.Units.*;
+import static org.sciborgs1155.lib.FaultLogger.*;
 import static org.sciborgs1155.robot.intake.IntakeConstants.*;
 
-import static org.sciborgs1155.lib.FaultLogger.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -26,7 +26,7 @@ public class RealIntake implements IntakeIO {
     check(spark, spark.setIdleMode(IdleMode.kBrake));
     check(spark, spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
     check(spark, spark.burnFlash());
-    
+
     register(spark);
   }
 
