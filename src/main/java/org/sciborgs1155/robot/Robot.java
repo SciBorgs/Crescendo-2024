@@ -278,10 +278,6 @@ public class Robot extends CommandRobot implements Logged {
         .noteAtShooter()
         .onFalse(rumble(RumbleType.kRightRumble, 0.3))
         .whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
-
-    operator.x().whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
-    operator.y().whileTrue(led.setLEDTheme(LEDTheme.BLUE));
-    operator.b().whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {
