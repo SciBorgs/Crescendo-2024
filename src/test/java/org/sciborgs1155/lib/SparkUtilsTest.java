@@ -1,6 +1,7 @@
 package org.sciborgs1155.lib;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.sciborgs1155.lib.FaultLogger.*;
 import static org.sciborgs1155.lib.TestingUtil.setupTests;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -25,19 +26,21 @@ public class SparkUtilsTest {
     CANSparkFlex motor = new CANSparkFlex(1, MotorType.kBrushless);
     RelativeEncoder encoder = motor.getEncoder();
 
-    FaultLogger.check(
+    check(motor, motor.restoreFactoryDefaults());
+    check(
         motor,
         SparkUtils.configureFrameStrategy(
             motor,
             Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
             Set.of(Sensor.INTEGRATED),
             false));
-    FaultLogger.check(motor, motor.setIdleMode(IdleMode.kBrake));
-    FaultLogger.check(motor, motor.setSmartCurrentLimit(30));
-    FaultLogger.check(motor, encoder.setPositionConversionFactor(0.5));
-    FaultLogger.check(motor, encoder.setVelocityConversionFactor(0.25));
-    FaultLogger.check(motor, encoder.setMeasurementPeriod(8));
-    FaultLogger.check(motor, encoder.setAverageDepth(2));
+    check(motor, motor.setIdleMode(IdleMode.kBrake));
+    check(motor, motor.setSmartCurrentLimit(30));
+    check(motor, encoder.setPositionConversionFactor(0.5));
+    check(motor, encoder.setVelocityConversionFactor(0.25));
+    check(motor, encoder.setMeasurementPeriod(8));
+    check(motor, encoder.setAverageDepth(2));
+    check(motor, motor.burnFlash());
 
     assertEquals(IdleMode.kBrake, motor.getIdleMode());
     assertEquals(0.5, encoder.getPositionConversionFactor());
