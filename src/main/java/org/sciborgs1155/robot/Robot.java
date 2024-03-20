@@ -10,6 +10,7 @@ import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Constants.alliance;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -187,12 +188,12 @@ public class Robot extends CommandRobot implements Logged {
    * running on a subsystem.
    */
   private void configureSubsystemDefaults() {
-    drive.setDefaultCommand(
-        drive.drive(
-            createJoystickStream(driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-            createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-            createJoystickStream(
-                driver::getRightX, DriveConstants.TELEOP_ANGULAR_SPEED.in(RadiansPerSecond))));
+    // drive.setDefaultCommand(
+    //     drive.drive(
+    //         createJoystickStream(driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+    //         createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+    //         createJoystickStream(
+    //             driver::getRightX, DriveConstants.TELEOP_ANGULAR_SPEED.in(RadiansPerSecond))));
     led.setDefaultCommand(led.setLEDTheme(LEDTheme.CHASE));
   }
 
@@ -278,6 +279,8 @@ public class Robot extends CommandRobot implements Logged {
         .noteAtShooter()
         .onFalse(rumble(RumbleType.kRightRumble, 0.3))
         .whileTrue(led.setLEDTheme(LEDTheme.BXSCIFLASH));
+
+    test().whileTrue(testMechanisms());
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {
@@ -292,5 +295,15 @@ public class Robot extends CommandRobot implements Logged {
               driver.getHID().setRumble(rumbleType, 0);
               operator.getHID().setRumble(rumbleType, 0);
             });
+  }
+
+  public Command testMechanisms() {
+    return Commands.sequence(
+            drive.drive(() -> 0.5, () -> 0.5, () -> 0.5).withTimeout(.5).andThen(drive.stop()),
+            feeder.forward().withTimeout(1),
+            intake.forward().withTimeout(1),
+            pivot.runPivot(MIN_ANGLE).withTimeout(.5),
+            shooter.runShooter(6).withTimeout(1))
+        .withName("Test Mechanisms");
   }
 }
