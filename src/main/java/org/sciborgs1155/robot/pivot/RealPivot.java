@@ -51,26 +51,21 @@ public class RealPivot implements PivotIO {
     check(lead, encoder.setPosition(STARTING_ANGLE.in(Radians)));
     check(lead, lead.burnFlash());
 
-    check(leftBottom, leftBottom.restoreFactoryDefaults());
-    check(leftBottom, SparkUtils.configureNothingFrameStrategy(leftBottom));
-    check(leftBottom, leftBottom.setIdleMode(IdleMode.kBrake));
-    check(leftBottom, leftBottom.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
-    check(leftBottom, leftBottom.follow(lead));
-    check(leftBottom, leftBottom.burnFlash());
-
-    for (CANSparkMax right : List.of(rightTop, rightBottom)) {
-      check(right, right.restoreFactoryDefaults());
-      check(right, SparkUtils.configureNothingFrameStrategy(right));
-      check(right, right.setIdleMode(IdleMode.kBrake));
-      check(right, right.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
-      check(right, right.follow(lead, true));
-      check(right, right.burnFlash());
+    for (CANSparkMax spark : List.of(leftBottom, rightTop, rightBottom)){
+      check(spark, spark.restoreFactoryDefaults());
+      check(spark, SparkUtils.configureNothingFrameStrategy(spark));
+      check(spark, spark.setIdleMode(IdleMode.kBrake));
+      check(spark, spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
     }
 
-    register(lead);
-    register(leftBottom);
-    register(rightBottom);
-    register(rightTop);
+    check(leftBottom, leftBottom.follow(lead));
+    check(rightTop, rightTop.follow(lead, true));
+    check(rightBottom, rightTop.follow(lead, true));
+
+    for (CANSparkMax spark : List.of(lead, leftBottom, rightTop, rightBottom)){
+      check(spark, spark.burnFlash());
+      register(spark);
+    }
   }
 
   @Override
