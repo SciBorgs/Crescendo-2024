@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.sciborgs1155.robot.Ports.Pivot.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
+import static org.sciborgs1155.lib.FaultLogger.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
@@ -13,7 +14,6 @@ import com.revrobotics.RelativeEncoder;
 import java.util.List;
 import java.util.Set;
 import monologue.Annotations.Log;
-import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
@@ -33,7 +33,8 @@ public class RealPivot implements PivotIO {
     encoder = lead.getEncoder();
     // encoder = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
 
-    FaultLogger.check(
+    check(lead, lead.restoreFactoryDefaults());
+    check(
         lead,
         SparkUtils.configureFrameStrategy(
             lead,
@@ -41,37 +42,41 @@ public class RealPivot implements PivotIO {
             Set.of(Sensor.ALTERNATE, Sensor.INTEGRATED),
             true));
     lead.setInverted(true);
-    FaultLogger.check(lead);
-    FaultLogger.check(lead, lead.setIdleMode(IdleMode.kBrake));
-    FaultLogger.check(lead, lead.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
-    // encoder.setInverted(true); FaultLogger.check(lead);
-    FaultLogger.check(lead, encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians)));
-    FaultLogger.check(
-        lead, encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)));
-    FaultLogger.check(lead, encoder.setPosition(STARTING_ANGLE.in(Radians)));
+    check(lead);
+    check(lead, lead.setIdleMode(IdleMode.kBrake));
+    check(lead, lead.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
+    // check(lead, encoder.setInverted(true));
+    check(lead, encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians)));
+    check(lead, encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)));
+    check(lead, encoder.setPosition(STARTING_ANGLE.in(Radians)));
+    check(lead, lead.burnFlash());
 
-    FaultLogger.check(leftBottom, SparkUtils.configureNothingFrameStrategy(leftBottom));
-    FaultLogger.check(leftBottom, leftBottom.setIdleMode(IdleMode.kBrake));
-    FaultLogger.check(leftBottom, leftBottom.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
-    FaultLogger.check(leftBottom, leftBottom.follow(lead));
+    check(leftBottom, leftBottom.restoreFactoryDefaults());
+    check(leftBottom, SparkUtils.configureNothingFrameStrategy(leftBottom));
+    check(leftBottom, leftBottom.setIdleMode(IdleMode.kBrake));
+    check(leftBottom, leftBottom.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
+    check(leftBottom, leftBottom.follow(lead));
+    check(leftBottom, leftBottom.burnFlash());
 
     for (CANSparkMax right : List.of(rightTop, rightBottom)) {
-      FaultLogger.check(right, SparkUtils.configureNothingFrameStrategy(right));
-      FaultLogger.check(right, right.setIdleMode(IdleMode.kBrake));
-      FaultLogger.check(right, right.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
-      FaultLogger.check(right, right.follow(lead, true));
+      check(right, right.restoreFactoryDefaults());
+      check(right, SparkUtils.configureNothingFrameStrategy(right));
+      check(right, right.setIdleMode(IdleMode.kBrake));
+      check(right, right.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
+      check(right, right.follow(lead, true));
+      check(right, right.burnFlash());
     }
 
-    FaultLogger.register(lead);
-    FaultLogger.register(leftBottom);
-    FaultLogger.register(rightBottom);
-    FaultLogger.register(rightTop);
+    register(lead);
+    register(leftBottom);
+    register(rightBottom);
+    register(rightTop);
   }
 
   @Override
   public void setVoltage(double voltage) {
     lead.setVoltage(voltage);
-    FaultLogger.check(lead);
+    check(lead);
   }
 
   @Override

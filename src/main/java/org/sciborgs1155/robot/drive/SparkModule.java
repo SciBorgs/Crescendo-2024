@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.drive;
 
 import static edu.wpi.first.units.Units.*;
+import static org.sciborgs1155.lib.FaultLogger.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.COUPLING_RATIO;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -11,7 +12,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.Set;
-import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
@@ -41,51 +41,44 @@ public class SparkModule implements ModuleIO {
     driveMotor = new CANSparkFlex(drivePort, MotorType.kBrushless);
     driveEncoder = driveMotor.getEncoder();
 
-    FaultLogger.check(driveMotor, driveMotor.restoreFactoryDefaults());
-    FaultLogger.check(driveMotor, driveMotor.setIdleMode(IdleMode.kBrake));
-    FaultLogger.check(
-        driveMotor, driveMotor.setSmartCurrentLimit((int) Driving.CURRENT_LIMIT.in(Amps)));
-    FaultLogger.check(
-        driveMotor, driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Meters)));
-    FaultLogger.check(
-        driveMotor,
-        driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(MetersPerSecond)));
-    FaultLogger.check(driveMotor, driveEncoder.setAverageDepth(16));
-    FaultLogger.check(driveMotor, driveEncoder.setMeasurementPeriod(32));
-    FaultLogger.check(
+    check(driveMotor, driveMotor.restoreFactoryDefaults());
+    check(driveMotor, driveMotor.setIdleMode(IdleMode.kBrake));
+    check(driveMotor, driveMotor.setSmartCurrentLimit((int) Driving.CURRENT_LIMIT.in(Amps)));
+    check(driveMotor, driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Meters)));
+    check(driveMotor, driveEncoder.setVelocityConversionFactor(Driving.VELOCITY_FACTOR.in(MetersPerSecond)));
+    check(driveMotor, driveEncoder.setAverageDepth(16));
+    check(driveMotor, driveEncoder.setMeasurementPeriod(32));
+    check(
         driveMotor,
         SparkUtils.configureFrameStrategy(
             driveMotor,
             Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
             Set.of(Sensor.INTEGRATED),
             false));
-    FaultLogger.check(driveMotor, driveMotor.burnFlash());
+    check(driveMotor, driveMotor.burnFlash());
 
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
     turningEncoder = turnMotor.getAbsoluteEncoder();
 
-    FaultLogger.check(turnMotor, turnMotor.setIdleMode(IdleMode.kBrake));
-    FaultLogger.check(
-        turnMotor, turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps)));
+    check(turnMotor, turnMotor.restoreFactoryDefaults());
+    check(turnMotor, turnMotor.setIdleMode(IdleMode.kBrake));
+    check(turnMotor, turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps)));
     turningEncoder.setInverted(Turning.ENCODER_INVERTED);
-    FaultLogger.check(turnMotor);
-    FaultLogger.check(
-        turnMotor, turningEncoder.setPositionConversionFactor(Turning.POSITION_FACTOR.in(Radians)));
-    FaultLogger.check(
-        turnMotor,
-        turningEncoder.setVelocityConversionFactor(Turning.VELOCITY_FACTOR.in(RadiansPerSecond)));
-    FaultLogger.check(turnMotor, turningEncoder.setAverageDepth(2));
-    FaultLogger.check(
+    check(turnMotor);
+    check(turnMotor, turningEncoder.setPositionConversionFactor(Turning.POSITION_FACTOR.in(Radians)));
+    check(turnMotor, turningEncoder.setVelocityConversionFactor(Turning.VELOCITY_FACTOR.in(RadiansPerSecond)));
+    check(turnMotor, turningEncoder.setAverageDepth(2));
+    check(
         turnMotor,
         SparkUtils.configureFrameStrategy(
             turnMotor,
             Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
             Set.of(Sensor.ABSOLUTE),
             false));
-    FaultLogger.check(turnMotor, turnMotor.burnFlash());
+    check(turnMotor, turnMotor.burnFlash());
 
-    FaultLogger.register(driveMotor);
-    FaultLogger.register(turnMotor);
+    register(driveMotor);
+    register(turnMotor);
 
     resetEncoders();
 
@@ -95,13 +88,13 @@ public class SparkModule implements ModuleIO {
   @Override
   public void setDriveVoltage(double voltage) {
     driveMotor.setVoltage(voltage);
-    FaultLogger.check(driveMotor);
+    check(driveMotor);
   }
 
   @Override
   public void setTurnVoltage(double voltage) {
     turnMotor.setVoltage(voltage);
-    FaultLogger.check(turnMotor);
+    check(turnMotor);
   }
 
   @Override
