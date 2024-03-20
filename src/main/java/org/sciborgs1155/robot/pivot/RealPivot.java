@@ -51,7 +51,7 @@ public class RealPivot implements PivotIO {
     check(lead, encoder.setPosition(STARTING_ANGLE.in(Radians)));
     check(lead, lead.burnFlash());
 
-    for (CANSparkMax spark : List.of(leftBottom, rightTop, rightBottom)){
+    for (CANSparkMax spark : List.of(leftBottom, rightTop, rightBottom)) {
       check(spark, spark.restoreFactoryDefaults());
       check(spark, SparkUtils.configureNothingFrameStrategy(spark));
       check(spark, spark.setIdleMode(IdleMode.kBrake));
@@ -62,7 +62,7 @@ public class RealPivot implements PivotIO {
     check(rightTop, rightTop.follow(lead, true));
     check(rightBottom, rightTop.follow(lead, true));
 
-    for (CANSparkMax spark : List.of(lead, leftBottom, rightTop, rightBottom)){
+    for (CANSparkMax spark : List.of(lead, leftBottom, rightTop, rightBottom)) {
       check(spark, spark.burnFlash());
       register(spark);
     }
