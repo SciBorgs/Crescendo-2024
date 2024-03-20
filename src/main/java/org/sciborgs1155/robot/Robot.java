@@ -255,8 +255,6 @@ public class Robot extends CommandRobot implements Logged {
 
     driver
         .rightTrigger()
-
-        
         .or(operator.leftBumper())
         .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
         .whileTrue(intake.intake().deadlineWith(feeder.forward()))
