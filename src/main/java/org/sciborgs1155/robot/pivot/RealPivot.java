@@ -8,11 +8,8 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.SparkMaxAlternateEncoder.Type;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxAlternateEncoder;
-
 import java.util.List;
 import java.util.Set;
 import monologue.Annotations.Log;
@@ -48,7 +45,9 @@ public class RealPivot implements PivotIO {
         () -> lead.setIdleMode(IdleMode.kBrake),
         () -> lead.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)),
         () -> encoder.setInverted(true),
-        () -> encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians) / 2.0), // TODO fix / 2 dumbassery
+        () ->
+            encoder.setPositionConversionFactor(
+                POSITION_FACTOR.in(Radians) / 2.0), // TODO fix / 2 dumbassery
         () -> encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond) / 2.0),
         () -> encoder.setPosition(STARTING_ANGLE.in(Radians)));
 

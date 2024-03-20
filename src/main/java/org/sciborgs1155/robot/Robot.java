@@ -193,7 +193,7 @@ public class Robot extends CommandRobot implements Logged {
             createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
             createJoystickStream(
                 driver::getRightX, DriveConstants.TELEOP_ANGULAR_SPEED.in(RadiansPerSecond))));
-    led.setDefaultCommand(led.setLEDTheme(LEDTheme.CHASE));
+    led.setDefaultCommand(led.setLEDTheme(LEDTheme.BLUE));
   }
 
   /** Configures trigger -> command bindings */
@@ -273,11 +273,15 @@ public class Robot extends CommandRobot implements Logged {
     intake
         .hasNote()
         .onTrue(rumble(RumbleType.kLeftRumble, 0.3))
-        .whileTrue(led.setLEDTheme(LEDTheme.BXSCIFLASH));
+        .whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
     feeder
         .noteAtShooter()
         .onFalse(rumble(RumbleType.kRightRumble, 0.3))
-        .whileTrue(led.setLEDTheme(LEDTheme.BXSCIFLASH));
+        .whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
+
+    operator.x().whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
+    operator.y().whileTrue(led.setLEDTheme(LEDTheme.BLUE));
+    operator.b().whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {

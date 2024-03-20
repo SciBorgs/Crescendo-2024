@@ -25,18 +25,14 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   // Note Has Left The Robot - Raindrop for 0.5s
 
   public static enum LEDTheme {
+    ORANGE(() -> solidColor(Color.kOrange)),
+    BLUE(() -> solidColor(Color.kDeepSkyBlue)),
     BXSCIFLASH(() -> movingColor(Color.kGreen, Color.kYellow, 5)), // Yellow ??%, Green ??%, moving
     FIRE(LedStrip::fire), // Suppose to look like fire
     RAINBOW(LedStrip::rainbow), // RGB Gamer Robot
-    SCIBORGS(() -> movingColor(Color.kYellow, Color.kDarkViolet, 4)), // Yellow 75%, Yellow 25%
+    SCIBORGS(() -> movingColor(Color.kYellow, Color.kYellow, 4)), // Yellow 75%, Yellow 25%
     FEMAIDENS(() -> alternatingColor(Color.kPurple, Color.kLime)), // Yellow 50%, Green 50%
     ALLIANCE(() -> allianceColor()),
-    AUTO(
-        () ->
-            movingColor(
-                Color.kSkyBlue,
-                Color.kCrimson,
-                2)), // Yellow Green 33%, Green 33%, Gold 33%, moving
     CHASE(
         () ->
             movingColor(
@@ -102,6 +98,10 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
 
   private static AddressableLEDBuffer alternatingColor(Color color1, Color color2) {
     return gen(i -> i % 2 == 0 ? color1 : color2);
+  }
+
+  private static AddressableLEDBuffer solidColor(Color color1) {
+    return gen(i -> color1);
   }
 
   /** "every (interval) LEDs, LED should be (color 2). everyting else is (color 1)." */
