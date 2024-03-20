@@ -65,8 +65,8 @@ public class Shooting implements Logged {
 
     shotVelocityLookup.put(0.0, 250.0);
     shotVelocityLookup.put(1.0, 450.0);
-    shotVelocityLookup.put(4.0, 550.0);
-    shotVelocityLookup.put(5.0, MAX_VELOCITY.in(RadiansPerSecond));
+    // shotVelocityLookup.put(4.0, 550.0);
+    shotVelocityLookup.put(4.0, MAX_VELOCITY.in(RadiansPerSecond));
   }
 
   /**
