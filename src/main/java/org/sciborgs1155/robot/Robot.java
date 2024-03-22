@@ -50,6 +50,7 @@ import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
 import org.sciborgs1155.robot.shooter.ShooterConstants;
 import org.sciborgs1155.robot.vision.Vision;
+import org.sciborgs1155.robot.vision.VisionConstants;
 
 /** A command based, declarative, representation of our entire robot. */
 public class Robot extends CommandRobot implements Logged {
@@ -121,13 +122,16 @@ public class Robot extends CommandRobot implements Logged {
     FaultLogger.register(new PowerDistribution());
 
     // Configure pose estimation updates every tick
-    addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));
+    addPeriodic(
+        () -> drive.updateEstimates(vision.getEstimatedGlobalPoses()),
+        VisionConstants.PERIOD.in(Seconds));
 
     if (isReal()) {
       URCL.start();
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
-      addPeriodic(() -> vision.simulationPeriodic(drive.pose()), PERIOD.in(Seconds));
+      addPeriodic(
+          () -> vision.simulationPeriodic(drive.pose()), VisionConstants.PERIOD.in(Seconds));
       NoteVisualizer.setSuppliers(
           drive::pose,
           shooting::shooterPose,
