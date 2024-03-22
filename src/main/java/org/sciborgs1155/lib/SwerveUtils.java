@@ -4,6 +4,20 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveUtils {
+  /**
+   * Modifies setpoints so they don't go over the max acceleration, while attempting to renormalize
+   * the speeds.
+   *
+   * <p>Sometimes a setpoint which exceeds the acceleration from the previous setpoint is passed, so
+   * this method ensures no individual modules do so. Ideally we would renormalize the speeds, but
+   * this is not always possible depending on the situation. Therefore, we clamp for proportionality
+   * between the max acceleration possible in either direction.
+   *
+   * @param moduleStates the pre-transformed setpoints.
+   * @param prevModuleStates the setpoints previously passed to the robot (post-transformed).
+   * @param maxAcceleration the acceleration used to limit the setpoints.
+   * @param deltaTime the change in time from the last iteration / call to this method.
+   */
   public static void desaturateWheelAcceleration(
       SwerveModuleState[] moduleStates,
       SwerveModuleState[] prevModuleStates,
