@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.vision;
 
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -12,11 +13,15 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Time;
 import org.sciborgs1155.robot.vision.Vision.CameraConfig;
 
 public class VisionConstants {
   public static final AprilTagFieldLayout TAG_LAYOUT =
       AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+
+  public static final Measure<Time> PERIOD = Seconds.of(0.2);
 
   public static final CameraConfig LEFT_CAMERA =
       new CameraConfig(

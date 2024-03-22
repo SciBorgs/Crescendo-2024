@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot.vision;
 
+import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.robot.Constants.*;
 import static org.sciborgs1155.robot.vision.VisionConstants.*;
 
@@ -10,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Notifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,9 +35,11 @@ public class Vision implements Logged {
 
   public static record PoseEstimate(EstimatedRobotPose estimatedPose, Matrix<N3, N1> standardDev) {}
 
+  private final Notifier notifier;
   private final PhotonCamera[] cameras;
   private final PhotonPoseEstimator[] estimators;
   private final PhotonCameraSim[] simCameras;
+  private ArrayList<PhotonPipelineResult> results;
 
   private VisionSystemSim visionSim;
 
@@ -48,6 +52,10 @@ public class Vision implements Logged {
     cameras = new PhotonCamera[configs.length];
     estimators = new PhotonPoseEstimator[configs.length];
     simCameras = new PhotonCameraSim[configs.length];
+    results = new ArrayList<>();
+
+    notifier = new Notifier(this::periodic);
+    notifier.startPeriodic(VisionConstants.PERIOD.in(Seconds));
 
     for (int i = 0; i < configs.length; i++) {
       PhotonCamera camera = new PhotonCamera(configs[i].name());
@@ -98,7 +106,7 @@ public class Vision implements Logged {
   public PoseEstimate[] getEstimatedGlobalPoses() {
     List<PoseEstimate> estimates = new ArrayList<>();
     for (int i = 0; i < estimators.length; i++) {
-      var result = cameras[i].getLatestResult();
+      var result = results.get(i);
       var estimate = estimators[i].update(result);
       log("estimates present " + i, estimate.isPresent());
       estimate
@@ -124,8 +132,8 @@ public class Vision implements Logged {
    */
   @Log.NT
   public Pose3d[] getSeenTags() {
-    return Arrays.stream(cameras)
-        .flatMap(c -> c.getLatestResult().targets.stream())
+    return Arrays.stream(results.toArray(new PhotonPipelineResult[] {}))
+        .flatMap(r -> r.targets.stream())
         .map(PhotonTrackedTarget::getFiducialId)
         .map(TAG_LAYOUT::getTagPose)
         .map(Optional::get)
@@ -177,5 +185,12 @@ public class Vision implements Logged {
    */
   public void simulationPeriodic(Pose2d robotSimPose) {
     visionSim.update(robotSimPose);
+  }
+
+  private void periodic() {
+    results = new ArrayList<>();
+    for (PhotonCamera camera : cameras) {
+      results.add(camera.getLatestResult());
+    }
   }
 }
