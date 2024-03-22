@@ -1,27 +1,47 @@
 package org.sciborgs1155.robot.drive;
 
+import static edu.wpi.first.units.Units.Seconds;
+import static org.sciborgs1155.robot.Constants.PERIOD;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.DoubleEntry;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Driving;
 import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Turning;
 
 /** Class to encapsulate a REV Max Swerve module */
 public class SwerveModule implements Logged, AutoCloseable {
+
+  /** The method to use when controlling the drive motor. */
+  public static enum ControlMode {
+    CLOSED_LOOP_VELOCITY,
+    OPEN_LOOP_VELOCITY;
+  }
+
   private final ModuleIO module;
 
-  @Log.NT private final PIDController driveFeedback;
-  @Log.NT private final PIDController turnFeedback;
+  private final PIDController driveFeedback;
+  private final PIDController turnFeedback;
 
   private final SimpleMotorFeedforward driveFeedforward;
 
   private SwerveModuleState setpoint = new SwerveModuleState();
 
   public final String name;
+
+  private final DoubleEntry drivingD = Tuning.entry("/Robot/drive/driving/D", Driving.PID.D);
+  private final DoubleEntry drivingI = Tuning.entry("/Robot/drive/driving/I", Driving.PID.I);
+  private final DoubleEntry drivingP = Tuning.entry("/Robot/drive/driving/P", Driving.PID.P);
+
+  private final DoubleEntry turningD = Tuning.entry("/Robot/drive/turning/D", Turning.PID.D);
+  private final DoubleEntry turningI = Tuning.entry("/Robot/drive/turning/I", Turning.PID.I);
+  private final DoubleEntry turningP = Tuning.entry("/Robot/drive/turning/P", Turning.PID.P);
 
   /**
    * Constructs a SwerveModule for rev's MAX Swerve using vortexes (flex) or krakens (talon).
@@ -67,40 +87,48 @@ public class SwerveModule implements Logged, AutoCloseable {
    * <p>This method should be called periodically.
    *
    * @param desiredState The desired state of the module.
+   * @param mode The control mode to use when calculating drive voltage.
    */
-  public void updateDesiredState(SwerveModuleState desiredState) {
+  public void updateDesiredState(SwerveModuleState desiredState, ControlMode mode) {
     // Optimize the reference state to avoid spinning further than 90 degrees
     setpoint = SwerveModuleState.optimize(desiredState, module.rotation());
-    // Calculate cosine of turning error
-    double cosScalar = (setpoint.angle.minus(module.rotation())).getCos();
-    updateDriveSpeed(setpoint.speedMetersPerSecond * Math.abs(cosScalar));
-    updateTurnRotation(setpoint.angle);
+    // Scale setpoint by cos of turning error to improve tread wear
+    setpoint.speedMetersPerSecond *= setpoint.angle.minus(module.rotation()).getCos();
+
+    double driveVolts =
+        switch (mode) {
+          case OPEN_LOOP_VELOCITY -> driveFeedforward.calculate(setpoint.speedMetersPerSecond);
+          case CLOSED_LOOP_VELOCITY ->
+              driveFeedforward.calculate(
+                      driveFeedback.getSetpoint(),
+                      setpoint.speedMetersPerSecond,
+                      PERIOD.in(Seconds))
+                  + driveFeedback.calculate(module.driveVelocity(), setpoint.speedMetersPerSecond);
+        };
+
+    double turnVolts =
+        turnFeedback.calculate(module.rotation().getRadians(), setpoint.angle.getRadians());
+
+    module.setDriveVoltage(driveVolts);
+    module.setTurnVoltage(turnVolts);
   }
 
   /**
-   * Updates drive controller based on setpoint.
+   * Updates the drive voltage and turn angle.
    *
-   * <p>This is only used for Sysid.
+   * <p>This is useful for SysId characterization, but should never be run otherwise.
    *
-   * @param speed The desired speed of the module.
+   * @param angle The desired angle of the module.
+   * @param voltage The voltage to supply to the drive motor.
    */
-  void updateDriveSpeed(double speed) {
-    double driveFF = driveFeedforward.calculate(speed);
-    double driveVoltage = driveFF + driveFeedback.calculate(module.driveVelocity(), speed);
-    module.setDriveVoltage(driveVoltage);
-  }
+  public void updateDriveVoltage(Rotation2d angle, double voltage) {
+    setpoint.angle = angle;
 
-  /**
-   * Updates turn controller based on setpoint.
-   *
-   * <p>This is only used for Sysid.
-   *
-   * @param rotation The desired rotation of the module.
-   */
-  void updateTurnRotation(Rotation2d rotation) {
-    double turnVoltage =
-        turnFeedback.calculate(module.rotation().getRadians(), rotation.getRadians());
-    module.setTurnVoltage(turnVoltage);
+    double turnVolts =
+        turnFeedback.calculate(module.rotation().getRadians(), setpoint.angle.getRadians());
+
+    module.setDriveVoltage(voltage);
+    module.setTurnVoltage(turnVolts);
   }
 
   @Log.NT
@@ -108,16 +136,13 @@ public class SwerveModule implements Logged, AutoCloseable {
     return setpoint;
   }
 
-  public void setDriveVoltage(double voltage) {
-    module.setDriveVoltage(voltage);
-  }
-
-  public void setTurnVoltage(double voltage) {
-    module.setTurnVoltage(voltage);
-  }
-
   public void resetEncoders() {
     module.resetEncoders();
+  }
+
+  public void updatePID() {
+    driveFeedback.setPID(drivingP.get(), drivingI.get(), drivingD.get());
+    turnFeedback.setPID(turningP.get(), turningI.get(), turningD.get());
   }
 
   @Override

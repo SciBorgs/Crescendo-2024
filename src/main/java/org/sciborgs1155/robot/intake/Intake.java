@@ -63,6 +63,10 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
     return run(() -> hardware.setPower(-IntakeConstants.INTAKE_SPEED)).withName("backward");
   }
 
+  public Command stop() {
+    return run(() -> hardware.setPower(0));
+  }
+
   /**
    * Whether the intake currently contains a note.
    *

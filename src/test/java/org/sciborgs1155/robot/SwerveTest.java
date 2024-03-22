@@ -14,6 +14,7 @@ import org.sciborgs1155.lib.TestingUtil;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.NoGyro;
 import org.sciborgs1155.robot.drive.SimModule;
+import org.sciborgs1155.robot.drive.SwerveModule.ControlMode;
 
 /** Swerve test. Currently incomplete and does nothing. */
 public class SwerveTest {
@@ -47,6 +48,12 @@ public class SwerveTest {
   public void reachesRobotVelocity() {
     double xVelocitySetpoint = -0.5;
     double yVelocitySetpoint = 0.25;
+    run(
+        drive.run(
+            () ->
+                drive.setChassisSpeeds(
+                    new ChassisSpeeds(xVelocitySetpoint, yVelocitySetpoint, 0),
+                    ControlMode.CLOSED_LOOP_VELOCITY)));
     run(drive.drive(() -> xVelocitySetpoint, () -> yVelocitySetpoint, drive::heading));
     fastForward(500);
 
@@ -59,7 +66,12 @@ public class SwerveTest {
   @ParameterizedTest
   @ValueSource(doubles = {3, 4})
   public void reachesAngularVelocity(double omegaRadiansPerSecond) {
-    run(drive.drive(() -> 0, () -> 0, () -> omegaRadiansPerSecond));
+    run(
+        drive.run(
+            () ->
+                drive.setChassisSpeeds(
+                    new ChassisSpeeds(0, 0, omegaRadiansPerSecond),
+                    ControlMode.CLOSED_LOOP_VELOCITY)));
     fastForward();
 
     ChassisSpeeds chassisSpeed = drive.getRobotRelativeChassisSpeeds();
@@ -73,7 +85,13 @@ public class SwerveTest {
 
     double deltaX = xVelocitySetpoint * 4;
     double deltaY = yVelocitySetpoint * 4;
-    run(drive.drive(() -> xVelocitySetpoint, () -> yVelocitySetpoint, drive::heading));
+    run(
+        drive.run(
+            () ->
+                drive.setChassisSpeeds(
+                    ChassisSpeeds.fromRobotRelativeSpeeds(
+                        xVelocitySetpoint, yVelocitySetpoint, 0, drive.heading()),
+                    ControlMode.CLOSED_LOOP_VELOCITY)));
 
     fastForward(); // 200 ticks, 50 ticks/s = 4 seconds
 

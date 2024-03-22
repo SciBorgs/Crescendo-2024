@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Seconds;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -14,6 +15,7 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import java.util.List;
 import org.sciborgs1155.robot.drive.DriveConstants;
 
 /**
@@ -92,11 +94,33 @@ public class Constants {
     public static Pose3d CENTER_NOTE_FIVE =
         new Pose3d(new Translation3d(8.2705321, 7.4584052, 0), new Rotation3d());
 
+    // Pose2d which contain the coordinates of the middles of the stage chains, as well as the
+    // rotation perpendicular to them.
+    public static final Pose2d BLUE_STAGE_MIDSIDE =
+        new Pose2d(Inches.of(224.125), Inches.of(162), Rotation2d.fromRadians(Math.PI));
+    public static final Pose2d BLUE_STAGE_AMPSIDE =
+        new Pose2d(Inches.of(175.5625), Inches.of(190.05), Rotation2d.fromRadians(Math.PI * 5 / 3));
+    public static final Pose2d BLUE_STAGE_SOURCESIDE =
+        new Pose2d(Inches.of(175.5625), Inches.of(133.95), Rotation2d.fromRadians(Math.PI / 3));
+    public static final Pose2d RED_STAGE_MIDSIDE =
+        new Pose2d(Inches.of(423.875), Inches.of(162), Rotation2d.fromRadians(0));
+    public static final Pose2d RED_STAGE_AMPSIDE =
+        new Pose2d(Inches.of(472.4375), Inches.of(190.05), Rotation2d.fromRadians(Math.PI * 4 / 3));
+    public static final Pose2d RED_STAGE_SOURCESIDE =
+        new Pose2d(Inches.of(472.4375), Inches.of(133.95), Rotation2d.fromRadians(Math.PI * 2 / 3));
+
     /** Returns the translation of the speaker for the robot's alliance. */
     public static Translation3d speaker() {
       return alliance() == Alliance.Red
           ? RED_SPEAKER_POSE.plus(TARGET_OFFSET.rotateBy(new Rotation3d(0, 0, Math.PI)))
           : BLUE_SPEAKER_POSE.plus(TARGET_OFFSET);
+    }
+
+    // ** Returns a list of 2d coordinates for the middle of the current alliance's stage chains */
+    public static List<Pose2d> chainCoordinates() {
+      return alliance() == Alliance.Blue
+          ? List.of(BLUE_STAGE_AMPSIDE, BLUE_STAGE_MIDSIDE, BLUE_STAGE_SOURCESIDE)
+          : List.of(RED_STAGE_AMPSIDE, RED_STAGE_MIDSIDE, RED_STAGE_SOURCESIDE);
     }
 
     /** Returns whether the provided position is within the boundaries of the field. */

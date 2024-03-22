@@ -267,6 +267,19 @@ public final class FaultLogger {
    */
   public static boolean check(CANSparkBase spark) {
     REVLibError error = spark.getLastError();
+    return check(spark, error);
+  }
+
+  /**
+   * Reports REVLibErrors from a spark.
+   *
+   * <p>This should be called immediately after any call to the spark.
+   *
+   * @param spark The spark to report REVLibErrors from.
+   * @param error Any REVLibErrors that may be returned from a method for a spark.
+   * @return If the spark is working without errors.
+   */
+  public static boolean check(CANSparkBase spark, REVLibError error) {
     if (error != REVLibError.kOk) {
       report(SparkUtils.name(spark), error.name(), FaultType.ERROR);
       return false;
