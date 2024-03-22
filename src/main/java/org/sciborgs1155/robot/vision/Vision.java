@@ -36,10 +36,12 @@ public class Vision implements Logged {
   public static record PoseEstimate(EstimatedRobotPose estimatedPose, Matrix<N3, N1> standardDev) {}
 
   private final Notifier notifier;
+
   private final PhotonCamera[] cameras;
   private final PhotonPoseEstimator[] estimators;
   private final PhotonCameraSim[] simCameras;
-  private ArrayList<PhotonPipelineResult> results;
+
+  private List<PhotonPipelineResult> results;
 
   private VisionSystemSim visionSim;
 
@@ -188,9 +190,10 @@ public class Vision implements Logged {
   }
 
   private void periodic() {
-    results = new ArrayList<>();
+    List<PhotonPipelineResult> r = new ArrayList<>();
     for (PhotonCamera camera : cameras) {
-      results.add(camera.getLatestResult());
+      r.add(camera.getLatestResult());
     }
+    results = r;
   }
 }
