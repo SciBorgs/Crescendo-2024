@@ -1,6 +1,8 @@
 package org.sciborgs1155.robot.feeder;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.lib.FaultLogger.*;
 import static org.sciborgs1155.robot.Ports.Feeder.*;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
@@ -24,6 +26,7 @@ public class RealFeeder implements FeederIO {
     check(motor, SparkUtils.configureNothingFrameStrategy(motor));
     check(motor, motor.setIdleMode(IdleMode.kBrake));
     check(motor, motor.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
+    check(motor, motor.setOpenLoopRampRate(RAMP_TIME.in(Seconds)));
     check(motor, motor.burnFlash());
 
     beambreak = new DigitalInput(BEAMBREAK);

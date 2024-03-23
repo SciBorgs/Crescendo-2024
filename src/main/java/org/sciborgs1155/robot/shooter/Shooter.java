@@ -21,6 +21,7 @@ import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.Tuning;
+import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.commands.Shooting;
 
@@ -70,7 +71,15 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putData("shooter dynamic backward", dynamicBack());
     SmartDashboard.putData("shooter dynamic forward", dynamicForward());
 
-    setDefaultCommand(run(() -> update(IDLE_VELOCITY.in(RadiansPerSecond))));
+    // setDefaultCommand(run(() -> update(IDLE_VELOCITY.in(RadiansPerSecond))));
+    // setDefaultCommand(run(() -> update(0)));
+    setDefaultCommand(run(() -> {
+      if (Robot.current < Constants.BROWNOUT_CURRENT.in(Amps) - 80) {
+        update(IDLE_VELOCITY.in(RadiansPerSecond));
+      } else {
+        setVoltage(0);
+      }
+    }));
   }
 
   public void setVoltage(double voltage) {

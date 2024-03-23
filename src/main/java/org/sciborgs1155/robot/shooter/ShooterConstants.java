@@ -15,14 +15,14 @@ public class ShooterConstants {
   public static final Measure<Distance> RADIUS = Inches.of(4);
   public static final Measure<Distance> CIRCUMFERENCE = RADIUS.times(2 * Math.PI);
 
-  public static final Measure<Current> CURRENT_LIMIT = Amps.of(40);
+  public static final Measure<Current> CURRENT_LIMIT = Amps.of(35);
 
   public static final Measure<Angle> POSITION_FACTOR = Rotations.one();
   public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
   public static final Measure<Velocity<Angle>> VELOCITY_TOLERANCE = RadiansPerSecond.of(5);
 
-  public static final Measure<Velocity<Angle>> IDLE_VELOCITY = RadiansPerSecond.of(250);
+  public static final Measure<Velocity<Angle>> IDLE_VELOCITY = RadiansPerSecond.of(300);
   public static final Measure<Velocity<Angle>> AMP_VELOCITY = RadiansPerSecond.of(150);
 
   public static final Measure<Velocity<Angle>> DEFAULT_VELOCITY = RadiansPerSecond.of(550);

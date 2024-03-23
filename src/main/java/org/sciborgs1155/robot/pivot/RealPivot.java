@@ -37,7 +37,7 @@ public class RealPivot implements PivotIO {
     SparkUtils.configureFrameStrategy(
         lead,
         Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
-        Set.of(Sensor.ALTERNATE),
+        Set.of(Sensor.ALTERNATE, Sensor.INTEGRATED),
         true);
     lead.setInverted(true);
     check(lead);
@@ -58,7 +58,7 @@ public class RealPivot implements PivotIO {
 
     check(leftTop, leftTop.follow(lead));
     check(rightTop, rightTop.follow(lead, true));
-    check(rightBottom, rightTop.follow(lead, true));
+    check(rightBottom, rightBottom.follow(lead, true));
 
     for (CANSparkMax spark : List.of(lead, leftTop, rightTop, rightBottom)) {
       check(spark, spark.burnFlash());

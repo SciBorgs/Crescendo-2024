@@ -23,7 +23,7 @@ public final class DriveConstants {
   // Maximum achievable translational and rotation velocities and accelerations of the robot.
   public static final Measure<Velocity<Distance>> MAX_SPEED = MetersPerSecond.of(5.74);
   public static final Measure<Velocity<Velocity<Distance>>> MAX_ACCEL =
-      MetersPerSecondPerSecond.of(12.0);
+      MetersPerSecondPerSecond.of(16.0);
   public static final Measure<Velocity<Angle>> MAX_ANGULAR_SPEED =
       RadiansPerSecond.of(MAX_SPEED.in(MetersPerSecond) / RADIUS.in(Meters));
   public static final Measure<Velocity<Velocity<Angle>>> MAX_ANGULAR_ACCEL =
@@ -61,7 +61,7 @@ public final class DriveConstants {
   }
 
   public static final class Rotation {
-    public static final double P = 6.0;
+    public static final double P = 5.0;
     public static final double I = 0.0;
     public static final double D = 0.1;
 
@@ -93,10 +93,15 @@ public final class DriveConstants {
       }
 
       public static final class FF {
-        public static final double S = 0.088468;
-        public static final double V = 2.1314;
-        public static final double kA_linear = 0.33291;
-        public static final double kA_angular = 0.33291;
+        // s: 0.21474, 0.23963, 0.16188, 0.13714
+        // v: 2.115, 2.0681, 2.1498, 2.0948
+        // a linear: 0.17586, 0.13707, 0.23915, 0.26842
+        // a rotation: 0.37587, 0.20079
+        // 2 has 0.55 R^2
+        public static final double S = 0.23963;
+        public static final double V = 2.0681;
+        public static final double kA_linear = 0.205;
+        public static final double kA_angular = 0.376;
       }
     }
 

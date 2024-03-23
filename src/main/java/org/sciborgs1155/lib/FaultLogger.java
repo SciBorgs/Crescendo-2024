@@ -29,6 +29,7 @@ import org.photonvision.PhotonCamera;
  * </pre>
  */
 public final class FaultLogger {
+  public static final List<CANSparkBase> sparks = new ArrayList<>();
 
   /** An individual fault, containing necessary information. */
   public static record Fault(String name, String description, FaultType type) {
@@ -199,6 +200,7 @@ public final class FaultLogger {
         SparkUtils.name(spark),
         "motor above 100°C",
         FaultType.WARNING);
+    sparks.add(spark);
   }
 
   /**

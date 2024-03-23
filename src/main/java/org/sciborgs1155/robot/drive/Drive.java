@@ -125,16 +125,19 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                     modules.forEach(
                         m -> m.updateDriveVoltage(Rotation2d.fromRadians(0), volts.in(Volts))),
                 null,
-                this));
+                this, "translation"));
     rotationalCharacterization =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
-                volts ->
-                    modules.forEach(
-                        m -> m.updateDriveVoltage(Rotation2d.fromRadians(45), volts.in(Volts))),
+                volts -> {
+                  this.frontLeft.updateDriveVoltage(Rotation2d.fromRadians(3 * Math.PI / 4), volts.in(Volts));
+                  this.frontRight.updateDriveVoltage(Rotation2d.fromRadians(Math.PI  / 4), volts.in(Volts));
+                  this.rearLeft.updateDriveVoltage(Rotation2d.fromRadians(- 3 * Math.PI / 4), volts.in(Volts));
+                  this.rearRight.updateDriveVoltage(Rotation2d.fromRadians(- Math.PI / 4), volts.in(Volts));
+                },
                 null,
-                this));
+                this, "rotation"));
 
     odometry =
         new SwerveDrivePoseEstimator(
@@ -242,7 +245,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                     vy.getAsDouble(),
                     vOmega.getAsDouble(),
                     heading().plus(allianceRotation())),
-                ControlMode.OPEN_LOOP_VELOCITY));
+                ControlMode.CLOSED_LOOP_VELOCITY));
   }
 
   /**

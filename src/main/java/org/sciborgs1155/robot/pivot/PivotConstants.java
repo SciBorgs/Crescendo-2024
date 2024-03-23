@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.*;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.kV;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -32,7 +33,7 @@ public class PivotConstants {
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);
 
-  public static final Measure<Angle> POSITION_TOLERANCE = Degrees.of(2.0);
+  public static final Measure<Angle> POSITION_TOLERANCE = Degrees.of(1);
 
   public static final Measure<Mass> MASS = Kilograms.of(1);
   public static final Measure<Distance> LENGTH = Inches.of(16);
@@ -52,14 +53,14 @@ public class PivotConstants {
 
   public static final Measure<Angle> PRESET_CLIMBING_ANGLE = Radians.of(-0.195);
 
-  public static final Measure<Current> CURRENT_LIMIT = Amps.of(60);
+  public static final Measure<Current> CURRENT_LIMIT = Amps.of(30);
 
   public static final double kP = 8;
   public static final double kI = 0;
   public static final double kD = 0.5;
 
-  public static final double kS = 0.14296;
+  public static final double kS = 0.2166;
   public static final double kV = 1.7305;
-  public static final double kA = 0.12055;
-  public static final double kG = 0.12055;
+  public static final double kA = 0.00047604;
+  public static final double kG = 0.038362;
 }

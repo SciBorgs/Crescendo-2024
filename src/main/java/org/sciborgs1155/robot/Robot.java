@@ -2,6 +2,7 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -16,11 +17,11 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import com.revrobotics.CANSparkBase;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -96,6 +97,8 @@ public class Robot extends CommandRobot implements Logged {
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
+  @Log.NT public static double current;
+
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
     super(PERIOD.in(Seconds));
@@ -118,7 +121,11 @@ public class Robot extends CommandRobot implements Logged {
         kDefaultPeriod);
 
     // Log PDH
-    FaultLogger.register(new PowerDistribution());
+    // SmartDashboard.putData("PDH", new PowerDistribution());
+    addPeriodic(
+        () ->
+            current = FaultLogger.sparks.stream().mapToDouble(CANSparkBase::getOutputCurrent).sum(),
+        kDefaultPeriod);
 
     // Configure pose estimation updates every tick
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));
@@ -144,8 +151,8 @@ public class Robot extends CommandRobot implements Logged {
         .negate()
         .signedPow(2)
         .scale(maxSpeed)
-        .scale(() -> speedMultiplier);
-    // .rateLimit(DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond));
+        .scale(() -> speedMultiplier)
+        .rateLimit(DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond));
   }
 
   public void configureAuto() {

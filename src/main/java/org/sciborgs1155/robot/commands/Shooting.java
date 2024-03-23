@@ -47,7 +47,7 @@ public class Shooting implements Logged {
    * The conversion between shooter tangential velocity and note launch velocity. Perhaps. This may
    * also account for other errors with our model.
    */
-  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 3.5);
+  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.85);
 
   private static final InterpolatingDoubleTreeMap shotVelocityLookup =
       new InterpolatingDoubleTreeMap();
@@ -63,7 +63,7 @@ public class Shooting implements Logged {
     this.feeder = feeder;
     this.drive = drive;
 
-    shotVelocityLookup.put(0.0, 250.0);
+    shotVelocityLookup.put(0.0, 300.0);
     shotVelocityLookup.put(1.0, 450.0);
     // shotVelocityLookup.put(4.0, 550.0);
     shotVelocityLookup.put(4.0, MAX_VELOCITY.in(RadiansPerSecond));
