@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Current;
@@ -112,6 +113,15 @@ public class Constants {
     public static final Pose2d RED_STAGE_SOURCESIDE =
         new Pose2d(Inches.of(472.4375), Inches.of(133.95), Rotation2d.fromRadians(Math.PI * 2 / 3));
 
+    // Pose2D which contain the coordinates ((x and y) of the AprilTag on the amp (which is directly
+    // above the amp scoring area), and the rotations.
+    public static final Translation2d BLUE_AMP =
+        new Translation2d(Inches.of(72.5), Inches.of(323.0));
+    public static final Translation2d RED_AMP =
+        new Translation2d(Inches.of(578.77), Inches.of(323.0));
+
+    // Methoeds
+
     /** Returns the translation of the speaker for the robot's alliance. */
     public static Translation3d speaker() {
       return alliance() == Alliance.Red
@@ -124,6 +134,11 @@ public class Constants {
       return alliance() == Alliance.Blue
           ? List.of(BLUE_STAGE_AMPSIDE, BLUE_STAGE_MIDSIDE, BLUE_STAGE_SOURCESIDE)
           : List.of(RED_STAGE_AMPSIDE, RED_STAGE_MIDSIDE, RED_STAGE_SOURCESIDE);
+    }
+
+    // ** Returns the Pose2D of the amp on the robot's alliance. */
+    public static Translation2d ampCoordinates() {
+      return alliance() == Alliance.Blue ? BLUE_AMP : RED_AMP;
     }
 
     /** Returns whether the provided position is within the boundaries of the field. */
