@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Lock;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.photonvision.EstimatedRobotPose;
@@ -35,8 +37,6 @@ public class Vision implements Logged {
 
   public static record PoseEstimate(EstimatedRobotPose estimatedPose, Matrix<N3, N1> standardDev) {}
 
-  private final Notifier notifier;
-
   private final PhotonCamera[] cameras;
   private final PhotonPoseEstimator[] estimators;
   private final PhotonCameraSim[] simCameras;
@@ -44,6 +44,9 @@ public class Vision implements Logged {
   private List<PhotonPipelineResult> results;
 
   private VisionSystemSim visionSim;
+
+  private final Notifier notifier;
+  public final Lock odometryLock = new ReentrantLock();
 
   /** A factory to create new vision classes with our two configured cameras */
   public static Vision create() {
@@ -57,6 +60,7 @@ public class Vision implements Logged {
     results = new ArrayList<>();
 
     notifier = new Notifier(this::periodic);
+    notifier.setName("VisionThread");
     notifier.startPeriodic(VisionConstants.PERIOD.in(Seconds));
 
     for (int i = 0; i < configs.length; i++) {
@@ -134,7 +138,7 @@ public class Vision implements Logged {
    */
   @Log.NT
   public Pose3d[] getSeenTags() {
-    return Arrays.stream(results.toArray(new PhotonPipelineResult[] {}))
+    return results.stream()
         .flatMap(r -> r.targets.stream())
         .map(PhotonTrackedTarget::getFiducialId)
         .map(TAG_LAYOUT::getTagPose)
@@ -190,10 +194,12 @@ public class Vision implements Logged {
   }
 
   private void periodic() {
+    odometryLock.lock();
     List<PhotonPipelineResult> r = new ArrayList<>();
     for (PhotonCamera camera : cameras) {
       r.add(camera.getLatestResult());
     }
     results = r;
+    odometryLock.unlock();
   }
 }
