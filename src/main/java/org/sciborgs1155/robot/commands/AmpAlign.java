@@ -37,7 +37,7 @@ public class AmpAlign {
             (Field.ampCoordinates()
                 .plus(
                     new Transform2d(
-                        Inches.of(32.645 / 2 + 5), Inches.of(0), Rotation2d.fromRadians(0)))))
+                        Inches.of(32.645 / 2), Inches.of(0), Rotation2d.fromRadians(0)))))
         .andThen(drive.drive(vx, vy, this::getAmpRotation));
   }
 
