@@ -101,7 +101,8 @@ public class SwerveModule implements Logged, AutoCloseable {
     // Scale setpoint by cos of turning error to reduce tread wear
     setpoint.speedMetersPerSecond *= setpoint.angle.minus(hardware.rotation()).getCos();
 
-    // Calculate two feedforward values for using different kA depending on if the robot is rotating or translating.
+    // Calculate two feedforward values for using different kA depending on if the robot is rotating
+    // or translating.
     double driveTVolts =
         driveTranslationFeedforward.calculate(
             this.setpoint.speedMetersPerSecond, setpoint.speedMetersPerSecond, PERIOD.in(Seconds));

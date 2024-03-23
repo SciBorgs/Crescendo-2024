@@ -287,11 +287,12 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     double angularSpeed = Math.abs(speeds.omegaRadiansPerSecond);
     double sum = speed + angularSpeed;
     double factor = sum == 0 ? 0 : speed / sum;
-    
+
     setModuleStates(
         kinematics.toSwerveModuleStates(
             ChassisSpeeds.discretize(speeds, Constants.PERIOD.in(Seconds))),
-        mode, factor);
+        mode,
+        factor);
   }
 
   /**
@@ -300,7 +301,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param desiredStates The desired SwerveModule states.
    * @param mode The method to use when controlling the drive motor.
    */
-  public void setModuleStates(SwerveModuleState[] desiredStates, ControlMode mode, double movementFactor) {
+  public void setModuleStates(
+      SwerveModuleState[] desiredStates, ControlMode mode, double movementFactor) {
     if (desiredStates.length != modules.size()) {
       throw new IllegalArgumentException("desiredStates must have the same length as modules");
     }
@@ -411,7 +413,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         () ->
             setModuleStates(
                 new SwerveModuleState[] {front, back, back, front},
-                ControlMode.OPEN_LOOP_VELOCITY, 1));
+                ControlMode.OPEN_LOOP_VELOCITY,
+                1));
   }
 
   public void close() throws Exception {
