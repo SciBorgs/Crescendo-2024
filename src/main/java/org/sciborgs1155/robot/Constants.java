@@ -130,14 +130,14 @@ public class Constants {
     }
 
     // ** Returns a list of 2d coordinates for the middle of the current alliance's stage chains */
-    public static List<Pose2d> chainCoordinates() {
+    public static List<Pose2d> chain() {
       return alliance() == Alliance.Blue
           ? List.of(BLUE_STAGE_AMPSIDE, BLUE_STAGE_MIDSIDE, BLUE_STAGE_SOURCESIDE)
           : List.of(RED_STAGE_AMPSIDE, RED_STAGE_MIDSIDE, RED_STAGE_SOURCESIDE);
     }
 
     // ** Returns the Pose2D of the amp on the robot's alliance. */
-    public static Translation2d ampCoordinates() {
+    public static Translation2d amp() {
       return alliance() == Alliance.Blue ? BLUE_AMP : RED_AMP;
     }
 

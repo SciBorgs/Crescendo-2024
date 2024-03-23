@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot.feeder;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.lib.FaultLogger.*;
 import static org.sciborgs1155.robot.Ports.Feeder.*;

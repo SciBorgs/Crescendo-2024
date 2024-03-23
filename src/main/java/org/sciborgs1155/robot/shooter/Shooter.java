@@ -73,13 +73,15 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
     // setDefaultCommand(run(() -> update(IDLE_VELOCITY.in(RadiansPerSecond))));
     // setDefaultCommand(run(() -> update(0)));
-    setDefaultCommand(run(() -> {
-      if (Robot.current < Constants.BROWNOUT_CURRENT.in(Amps) - 80) {
-        update(IDLE_VELOCITY.in(RadiansPerSecond));
-      } else {
-        setVoltage(0);
-      }
-    }));
+    setDefaultCommand(
+        run(
+            () -> {
+              if (Robot.current < Constants.BROWNOUT_CURRENT.in(Amps) - 80) {
+                update(IDLE_VELOCITY.in(RadiansPerSecond));
+              } else {
+                setVoltage(0);
+              }
+            }));
   }
 
   public void setVoltage(double voltage) {
@@ -125,7 +127,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
    * @return The command to set the shooter's velocity.
    */
   public Command runShooter(DoubleSupplier velocity) {
-    return run(() -> update(velocity.getAsDouble())).withName("running shooter").asProxy();
+    return run(() -> update(velocity.getAsDouble())).withName("running shooter");
   }
 
   public Command manualShooter(DoubleSupplier stickInput) {

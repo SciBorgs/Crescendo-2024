@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.*;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.kV;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;

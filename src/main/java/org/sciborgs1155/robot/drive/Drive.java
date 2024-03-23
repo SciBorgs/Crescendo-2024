@@ -125,19 +125,25 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                     modules.forEach(
                         m -> m.updateDriveVoltage(Rotation2d.fromRadians(0), volts.in(Volts))),
                 null,
-                this, "translation"));
+                this,
+                "translation"));
     rotationalCharacterization =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
                 volts -> {
-                  this.frontLeft.updateDriveVoltage(Rotation2d.fromRadians(3 * Math.PI / 4), volts.in(Volts));
-                  this.frontRight.updateDriveVoltage(Rotation2d.fromRadians(Math.PI  / 4), volts.in(Volts));
-                  this.rearLeft.updateDriveVoltage(Rotation2d.fromRadians(- 3 * Math.PI / 4), volts.in(Volts));
-                  this.rearRight.updateDriveVoltage(Rotation2d.fromRadians(- Math.PI / 4), volts.in(Volts));
+                  this.frontLeft.updateDriveVoltage(
+                      Rotation2d.fromRadians(3 * Math.PI / 4), volts.in(Volts));
+                  this.frontRight.updateDriveVoltage(
+                      Rotation2d.fromRadians(Math.PI / 4), volts.in(Volts));
+                  this.rearLeft.updateDriveVoltage(
+                      Rotation2d.fromRadians(-3 * Math.PI / 4), volts.in(Volts));
+                  this.rearRight.updateDriveVoltage(
+                      Rotation2d.fromRadians(-Math.PI / 4), volts.in(Volts));
                 },
                 null,
-                this, "rotation"));
+                this,
+                "rotation"));
 
     odometry =
         new SwerveDrivePoseEstimator(
@@ -405,7 +411,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   /** Stops drivetrain */
   public Command stop() {
-    return runOnce(() -> setChassisSpeeds(new ChassisSpeeds(), ControlMode.OPEN_LOOP_VELOCITY));
+    return runOnce(() -> setChassisSpeeds(new ChassisSpeeds(), ControlMode.CLOSED_LOOP_VELOCITY));
   }
 
   /** Sets the drivetrain to an "X" configuration, preventing movement */

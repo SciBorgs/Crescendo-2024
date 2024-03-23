@@ -159,18 +159,17 @@ public class Robot extends CommandRobot implements Logged {
 
   public void configureAuto() {
     // register named commands for auto
-    NamedCommands.registerCommand(
-        "shoot", shooting.shootWhileDriving(() -> 0, () -> 0).withTimeout(2));
-    NamedCommands.registerCommand(
-        "intake",
-        intake
-            .intake()
-            .deadlineWith(feeder.forward())
-            .andThen(
-                intake
-                    .stop()
-                    .alongWith(feeder.runFeeder(0))
-                    .alongWith(Commands.waitSeconds(0.5).andThen(shooting.aimWithoutShooting()))));
+    NamedCommands.registerCommand("shoot", drive.lock().withTimeout(10));
+    // shooting.shootWithPivot().alongWith(drive.lock()).withTimeout(2));
+    NamedCommands.registerCommand("intake", Commands.none());
+    // intake
+    //     .intake()
+    //     .deadlineWith(feeder.forward())
+    //     .andThen(
+    //         intake
+    //             .stop()
+    //             .alongWith(feeder.runFeeder(0))));
+    // .alongWith(Commands.waitSeconds(0.5).andThen(shooting.aimWithoutShooting()))));
     NamedCommands.registerCommand(
         "subwoofer-shoot", shooting.shoot(DEFAULT_VELOCITY).withTimeout(3));
     // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
@@ -231,11 +230,11 @@ public class Robot extends CommandRobot implements Logged {
     // the pivot manually
 
     driver
-        .a()
+        .y() // .whileTrue(drive.driveTo(RED_MID_NOTE.toPose2d()));
         .whileTrue(
             alignment
                 .ampAlign()
-                .andThen(drive.stop())
+                // .andThen(drive.stop())
                 .andThen(shooting.shootWithPivot(PRESET_AMP_ANGLE, AMP_VELOCITY)));
 
     operator
@@ -263,7 +262,7 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     driver
-        .y()
+        .a()
         .or(operator.povUp())
         .whileTrue(
             shooting.shootWithPivot(PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY))

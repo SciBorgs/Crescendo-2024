@@ -1,12 +1,15 @@
 package org.sciborgs1155.robot.commands;
 
+import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Inches;
+import static org.sciborgs1155.robot.Constants.Field.amp;
 import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_AMP_ANGLE;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
 import org.sciborgs1155.robot.Constants.Field;
 import org.sciborgs1155.robot.drive.Drive;
@@ -30,16 +33,20 @@ public class Alignment {
     return drive
         .driveTo(
             new Pose2d(
-                Field.ampCoordinates()
+                amp()
                     .plus(
-                        new Translation2d(Inches.of(0), DriveConstants.CHASSIS_WIDTH.times(-0.5))),
+                        new Translation2d(
+                            Inches.of(0),
+                            DriveConstants.CHASSIS_WIDTH.times(-0.5).plus(Centimeters.of(8)))),
                 Rotation2d.fromRadians(-Math.PI / 2)))
-        .deadlineWith(pivot.runPivot(PRESET_AMP_ANGLE));
+        .deadlineWith(
+            Commands.waitUntil(() -> drive.pose().getTranslation().getDistance(Field.amp()) < 1)
+                .andThen(pivot.runPivot(PRESET_AMP_ANGLE)));
   }
 
   /** returns the angle at which the robot will be facing perpendicular to the nearest chain. */
   public Rotation2d angleToChain() {
-    return drive.pose().nearest(Field.chainCoordinates()).getRotation();
+    return drive.pose().nearest(Field.chain()).getRotation();
   }
 
   /**

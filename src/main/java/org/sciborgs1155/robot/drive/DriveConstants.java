@@ -63,11 +63,11 @@ public final class DriveConstants {
   }
 
   public static final class Rotation {
-    public static final double P = 5.0;
+    public static final double P = 4.0;
     public static final double I = 0.0;
-    public static final double D = 0.1;
+    public static final double D = 0.0;
 
-    public static final Measure<Angle> TOLERANCE = Degrees.of(5);
+    public static final Measure<Angle> TOLERANCE = Degrees.of(3);
   }
 
   public static final class ModuleConstants {
