@@ -34,11 +34,12 @@ public class AmpAlign {
     return drive
         .driveTo(
             (Field.ampCoordinates()
-                .plus(new Transform2d(-28 / 2, -32.645 / 2, new Rotation2d(0, 0)))))
+                .plus(new Transform2d(-28 / 2, 32.645 / 2, Rotation2d.fromRadians(Math.PI * 3 / 2)))))
         .andThen(drive.drive(vx, vy, this::getAmpRotation));
 
     // Not sure if the math is right (+ - signs), but idea is using the amp's location and
     // subtracting half the robot's dimensions from it so it is right in front of the amp
+    // Rotations may not be correct
   }
 
   public Command shootAmp() {
