@@ -34,7 +34,8 @@ public class AmpAlign {
     return drive
         .driveTo(
             (Field.ampCoordinates()
-                .plus(new Transform2d(-28 / 2, 32.645 / 2, Rotation2d.fromRadians(Math.PI * 3 / 2)))))
+                .plus(
+                    new Transform2d(-28 / 2, 32.645 / 2, Rotation2d.fromRadians(Math.PI * 3 / 2)))))
         .andThen(drive.drive(vx, vy, this::getAmpRotation));
 
     // Not sure if the math is right (+ - signs), but idea is using the amp's location and
