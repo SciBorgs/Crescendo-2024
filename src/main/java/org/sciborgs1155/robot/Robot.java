@@ -2,7 +2,6 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -43,8 +42,11 @@ import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 import org.sciborgs1155.robot.drive.DriveConstants.Translation;
+import org.sciborgs1155.robot.drive.SwerveModule.ControlMode;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
+import org.sciborgs1155.robot.led.LedStrip;
+import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
@@ -83,6 +85,8 @@ public class Robot extends CommandRobot implements Logged {
         case COMPLETE -> Pivot.create();
         default -> Pivot.none();
       };
+
+  private final LedStrip led = new LedStrip();
 
   private final Vision vision = Vision.create();
 
@@ -142,8 +146,8 @@ public class Robot extends CommandRobot implements Logged {
         .negate()
         .signedPow(2)
         .scale(maxSpeed)
-        .scale(() -> speedMultiplier)
-        .rateLimit(DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond));
+        .scale(() -> speedMultiplier);
+    // .rateLimit(DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond));
   }
 
   public void configureAuto() {
@@ -165,12 +169,11 @@ public class Robot extends CommandRobot implements Logged {
     // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
 
     // configure auto
-    // configure auto
     AutoBuilder.configureHolonomic(
         drive::pose,
         drive::resetOdometry,
         drive::getRobotRelativeChassisSpeeds,
-        drive::setChassisSpeeds,
+        s -> drive.setChassisSpeeds(s, ControlMode.CLOSED_LOOP_VELOCITY),
         new HolonomicPathFollowerConfig(
             new PIDConstants(Translation.P, Translation.I, Translation.D),
             new PIDConstants(Rotation.P, Rotation.I, Rotation.D),
@@ -192,11 +195,14 @@ public class Robot extends CommandRobot implements Logged {
             createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
             createJoystickStream(
                 driver::getRightX, DriveConstants.TELEOP_ANGULAR_SPEED.in(RadiansPerSecond))));
+    led.setDefaultCommand(led.setLEDTheme(LEDTheme.BLUE));
   }
 
   /** Configures trigger -> command bindings */
   private void configureBindings() {
-    autonomous().whileTrue(Commands.deferredProxy(autos::getSelected));
+    autonomous()
+        .whileTrue(Commands.deferredProxy(autos::getSelected))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     driver.b().whileTrue(drive.zeroHeading());
     driver
@@ -231,7 +237,8 @@ public class Robot extends CommandRobot implements Logged {
             pivot
                 .manualPivot(
                     InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1))
-                .deadlineWith(Commands.idle(shooter)));
+                .deadlineWith(Commands.idle(shooter)))
+        .toggleOnTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
     operator
         .b()
@@ -245,30 +252,41 @@ public class Robot extends CommandRobot implements Logged {
                 createJoystickStream(
                     driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
                 createJoystickStream(
-                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
+                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     driver
         .y()
         .or(operator.povUp())
         .whileTrue(
-            shooting.shootWithPivot(
-                PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY));
+            shooting.shootWithPivot(PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     driver
         .rightTrigger()
         .or(operator.leftBumper())
         .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
-        .whileTrue(intake.intake().deadlineWith(feeder.forward()));
+        .whileTrue(intake.intake().deadlineWith(feeder.forward()))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     driver
         .povUp()
         .whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
 
     operator.rightBumper().whileTrue(intake.backward());
-    operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350)));
+    operator
+        .povDown()
+        .whileTrue(shooting.shoot(RadiansPerSecond.of(350)))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
-    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3));
-    feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3));
+    intake
+        .hasNote()
+        .onTrue(rumble(RumbleType.kLeftRumble, 0.3))
+        .whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
+    feeder
+        .noteAtShooter()
+        .onFalse(rumble(RumbleType.kRightRumble, 0.3))
+        .whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {

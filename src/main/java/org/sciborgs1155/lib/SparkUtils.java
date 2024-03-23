@@ -5,8 +5,6 @@ import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.REVLibError;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
-import org.sciborgs1155.lib.FaultLogger.FaultType;
 
 /** Utility class for configuration of Spark motor controllers */
 public class SparkUtils {
@@ -33,52 +31,6 @@ public class SparkUtils {
    */
   public static String name(CANSparkBase spark) {
     return "Spark [" + spark.getDeviceId() + "]";
-  }
-
-  /**
-   * Fully configures a Spark Max/Flex with all provided configs.
-   *
-   * <p>Each config is applied until success, or until the number of attempts exceed {@code
-   * MAX_ATTEMPTS}.
-   *
-   * @param spark The spark to configure.
-   * @param config The configuration to apply.
-   */
-  @SafeVarargs
-  public static void configure(CANSparkBase spark, Supplier<REVLibError>... config) {
-    configure(spark, spark::restoreFactoryDefaults, 1);
-    configure(spark, () -> spark.setCANTimeout(50), 1);
-    for (var f : config) {
-      configure(spark, f::get, 1);
-    }
-    configure(spark, () -> spark.setCANTimeout(20), 1);
-    spark.burnFlash();
-    FaultLogger.check(spark); // checks the burn flash call
-  }
-
-  /**
-   * Recursively configures a specific value on a spark, until {@code attempt} exceeds {@code
-   * MAX_ATTEMPTS}.
-   *
-   * @param spark The spark to configure.
-   * @param config The configuration to apply to the spark.
-   * @param attempt The current attempt number.
-   */
-  private static void configure(CANSparkBase spark, Supplier<REVLibError> config, int attempt) {
-    if (attempt >= MAX_ATTEMPTS) {
-      FaultLogger.report(name(spark), "FAILED TO SET PARAMETER", FaultType.ERROR);
-      return;
-    }
-    if (attempt >= 1) {
-      FaultLogger.report(
-          name(spark),
-          "setting parameter failed: " + attempt + "/" + MAX_ATTEMPTS,
-          FaultType.WARNING);
-    }
-    REVLibError error = config.get();
-    if (error != REVLibError.kOk) {
-      configure(spark, config, attempt + 1);
-    }
   }
 
   /** Represents a type of sensor that can be plugged into the spark */
@@ -193,22 +145,5 @@ public class SparkUtils {
       return Optional.of(value);
     }
     return Optional.empty();
-  }
-
-  /**
-   * This is a workaround since {@link CANSparkBase#setInverted(boolean)} does not return a {@code
-   * REVLibError} because it is overriding {@link
-   * edu.wpi.first.wpilibj.motorcontrol.MotorController}.
-   *
-   * <p>This call has no effect if the controller is a follower. To invert a follower, see the
-   * follow() method.
-   *
-   * @param spark The spark to set inversion of.
-   * @param isInverted The state of inversion, true is inverted.
-   * @return {@link REVLibError#kOk} if successful.
-   */
-  public static REVLibError setInverted(CANSparkBase spark, boolean isInverted) {
-    spark.setInverted(isInverted);
-    return spark.getLastError();
   }
 }
