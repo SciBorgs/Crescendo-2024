@@ -10,6 +10,8 @@ import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Constants.alliance;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_AMP_ANGLE;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -34,8 +36,7 @@ import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
-import org.sciborgs1155.robot.commands.AmpAlign;
-import org.sciborgs1155.robot.commands.Climbing;
+import org.sciborgs1155.robot.commands.Alignment;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
@@ -89,8 +90,7 @@ public class Robot extends CommandRobot implements Logged {
   @Log.NT private final SendableChooser<Command> autos;
 
   private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
-  private final Climbing climbing = new Climbing(drive, pivot);
-  private final AmpAlign ampAlign = new AmpAlign(drive, pivot, shooting);
+  private final Alignment alignment = new Alignment(drive, pivot);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
@@ -208,25 +208,22 @@ public class Robot extends CommandRobot implements Logged {
     // driver
     //     .a()
     //     .whileTrue(
-    //         climbing
+    //         alignment
     //             .snapToStage(
     //                 createJoystickStream(
     //                     driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
     //                 createJoystickStream(
-    //                     driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)))
-    //             .alongWith(
-    //                 climbing.angleClimber())); // stop holding the button in order to climb with
-    // // the pivot manually
+    //                     driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
+    // stop holding the button in order to climb with
+    // the pivot manually
 
     driver
         .a()
         .whileTrue(
-            ampAlign.snapToAmp(
-                createJoystickStream(
-                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-                createJoystickStream(
-                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
-        .onFalse(ampAlign.shootAmp());
+            alignment
+                .ampAlign()
+                .andThen(drive.stop())
+                .andThen(shooting.shootWithPivot(PRESET_AMP_ANGLE, AMP_VELOCITY)));
 
     operator
         .a()

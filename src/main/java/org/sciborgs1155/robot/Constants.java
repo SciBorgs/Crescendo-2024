@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Distance;
@@ -111,10 +112,10 @@ public class Constants {
 
     // Pose2D which contain the coordinates ((x and y) of the AprilTag on the amp (which is directly
     // above the amp scoring area), and the rotations.
-    public static final Pose2d BLUE_AMP =
-        new Pose2d(Inches.of(72.5), Inches.of(323.0), Rotation2d.fromRadians(Math.PI * 3 / 2));
-    public static final Pose2d RED_AMP =
-        new Pose2d(Inches.of(578.77), Inches.of(323.0), Rotation2d.fromRadians(Math.PI * 3 / 2));
+    public static final Translation2d BLUE_AMP =
+        new Translation2d(Inches.of(72.5), Inches.of(323.0));
+    public static final Translation2d RED_AMP =
+        new Translation2d(Inches.of(578.77), Inches.of(323.0));
 
     // Methoeds
 
@@ -133,7 +134,7 @@ public class Constants {
     }
 
     // ** Returns the Pose2D of the amp on the robot's alliance. */
-    public static Pose2d ampCoordinates() {
+    public static Translation2d ampCoordinates() {
       return alliance() == Alliance.Blue ? BLUE_AMP : RED_AMP;
     }
 
