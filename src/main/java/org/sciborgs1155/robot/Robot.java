@@ -264,7 +264,8 @@ public class Robot extends CommandRobot implements Logged {
         .povUp()
         .whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
 
-    operator.rightBumper().whileTrue(intake.backward());
+    operator.rightBumper().whileTrue(pivot.runPivot(Radians.of(1)).until(pivot::atGoal).andThen(intake.backward()));
+
     operator
         .povDown()
         .whileTrue(shooting.shoot(RadiansPerSecond.of(350)))
