@@ -38,7 +38,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
       new ProfiledPIDController(
           kP, kI, kD, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCEL));
 
-  private final ArmFeedforward ff = new ArmFeedforward(kS, kG, kV);
+  private final ArmFeedforward ff = new ArmFeedforward(kS, kG, kV, kA);
 
   // Visualization
   @Log.NT
@@ -79,7 +79,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
     setDefaultCommand(
         run(() -> update(MAX_ANGLE.in(Radians)))
-            .until(pid::atGoal)
+            .until(() -> pid.getGoal().position > MAX_ANGLE.in(Radians))
             .andThen(run(() -> pivot.setVoltage(0)))
             .withName("default position"));
     teleop().or(autonomous()).onTrue(Commands.runOnce(() -> pid.reset(hardware.getPosition())));

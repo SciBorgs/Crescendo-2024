@@ -95,7 +95,8 @@ public final class DriveConstants {
       public static final class FF {
         public static final double S = 0.088468;
         public static final double V = 2.1314;
-        public static final double A = 0.33291;
+        public static final double kA_linear = 0.33291;
+        public static final double kA_angular = 0.33291;
       }
     }
 

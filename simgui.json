@@ -30,7 +30,9 @@
       "/Robot/pivot/pid": "ProfiledPIDController",
       "/Robot/pivot/positionVisualizer": "Mechanism2d",
       "/Robot/pivot/setpointVisualizer": "Mechanism2d",
+      "/Robot/shooter/bottomPID": "PIDController",
       "/Robot/shooter/pid": "PIDController",
+      "/Robot/shooter/topPID": "PIDController",
       "/Robot/shooting/drive/field2d": "Field2d",
       "/Robot/shooting/drive/frontLeft/driveFeedback": "PIDController",
       "/Robot/shooting/drive/frontLeft/turnFeedback": "PIDController",
@@ -54,10 +56,18 @@
       "/SmartDashboard/pivot dynamic forward": "Command",
       "/SmartDashboard/pivot quasistatic backward": "Command",
       "/SmartDashboard/pivot quasistatic forward": "Command",
+      "/SmartDashboard/rotation dynamic backward": "Command",
+      "/SmartDashboard/rotation dynamic forward": "Command",
+      "/SmartDashboard/rotation quasistatic backward": "Command",
+      "/SmartDashboard/rotation quasistatic forward": "Command",
       "/SmartDashboard/shooter dynamic backward": "Command",
       "/SmartDashboard/shooter dynamic forward": "Command",
       "/SmartDashboard/shooter quasistatic backward": "Command",
-      "/SmartDashboard/shooter quasistatic forward": "Command"
+      "/SmartDashboard/shooter quasistatic forward": "Command",
+      "/SmartDashboard/translation dynamic backward": "Command",
+      "/SmartDashboard/translation dynamic forward": "Command",
+      "/SmartDashboard/translation quasistatic backward": "Command",
+      "/SmartDashboard/translation quasistatic forward": "Command"
     },
     "windows": {
       "/FMSInfo": {
@@ -77,6 +87,11 @@
         "right": 2961,
         "top": 79,
         "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
+      },
+      "/Robot/pivot/positionVisualizer": {
         "window": {
           "visible": true
         }
@@ -105,6 +120,9 @@
       "Robot": {
         "drive": {
           "ChassisSpeeds##v_/Robot/drive/getFieldRelativeChassisSpeeds": {
+            "open": true
+          },
+          "Pose2d##v_/Robot/drive/pose": {
             "open": true
           },
           "driving": {
