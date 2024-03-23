@@ -216,8 +216,7 @@ public class Robot extends CommandRobot implements Logged {
     //                     driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)))
     //             .alongWith(
     //                 climbing.angleClimber())); // stop holding the button in order to climb with
-    // the
-    // // pivot manually
+    // // the pivot manually
 
     driver
         .a()

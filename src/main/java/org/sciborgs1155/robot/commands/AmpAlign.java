@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot.commands;
 
+import static edu.wpi.first.units.Units.Inches;
 import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_AMP_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 
@@ -35,12 +36,8 @@ public class AmpAlign {
         .driveTo(
             (Field.ampCoordinates()
                 .plus(
-                    new Transform2d(-28 / 2, 32.645 / 2, Rotation2d.fromRadians(Math.PI * 3 / 2)))))
+                    new Transform2d(Inches.of(32.645 / 2 + 5), Inches.of(0), Rotation2d.fromRadians(0)))))
         .andThen(drive.drive(vx, vy, this::getAmpRotation));
-
-    // Not sure if the math is right (+ - signs), but idea is using the amp's location and
-    // subtracting half the robot's dimensions from it so it is right in front of the amp
-    // Rotations may not be correct
   }
 
   public Command shootAmp() {
