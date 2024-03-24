@@ -41,5 +41,15 @@ public class TuningTest {
     assertEquals(intVal, intEnt.get());
     assertEquals(strVal, strEnt.get());
     assertEquals(boolVal, boolEnt.get());
+
+    Tuning.put(dbleEnt.getTopic(), 22930209.13);
+    Tuning.put(intEnt.getTopic(), 123456789);
+    Tuning.put(strEnt.getTopic(), "como estas");
+    Tuning.put(boolEnt.getTopic(), false);
+
+    assertEquals(22930209.13, dbleEnt.get());
+    assertEquals(123456789, intEnt.get());
+    assertEquals("como estas", strEnt.get());
+    assertEquals(false, boolEnt.get());
   }
 }

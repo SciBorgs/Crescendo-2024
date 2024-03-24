@@ -199,7 +199,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   public Command drive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier vOmega) {
     return run(
         () ->
-            driveRobotRelative(
+              driveRobotRelative(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                     vx.getAsDouble(),
                     vy.getAsDouble(),

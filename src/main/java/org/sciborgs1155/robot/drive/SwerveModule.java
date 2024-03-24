@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.DoubleEntry;
+import java.util.List;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.Tuning;
@@ -133,6 +134,8 @@ public class SwerveModule implements Logged, AutoCloseable {
   public void updatePID() {
     driveFeedback.setPID(drivingP.get(), drivingI.get(), drivingD.get());
     turnFeedback.setPID(turningP.get(), turningI.get(), turningD.get());
+
+    Tuning.updateDoubles(List.of(drivingP, drivingI, drivingD, turningP, turningI, turningD));
   }
 
   @Override
