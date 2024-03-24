@@ -1,9 +1,4 @@
 {
-  "FMS": {
-    "window": {
-      "visible": false
-    }
-  },
   "Keyboard 0 Settings": {
     "window": {
       "visible": true
@@ -28,15 +23,15 @@
         }
       ],
       "axisCount": 3,
-      "buttonCount": 8,
+      "buttonCount": 4,
       "buttonKeys": [
-        -1,
+        77,
         88,
         67,
         86,
         66,
         78,
-        77,
+        -1,
         44
       ],
       "povConfig": [
