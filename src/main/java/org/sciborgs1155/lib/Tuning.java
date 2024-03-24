@@ -21,15 +21,15 @@ import java.util.List;
  * Tuning creates an entry with a specified topic and configurable value in Network Tables.
  *
  * <pre>
- * [Type]Entry entry = Tuning.entry("/[FOLDER_NAME]/[TOPIC_NAME]", [CONFIGURABLE_VALUE]); 
+ * [Type]Entry entry = Tuning.entry("/[FOLDER_NAME]/[TOPIC_NAME]", [CONFIGURABLE_VALUE]);
  *   // This creates a new configurable datatype value corresponding to the path given and sets the value.
- * 
- * Tuning.put([TOPIC], [CONFIGURABLE]); 
+ *
+ * Tuning.put([TOPIC], [CONFIGURABLE]);
  *   // This inserts a value under the given topic.
- * 
- * ArrayList<[DataType]> arrayList = Tuning.recentChanges([TOPIC]); 
+ *
+ * ArrayList<[DataType]> arrayList = Tuning.recentChanges([TOPIC]);
  *   // This is returns a list of all of the changes made from a specific topic
- * 
+ *
  * Tuning.update[DataType]([DataType]Entry);
  *   // This is called periodically in order to check for changes made on Network Tables.
  * </pre>
@@ -66,7 +66,8 @@ public final class Tuning {
     if (previousDble == null) {
       previousDble = new ArrayList<>();
       previousDble.add(0.0);
-    }prevDouble.put(path, previousDble.get(previousDble.size() - 1));
+    }
+    prevDouble.put(path, previousDble.get(previousDble.size() - 1));
 
     return entry;
   }
@@ -86,10 +87,11 @@ public final class Tuning {
     intList.add(value);
 
     ArrayList<Long> previousInt = intHash.put(path, intList);
-    if(previousInt == null){
+    if (previousInt == null) {
       previousInt = new ArrayList<>();
-      previousInt.add((long)0);
-    }prevInt.put(path, previousInt.get(previousInt.size() - 1));
+      previousInt.add((long) 0);
+    }
+    prevInt.put(path, previousInt.get(previousInt.size() - 1));
 
     return entry;
   }
@@ -110,10 +112,11 @@ public final class Tuning {
     strList.add(value);
 
     ArrayList<String> previousStr = stringHash.put(path, strList);
-    if(previousStr == null){
+    if (previousStr == null) {
       previousStr = new ArrayList<>();
       previousStr.add("");
-    }prevString.put(path, previousStr.get(previousStr.size()-1));
+    }
+    prevString.put(path, previousStr.get(previousStr.size() - 1));
 
     return entry;
   }
@@ -134,10 +137,11 @@ public final class Tuning {
     boolList.add(value);
 
     ArrayList<Boolean> previousBool = booleanHash.put(path, boolList);
-    if(previousBool == null){
+    if (previousBool == null) {
       previousBool = new ArrayList<>();
       previousBool.add(true);
-    }prevBoolean.put(path, previousBool.get(previousBool.size()-1));
+    }
+    prevBoolean.put(path, previousBool.get(previousBool.size() - 1));
 
     return entry;
   }
@@ -158,7 +162,8 @@ public final class Tuning {
     if (previousDble == null) {
       previousDble = new ArrayList<>();
       previousDble.add(0.0);
-    }prevDouble.put(subtopic.getName(), previousDble.get(previousDble.size() - 1));
+    }
+    prevDouble.put(subtopic.getName(), previousDble.get(previousDble.size() - 1));
   }
 
   /**
@@ -174,11 +179,11 @@ public final class Tuning {
     ArrayList<Long> arrayList = new ArrayList<>();
     arrayList.add(value);
     ArrayList<Long> previousInt = intHash.put(subtopic.getName(), arrayList);
-    if(previousInt == null){
+    if (previousInt == null) {
       previousInt = new ArrayList<>();
-      previousInt.add((long)0);
-    }prevInt.put(subtopic.getName(), previousInt.get(previousInt.size() - 1));
-    
+      previousInt.add((long) 0);
+    }
+    prevInt.put(subtopic.getName(), previousInt.get(previousInt.size() - 1));
   }
 
   /**
@@ -194,10 +199,11 @@ public final class Tuning {
     ArrayList<String> arrayList = new ArrayList<>();
     arrayList.add(value);
     ArrayList<String> previousStr = stringHash.put(subtopic.getName(), arrayList);
-    if(previousStr == null){
+    if (previousStr == null) {
       previousStr = new ArrayList<>();
       previousStr.add("");
-    }prevString.put(subtopic.getName(), previousStr.get(previousStr.size() - 1));
+    }
+    prevString.put(subtopic.getName(), previousStr.get(previousStr.size() - 1));
   }
 
   /**
@@ -213,10 +219,11 @@ public final class Tuning {
     ArrayList<Boolean> arrayList = new ArrayList<>();
     arrayList.add(value);
     ArrayList<Boolean> previousBool = booleanHash.put(subtopic.getName(), arrayList);
-    if(previousBool == null){
+    if (previousBool == null) {
       previousBool = new ArrayList<>();
       previousBool.add(true);
-    }prevBoolean.put(subtopic.getName(), previousBool.get(previousBool.size() - 1));
+    }
+    prevBoolean.put(subtopic.getName(), previousBool.get(previousBool.size() - 1));
   }
 
   /**
@@ -284,7 +291,7 @@ public final class Tuning {
         arrayList.add(entryList.get(i).get());
 
         doubleHash.put(topicName, arrayList);
-        prevDouble.put(topicName, arrayList.get(arrayList.size()-1));
+        prevDouble.put(topicName, arrayList.get(arrayList.size() - 1));
       }
 
       ArrayList<Double> arrayList = doubleHash.get(topicName);
@@ -317,7 +324,7 @@ public final class Tuning {
 
         intHash.put(topicName, arrayList);
 
-        prevInt.put(topicName, arrayList.get(arrayList.size()-1));
+        prevInt.put(topicName, arrayList.get(arrayList.size() - 1));
       }
 
       ArrayList<Long> arrayList = intHash.get(topicName);
@@ -350,7 +357,7 @@ public final class Tuning {
 
         stringHash.put(topicName, arrayList);
 
-        prevString.put(topicName, arrayList.get(arrayList.size()-1));
+        prevString.put(topicName, arrayList.get(arrayList.size() - 1));
       }
 
       ArrayList<String> arrayList = stringHash.get(topicName);
@@ -383,7 +390,7 @@ public final class Tuning {
 
         booleanHash.put(topicName, arrayList);
 
-        prevBoolean.put(topicName, arrayList.get(arrayList.size()-1));
+        prevBoolean.put(topicName, arrayList.get(arrayList.size() - 1));
       }
 
       ArrayList<Boolean> arrayList = booleanHash.get(topicName);
