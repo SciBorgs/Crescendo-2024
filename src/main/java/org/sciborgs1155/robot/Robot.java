@@ -308,4 +308,17 @@ public class Robot extends CommandRobot implements Logged {
               operator.getHID().setRumble(rumbleType, 0);
             });
   }
+
+  @Override
+  public void close() {
+      super.close();
+      led.close();
+      try {
+         intake.close();
+        shooter.close();
+        feeder.close();
+        pivot.close();
+        drive.close();
+      } catch (Exception e) {}
+  }
 }

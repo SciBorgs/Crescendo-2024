@@ -7,6 +7,7 @@ import static org.sciborgs1155.lib.TestingUtil.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.sciborgs1155.lib.TestingUtil;
 import org.sciborgs1155.robot.led.LedConstants;
 import org.sciborgs1155.robot.led.LedStrip;
 import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
@@ -42,7 +43,7 @@ public class LedTest {
   }
 
   @AfterEach
-  public void destroy() {
-    led.close();
+  public void destroy() throws Exception {
+    TestingUtil.reset(led);
   }
 }
