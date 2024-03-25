@@ -139,7 +139,7 @@ public class Shooting implements Logged {
                     && atYaw(yawFromNoteVelocity(calculateNoteVelocity())))
         .deadlineWith(
             drive.drive(
-                vx.scale(0.5), vy.scale(0.5), () -> yawFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.02)))),
+                vx.scale(0.5), vy.scale(0.5), () -> yawFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.1)))),
             pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
     // .unless(() -> !canShoot());
   }
