@@ -47,6 +47,7 @@
       "/Robot/shooting/pivot/positionVisualizer": "Mechanism2d",
       "/Robot/shooting/pivot/setpointVisualizer": "Mechanism2d",
       "/Robot/shooting/shooter/pid": "PIDController",
+      "/SmartDashboard/Scheduler": "Scheduler",
       "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",

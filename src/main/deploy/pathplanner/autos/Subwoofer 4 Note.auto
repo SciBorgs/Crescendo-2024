@@ -5,7 +5,7 @@
       "x": 1.351629376411438,
       "y": 5.567087173461914
     },
-    "rotation": -1.222714722196865e-37
+    "rotation": -8.081836993596768e-39
   },
   "command": {
     "type": "sequential",
@@ -18,7 +18,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
@@ -37,19 +37,13 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.0
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "shoot"
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
@@ -80,7 +74,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
