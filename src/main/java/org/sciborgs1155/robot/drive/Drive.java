@@ -227,11 +227,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         < rotationController.getPositionTolerance();
   }
 
-  @Log.NT
-  public boolean atHeadingSetpoint() {
-    return rotationController.atSetpoint();
-  }
-
   /**
    * Drives the robot based on a {@link InputStream} for field relative x y and omega velocities.
    *
