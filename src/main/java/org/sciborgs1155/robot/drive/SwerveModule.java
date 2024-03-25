@@ -104,11 +104,27 @@ public class SwerveModule implements Logged, AutoCloseable {
     // Calculate two feedforward values for using different kA depending on if the robot is rotating
     // or translating.
     double driveTVolts =
-        driveTranslationFeedforward.calculate(
-            this.setpoint.speedMetersPerSecond, setpoint.speedMetersPerSecond, PERIOD.in(Seconds));
+        switch (mode) {
+          case CLOSED_LOOP_VELOCITY ->
+              driveTranslationFeedforward.calculate(
+                  this.setpoint.speedMetersPerSecond,
+                  setpoint.speedMetersPerSecond,
+                  PERIOD.in(Seconds));
+          case OPEN_LOOP_VELOCITY ->
+              driveTranslationFeedforward.calculate(setpoint.speedMetersPerSecond);
+        };
+
     double driveRVolts =
-        driveRotationFeedforward.calculate(
-            this.setpoint.speedMetersPerSecond, setpoint.speedMetersPerSecond, PERIOD.in(Seconds));
+        switch (mode) {
+          case CLOSED_LOOP_VELOCITY ->
+              driveRotationFeedforward.calculate(
+                  this.setpoint.speedMetersPerSecond,
+                  setpoint.speedMetersPerSecond,
+                  PERIOD.in(Seconds));
+          case OPEN_LOOP_VELOCITY ->
+              driveRotationFeedforward.calculate(setpoint.speedMetersPerSecond);
+        };
+
     double driveVolts = driveTVolts * movementRatio + driveRVolts * (1 - movementRatio);
 
     if (mode == ControlMode.CLOSED_LOOP_VELOCITY) {

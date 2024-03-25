@@ -251,7 +251,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                     vy.getAsDouble(),
                     vOmega.getAsDouble(),
                     heading().plus(allianceRotation())),
-                ControlMode.CLOSED_LOOP_VELOCITY));
+                ControlMode.OPEN_LOOP_VELOCITY));
   }
 
   /**
@@ -411,7 +411,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   /** Stops drivetrain */
   public Command stop() {
-    return runOnce(() -> setChassisSpeeds(new ChassisSpeeds(), ControlMode.CLOSED_LOOP_VELOCITY));
+    return runOnce(() -> setChassisSpeeds(new ChassisSpeeds(), ControlMode.OPEN_LOOP_VELOCITY));
   }
 
   /** Sets the drivetrain to an "X" configuration, preventing movement */

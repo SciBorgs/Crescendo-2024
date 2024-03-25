@@ -3,13 +3,11 @@ package org.sciborgs1155.robot;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Constants.alliance;
-import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_AMP_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
@@ -261,9 +259,8 @@ public class Robot extends CommandRobot implements Logged {
                     driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
-    driver
-        .a()
-        .or(operator.povUp())
+    operator
+        .povUp()
         .whileTrue(
             shooting.shootWithPivot(PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
@@ -271,7 +268,6 @@ public class Robot extends CommandRobot implements Logged {
     driver
         .rightTrigger()
         .or(operator.leftBumper())
-        .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
         .whileTrue(intake.intake().deadlineWith(feeder.forward()))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
