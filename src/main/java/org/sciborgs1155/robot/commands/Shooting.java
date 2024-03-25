@@ -51,7 +51,7 @@ public class Shooting implements Logged {
    * The conversion between shooter tangential velocity and note launch velocity. Perhaps. This may
    * also account for other errors with our model.
    */
-  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.85);
+  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.80);
 
   private static final InterpolatingDoubleTreeMap shotVelocityLookup =
       new InterpolatingDoubleTreeMap();
@@ -139,7 +139,9 @@ public class Shooting implements Logged {
                     && atYaw(yawFromNoteVelocity(calculateNoteVelocity())))
         .deadlineWith(
             drive.drive(
-                vx.scale(0.5), vy.scale(0.5), () -> yawFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.02)))),
+                vx.scale(0.5),
+                vy.scale(0.5),
+                () -> yawFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.1)))),
             pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
   }
 
@@ -156,9 +158,9 @@ public class Shooting implements Logged {
   }
 
   public Vector<N3> calculateNoteVelocity(Measure<Time> predictionTime) {
-    return calculateNoteVelocity(predictedPose(drive.pose(), drive.getFieldRelativeChassisSpeeds(), predictionTime));
+    return calculateNoteVelocity(
+        predictedPose(drive.pose(), drive.getFieldRelativeChassisSpeeds(), predictionTime));
   }
-
 
   /**
    * Calculates a vector for the desired note velocity relative to the robot for it to travel into
@@ -185,9 +187,13 @@ public class Shooting implements Logged {
     return noteVelocity.minus(robotVelocity);
   }
 
-  public static Pose2d predictedPose(Pose2d robotPose, ChassisSpeeds speeds, Measure<Time> predictionTime) {
-    Vector<N3> current = VecBuilder.fill(robotPose.getX(), robotPose.getY(), robotPose.getRotation().getRadians());
-    Vector<N3> velocity = VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond);
+  public static Pose2d predictedPose(
+      Pose2d robotPose, ChassisSpeeds speeds, Measure<Time> predictionTime) {
+    Vector<N3> current =
+        VecBuilder.fill(robotPose.getX(), robotPose.getY(), robotPose.getRotation().getRadians());
+    Vector<N3> velocity =
+        VecBuilder.fill(
+            speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond);
     Vector<N3> predicted = current.plus(velocity.times(predictionTime.in(Seconds)));
     return new Pose2d(predicted.get(0), predicted.get(1), Rotation2d.fromRadians(predicted.get(2)));
   }

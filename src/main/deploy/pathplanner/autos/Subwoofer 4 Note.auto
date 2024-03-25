@@ -5,7 +5,7 @@
       "x": 1.351629376411438,
       "y": 5.567087173461914
     },
-    "rotation": -8.081836993596768e-39
+    "rotation": 1.212644521331128e-19
   },
   "command": {
     "type": "sequential",
@@ -18,7 +18,7 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -43,7 +43,7 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -62,9 +62,28 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 0.4
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Subwoofer 4 Note.3"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
           }
         },
         {
@@ -80,7 +99,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Subwoofer 4 Note.3"
+                  "pathName": "Subwoofer 4 Note.4"
                 }
               },
               {

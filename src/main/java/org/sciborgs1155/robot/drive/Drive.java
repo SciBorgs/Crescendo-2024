@@ -268,7 +268,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command driveTo(Pose2d target) {
-    return run(() -> {
+    return run(
+        () -> {
           Transform2d transform = target.minus(pose());
           Vector<N3> difference =
               VecBuilder.fill(
@@ -281,8 +282,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
               new ChassisSpeeds(
                   velocities.get(0), velocities.get(1), velocities.get(2) / RADIUS.in(Meters)),
               ControlMode.CLOSED_LOOP_VELOCITY);
-        })
-        .until(translationController::atGoal);
+        });
+    // .until(translationController::atGoal);
   }
 
   /** Robot relative chassis speeds */

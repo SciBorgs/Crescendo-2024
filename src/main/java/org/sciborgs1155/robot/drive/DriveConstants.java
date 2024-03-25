@@ -55,9 +55,9 @@ public final class DriveConstants {
   public static final Rotation3d GYRO_OFFSET = new Rotation3d(0, 0, Math.PI);
 
   public static final class Translation {
-    public static final double P = 5.0;
+    public static final double P = 3.0;
     public static final double I = 0.0;
-    public static final double D = 0.0;
+    public static final double D = 0.05;
 
     public static final Measure<Distance> TOLERANCE = Centimeters.of(5);
   }
@@ -86,7 +86,7 @@ public final class DriveConstants {
       public static final Measure<Distance> POSITION_FACTOR = CIRCUMFERENCE.times(GEARING);
       public static final Measure<Velocity<Distance>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
-      public static final Measure<Current> CURRENT_LIMIT = Amps.of(60);
+      public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 
       public static final class PID {
         public static final double P = 3.2;

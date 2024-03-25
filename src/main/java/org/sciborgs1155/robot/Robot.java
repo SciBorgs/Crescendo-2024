@@ -6,10 +6,9 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.robot.Constants.Field.RED_MID_NOTE;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Constants.alliance;
-import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_AMP_ANGLE;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -18,6 +17,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -160,13 +160,9 @@ public class Robot extends CommandRobot implements Logged {
 
   public void configureAuto() {
     // register named commands for auto
-    NamedCommands.registerCommand("shoot", shooting.shootWithPivot().withTimeout(1.5));
     NamedCommands.registerCommand(
-        "intake",
-        intake
-            .intake()
-            .deadlineWith(feeder.forward())
-            .andThen(intake.stop().alongWith(feeder.runFeeder(0))));
+        "shoot", shooting.shootWhileDriving(() -> 0, () -> 0).withTimeout(1.5));
+    NamedCommands.registerCommand("intake", intake.intake().deadlineWith(feeder.forward()));
     // .alongWith(Commands.waitSeconds(0.5).andThen(shooting.aimWithoutShooting()));
     NamedCommands.registerCommand(
         "subwoofer-shoot", shooting.shoot(DEFAULT_VELOCITY).withTimeout(3));
@@ -229,11 +225,11 @@ public class Robot extends CommandRobot implements Logged {
 
     driver
         .y() // .whileTrue(drive.driveTo(RED_MID_NOTE.toPose2d()));
-        .whileTrue(
-            alignment
-                .ampAlign()
-                // .andThen(drive.stop())
-                .andThen(shooting.shootWithPivot(PRESET_AMP_ANGLE, AMP_VELOCITY)));
+        .whileTrue(drive.driveTo(RED_MID_NOTE.toPose2d().rotateBy(Rotation2d.fromDegrees(180))));
+    // alignment
+    //     .ampAlign()
+    //     // .andThen(drive.stop())
+    //     .andThen(shooting.shootWithPivot(PRESET_AMP_ANGLE, AMP_VELOCITY)));
 
     operator
         .a()
@@ -307,14 +303,15 @@ public class Robot extends CommandRobot implements Logged {
 
   @Override
   public void close() {
-      super.close();
-      led.close();
-      try {
-         intake.close();
-        shooter.close();
-        feeder.close();
-        pivot.close();
-        drive.close();
-      } catch (Exception e) {}
+    super.close();
+    led.close();
+    try {
+      intake.close();
+      shooter.close();
+      feeder.close();
+      pivot.close();
+      drive.close();
+    } catch (Exception e) {
+    }
   }
 }
