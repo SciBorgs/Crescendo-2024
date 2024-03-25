@@ -25,7 +25,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import monologue.Annotations.Log;
@@ -122,6 +124,7 @@ public class Robot extends CommandRobot implements Logged {
         () -> log("dist", Shooting.translationToSpeaker(drive.pose().getTranslation()).getNorm()),
         kDefaultPeriod);
 
+    SmartDashboard.putData(CommandScheduler.getInstance());
     // Log PDH
     // SmartDashboard.putData("PDH", new PowerDistribution());
     addPeriodic(
@@ -159,17 +162,14 @@ public class Robot extends CommandRobot implements Logged {
 
   public void configureAuto() {
     // register named commands for auto
-    NamedCommands.registerCommand("shoot", drive.lock().withTimeout(10));
-    // shooting.shootWithPivot().alongWith(drive.lock()).withTimeout(2));
-    NamedCommands.registerCommand("intake", Commands.none());
-    // intake
-    //     .intake()
-    //     .deadlineWith(feeder.forward())
-    //     .andThen(
-    //         intake
-    //             .stop()
-    //             .alongWith(feeder.runFeeder(0))));
-    // .alongWith(Commands.waitSeconds(0.5).andThen(shooting.aimWithoutShooting()))));
+    NamedCommands.registerCommand("shoot", shooting.shootWithPivot().withTimeout(1.5));
+    NamedCommands.registerCommand(
+        "intake",
+        intake
+            .intake()
+            .deadlineWith(feeder.forward())
+            .andThen(intake.stop().alongWith(feeder.runFeeder(0))));
+    // .alongWith(Commands.waitSeconds(0.5).andThen(shooting.aimWithoutShooting()));
     NamedCommands.registerCommand(
         "subwoofer-shoot", shooting.shoot(DEFAULT_VELOCITY).withTimeout(3));
     // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
