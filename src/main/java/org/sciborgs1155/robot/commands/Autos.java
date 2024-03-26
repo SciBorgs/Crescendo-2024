@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot.commands;
 
+import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.autonomous;
 import static org.sciborgs1155.robot.Constants.alliance;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
 
@@ -7,6 +8,7 @@ import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoControlFunction;
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
@@ -34,7 +36,7 @@ public class Autos implements Sendable {
   private final Intake intake;
   private final Feeder feeder;
 
-  private boolean hasNote = false;
+  private boolean hasNote = true;
   private Optional<Rotation2d> rotation = Optional.empty();
   private final Trigger shooterReady;
   private final Trigger inRange;
@@ -51,7 +53,7 @@ public class Autos implements Sendable {
 
     shooterReady = new Trigger(events, shooting::isReady);
     // canShoot = shooterReady.and(shooting::inRange);
-    inRange = new Trigger(shooting::inRange);
+    inRange = new Trigger(events, shooting::inRange);
     movingSlowly =
         new Trigger(
             events,
@@ -61,15 +63,13 @@ public class Autos implements Sendable {
               return magnitude < 2 && Math.abs(speeds.omegaRadiansPerSecond) < 2;
             });
 
-    configureBindings();
-
     chooser.setDefaultOption(
         "Subwoofer 4 Note", followPath(Choreo.getTrajectory("Subwoofer 4 Note")));
   }
 
   public void configureBindings() {
-    shooterReady.onTrue(feeder.eject().andThen(() -> hasNote = false));
-    inRange
+    autonomous().and(shooterReady).and(movingSlowly).onTrue(feeder.eject().andThen(() -> hasNote = false));
+    autonomous().and(inRange)
         .and(() -> hasNote)
         .whileTrue(shooting.shootWithPivot())
         .whileTrue(
@@ -79,7 +79,8 @@ public class Autos implements Sendable {
                             Optional.of(
                                 Shooting.yawFromNoteVelocity(shooting.calculateNoteVelocity())))
                 .finallyDo(() -> rotation = Optional.empty()));
-    intake.hasNote().onTrue(Commands.runOnce(() -> hasNote = true));
+    autonomous().and(() -> hasNote).debounce(0.4).whileFalse(intake.intake().deadlineWith(feeder.forward()));
+    autonomous().and(intake.hasNote()).onTrue(Commands.runOnce(() -> hasNote = true));
   }
 
   public static ChoreoControlFunction swerveController(
@@ -119,6 +120,8 @@ public class Autos implements Sendable {
                         .getInitialPose()))
         .andThen(shooting.shoot(DEFAULT_VELOCITY).asProxy())
         .withTimeout(2)
+        .andThen(this::configureBindings)
+        .andThen(() -> hasNote = false)
         .andThen(
             Choreo.choreoSwerveCommand(
                 trajectory,

@@ -160,8 +160,8 @@ public class Robot extends CommandRobot implements Logged {
   private void configureBindings() {
     autonomous()
         .whileTrue(Commands.deferredProxy(autos::get))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW))
-        .whileTrue(Commands.run(autos::poll));
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+        // .whileTrue(Commands.run(autos::poll));
 
     driver.b().whileTrue(drive.zeroHeading());
     driver
