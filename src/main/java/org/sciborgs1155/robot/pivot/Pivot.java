@@ -104,7 +104,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   /** Chainmaxxing fr */
   public Command lockedIn() {
     return run(() -> hardware.setVoltage(12))
-        .beforeStarting(() -> hardware.currentLimit(CLIMBER_CURRENT_LIMIT));
+        .beforeStarting(() -> hardware.setCurrentLimit(CLIMBER_CURRENT_LIMIT));
     // .until(() -> hardware.getPosition() > STARTING_ANGLE.in(Radians));
   }
 

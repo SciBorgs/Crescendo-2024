@@ -10,7 +10,7 @@ public class NoPivot implements PivotIO {
   public void setVoltage(double voltage) {}
 
   @Override
-  public void currentLimit(Measure<Current> limit) {}
+  public void setCurrentLimit(Measure<Current> limit) {}
 
   @Override
   public double getPosition() {

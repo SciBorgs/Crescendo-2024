@@ -33,7 +33,7 @@ public class SimPivot implements PivotIO {
   }
 
   @Override
-  public void currentLimit(Measure<Current> limit) {}
+  public void setCurrentLimit(Measure<Current> limit) {}
 
   @Override
   @Log.NT

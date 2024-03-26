@@ -49,7 +49,7 @@ public class RealPivot implements PivotIO {
     check(lead, encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond) / 2.0));
     check(lead, encoder.setPosition(STARTING_ANGLE.in(Radians)));
 
-    currentLimit(CURRENT_LIMIT);
+    setCurrentLimit(CURRENT_LIMIT);
 
     check(lead, lead.burnFlash());
 
@@ -76,7 +76,7 @@ public class RealPivot implements PivotIO {
   }
 
   @Override
-  public void currentLimit(Measure<Current> limit) {
+  public void setCurrentLimit(Measure<Current> limit) {
     for (CANSparkMax spark : List.of(lead, leftTop, rightTop, rightBottom)) {
       check(spark, spark.setSmartCurrentLimit((int) limit.in(Amps)));
     }

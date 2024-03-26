@@ -19,7 +19,7 @@ public interface PivotIO extends AutoCloseable, Logged {
    * @param limit The current limit. It should be <b>CURRENT_LIMIT</b> for regular pivot, and
    *     <b>CLIMBER_CURRENT_LIMIT</b> for climbing pivot.
    */
-  public void currentLimit(Measure<Current> limit);
+  public void setCurrentLimit(Measure<Current> limit);
 
   /**
    * Returns the current position of the pivot.
