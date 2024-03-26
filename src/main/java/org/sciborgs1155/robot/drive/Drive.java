@@ -267,25 +267,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         .beforeStarting(rotationController::reset);
   }
 
-  public Command driveTo(Pose2d target) {
-    return run(
-        () -> {
-          Transform2d transform = target.minus(pose());
-          Vector<N3> difference =
-              VecBuilder.fill(
-                  transform.getX(),
-                  transform.getY(),
-                  transform.getRotation().getRadians() * RADIUS.in(Meters));
-          double out = -translationController.calculate(difference.norm(), 0);
-          Vector<N3> velocities = difference.unit().times(out);
-          setChassisSpeeds(
-              new ChassisSpeeds(
-                  velocities.get(0), velocities.get(1), velocities.get(2) / RADIUS.in(Meters)),
-              ControlMode.CLOSED_LOOP_VELOCITY);
-        });
-    // .until(translationController::atGoal);
-  }
-
   /** Robot relative chassis speeds */
   public void setChassisSpeeds(ChassisSpeeds speeds, ControlMode mode) {
     double speed = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
@@ -317,6 +298,25 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     for (int i = 0; i < modules.size(); i++) {
       modules.get(i).updateSetpoint(desiredStates[i], mode, movementFactor);
     }
+  }
+
+  public Command driveTo(Pose2d target) {
+    return run(() -> {
+          Transform2d transform = pose().minus(target);
+          Vector<N3> difference =
+              VecBuilder.fill(
+                  transform.getX(),
+                  transform.getY(),
+                  transform.getRotation().getRadians() * RADIUS.in(Meters));
+          double out = translationController.calculate(difference.norm(), 0);
+          Vector<N3> velocities = difference.unit().times(out);
+          setChassisSpeeds(
+              new ChassisSpeeds(
+                  velocities.get(0), velocities.get(1), velocities.get(2) / RADIUS.in(Meters)),
+              ControlMode.CLOSED_LOOP_VELOCITY);
+        })
+        .until(translationController::atGoal)
+        .withName("drive to pose");
   }
 
   /** Resets the drive encoders to currently read a position of 0. */

@@ -124,6 +124,9 @@
             "open": true
           },
           "Pose2d##v_/Robot/drive/pose": {
+            "Translation2d##v_translation": {
+              "open": true
+            },
             "open": true
           },
           "driving": {
@@ -157,8 +160,5 @@
       "open": true
     },
     "visible": true
-  },
-  "NetworkTables View": {
-    "visible": false
   }
 }

@@ -1,6 +1,5 @@
 package org.sciborgs1155.robot;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -8,19 +7,10 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.Constants.Field.RED_MID_NOTE;
 import static org.sciborgs1155.robot.Constants.PERIOD;
-import static org.sciborgs1155.robot.Constants.alliance;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,9 +31,6 @@ import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
-import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
-import org.sciborgs1155.robot.drive.DriveConstants.Translation;
-import org.sciborgs1155.robot.drive.SwerveModule.ControlMode;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.led.LedStrip;
@@ -104,8 +91,6 @@ public class Robot extends CommandRobot implements Logged {
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
     super(PERIOD.in(Seconds));
-    configureAuto();
-    autos = AutoBuilder.buildAutoChooser();
     configureGameBehavior();
     configureSubsystemDefaults();
     configureBindings();
@@ -158,32 +143,6 @@ public class Robot extends CommandRobot implements Logged {
         .rateLimit(DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond));
   }
 
-  public void configureAuto() {
-    // register named commands for auto
-    NamedCommands.registerCommand(
-        "shoot", shooting.shootWhileDriving(() -> 0, () -> 0).withTimeout(1.5));
-    NamedCommands.registerCommand("intake", intake.intake().deadlineWith(feeder.forward()));
-    // .alongWith(Commands.waitSeconds(0.5).andThen(shooting.aimWithoutShooting()));
-    NamedCommands.registerCommand(
-        "subwoofer-shoot", shooting.shoot(DEFAULT_VELOCITY).withTimeout(3));
-    // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
-
-    // configure auto
-    AutoBuilder.configureHolonomic(
-        drive::pose,
-        drive::resetOdometry,
-        drive::getRobotRelativeChassisSpeeds,
-        s -> drive.setChassisSpeeds(s, ControlMode.CLOSED_LOOP_VELOCITY),
-        new HolonomicPathFollowerConfig(
-            new PIDConstants(Translation.P, Translation.I, Translation.D),
-            new PIDConstants(Rotation.P, Rotation.I, Rotation.D),
-            DriveConstants.MAX_SPEED.in(MetersPerSecond),
-            DriveConstants.RADIUS.in(Meters),
-            new ReplanningConfig()),
-        () -> alliance() == Alliance.Red,
-        drive);
-  }
-
   /**
    * Configures subsystem default commands. Default commands are scheduled when no other command is
    * running on a subsystem.
@@ -225,7 +184,7 @@ public class Robot extends CommandRobot implements Logged {
 
     driver
         .y() // .whileTrue(drive.driveTo(RED_MID_NOTE.toPose2d()));
-        .whileTrue(drive.driveTo(RED_MID_NOTE.toPose2d().rotateBy(Rotation2d.fromDegrees(180))));
+        .whileTrue(drive.driveTo(RED_MID_NOTE.toPose2d()));
     // alignment
     //     .ampAlign()
     //     // .andThen(drive.stop())
