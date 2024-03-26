@@ -12,7 +12,6 @@ import com.revrobotics.CANSparkBase;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -27,6 +26,7 @@ import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.Alignment;
+import org.sciborgs1155.robot.commands.Autos;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
@@ -79,10 +79,9 @@ public class Robot extends CommandRobot implements Logged {
   private final Vision vision = Vision.create();
 
   // COMMANDS
-  @Log.NT private final SendableChooser<Command> autos;
-
   private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
   private final Alignment alignment = new Alignment(drive, pivot);
+  @Log.NT private final Autos autos = new Autos(shooting, drive, intake, feeder);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
@@ -160,8 +159,9 @@ public class Robot extends CommandRobot implements Logged {
   /** Configures trigger -> command bindings */
   private void configureBindings() {
     autonomous()
-        .whileTrue(Commands.deferredProxy(autos::getSelected))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+        .whileTrue(Commands.deferredProxy(autos::get))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW))
+        .whileTrue(Commands.run(autos::poll));
 
     driver.b().whileTrue(drive.zeroHeading());
     driver

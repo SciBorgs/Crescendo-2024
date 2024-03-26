@@ -26,6 +26,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Velocity;
@@ -52,6 +53,8 @@ public class Shooting implements Logged {
    * also account for other errors with our model.
    */
   public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.80);
+
+  public static final Measure<Distance> MAX_DISTANCE = Meters.of(5.0);
 
   private static final InterpolatingDoubleTreeMap shotVelocityLookup =
       new InterpolatingDoubleTreeMap();
@@ -214,18 +217,23 @@ public class Shooting implements Logged {
     return new Pose3d(robot).transformBy(pivot).transformBy(PivotConstants.SHOOTER_FROM_AXLE);
   }
 
+  public boolean isReady() {
+    return shooter.atSetpoint() && pivot.atGoal();
+  }
+
   /**
    * Calculates if the robot can make its current shot.
    *
    * @return Whether the robot can shoot from its current position at its current velocity.
    */
   @Log.NT
-  public boolean canShoot() {
+  public boolean inRange() {
     Vector<N3> shot = calculateNoteVelocity();
     double pitch = pitchFromNoteVelocity(shot);
     return MIN_ANGLE.in(Radians) < pitch
         && pitch < MAX_ANGLE.in(Radians)
-        && Math.abs(rotationalVelocityFromNoteVelocity(shot)) < MAX_VELOCITY.in(RadiansPerSecond);
+        && Math.abs(rotationalVelocityFromNoteVelocity(shot)) < MAX_VELOCITY.in(RadiansPerSecond)
+        && translationToSpeaker(drive.pose().getTranslation()).getNorm() < MAX_DISTANCE.in(Meters);
   }
 
   public boolean atYaw(Rotation2d yaw) {

@@ -220,6 +220,11 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return drive(vx, vy, () -> translation.get().minus(pose().getTranslation()).getAngle());
   }
 
+  @Log.NT
+  public boolean atRotationalSetpoint() {
+    return rotationController.atSetpoint();
+  }
+
   public boolean isFacing(Translation2d target) {
     return Math.abs(
             gyro.getRotation2d().getRadians()
