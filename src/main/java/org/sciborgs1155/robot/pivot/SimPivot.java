@@ -5,6 +5,8 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.Current;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import monologue.Annotations.Log;
 import org.sciborgs1155.robot.Constants;
@@ -29,6 +31,9 @@ public class SimPivot implements PivotIO {
     sim.setInputVoltage(voltage);
     sim.update(Constants.PERIOD.in(Seconds));
   }
+
+  @Override
+  public void currentLimit(Measure<Current> limit) {}
 
   @Override
   @Log.NT

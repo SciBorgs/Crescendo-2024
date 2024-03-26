@@ -11,6 +11,8 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.units.Current;
+import edu.wpi.first.units.Measure;
 import java.util.List;
 import java.util.Set;
 import monologue.Annotations.Log;
@@ -42,18 +44,19 @@ public class RealPivot implements PivotIO {
     lead.setInverted(true);
     check(lead);
     check(lead, lead.setIdleMode(IdleMode.kBrake));
-    check(lead, lead.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
     check(lead, encoder.setInverted(true));
     check(lead, encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians) / 2.0));
     check(lead, encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond) / 2.0));
     check(lead, encoder.setPosition(STARTING_ANGLE.in(Radians)));
+
+    currentLimit(CURRENT_LIMIT);
+
     check(lead, lead.burnFlash());
 
     for (CANSparkMax spark : List.of(leftTop, rightTop, rightBottom)) {
       check(spark, spark.restoreFactoryDefaults());
       check(spark, SparkUtils.configureNothingFrameStrategy(spark));
       check(spark, spark.setIdleMode(IdleMode.kBrake));
-      check(spark, spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
     }
 
     check(leftTop, leftTop.follow(lead));
@@ -70,6 +73,13 @@ public class RealPivot implements PivotIO {
   public void setVoltage(double voltage) {
     lead.setVoltage(voltage);
     check(lead);
+  }
+
+  @Override
+  public void currentLimit(Measure<Current> limit) {
+    for (CANSparkMax spark : List.of(lead, leftTop, rightTop, rightBottom)) {
+      check(spark, spark.setSmartCurrentLimit((int) limit.in(Amps)));
+    }
   }
 
   @Override
