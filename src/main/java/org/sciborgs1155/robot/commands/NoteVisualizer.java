@@ -146,12 +146,17 @@ public class NoteVisualizer implements Logged {
                           () -> {
                             shotNotePub.set(new Pose3d());
                             notePathPub.set(new Pose3d[0]);
+                            carryingNote = false;
                           });
                 },
                 Set.of()))
         // .unless(() -> !carryingNote)
         .unless(Robot::isReal)
         .ignoringDisable(true);
+  }
+
+  public static boolean hasNote() {
+    return carryingNote;
   }
 
   private static Pose3d[] generatePath() {

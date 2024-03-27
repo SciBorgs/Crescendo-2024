@@ -3,6 +3,7 @@ package org.sciborgs1155.robot.commands;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static org.sciborgs1155.robot.Constants.alliance;
+import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -25,12 +26,13 @@ import org.sciborgs1155.robot.drive.DriveConstants.Translation;
 import org.sciborgs1155.robot.drive.SwerveModule.ControlMode;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
+import org.sciborgs1155.robot.pivot.Pivot;
 
 public class Autos {
   private static Optional<Rotation2d> rotation = Optional.empty();
 
   public static SendableChooser<Command> configureAutos(
-      Shooting shooting, Drive drive, Intake intake, Feeder feeder) {
+      Shooting shooting, Drive drive, Pivot pivot, Intake intake, Feeder feeder) {
     AutoBuilder.configureHolonomic(
         drive::pose,
         drive::resetOdometry,
@@ -47,7 +49,8 @@ public class Autos {
 
     PPHolonomicDriveController.setRotationTargetOverride(() -> rotation);
 
-    NamedCommands.registerCommand("intake", intake.intake().deadlineWith(feeder.forward()));
+    NamedCommands.registerCommand(
+        "intake", intake.intake().deadlineWith(feeder.forward()).withTimeout(1));
     NamedCommands.registerCommand(
         "aim",
         shooting
@@ -58,13 +61,17 @@ public class Autos {
                         rotation =
                             Optional.of(
                                 Shooting.yawFromNoteVelocity(shooting.calculateNoteVelocity()))))
-            .finallyDo(() -> rotation = Optional.empty())
-            .withTimeout(2));
-    NamedCommands.registerCommand("shoot", shooting.shootWithPivot().withTimeout(0.75));
+            .finallyDo(() -> rotation = Optional.empty()));
+    NamedCommands.registerCommand(
+        "shoot",
+        shooting
+            .shootWithPivot()
+            .withTimeout(1)
+            .andThen(pivot.runPivot(STARTING_ANGLE).until(pivot::atGoal)));
     NamedCommands.registerCommand(
         "shoot-subwoofer", shooting.shoot(DEFAULT_VELOCITY).withTimeout(2));
 
     FollowPathCommand.warmupCommand().schedule();
-    return AutoBuilder.buildAutoChooser("Subwoofer 4 Note");
+    return AutoBuilder.buildAutoChooser("Subwoofer 5 Note");
   }
 }
