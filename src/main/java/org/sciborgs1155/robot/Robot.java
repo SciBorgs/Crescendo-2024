@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkBase;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -81,7 +82,10 @@ public class Robot extends CommandRobot implements Logged {
   // COMMANDS
   private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
   private final Alignment alignment = new Alignment(drive, pivot);
-  @Log.NT private final Autos autos = new Autos(shooting, drive, intake, feeder);
+
+  @Log.NT
+  private final SendableChooser<Command> autos =
+      Autos.configureAutos(shooting, drive, intake, feeder);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
@@ -159,9 +163,8 @@ public class Robot extends CommandRobot implements Logged {
   /** Configures trigger -> command bindings */
   private void configureBindings() {
     autonomous()
-        .whileTrue(Commands.deferredProxy(autos::get))
+        .whileTrue(Commands.deferredProxy(autos::getSelected))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
-        // .whileTrue(Commands.run(autos::poll));
 
     driver.b().whileTrue(drive.zeroHeading());
     driver

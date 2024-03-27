@@ -77,6 +77,10 @@ dependencies {
 
     // Monologue
     implementation 'com.github.shueja:Monologue:+'
+
+    // Gson
+    // Remove this once choreolib changes get upstreamed
+    implementation 'com.google.code.gson:gson:2.10.1'
 }
 
 test {

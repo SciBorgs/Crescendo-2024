@@ -1,0 +1,31 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.7371430993080139,
+      "y": 4.414560794830322
+    },
+    "rotation": -59.30030618196138
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot-subwoofer"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Source 4 Note"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}
