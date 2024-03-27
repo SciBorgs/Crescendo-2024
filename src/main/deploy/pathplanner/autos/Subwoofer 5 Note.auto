@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.351629376411438,
-      "y": 5.567087173461914
+      "x": 1.3779447078704834,
+      "y": 5.532890319824219
     },
-    "rotation": 1.232207949388074e-19
+    "rotation": -8.197615953337812e-21
   },
   "command": {
     "type": "sequential",
@@ -28,22 +28,15 @@
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intake"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "aim"
-                      }
-                    }
-                  ]
+                  "name": "aim"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
                 }
               }
             ]
@@ -52,7 +45,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "shoot-after-intake"
           }
         },
         {
@@ -66,22 +59,15 @@
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intake"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "aim"
-                      }
-                    }
-                  ]
+                  "name": "aim"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
                 }
               }
             ]
@@ -90,7 +76,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "shoot-after-intake"
           }
         },
         {
@@ -104,22 +90,15 @@
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intake"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "aim"
-                      }
-                    }
-                  ]
+                  "name": "aim"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
                 }
               }
             ]
@@ -128,7 +107,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "shoot-after-intake"
           }
         },
         {

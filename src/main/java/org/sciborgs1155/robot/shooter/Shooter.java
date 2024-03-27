@@ -76,7 +76,8 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     setDefaultCommand(
         run(
             () -> {
-              if (Robot.current < Constants.BROWNOUT_CURRENT.in(Amps) - 80) {
+              if (Robot.current < Constants.BROWNOUT_CURRENT.in(Amps) - 80
+                  && rotationalVelocity() < IDLE_VELOCITY.in(RadiansPerSecond)) {
                 update(IDLE_VELOCITY.in(RadiansPerSecond));
               } else {
                 setVoltage(0);

@@ -85,7 +85,7 @@ public class Robot extends CommandRobot implements Logged {
 
   @Log.NT
   private final SendableChooser<Command> autos =
-      Autos.configureAutos(shooting, drive, pivot, intake, feeder);
+      Autos.configureAutos(shooting, drive, pivot, shooter, intake, feeder);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 

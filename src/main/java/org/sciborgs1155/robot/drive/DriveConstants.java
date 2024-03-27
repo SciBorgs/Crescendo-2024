@@ -63,9 +63,9 @@ public final class DriveConstants {
   }
 
   public static final class Rotation {
-    public static final double P = 4.0;
+    public static final double P = 4.5;
     public static final double I = 0.0;
-    public static final double D = 0.0;
+    public static final double D = 0.05;
 
     public static final Measure<Angle> TOLERANCE = Degrees.of(3);
   }

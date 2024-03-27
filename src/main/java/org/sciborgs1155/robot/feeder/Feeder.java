@@ -37,7 +37,8 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   public Command runFeeder(double power) {
     return runOnce(() -> feeder.setPower(power))
         .andThen(Commands.idle(this))
-        .finallyDo(() -> feeder.setPower(0));
+        .finallyDo(() -> feeder.setPower(0))
+        .asProxy();
   }
 
   public Command forward() {
