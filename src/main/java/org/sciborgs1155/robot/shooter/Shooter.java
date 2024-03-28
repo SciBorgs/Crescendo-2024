@@ -31,7 +31,10 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   @Log.NT private double setpoint;
 
-  private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(kS, kV, kA);
+  private final SimpleMotorFeedforward topFeedforward =
+      new SimpleMotorFeedforward(Top.kS, Top.kV, Top.kA);
+  private final SimpleMotorFeedforward bottomFeedforward =
+      new SimpleMotorFeedforward(Bottom.kS, Bottom.kV, Bottom.kA);
 
   private final DoubleEntry p = Tuning.entry("/Robot/shooter/P", kP);
   private final DoubleEntry i = Tuning.entry("/Robot/shooter/I", kI);
@@ -40,7 +43,8 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   @Log.NT private final PIDController topPID = new PIDController(kP, kI, kD);
   @Log.NT private final PIDController bottomPID = new PIDController(kP, kI, kD);
 
-  private final SysIdRoutine sysId;
+  private final SysIdRoutine topCharacterization;
+  private final SysIdRoutine bottomCharacterization;
 
   /** Creates real or simulated shooter based on {@link Robot#isReal()}. */
   public static Shooter create() {
@@ -61,15 +65,36 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     topPID.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
     bottomPID.setTolerance(VELOCITY_TOLERANCE.in(RadiansPerSecond));
 
-    sysId =
+    topCharacterization =
         new SysIdRoutine(
             new SysIdRoutine.Config(Volts.per(Second).of(1), Volts.of(10.0), Seconds.of(11)),
-            new SysIdRoutine.Mechanism(v -> setVoltage(v.in(Volts)), null, this));
+            new SysIdRoutine.Mechanism(
+                v -> top.setVoltage(v.in(Volts)), null, this, "top shooter"));
+    bottomCharacterization =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(Volts.per(Second).of(1), Volts.of(10.0), Seconds.of(11)),
+            new SysIdRoutine.Mechanism(
+                v -> bottom.setVoltage(v.in(Volts)), null, this, "bottom shooter"));
 
-    SmartDashboard.putData("shooter quasistatic backward", quasistaticBack());
-    SmartDashboard.putData("shooter quasistatic forward", quasistaticForward());
-    SmartDashboard.putData("shooter dynamic backward", dynamicBack());
-    SmartDashboard.putData("shooter dynamic forward", dynamicForward());
+    SmartDashboard.putData(
+        "shooter top quasistatic backward", topCharacterization.quasistatic(Direction.kReverse));
+    SmartDashboard.putData(
+        "shooter top quasistatic forward", topCharacterization.quasistatic(Direction.kForward));
+    SmartDashboard.putData(
+        "shooter top dynamic backward", topCharacterization.dynamic(Direction.kReverse));
+    SmartDashboard.putData(
+        "shooter top dynamic forward", topCharacterization.dynamic(Direction.kForward));
+
+    SmartDashboard.putData(
+        "shooter bottom quasistatic backward",
+        bottomCharacterization.quasistatic(Direction.kReverse));
+    SmartDashboard.putData(
+        "shooter bottom quasistatic forward",
+        bottomCharacterization.quasistatic(Direction.kForward));
+    SmartDashboard.putData(
+        "shooter bottom dynamic backward", bottomCharacterization.dynamic(Direction.kReverse));
+    SmartDashboard.putData(
+        "shooter bottom dynamic forward", bottomCharacterization.dynamic(Direction.kForward));
 
     // setDefaultCommand(run(() -> update(IDLE_VELOCITY.in(RadiansPerSecond))));
     // setDefaultCommand(run(() -> update(0)));
@@ -101,14 +126,15 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public void update(double velocity) {
-    double ff = feedforward.calculate(setpoint, velocity, PERIOD.in(Seconds));
-    double topOut = topPID.calculate(top.velocity(), velocity);
-    double bottomOut = bottomPID.calculate(bottom.velocity(), velocity);
-    log("top output", topOut);
-    log("bottom output", bottomOut);
+    double topFF = topFeedforward.calculate(setpoint, velocity, PERIOD.in(Seconds));
+    double topFB = topPID.calculate(top.velocity(), velocity);
+    double bottomFF = bottomFeedforward.calculate(setpoint, velocity, PERIOD.in(Seconds));
+    double bottomFB = bottomPID.calculate(bottom.velocity(), velocity);
+    log("top output", topFF + topFB);
+    log("bottom output", bottomFF + bottomFB);
 
-    top.setVoltage(MathUtil.clamp(ff + topOut, -12, 12));
-    bottom.setVoltage(MathUtil.clamp(ff + bottomOut, -12, 12));
+    top.setVoltage(MathUtil.clamp(topFF + topFB, -12, 12));
+    bottom.setVoltage(MathUtil.clamp(bottomFF + bottomFB, -12, 12));
     setpoint = velocity;
   }
 
@@ -155,22 +181,6 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   @Log.NT
   public double tangentialVelocity() {
     return Shooting.flywheelToNoteSpeed(rotationalVelocity());
-  }
-
-  public Command quasistaticBack() {
-    return sysId.quasistatic(Direction.kReverse);
-  }
-
-  public Command quasistaticForward() {
-    return sysId.quasistatic(Direction.kForward);
-  }
-
-  public Command dynamicForward() {
-    return sysId.dynamic(Direction.kForward);
-  }
-
-  public Command dynamicBack() {
-    return sysId.dynamic(Direction.kReverse);
   }
 
   @Override

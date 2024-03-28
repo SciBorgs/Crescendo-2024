@@ -2,11 +2,13 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.Constants.Field.RED_MID_NOTE;
 import static org.sciborgs1155.robot.Constants.PERIOD;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.MAX_VELOCITY;
 
 import com.revrobotics.CANSparkBase;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -173,15 +175,14 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
-    // driver
-    //     .a()
-    //     .whileTrue(
-    //         alignment
-    //             .snapToStage(
-    //                 createJoystickStream(
-    //                     driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-    //                 createJoystickStream(
-    //                     driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
+    driver
+        .a()
+        .whileTrue(
+            alignment.snapToStage(
+                createJoystickStream(
+                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+                createJoystickStream(
+                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
     // stop holding the button in order to climb with
     // the pivot manually
 
@@ -222,6 +223,8 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(
             shooting.shootWithPivot(PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+
+    driver.leftTrigger().whileTrue(shooting.shootWithPivot(Radians.of(-0.027), MAX_VELOCITY));
 
     driver
         .rightTrigger()

@@ -3,17 +3,16 @@ package org.sciborgs1155.robot.shooter;
 import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.GEARING;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.kA;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.kV;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import org.sciborgs1155.robot.shooter.ShooterConstants.Top;
 
 public class SimWheel implements WheelIO {
   private final FlywheelSim flywheel =
-      new FlywheelSim(
-          LinearSystemId.identifyVelocitySystem(kV, kA), DCMotor.getNeoVortex(2), GEARING);
+      new FlywheelSim( // TODO fix
+          LinearSystemId.identifyVelocitySystem(Top.kV, Top.kA), DCMotor.getNeoVortex(2), GEARING);
 
   @Override
   public void setVoltage(double voltage) {

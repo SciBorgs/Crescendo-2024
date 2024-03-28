@@ -28,7 +28,7 @@ public class ShooterConstants {
   public static final Measure<Velocity<Angle>> DEFAULT_VELOCITY = RadiansPerSecond.of(550);
   public static final Measure<Velocity<Distance>> DEFAULT_NOTE_VELOCITY =
       MetersPerSecond.of(Shooting.flywheelToNoteSpeed(DEFAULT_VELOCITY.in(RadiansPerSecond)));
-  public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(630);
+  public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(640);
   public static final Measure<Velocity<Distance>> MAX_NOTE_VELOCITY =
       MetersPerSecond.of(Shooting.flywheelToNoteSpeed(MAX_VELOCITY.in(RadiansPerSecond)));
 
@@ -36,7 +36,15 @@ public class ShooterConstants {
   public static final double kI = 0.0;
   public static final double kD = 0.0;
 
-  public static final double kS = 0;
-  public static final double kV = 0.016896;
-  public static final double kA = 0.0031483;
+  public static final class Top {
+    public static final double kS = 0;
+    public static final double kV = 0.016896;
+    public static final double kA = 0.0031483;
+  }
+
+  public static final class Bottom {
+    public static final double kS = 0.038488;
+    public static final double kV = 0.016981;
+    public static final double kA = 0.0021296;
+  }
 }
