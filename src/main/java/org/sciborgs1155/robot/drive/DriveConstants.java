@@ -19,6 +19,8 @@ public final class DriveConstants {
   public static final Measure<Distance> WHEEL_BASE = Meters.of(0.5715);
   // Distance from the center to any wheel of the robot
   public static final Measure<Distance> RADIUS = TRACK_WIDTH.divide(2).times(Math.sqrt(2));
+  // Robot width with bumpers
+  public static final Measure<Distance> CHASSIS_WIDTH = Inches.of(32.645);
 
   // Maximum achievable translational and rotation velocities and accelerations of the robot.
   public static final Measure<Velocity<Distance>> MAX_SPEED = MetersPerSecond.of(5.74);

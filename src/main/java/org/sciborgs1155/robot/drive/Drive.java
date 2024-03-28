@@ -15,7 +15,6 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -31,7 +30,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -49,6 +47,7 @@ import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 import org.sciborgs1155.robot.drive.DriveConstants.Translation;
+import org.sciborgs1155.robot.drive.SwerveModule.ControlMode;
 import org.sciborgs1155.robot.vision.Vision.PoseEstimate;
 
 public class Drive extends SubsystemBase implements Logged, AutoCloseable {
@@ -66,8 +65,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   private final GyroIO gyro;
   private static Rotation2d simRotation = new Rotation2d();
-
-  private final SlewRateLimiter rateLimiter;
 
   public final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_OFFSET);
 
@@ -133,7 +130,11 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
-                volts -> modules.forEach(m -> m.setDriveVoltage(volts.in(Volts))), null, this));
+                volts ->
+                    modules.forEach(
+                        m -> m.updateDriveVoltage(Rotation2d.fromRadians(0), volts.in(Volts))),
+                null,
+                this));
 
     odometry =
         new SwerveDrivePoseEstimator(
@@ -153,11 +154,10 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     rotationController.enableContinuousInput(0, 2 * Math.PI);
     rotationController.setTolerance(Rotation.TOLERANCE.in(Radians));
 
-    rateLimiter = new SlewRateLimiter(9.5, Double.NEGATIVE_INFINITY, 0);
-    SmartDashboard.putData("drive quasistatic forward", sysIdQuasistatic(Direction.kForward));
-    SmartDashboard.putData("drive dynamic forward", sysIdDynamic(Direction.kForward));
-    SmartDashboard.putData("drive quasistatic backward", sysIdQuasistatic(Direction.kReverse));
-    SmartDashboard.putData("drive dynamic backward", sysIdDynamic(Direction.kReverse));
+    SmartDashboard.putData("drive quasistatic forward", sysid.quasistatic(Direction.kForward));
+    SmartDashboard.putData("drive dynamic forward", sysid.dynamic(Direction.kForward));
+    SmartDashboard.putData("drive quasistatic backward", sysid.quasistatic(Direction.kReverse));
+    SmartDashboard.putData("drive dynamic backward", sysid.dynamic(Direction.kReverse));
   }
 
   /**
@@ -181,10 +181,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   public Rotation2d heading() {
     return pose().getRotation();
-  }
-
-  public Command brake() {
-    return run(() -> setChassisSpeeds(new ChassisSpeeds()));
   }
 
   /**
@@ -230,7 +226,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                     vx.getAsDouble(),
                     vy.getAsDouble(),
                     vOmega.getAsDouble(),
-                    heading().plus(allianceRotation()))));
+                    heading().plus(allianceRotation())),
+                ControlMode.OPEN_LOOP_VELOCITY));
   }
 
   /**
@@ -251,30 +248,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         .beforeStarting(rotationController::reset);
   }
 
-  /**
-   * Drives the robot to a specific {@link Pose2d} target.
-   *
-   * <p>This method uses a trapezoid profile + pid controller to approach the target on x y and
-   * rotation axes simultaneously. It also does not avoid obstacles or other robots.
-   *
-   * @param target The pose to drive to.
-   * @return A command that drives to the target and then ends.
-   */
-  public void driveFieldRelative(ChassisSpeeds speeds) {
-    driveRobotRelative(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, heading()));
-  }
-
-  /**
-   * Drives the robot based on profided {@link ChassisSpeeds}.
-   *
-   * <p>This method uses {@link ChassisSpeeds#discretize(ChassisSpeeds, double)} to reduce skew.
-   *
-   * @param speeds The desired robot relative chassis speeds.
-   */
-  public void driveRobotRelative(ChassisSpeeds speeds) {
-    setChassisSpeeds(speeds);
-  }
-
   public Command driveTo(Pose2d target) {
     return run(() -> {
           Transform2d transform = target.minus(pose());
@@ -287,24 +260,27 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
           Vector<N3> velocities = difference.unit().times(out);
           setChassisSpeeds(
               new ChassisSpeeds(
-                  velocities.get(0), velocities.get(1), velocities.get(2) / RADIUS.in(Meters)));
+                  velocities.get(0), velocities.get(1), velocities.get(2) / RADIUS.in(Meters)),
+              ControlMode.CLOSED_LOOP_VELOCITY);
         })
         .until(translationController::atGoal);
   }
 
   /** Robot relative chassis speeds */
-  public void setChassisSpeeds(ChassisSpeeds speeds) {
+  public void setChassisSpeeds(ChassisSpeeds speeds, ControlMode mode) {
     setModuleStates(
         kinematics.toSwerveModuleStates(
-            ChassisSpeeds.discretize(speeds, Constants.PERIOD.in(Seconds))));
+            ChassisSpeeds.discretize(speeds, Constants.PERIOD.in(Seconds))),
+        mode);
   }
 
   /**
    * Sets the swerve ModuleStates.
    *
    * @param desiredStates The desired SwerveModule states.
+   * @param mode The method to use when controlling the drive motor.
    */
-  public void setModuleStates(SwerveModuleState[] desiredStates) {
+  public void setModuleStates(SwerveModuleState[] desiredStates, ControlMode mode) {
     if (desiredStates.length != modules.size()) {
       throw new IllegalArgumentException("desiredStates must have the same length as modules");
     }
@@ -319,7 +295,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         desiredStates, getModuleSetpoints(), MAX_ACCEL.in(MetersPerSecondPerSecond), 0.02);
 
     for (int i = 0; i < modules.size(); i++) {
-      modules.get(i).updateDesiredState(desiredStates[i]);
+      modules.get(i).updateDesiredState(desiredStates[i], mode);
     }
   }
 
@@ -417,30 +393,18 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   /** Stops drivetrain */
   public Command stop() {
-    return runOnce(() -> setChassisSpeeds(new ChassisSpeeds()));
+    return runOnce(() -> setChassisSpeeds(new ChassisSpeeds(), ControlMode.OPEN_LOOP_VELOCITY));
   }
 
   /** Sets the drivetrain to an "X" configuration, preventing movement */
   public Command lock() {
     var front = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
     var back = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-    return run(() -> setModuleStates(new SwerveModuleState[] {front, back, back, front}));
-  }
-
-  /** Locks the turn motors. */
-  private Command lockTurnMotors() {
-    return Commands.run(
-        () -> modules.forEach(m -> m.updateTurnRotation(Rotation2d.fromDegrees(0))));
-  }
-
-  /** Runs the drive quasistatic SysId while locking turn motors. */
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysid.quasistatic(direction).deadlineWith(lockTurnMotors());
-  }
-
-  /** Runs the drive dynamic SysId while locking turn motors. */
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysid.dynamic(direction).deadlineWith(lockTurnMotors());
+    return run(
+        () ->
+            setModuleStates(
+                new SwerveModuleState[] {front, back, back, front},
+                ControlMode.OPEN_LOOP_VELOCITY));
   }
 
   public void close() throws Exception {
