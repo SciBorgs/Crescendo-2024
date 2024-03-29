@@ -125,7 +125,7 @@ public class Shooting implements Logged {
    *
    * @param vx The field relative x velocity to drive in.
    * @param vy The field relative y velocity to drive in.
-   * @return A command to shote while moving.
+   * @return A command to shoot while moving.
    */
   public Command shootWhileDriving(InputStream vx, InputStream vy) {
     return shoot(

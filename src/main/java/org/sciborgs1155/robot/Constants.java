@@ -67,6 +67,11 @@ public class Constants {
     public static final Translation3d RED_SPEAKER_POSE = new Translation3d(16.8167, 5.549, 2.002);
     public static final Translation3d TARGET_OFFSET = new Translation3d(0.367, 0, 0.2);
 
+    // represents the pose that the robot needs to be at to intake from source.
+    public static final Pose2d BLUE_SOURCE_POSE = new Pose2d(); //TODO need to find coords for this
+    public static final Pose2d RED_SOURCE_POSE = new Pose2d(); // TODO this one too
+
+
     // found from
     // https://github.com/Mechanical-Advantage/RobotCode2024/blob/main/src/main/java/org/littletonrobotics/frc2024/FieldConstants.java
     public static Pose3d BLUE_LEFT_NOTE =
@@ -126,11 +131,20 @@ public class Constants {
           : BLUE_SPEAKER_POSE.plus(TARGET_OFFSET);
     }
 
+    /** Returns a pose2d of the speaker for the robot's alliance. */
+    public static Pose2d speakerPose() {
+        return alliance() == Alliance.Red ? new Pose2d(RED_SPEAKER_POSE.toTranslation2d(), Rotation2d.fromRadians(Math.PI)) : new Pose2d(BLUE_SPEAKER_POSE.toTranslation2d(), Rotation2d.fromRadians(0));
+    }
+
     // ** Returns a list of 2d coordinates for the middle of the current alliance's stage chains */
     public static List<Pose2d> chainCoordinates() {
       return alliance() == Alliance.Blue
           ? List.of(BLUE_STAGE_AMPSIDE, BLUE_STAGE_MIDSIDE, BLUE_STAGE_SOURCESIDE)
           : List.of(RED_STAGE_AMPSIDE, RED_STAGE_MIDSIDE, RED_STAGE_SOURCESIDE);
+    }
+
+    public static Pose2d sourceCoordinates() {
+        return alliance() == Alliance.Blue ? BLUE_SOURCE_POSE : RED_SOURCE_POSE;
     }
 
     // ** Returns the Pose2D of the amp on the robot's alliance. */

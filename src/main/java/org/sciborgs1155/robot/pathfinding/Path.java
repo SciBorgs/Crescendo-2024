@@ -104,7 +104,7 @@ public class Path {
    *
    * @return whether the goal can be driven straight to.
    */
-  public boolean setPointSeeable(Pose2d startingPoint) {
-    return pointSeeable(startingPoint, endingPoint, PathfindingConstants.stationaryObstacles);
+  public boolean setPointSeeable() {
+    return pointSeeable(drive.pose(), endingPoint, PathfindingConstants.stationaryObstacles);
   }
 }

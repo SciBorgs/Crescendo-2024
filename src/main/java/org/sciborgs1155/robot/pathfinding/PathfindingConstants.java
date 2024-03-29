@@ -23,7 +23,8 @@ public class PathfindingConstants {
    * This number should be between 1 and 8.
    * The higher the number, the more precise the algorithm will be, but increasing
    * the number grants diminishing returns on precision while exponentially decreasing
-   * performance. It is highly advised to keep this number low, around 2-4.
+   * performance. It is highly advised to keep this number low, around 2-4, but it can 
+   * function somewhat at 1.
    */
   public static final int MAX_ASSIGNED_VALUE = 3;
 

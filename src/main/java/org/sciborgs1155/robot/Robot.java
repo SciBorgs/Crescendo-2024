@@ -37,6 +37,7 @@ import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.Alignment;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
+import org.sciborgs1155.robot.commands.PathFollowing;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
@@ -47,6 +48,7 @@ import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.led.LedStrip;
 import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
+import org.sciborgs1155.robot.pathfinding.GriddedField;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
@@ -95,6 +97,7 @@ public class Robot extends CommandRobot implements Logged {
 
   private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
   private final Alignment alignment = new Alignment(drive, pivot);
+  private final PathFollowing pathfollow = new PathFollowing(drive, new GriddedField(), alignment);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
@@ -223,13 +226,18 @@ public class Robot extends CommandRobot implements Logged {
     // stop holding the button in order to climb with
     // the pivot manually
 
-    driver
+    driver.a().whileTrue(null)
+
+    /* driver
         .a()
         .whileTrue(
             alignment
                 .ampAlign()
                 .andThen(drive.stop())
                 .andThen(shooting.shootWithPivot(PRESET_AMP_ANGLE, AMP_VELOCITY)));
+
+        Hi. this is commented so that I can use the driver's a key. sorry bout that.
+    */
 
     operator
         .a()
@@ -287,6 +295,7 @@ public class Robot extends CommandRobot implements Logged {
         .noteAtShooter()
         .onFalse(rumble(RumbleType.kRightRumble, 0.3))
         .whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
+
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {
