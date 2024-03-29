@@ -4,8 +4,8 @@ import static org.sciborgs1155.robot.pathfinding.PathfindingConstants.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import org.sciborgs1155.robot.pathfinding.Convenience.Point;
 import java.util.List;
+import org.sciborgs1155.robot.pathfinding.Convenience.Point;
 
 public class CharliesAstar {
 

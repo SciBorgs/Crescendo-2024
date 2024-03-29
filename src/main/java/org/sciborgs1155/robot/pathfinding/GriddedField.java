@@ -4,11 +4,11 @@ import static edu.wpi.first.units.Units.Centimeter;
 import static org.sciborgs1155.robot.pathfinding.PathfindingConstants.*;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import org.sciborgs1155.robot.Constants.Field;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.ListIterator;
+import org.sciborgs1155.robot.Constants.Field;
 
 public class GriddedField {
   // for ease of access and to make the coe look better

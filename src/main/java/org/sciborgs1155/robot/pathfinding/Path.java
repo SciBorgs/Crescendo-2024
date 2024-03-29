@@ -7,7 +7,6 @@ import java.awt.geom.PathIterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
-
 import org.sciborgs1155.robot.drive.Drive;
 
 public class Path {

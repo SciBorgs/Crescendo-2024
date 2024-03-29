@@ -3,7 +3,6 @@ package org.sciborgs1155.robot.pathfinding;
 import static edu.wpi.first.units.Units.Centimeter;
 
 import java.util.List;
-
 import org.sciborgs1155.robot.drive.DriveConstants;
 
 public class PathfindingConstants {
@@ -34,7 +33,8 @@ public class PathfindingConstants {
   public static final int GRID_SIDE_LENGTH = 4;
 
   // The stationary obstacles are predetermined. So, they would be inputted here.
-    public static final List<Obstacle> stationaryObstacles = List.of();
+  public static final List<Obstacle> stationaryObstacles = List.of();
 
-    public static final double ROBOT_RADIUS = DriveConstants.CHASSIS_WIDTH.in(Centimeter) / Math.sqrt(2);
+  public static final double ROBOT_RADIUS =
+      DriveConstants.CHASSIS_WIDTH.in(Centimeter) / Math.sqrt(2);
 }

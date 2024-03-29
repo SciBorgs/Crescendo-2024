@@ -3,16 +3,13 @@ package org.sciborgs1155.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-
+import java.util.List;
+import java.util.function.Supplier;
+import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.pathfinding.CharliesAstar;
 import org.sciborgs1155.robot.pathfinding.GriddedField;
 import org.sciborgs1155.robot.pathfinding.Obstacle;
 import org.sciborgs1155.robot.pathfinding.Path;
-
-import java.util.List;
-import java.util.function.Supplier;
-
-import org.sciborgs1155.robot.drive.Drive;
 
 public class PathFollowing {
 
@@ -74,7 +71,8 @@ public class PathFollowing {
       refreshMeter++;
     }
     return drive.driveIncrements(
-        new Pose2d(aStar.nextPos(drive.pose().getTranslation()), path.endingPoint.getRotation()), path.endingPoint);
+        new Pose2d(aStar.nextPos(drive.pose().getTranslation()), path.endingPoint.getRotation()),
+        path.endingPoint);
   }
 
   /**
