@@ -261,6 +261,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * direction of the wheels and the speed needed in order to successfully reach the next state in
    * the path of the robot.
    *
+   * <p>The difference between this and driveTo() is that this method calculates the speed needed at
+   * target in order to minimize the time it takes to get to the goal.
+   *
    * @param target The next target (increment) in the path.
    * @param goal The final goal of the entire path.
    * @return A command to put the robot on the next state in the path.

@@ -69,20 +69,18 @@ public class GriddedField {
   public void addTempObstacles(List<Obstacle> obstacles) {
     movingObstacles = obstacles;
     resetTemps();
-    addObstacles(obstacles, fullField);
+    addObstacles(obstacles);
   }
 
   /**
-   * A static method which adds temporary obstacles to a field. This method does not remove the
-   * current temporary obstacles on the field.
+   * A method which adds temporary obstacles to a field. This method does not remove the current
+   * temporary obstacles on the field.
    *
    * @param obstacles A list of Obstacles, representing the temporary obstacles being placed on the
    *     field. These temporary obstacles are best for moving objects, where their position can be
    *     updated by clearing the field and re-placing them in their new position every period.
-   * @param field A GridBox two-dimensional array which represents the field to which the obstacles
-   *     will be added into.
    */
-  public static void addObstacles(List<Obstacle> obstacles, GridBox[][] field) {
+  public void addObstacles(List<Obstacle> obstacles) {
     ListIterator<Obstacle> iterator = obstacles.listIterator();
 
     while (iterator.hasNext()) {
@@ -97,7 +95,7 @@ public class GriddedField {
       for (int x = boundingX; x <= boundingX + boundingWidth; x++) {
         for (int y = boundingY; y <= boundingY + boundingHeight; y++) {
           if (obstacle.contains(x, y)) {
-            field[x][y].obstaclize();
+            fullField[x][y].obstaclize();
           }
         }
       }
