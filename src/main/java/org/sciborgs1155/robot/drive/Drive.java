@@ -256,6 +256,37 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         .until(translationController::atGoal);
   }
 
+  /**
+   * An incrememntal drive method, for use in pathfollowing.
+   * It is used as a way to calculate the direction of the wheels and
+   * the speed needed in order to successfully reach the next state
+   * in the path of the robot.
+   * @param target The next target (increment) in the path.
+   * @param goal The final goal of the entire path.
+   * @return A command to put the robot on the next state in the path.
+   */
+  public Command driveIncrements(Pose2d target, Pose2d goal) {
+    return run(() -> {
+          Transform2d transform = target.minus(pose());
+          Transform2d endTransform = goal.minus(pose());
+          Vector<N3> difference =
+              VecBuilder.fill(
+                  transform.getX(),
+                  transform.getY(),
+                  transform.getRotation().getRadians() * RADIUS.in(Meters));
+          Vector<N3> endDifference = VecBuilder.fill(
+            endTransform.getX(), endTransform.getY(), endTransform.getRotation().getRadians() * RADIUS.in(Meters)
+          );
+          double out = -translationController.calculate(endDifference.norm(), 0);
+          Vector<N3> velocities = difference.unit().times(out);
+          setChassisSpeeds(
+              new ChassisSpeeds(
+                  velocities.get(0), velocities.get(1), velocities.get(2) / RADIUS.in(Meters)),
+              ControlMode.CLOSED_LOOP_VELOCITY);
+        })
+        .until(translationController::atGoal);
+  }
+
   /** Robot relative chassis speeds */
   public void setChassisSpeeds(ChassisSpeeds speeds, ControlMode mode) {
     setModuleStates(
