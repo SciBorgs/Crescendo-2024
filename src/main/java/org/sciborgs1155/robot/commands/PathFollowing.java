@@ -30,7 +30,7 @@ public class PathFollowing {
   // How close the robot will have to be before it shoots at the speaker.
   private static final Measure<Distance> SHOOTING_RANGE = Inches.of(100);
 
-  private int refreshMeter = 5;
+  private int refreshMeter = REFRESH_INTERVAL;
 
   private Path path;
   private Drive drive;
@@ -41,12 +41,12 @@ public class PathFollowing {
     this.drive = drive;
     this.field = field;
 
+    path = new Path(drive.pose(), drive.pose(), field, drive);
+
     aStar =
         new CharliesAstar(
             field,
             field.coordsToBox(new Translation2d(path.endingPoint.getX(), path.endingPoint.getY())));
-
-    newPath(drive.pose());
   }
 
   /**

@@ -7,6 +7,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import java.util.List;
 import org.sciborgs1155.robot.pathfinding.Convenience.Point;
 
+/**
+ * @author Charlie Kerr
+ */
 public class CharliesAstar {
 
   private GriddedField field;

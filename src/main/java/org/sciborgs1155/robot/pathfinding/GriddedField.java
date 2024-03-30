@@ -19,6 +19,9 @@ public class GriddedField {
   public static final int LENGTH_GRID_NUMBER = (int) INT_FIELD_LENGTH / GRID_SIDE_LENGTH;
   public static final int WIDTH_GRID_NUMBER = (int) INT_FIELD_LENGTH / GRID_SIDE_LENGTH;
 
+  public static final int GRID_ROBOT_RADIUS =
+      (int) ROBOT_RADIUS.in(Centimeter) / PathfindingConstants.GRID_SIDE_LENGTH;
+
   public List<Obstacle> movingObstacles;
 
   /* Increasing the grid size to make it GRID_SIDE_LENGTH on each side, because otherwise
@@ -45,15 +48,15 @@ public class GriddedField {
     // Turning the walls into obstacles.
 
     for (int x = 0; x < LENGTH_GRID_NUMBER; x++) {
-      for (int y = 0; y < ROBOT_RADIUS; y++) {
-        baseField[x / GRID_SIDE_LENGTH][y / GRID_SIDE_LENGTH].obstaclize();
-        baseField[x / GRID_SIDE_LENGTH][LENGTH_GRID_NUMBER - y / GRID_SIDE_LENGTH].obstaclize();
+      for (int y = 0; y < GRID_ROBOT_RADIUS; y++) {
+        baseField[x][y].obstaclize();
+        baseField[LENGTH_GRID_NUMBER - x - 1][y].obstaclize();
       }
     }
-    for (int x = 0; x < WIDTH_GRID_NUMBER; x++) {
-      for (int y = 0; y < ROBOT_RADIUS; y++) {
-        baseField[x / GRID_SIDE_LENGTH][y / GRID_SIDE_LENGTH].obstaclize();
-        baseField[WIDTH_GRID_NUMBER - x / GRID_SIDE_LENGTH][y / GRID_SIDE_LENGTH].obstaclize();
+    for (int y = 0; y < WIDTH_GRID_NUMBER; y++) {
+      for (int x = 0; x < GRID_ROBOT_RADIUS; x++) {
+        baseField[x][y].obstaclize();
+        baseField[x][WIDTH_GRID_NUMBER - y - 1].obstaclize();
       }
     }
   }

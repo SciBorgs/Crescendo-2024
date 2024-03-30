@@ -1,5 +1,7 @@
 package org.sciborgs1155.robot.pathfinding;
 
+import static edu.wpi.first.units.Units.Centimeter;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import java.awt.Polygon;
@@ -18,8 +20,8 @@ public class Obstacle {
       AffineTransform.getScaleInstance(
               // Finding which scale factor is needed in order to increase both opposite sides by
               // the robot radius (im a genius)
-              (1 + PathfindingConstants.ROBOT_RADIUS * 2 / boundingBox.getHeight()),
-              (1 + PathfindingConstants.ROBOT_RADIUS * 2 / boundingBox.getWidth()))
+              (1 + PathfindingConstants.ROBOT_RADIUS.in(Centimeter) * 2 / boundingBox.getHeight()),
+              (1 + PathfindingConstants.ROBOT_RADIUS.in(Centimeter) * 2 / boundingBox.getWidth()))
           .createTransformedShape(obstacle);
 
   // Scaling the obstacle to this factor. Increases all sides by the robot radius.
