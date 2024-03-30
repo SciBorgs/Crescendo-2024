@@ -32,18 +32,15 @@ public class PathFollowing {
 
   private int refreshMeter = 5;
 
-  private Alignment alignment;
-  private Shooting shooting;
   private Path path;
   private Drive drive;
   private GriddedField field;
   private CharliesAstar aStar;
 
-  public PathFollowing(Drive drive, GriddedField field, Alignment alignment, Shooting shooting) {
+  public PathFollowing(Drive drive, GriddedField field) {
     this.drive = drive;
     this.field = field;
-    this.alignment = alignment;
-    this.shooting = shooting;
+
     aStar =
         new CharliesAstar(
             field,
@@ -113,26 +110,52 @@ public class PathFollowing {
     return incPathFollow(movingObstacles).until(path::atEndPoint);
   }
 
+  /**
+   * Sets the current path to a new one with a new destination.
+   *
+   * @param movingObstacles The new position of moving obstacles on the field.
+   * @param newGoal The new Pose2d destination of the robot.
+   * @return A command which moves the robot along the new path to the new destination.
+   */
   public Command followNewPath(Supplier<List<Obstacle>> movingObstacles, Pose2d newGoal) {
     newPath(newGoal);
     return followPath(movingObstacles);
   }
 
+  /**
+   * Starts the robot on a path to the source.
+   *
+   * @param movingObstacles The new position of moving obstacles on the field.
+   * @return A command which moves the robot along the most efficient path to the source.
+   */
   public Command goToSource(Supplier<List<Obstacle>> movingObstacles) {
     return followNewPath(movingObstacles, Field.sourceCoordinates());
   }
 
+  /**
+   * Starts the robot on a new path to the amp. The most effective use is to auto-align and shoot in
+   * the amp right after this command with an ".andThen(ampAlign())".
+   *
+   * @param movingObstacles The new position of moving obstacles on the field.
+   * @return A command which moves the robot along the most efficient path to the amp.
+   */
   public Command fullAutoAmp(Supplier<List<Obstacle>> movingObstacles) {
     return followNewPath(
-            movingObstacles,
-            new Pose2d(
-                Field.ampCoordinates()
-                    .plus(
-                        new Translation2d(Inches.of(0), DriveConstants.CHASSIS_WIDTH.times(-0.5))),
-                Rotation2d.fromRadians(-Math.PI / 2)))
-        .andThen(alignment.ampAlign());
+        movingObstacles,
+        new Pose2d(
+            Field.ampCoordinates()
+                .plus(new Translation2d(Inches.of(0), DriveConstants.CHASSIS_WIDTH.times(-0.5))),
+            Rotation2d.fromRadians(-Math.PI / 2)));
   }
 
+  /**
+   * Starts the robot on a new path to the shooting range of the speaker. The most effective use is
+   * to auto-aim and shoot at the speaker right after this command with an ".andThen()" method.
+   *
+   * @param movingObstacles The new position of moving obstacles on the field.
+   * @return A command which moves the robot along the most efficient path to the speaker, then
+   *     stops when it's in range.
+   */
   public Command fullAutoSpeaker(Supplier<List<Obstacle>> movingObstacles) {
     newPath(speakerPose());
     return incPathFollow(movingObstacles)
@@ -140,15 +163,27 @@ public class PathFollowing {
             () ->
                 Field.speaker().toTranslation2d().getDistance(drive.pose().getTranslation())
                         < SHOOTING_RANGE.in(Meters)
-                    && path.setPointSeeable())
-        .andThen(shooting.shootWhileDriving(() -> 0, () -> 0));
+                    && path.setPointSeeable());
   }
 
+  /**
+   * Starts the robot on a new path to the nearest climbing chain, then rotates the robot to be
+   * perpendicular to said chain, and then (NOT YET) climbs.
+   *
+   * @param movingObstacles The new position of moving obstacles on the field.
+   * @return A command which helps to automatically climb onto the chain.
+   */
   public Command fullAutoClimb(Supplier<List<Obstacle>> movingObstacles) {
     return followNewPath(movingObstacles, drive.pose().nearest(chainCoordinates()));
     // TODO right now it just goes to the nearest chain but doesn't climb. Will do that later.
   }
 
+  /**
+   * Starts the robot on a new path to the source.
+   *
+   * @param movingObstacles The new position of moving obstacles on the field.
+   * @return A command which automatically moves the robot to the source.
+   */
   public Command fullAutoSource(Supplier<List<Obstacle>> movingObstacles) {
     return followNewPath(movingObstacles, Field.sourceCoordinates());
   }

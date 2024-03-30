@@ -98,8 +98,7 @@ public class Robot extends CommandRobot implements Logged {
 
   private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
   private final Alignment alignment = new Alignment(drive, pivot);
-  private final PathFollowing pathfollow =
-      new PathFollowing(drive, new GriddedField(), alignment, shooting);
+  private final PathFollowing pathfollow = new PathFollowing(drive, new GriddedField());
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
@@ -233,6 +232,7 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(
             pathfollow
                 .fullAutoSpeaker(() -> List.of())
+                .andThen(shooting.shootWhileDriving(() -> 0, () -> 0))
                 .andThen(pathfollow.fullAutoSource(() -> List.of()).until(feeder.noteAtShooter())));
 
     driver
