@@ -121,7 +121,7 @@ public class GriddedField {
   /** Removes the temporary obstacles from the field. */
   public void resetTemps() {
     fullField = baseField;
-    movingObstacles.clear();
+    movingObstacles = new ArrayList<>();
   }
 
   /**
