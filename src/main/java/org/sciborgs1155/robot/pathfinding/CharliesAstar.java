@@ -4,12 +4,14 @@ import static org.sciborgs1155.robot.pathfinding.PathfindingConstants.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import java.util.ArrayList;
 import java.util.List;
 import org.sciborgs1155.robot.pathfinding.Convenience.Point;
 
 /**
  * (jacob showed me how to do this)
- * @author Charlie Kerr 
+ *
+ * @author Charlie Kerr
  */
 public class CharliesAstar {
 
@@ -180,7 +182,7 @@ public class CharliesAstar {
     // Direction for the directional box methods.
     Rotation2d rotation = pointDirection(box);
 
-    if (box != setPoint) {
+    if (box != setPoint && box.offEdge()) {
       if (box.getCost() < COST_CREATIVITY) { // If the current box is within the current radius.
         for (Point i : intpair) {
 
@@ -228,9 +230,14 @@ public class CharliesAstar {
   private GridBox lowestCostNearby(GridBox box) {
     GridBox lowest = box;
     for (Point point : intpair) {
-      GridBox proposedBox = field.field()[box.getX() + point.getX()][box.getY() + point.getY()];
-      if (!proposedBox.checkObstacled() && proposedBox.getCost() > lowest.getCost()) {
-        lowest = proposedBox;
+      if (box.getX() + point.getX() >= 0
+          && box.getX() + point.getX() < GriddedField.LENGTH_GRID_NUMBER
+          && box.getY() + point.getY() >= 0
+          && box.getY() + point.getY() < GriddedField.WIDTH_GRID_NUMBER) {
+        GridBox proposedBox = field.field()[box.getX() + point.getX()][box.getY() + point.getY()];
+        if (!proposedBox.checkObstacled()) {
+          lowest = proposedBox;
+        }
       }
     }
     return lowest;
@@ -246,7 +253,7 @@ public class CharliesAstar {
    */
   public List<Translation2d> pathMaker(Translation2d pathStart, Translation2d pathEnd) {
     // Creating the list
-    List<Translation2d> points = List.of(pathStart);
+    List<Translation2d> points = new ArrayList<>(List.of(pathStart));
 
     // Appending to the list
     while (!points.contains(pathEnd)) {

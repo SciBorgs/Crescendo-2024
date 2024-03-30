@@ -6,6 +6,7 @@ import static org.sciborgs1155.robot.pathfinding.PathfindingConstants.*;
 import edu.wpi.first.math.geometry.Translation2d;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import org.sciborgs1155.robot.Constants.Field;
@@ -37,7 +38,7 @@ public class GriddedField {
    *     2-dimensional obstacles on the field.
    */
   public GriddedField() {
-    movingObstacles = List.of();
+    movingObstacles = new ArrayList<>();
 
     for (int x = 0; x < LENGTH_GRID_NUMBER; x++) {
       for (int y = 0; y < WIDTH_GRID_NUMBER; y++) {
@@ -70,8 +71,8 @@ public class GriddedField {
    *     updated by clearing the field and re-placing them in their new position every period.
    */
   public void addTempObstacles(List<Obstacle> obstacles) {
-    movingObstacles = obstacles;
     resetTemps();
+    movingObstacles = obstacles;
     addObstacles(obstacles);
   }
 

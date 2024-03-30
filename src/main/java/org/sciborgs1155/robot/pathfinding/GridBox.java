@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.pathfinding;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GridBox {
@@ -14,7 +15,7 @@ public class GridBox {
   private int YValue;
 
   // List of GridBoxes that this GridBox will not take new costs from.
-  private List<GridBox> ignoreList = List.of();
+  private List<GridBox> ignoreList = new ArrayList<>(List.of());
 
   /**
    * Constructor for a GridBox.
@@ -76,6 +77,13 @@ public class GridBox {
    */
   public boolean checkObstacled() {
     return obstacled;
+  }
+
+  public boolean offEdge() {
+    return getX() != 0
+        && getY() != 0
+        && getX() != GriddedField.LENGTH_GRID_NUMBER - 1
+        && getY() != GriddedField.LENGTH_GRID_NUMBER - 1;
   }
 
   /**
