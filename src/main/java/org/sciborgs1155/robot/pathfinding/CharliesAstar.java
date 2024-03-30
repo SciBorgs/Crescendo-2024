@@ -8,7 +8,8 @@ import java.util.List;
 import org.sciborgs1155.robot.pathfinding.Convenience.Point;
 
 /**
- * @author Charlie Kerr
+ * (jacob showed me how to do this)
+ * @author Charlie Kerr 
  */
 public class CharliesAstar {
 
