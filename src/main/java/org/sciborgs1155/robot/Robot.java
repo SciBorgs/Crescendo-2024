@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import java.util.List;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import monologue.Monologue;
@@ -97,7 +98,8 @@ public class Robot extends CommandRobot implements Logged {
 
   private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
   private final Alignment alignment = new Alignment(drive, pivot);
-  private final PathFollowing pathfollow = new PathFollowing(drive, new GriddedField(), alignment);
+  private final PathFollowing pathfollow =
+      new PathFollowing(drive, new GriddedField(), alignment, shooting);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
@@ -226,18 +228,20 @@ public class Robot extends CommandRobot implements Logged {
     // stop holding the button in order to climb with
     // the pivot manually
 
-    driver.a().whileTrue(null)
+    driver
+        .leftTrigger()
+        .whileTrue(
+            pathfollow
+                .fullAutoSpeaker(() -> List.of())
+                .andThen(pathfollow.fullAutoSource(() -> List.of()).until(feeder.noteAtShooter())));
 
-    /* driver
+    driver
         .a()
         .whileTrue(
             alignment
                 .ampAlign()
                 .andThen(drive.stop())
                 .andThen(shooting.shootWithPivot(PRESET_AMP_ANGLE, AMP_VELOCITY)));
-
-        Hi. this is commented so that I can use the driver's a key. sorry bout that.
-    */
 
     operator
         .a()
@@ -295,7 +299,6 @@ public class Robot extends CommandRobot implements Logged {
         .noteAtShooter()
         .onFalse(rumble(RumbleType.kRightRumble, 0.3))
         .whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
-
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {

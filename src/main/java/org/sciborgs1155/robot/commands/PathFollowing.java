@@ -1,20 +1,18 @@
 package org.sciborgs1155.robot.commands;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+import static org.sciborgs1155.robot.Constants.Field.chainCoordinates;
+import static org.sciborgs1155.robot.Constants.Field.speakerPose;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj2.command.Command;
-
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
-import static org.sciborgs1155.robot.Constants.Field.speaker;
-import static org.sciborgs1155.robot.Constants.Field.speakerPose;
-
 import java.util.List;
 import java.util.function.Supplier;
-
 import org.sciborgs1155.robot.Constants.Field;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
@@ -94,8 +92,9 @@ public class PathFollowing {
   }
 
   /**
-   * Updates the temporary onfield obstacles, then drives the robot to the next pose. 
-   * The "inc" means "incremental" but I shortened it to make the name shorter.
+   * Updates the temporary onfield obstacles, then drives the robot to the next pose. The "inc"
+   * means "incremental" but I shortened it to make the name shorter.
+   *
    * @param movingObstacles The new temporary onfield obstacles.
    * @return A command to update obstacles then go to the next position in the path.
    */
@@ -106,6 +105,7 @@ public class PathFollowing {
 
   /**
    * Follows the current path in the PathFollowing object.
+   *
    * @param movingObstacles The new temporary onfield obstacles.
    * @return A command to repeatedly update obstacles, and then full follow the path.
    */
@@ -123,19 +123,33 @@ public class PathFollowing {
   }
 
   public Command fullAutoAmp(Supplier<List<Obstacle>> movingObstacles) {
-    return followNewPath(movingObstacles, new Pose2d(
+    return followNewPath(
+            movingObstacles,
+            new Pose2d(
                 Field.ampCoordinates()
                     .plus(
                         new Translation2d(Inches.of(0), DriveConstants.CHASSIS_WIDTH.times(-0.5))),
-                Rotation2d.fromRadians(-Math.PI / 2))).andThen(alignment.ampAlign());
+                Rotation2d.fromRadians(-Math.PI / 2)))
+        .andThen(alignment.ampAlign());
   }
 
   public Command fullAutoSpeaker(Supplier<List<Obstacle>> movingObstacles) {
     newPath(speakerPose());
-    return incPathFollow(movingObstacles).until(() -> Field.speaker().toTranslation2d().getDistance(drive.pose().getTranslation()) < SHOOTING_RANGE.in(Meters) && path.setPointSeeable()).andThen(shooting.shootWhileDriving(() -> 0, () -> 0));
+    return incPathFollow(movingObstacles)
+        .until(
+            () ->
+                Field.speaker().toTranslation2d().getDistance(drive.pose().getTranslation())
+                        < SHOOTING_RANGE.in(Meters)
+                    && path.setPointSeeable())
+        .andThen(shooting.shootWhileDriving(() -> 0, () -> 0));
   }
 
   public Command fullAutoClimb(Supplier<List<Obstacle>> movingObstacles) {
-    
+    return followNewPath(movingObstacles, drive.pose().nearest(chainCoordinates()));
+    // TODO right now it just goes to the nearest chain but doesn't climb. Will do that later.
+  }
+
+  public Command fullAutoSource(Supplier<List<Obstacle>> movingObstacles) {
+    return followNewPath(movingObstacles, Field.sourceCoordinates());
   }
 }
