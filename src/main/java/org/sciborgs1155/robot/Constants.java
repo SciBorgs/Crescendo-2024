@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot;
 
+import static edu.wpi.first.units.Units.Centimeter;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Seconds;
@@ -68,8 +69,10 @@ public class Constants {
     public static final Translation3d TARGET_OFFSET = new Translation3d(0.367, 0, 0.2);
 
     // represents the pose that the robot needs to be at to intake from source.
-    public static final Pose2d BLUE_SOURCE_POSE = new Pose2d(); // TODO need to find coords for this
-    public static final Pose2d RED_SOURCE_POSE = new Pose2d(); // TODO this one too
+    public static final Pose2d BLUE_SOURCE_POSE =
+        new Pose2d(0, 0, Rotation2d.fromRadians(0)); // TODO need to find coords for this
+    public static final Pose2d RED_SOURCE_POSE =
+        new Pose2d(LENGTH.in(Centimeter), 0, Rotation2d.fromRadians(Math.PI)); // TODO this one too
 
     // found from
     // https://github.com/Mechanical-Advantage/RobotCode2024/blob/main/src/main/java/org/littletonrobotics/frc2024/FieldConstants.java

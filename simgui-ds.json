@@ -1,9 +1,4 @@
 {
-  "Keyboard 0 Settings": {
-    "window": {
-      "visible": true
-    }
-  },
   "System Joysticks": {
     "window": {
       "visible": false
@@ -23,7 +18,7 @@
         }
       ],
       "axisCount": 3,
-      "buttonCount": 10,
+      "buttonCount": 4,
       "buttonKeys": [
         90,
         88,

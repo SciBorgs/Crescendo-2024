@@ -9,8 +9,6 @@ import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Constants.alliance;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
-import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_AMP_ANGLE;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -51,7 +49,6 @@ import org.sciborgs1155.robot.led.LedStrip;
 import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 import org.sciborgs1155.robot.pathfinding.GriddedField;
 import org.sciborgs1155.robot.pivot.Pivot;
-import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
 import org.sciborgs1155.robot.shooter.ShooterConstants;
 import org.sciborgs1155.robot.vision.Vision;
@@ -227,24 +224,28 @@ public class Robot extends CommandRobot implements Logged {
     // stop holding the button in order to climb with
     // the pivot manually
 
+    // TRIAL STUFF
+
     driver
         .a()
         .whileTrue(
             pathing
-                .fullAutoSpeaker(() -> List.of())
-                .until(pathing::atEndpoint)
-                .andThen(shooting.shootWhileDriving(() -> 0, () -> 0))
-                .andThen(
-                    pathing.fullAutoSource(() -> List.of()) /* .until(feeder.noteAtShooter())*/)
+                .fullAutoSource(() -> List.of()) /* .until(feeder.noteAtShooter())*/
                 .until(pathing::atEndpoint));
 
-    driver
-        .leftTrigger()
-        .whileTrue(
-            alignment
-                .ampAlign()
-                .andThen(drive.stop())
-                .andThen(shooting.shootWithPivot(PRESET_AMP_ANGLE, AMP_VELOCITY)));
+    driver.b().whileTrue(pathing.fullAutoSpeaker(() -> List.of()).until(pathing::atEndpoint));
+
+    driver.x().whileTrue(pathing.fullAutoAmp(() -> List.of()).until(pathing::atEndpoint));
+
+    driver.y().whileTrue(pathing.fullAutoClimb(() -> List.of()).until(pathing::atEndpoint));
+
+    /*driver    shouldnt be commented
+    .a()
+    .whileTrue(
+        alignment
+            .ampAlign()
+            .andThen(drive.stop())
+            .andThen(shooting.shootWithPivot(PRESET_AMP_ANGLE, AMP_VELOCITY)));*/
 
     operator
         .a()
@@ -260,22 +261,22 @@ public class Robot extends CommandRobot implements Logged {
         .and(operator.rightTrigger())
         .whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
 
-    driver
-        .x()
-        .whileTrue(
-            shooting.shootWhileDriving(
-                createJoystickStream(
-                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-                createJoystickStream(
-                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+    /*driver     shouldnt be commented
+    .x()
+    .whileTrue(
+        shooting.shootWhileDriving(
+            createJoystickStream(
+                driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
+            createJoystickStream(
+                driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
+    .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));*/
 
-    driver
-        .y()
-        .or(operator.povUp())
-        .whileTrue(
-            shooting.shootWithPivot(PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+    /*driver     shouldnt be commented
+    .y()
+    .or(operator.povUp())
+    .whileTrue(
+        shooting.shootWithPivot(PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY))
+    .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));*/
 
     driver
         .rightTrigger()

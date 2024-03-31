@@ -1,7 +1,5 @@
 package org.sciborgs1155.robot.pathfinding;
 
-import static edu.wpi.first.units.Units.Centimeters;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
@@ -44,7 +42,8 @@ public class Path {
    */
   public boolean atEndPoint() {
     return drive.pose().getTranslation().getDistance(endingPoint.getTranslation())
-        < PathfindingConstants.GRID_SIDE_LENGTH.in(Centimeters);
+        <
+        /*PathfindingConstants.GRID_SIDE_LENGTH.in(Centimeters)*/ 2;
   }
 
   /**
