@@ -163,7 +163,9 @@ public class PathFollowing {
             () ->
                 Field.speaker().toTranslation2d().getDistance(drive.pose().getTranslation())
                         < SHOOTING_RANGE.in(Meters)
-                    && path.setPointSeeable());
+                    && path
+                        .setPointSeeable()); // TODO this might be a problem if the subwoofer is an
+    // obstacle
   }
 
   /**
@@ -186,5 +188,12 @@ public class PathFollowing {
    */
   public Command fullAutoSource(Supplier<List<Obstacle>> movingObstacles) {
     return followNewPath(movingObstacles, Field.sourceCoordinates());
+  }
+
+  public boolean atEndpoint() {
+    return path.endingPoint == speakerPose()
+        ? Field.speaker().toTranslation2d().getDistance(drive.pose().getTranslation())
+            < SHOOTING_RANGE.in(Meters)
+        : path.atEndPoint();
   }
 }

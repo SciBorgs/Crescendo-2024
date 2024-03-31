@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.pathfinding;
 
 import static edu.wpi.first.units.Units.Centimeter;
+import static edu.wpi.first.units.Units.Centimeters;
 import static org.sciborgs1155.robot.pathfinding.PathfindingConstants.*;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -14,14 +15,13 @@ import org.sciborgs1155.robot.Constants.Field;
 public class GriddedField {
   // for ease of access and to make the coe look better
 
-  public static final int INT_FIELD_LENGTH = (int) Field.LENGTH.in(Centimeter);
-  public static final int INT_FIELD_WIDTH = (int) Field.WIDTH.in(Centimeter);
-
-  public static final int LENGTH_GRID_NUMBER = (int) INT_FIELD_LENGTH / GRID_SIDE_LENGTH;
-  public static final int WIDTH_GRID_NUMBER = (int) INT_FIELD_LENGTH / GRID_SIDE_LENGTH;
+  public static final int LENGTH_GRID_NUMBER =
+      (int) (Field.LENGTH.in(Centimeter) / GRID_SIDE_LENGTH.in(Centimeters));
+  public static final int WIDTH_GRID_NUMBER =
+      (int) (Field.LENGTH.in(Centimeter) / GRID_SIDE_LENGTH.in(Centimeters));
 
   public static final int GRID_ROBOT_RADIUS =
-      (int) ROBOT_RADIUS.in(Centimeter) / PathfindingConstants.GRID_SIDE_LENGTH;
+      (int) (ROBOT_RADIUS.in(Centimeter) / PathfindingConstants.GRID_SIDE_LENGTH.in(Centimeters));
 
   public List<Obstacle> movingObstacles;
 
@@ -113,8 +113,8 @@ public class GriddedField {
    * @return The GridBox at those coordinates
    */
   public GridBox coordsToBox(Translation2d p) {
-    int translatedX = (int) p.getX() / GRID_SIDE_LENGTH;
-    int translatedY = (int) p.getY() / GRID_SIDE_LENGTH;
+    int translatedX = (int) p.getX() / (int) GRID_SIDE_LENGTH.in(Centimeters);
+    int translatedY = (int) p.getY() / (int) GRID_SIDE_LENGTH.in(Centimeters);
     return fullField[translatedX][translatedY];
   }
 

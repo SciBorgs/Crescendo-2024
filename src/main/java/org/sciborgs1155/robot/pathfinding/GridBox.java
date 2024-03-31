@@ -1,5 +1,7 @@
 package org.sciborgs1155.robot.pathfinding;
 
+import static edu.wpi.first.units.Units.Centimeters;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,14 +106,14 @@ public class GridBox {
    * @return The X-value of the GridBox outside of the grid.
    */
   public double getUngriddedX() {
-    return XValue * PathfindingConstants.GRID_SIDE_LENGTH;
+    return XValue * PathfindingConstants.GRID_SIDE_LENGTH.in(Centimeters);
   }
 
   /**
    * @return The Y-value of the GridBox outside of the grid.
    */
   public double getUngriddedY() {
-    return YValue * PathfindingConstants.GRID_SIDE_LENGTH;
+    return YValue * PathfindingConstants.GRID_SIDE_LENGTH.in(Centimeters);
   }
 
   /**

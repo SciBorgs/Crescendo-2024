@@ -98,7 +98,7 @@ public class Robot extends CommandRobot implements Logged {
 
   private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
   private final Alignment alignment = new Alignment(drive, pivot);
-  private final PathFollowing pathfollow = new PathFollowing(drive, new GriddedField());
+  private final PathFollowing pathing = new PathFollowing(drive, new GriddedField());
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
@@ -228,15 +228,18 @@ public class Robot extends CommandRobot implements Logged {
     // the pivot manually
 
     driver
-        .leftTrigger()
+        .a()
         .whileTrue(
-            pathfollow
+            pathing
                 .fullAutoSpeaker(() -> List.of())
+                .until(pathing::atEndpoint)
                 .andThen(shooting.shootWhileDriving(() -> 0, () -> 0))
-                .andThen(pathfollow.fullAutoSource(() -> List.of()).until(feeder.noteAtShooter())));
+                .andThen(
+                    pathing.fullAutoSource(() -> List.of()) /* .until(feeder.noteAtShooter())*/)
+                .until(pathing::atEndpoint));
 
     driver
-        .a()
+        .leftTrigger()
         .whileTrue(
             alignment
                 .ampAlign()

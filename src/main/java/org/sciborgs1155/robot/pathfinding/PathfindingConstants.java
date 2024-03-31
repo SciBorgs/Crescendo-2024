@@ -33,7 +33,7 @@ public class PathfindingConstants {
   /*
    * The side length of each individual grid used in the GriddedField.
    */
-  public static final int GRID_SIDE_LENGTH = 4;
+  public static final Measure<Distance> GRID_SIDE_LENGTH = Centimeter.of(4);
 
   // The stationary obstacles are predetermined. So, they would be inputted here.
   public static final List<Obstacle> stationaryObstacles = List.of();
