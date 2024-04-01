@@ -3,7 +3,7 @@ package org.sciborgs1155.robot.commands;
 import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Inches;
 import static org.sciborgs1155.robot.Constants.Field.amp;
-import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_AMP_ANGLE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.AMP_ANGLE;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -41,7 +41,7 @@ public class Alignment {
                 Rotation2d.fromRadians(-Math.PI / 2)))
         .deadlineWith(
             Commands.waitUntil(() -> drive.pose().getTranslation().getDistance(Field.amp()) < 1)
-                .andThen(pivot.runPivot(PRESET_AMP_ANGLE)));
+                .andThen(pivot.runPivot(AMP_ANGLE)));
   }
 
   /** returns the angle at which the robot will be facing perpendicular to the nearest chain. */

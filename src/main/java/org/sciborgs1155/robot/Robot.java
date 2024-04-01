@@ -4,11 +4,17 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
-import static org.sciborgs1155.robot.Constants.Field.RED_MID_NOTE;
+import static org.sciborgs1155.robot.Constants.DEADBAND;
 import static org.sciborgs1155.robot.Constants.PERIOD;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.MAX_VELOCITY;
+import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ACCEL;
+import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_ACCEL;
+import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_SPEED;
+import static org.sciborgs1155.robot.drive.DriveConstants.MAX_SPEED;
+import static org.sciborgs1155.robot.pivot.PivotConstants.AMP_ANGLE;
+import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 
 import com.revrobotics.CANSparkBase;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -33,13 +39,11 @@ import org.sciborgs1155.robot.commands.Autos;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
-import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.led.LedStrip;
 import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 import org.sciborgs1155.robot.pivot.Pivot;
-import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
 import org.sciborgs1155.robot.shooter.ShooterConstants;
 import org.sciborgs1155.robot.vision.Vision;
@@ -97,7 +101,6 @@ public class Robot extends CommandRobot implements Logged {
   public Robot() {
     super(PERIOD.in(Seconds));
     configureGameBehavior();
-    configureSubsystemDefaults();
     configureBindings();
   }
 
@@ -137,33 +140,42 @@ public class Robot extends CommandRobot implements Logged {
     }
   }
 
-  /** Creates an input stream for a joystick. */
-  private InputStream createJoystickStream(InputStream input, double maxSpeed) {
-    return input
-        .deadband(Constants.DEADBAND, 1)
-        .negate()
-        .signedPow(2)
-        .scale(maxSpeed)
-        .scale(() -> speedMultiplier)
-        .rateLimit(DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond));
-  }
-
   /**
    * Configures subsystem default commands. Default commands are scheduled when no other command is
    * running on a subsystem.
    */
-  private void configureSubsystemDefaults() {
-    drive.setDefaultCommand(
-        drive.drive(
-            createJoystickStream(driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-            createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-            createJoystickStream(
-                driver::getRightX, DriveConstants.TELEOP_ANGULAR_SPEED.in(RadiansPerSecond))));
-    led.setDefaultCommand(led.setLEDTheme(LEDTheme.BLUE));
-  }
-
   /** Configures trigger -> command bindings */
   private void configureBindings() {
+    InputStream x = InputStream.of(driver::getLeftX).negate();
+    InputStream y = InputStream.of(driver::getLeftY).negate();
+
+    InputStream r =
+        InputStream.hypot(x, y)
+            .scale(() -> speedMultiplier)
+            .clamp(1.0)
+            .deadband(Constants.DEADBAND, 1.0)
+            .signedPow(2.0)
+            .scale(MAX_SPEED.in(MetersPerSecond));
+
+    InputStream theta = InputStream.atan(x, y);
+
+    x = r.scale(theta.map(Math::cos)).rateLimit(MAX_ACCEL.in(MetersPerSecondPerSecond));
+    y = r.scale(theta.map(Math::sin)).rateLimit(MAX_ACCEL.in(MetersPerSecondPerSecond));
+
+    InputStream omega =
+        InputStream.of(driver::getRightX)
+            .negate()
+            .scale(() -> speedMultiplier)
+            .clamp(1.0)
+            .deadband(DEADBAND, 1.0)
+            .signedPow(2.0)
+            .scale(MAX_ANGULAR_SPEED.in(RadiansPerSecond))
+            .rateLimit(MAX_ANGULAR_ACCEL.in(RadiansPerSecond.per(Second)));
+
+    drive.setDefaultCommand(drive.drive(x, y, omega));
+
+    led.setDefaultCommand(led.setLEDTheme(LEDTheme.BLUE));
+
     autonomous()
         .whileTrue(Commands.deferredProxy(autos::getSelected))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
@@ -175,24 +187,15 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
-    driver
-        .a()
-        .whileTrue(
-            alignment.snapToStage(
-                createJoystickStream(
-                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-                createJoystickStream(
-                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
-    // stop holding the button in order to climb with
-    // the pivot manually
+    driver.a().whileTrue(alignment.snapToStage(x, y));
 
     driver
-        .y() // .whileTrue(drive.driveTo(RED_MID_NOTE.toPose2d()));
-        .whileTrue(drive.driveTo(RED_MID_NOTE.toPose2d()));
-    // alignment
-    //     .ampAlign()
-    //     // .andThen(drive.stop())
-    //     .andThen(shooting.shootWithPivot(PRESET_AMP_ANGLE, AMP_VELOCITY)));
+        .y()
+        .whileTrue(
+            alignment
+                .ampAlign()
+                // .andThen(drive.stop())
+                .andThen(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY)));
 
     operator
         .a()
@@ -210,21 +213,17 @@ public class Robot extends CommandRobot implements Logged {
 
     driver
         .x()
-        .whileTrue(
-            shooting.shootWhileDriving(
-                createJoystickStream(
-                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-                createJoystickStream(
-                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
+        .whileTrue(shooting.shootWhileDriving(x, y))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     operator
         .povUp()
-        .whileTrue(
-            shooting.shootWithPivot(PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY))
+        .whileTrue(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
-    driver.leftTrigger().whileTrue(shooting.shootWithPivot(Radians.of(-0.027), MAX_VELOCITY));
+    driver
+        .leftTrigger()
+        .whileTrue(shooting.shootWithPivot(Radians.of(-0.027), ShooterConstants.MAX_VELOCITY));
 
     driver
         .rightTrigger()
