@@ -23,6 +23,14 @@ public interface InputStream extends DoubleSupplier {
     return base::getAsDouble;
   }
 
+  public static InputStream hypot(InputStream x, InputStream y) {
+    return () -> Math.hypot(x.get(), y.get());
+  }
+
+  public static InputStream atan(InputStream x, InputStream y) {
+    return () -> Math.atan2(y.get(), x.get());
+  }
+
   /**
    * Shorthand to return a double value.
    *
