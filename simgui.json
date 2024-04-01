@@ -1,11 +1,11 @@
 {
   "HALProvider": {
-    "Addressable LEDs": {
+    "Other Devices": {
       "window": {
-        "visible": true
+        "visible": false
       }
     },
-    "Other Devices": {
+    "Timing": {
       "window": {
         "visible": false
       }
@@ -61,21 +61,24 @@
       "/SmartDashboard/rotation dynamic forward": "Command",
       "/SmartDashboard/rotation quasistatic backward": "Command",
       "/SmartDashboard/rotation quasistatic forward": "Command",
+      "/SmartDashboard/shooter bottom dynamic backward": "Command",
+      "/SmartDashboard/shooter bottom dynamic forward": "Command",
+      "/SmartDashboard/shooter bottom quasistatic backward": "Command",
+      "/SmartDashboard/shooter bottom quasistatic forward": "Command",
       "/SmartDashboard/shooter dynamic backward": "Command",
       "/SmartDashboard/shooter dynamic forward": "Command",
       "/SmartDashboard/shooter quasistatic backward": "Command",
       "/SmartDashboard/shooter quasistatic forward": "Command",
+      "/SmartDashboard/shooter top dynamic backward": "Command",
+      "/SmartDashboard/shooter top dynamic forward": "Command",
+      "/SmartDashboard/shooter top quasistatic backward": "Command",
+      "/SmartDashboard/shooter top quasistatic forward": "Command",
       "/SmartDashboard/translation dynamic backward": "Command",
       "/SmartDashboard/translation dynamic forward": "Command",
       "/SmartDashboard/translation quasistatic backward": "Command",
       "/SmartDashboard/translation quasistatic forward": "Command"
     },
     "windows": {
-      "/FMSInfo": {
-        "window": {
-          "visible": true
-        }
-      },
       "/Robot/autos": {
         "window": {
           "visible": true
@@ -88,11 +91,6 @@
         "right": 2961,
         "top": 79,
         "width": 16.541748046875,
-        "window": {
-          "visible": true
-        }
-      },
-      "/Robot/pivot/positionVisualizer": {
         "window": {
           "visible": true
         }
@@ -160,5 +158,8 @@
       "open": true
     },
     "visible": true
+  },
+  "NetworkTables View": {
+    "visible": false
   }
 }
