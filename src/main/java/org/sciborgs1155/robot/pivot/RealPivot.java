@@ -1,13 +1,16 @@
 package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 import static org.sciborgs1155.lib.FaultLogger.*;
 import static org.sciborgs1155.robot.Ports.Pivot.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -25,15 +28,15 @@ public class RealPivot implements PivotIO {
   private final CANSparkMax leftTop;
   private final CANSparkMax rightTop;
   private final CANSparkMax rightBottom;
-  private final RelativeEncoder encoder;
+  private final RelativeEncoder encoder, integratedEncoder;
 
   public RealPivot() {
     lead = new CANSparkMax(SPARK_LEFT_BOTTOM, MotorType.kBrushless);
     leftTop = new CANSparkMax(SPARK_LEFT_TOP, MotorType.kBrushless);
     rightTop = new CANSparkMax(SPARK_RIGHT_TOP, MotorType.kBrushless);
     rightBottom = new CANSparkMax(SPARK_RIGHT_BOTTOM, MotorType.kBrushless);
-    // encoder = lead.getEncoder();
     encoder = lead.getAlternateEncoder(SparkUtils.THROUGHBORE_CPR);
+    integratedEncoder = lead.getEncoder();
 
     check(lead, lead.restoreFactoryDefaults());
     SparkUtils.configureFrameStrategy(
@@ -47,7 +50,16 @@ public class RealPivot implements PivotIO {
     check(lead, encoder.setInverted(true));
     check(lead, encoder.setPositionConversionFactor(POSITION_FACTOR.in(Radians) / 2.0));
     check(lead, encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond) / 2.0));
+    check(
+        lead,
+        integratedEncoder.setPositionConversionFactor(Rotations.of(MOTOR_GEARING).in(Radians)));
+    check(
+        lead,
+        integratedEncoder.setVelocityConversionFactor(
+            Rotations.of(MOTOR_GEARING).per(Minute).in(RadiansPerSecond)));
     check(lead, encoder.setPosition(STARTING_ANGLE.in(Radians)));
+    check(lead, integratedEncoder.setPosition(STARTING_ANGLE.in(Radians)));
+    check(lead, lead.setSoftLimit(SoftLimitDirection.kReverse, (float) MIN_ANGLE.in(Radians)));
 
     setCurrentLimit(CURRENT_LIMIT);
 

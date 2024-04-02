@@ -86,7 +86,7 @@ public final class DriveConstants {
       public static final Measure<Distance> POSITION_FACTOR = CIRCUMFERENCE.times(GEARING);
       public static final Measure<Velocity<Distance>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
 
-      public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
+      public static final Measure<Current> CURRENT_LIMIT = Amps.of(60);
 
       public static final class PID {
         public static final double P = 3.2;

@@ -15,7 +15,7 @@ public class ShooterConstants {
   public static final Measure<Distance> RADIUS = Inches.of(4);
   public static final Measure<Distance> CIRCUMFERENCE = RADIUS.times(2 * Math.PI);
 
-  public static final Measure<Current> CURRENT_LIMIT = Amps.of(40);
+  public static final Measure<Current> CURRENT_LIMIT = Amps.of(45);
 
   public static final Measure<Angle> POSITION_FACTOR = Rotations.one();
   public static final Measure<Velocity<Angle>> VELOCITY_FACTOR = POSITION_FACTOR.per(Minute);
@@ -28,7 +28,7 @@ public class ShooterConstants {
   public static final Measure<Velocity<Angle>> DEFAULT_VELOCITY = RadiansPerSecond.of(550);
   public static final Measure<Velocity<Distance>> DEFAULT_NOTE_VELOCITY =
       MetersPerSecond.of(Shooting.flywheelToNoteSpeed(DEFAULT_VELOCITY.in(RadiansPerSecond)));
-  public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(640);
+  public static final Measure<Velocity<Angle>> MAX_VELOCITY = RadiansPerSecond.of(630);
   public static final Measure<Velocity<Distance>> MAX_NOTE_VELOCITY =
       MetersPerSecond.of(Shooting.flywheelToNoteSpeed(MAX_VELOCITY.in(RadiansPerSecond)));
 

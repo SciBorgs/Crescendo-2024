@@ -28,7 +28,7 @@ public interface InputStream extends DoubleSupplier {
   }
 
   public static InputStream atan(InputStream x, InputStream y) {
-    return () -> Math.atan2(y.get(), x.get());
+    return () -> Math.atan2(x.get(), y.get());
   }
 
   /**

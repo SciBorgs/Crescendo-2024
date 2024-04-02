@@ -55,12 +55,14 @@ public class PivotConstants {
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(30);
   public static final Measure<Current> CLIMBER_CURRENT_LIMIT = Amps.of(60);
 
-  public static final double kP = 10;
-  public static final double kI = 0.02;
-  public static final double kD = 0.3;
+  public static final Measure<Angle> FEED_ANGLE = Radians.of(-0.027);
 
-  public static final double kS = 0.2166;
+  public static final double kP = 8.0;
+  public static final double kI = 0.0;
+  public static final double kD = 0.5;
+
+  public static final double kS = 0.14296;
   public static final double kV = 1.7305;
-  public static final double kA = 0.00047604;
-  public static final double kG = 0.04;
+  public static final double kA = 0.01;
+  public static final double kG = 0.12055;
 }
