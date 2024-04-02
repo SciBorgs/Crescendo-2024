@@ -50,7 +50,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   public static Shooter create() {
     return Robot.isReal()
         ? new Shooter(new RealWheel(TOP_MOTOR, true), new RealWheel(BOTTOM_MOTOR, false))
-        : new Shooter(new SimWheel(), new SimWheel());
+        : new Shooter(new SimWheel(Top.kV, Top.kA), new SimWheel(Bottom.kV, Bottom.kA));
   }
 
   /** Creates a fake shooter. */
