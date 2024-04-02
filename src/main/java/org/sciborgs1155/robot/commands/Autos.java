@@ -52,7 +52,14 @@ public class Autos {
 
     PPHolonomicDriveController.setRotationTargetOverride(() -> rotation);
 
-    NamedCommands.registerCommand("spit", shooting.shoot(RadiansPerSecond.of(30)).withTimeout(0.5));
+    NamedCommands.registerCommand(
+        "spit",
+        new ScheduleCommand(
+            intake
+                .intake()
+                .alongWith(feeder.forward())
+                .alongWith(shooting.shoot(RadiansPerSecond.of(25)))
+                .withTimeout(2.2)));
     NamedCommands.registerCommand(
         "intake", new ScheduleCommand(intake.intake().deadlineWith(feeder.forward())));
     NamedCommands.registerCommand(
