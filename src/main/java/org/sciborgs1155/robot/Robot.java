@@ -33,7 +33,6 @@ import monologue.Monologue;
 import org.littletonrobotics.urcl.URCL;
 import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FaultLogger;
-import org.sciborgs1155.lib.FaultLogger.FaultType;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.Alignment;
@@ -308,38 +307,11 @@ public class Robot extends CommandRobot implements Logged {
 
   public Command testMechanisms() {
     return Commands.sequence(
-            drive
-                .drive(() -> 0.5, () -> 0.5, () -> 0.5)
-                .until(
-                    () ->
-                        drive.pose().getX() == 0.5
-                            && drive.pose().getY() == 0.05
-                            && drive.atHeadingSetpoint())
-                .withTimeout(.5)
-                .finallyDo(
-                    (boolean interrupted) -> {
-                      if (interrupted) {
-                        FaultLogger.report(
-                            "Drive Failure", "Drive failed in testing mechanisms", FaultType.ERROR);
-                      }
-                    })
-                .andThen(drive.stop()),
+            drive.testSubystem(),
             feeder.forward().withTimeout(1),
             intake.forward().withTimeout(1),
-            pivot.runPivot(PivotConstants.MIN_ANGLE).withTimeout(.5),
-            shooter
-                .runShooter(6)
-                .until(() -> shooter.atSetpoint())
-                .withTimeout(1)
-                .finallyDo(
-                    (boolean interrupted) -> {
-                      if (interrupted) {
-                        FaultLogger.report(
-                            "Shooter Failure",
-                            "Shooter failed in test-mechanisms",
-                            FaultType.ERROR);
-                      }
-                    }))
+            pivot.testSubsystem(),
+            shooter.testSubsystem())
         .withName("Test Mechanisms");
   }
 }

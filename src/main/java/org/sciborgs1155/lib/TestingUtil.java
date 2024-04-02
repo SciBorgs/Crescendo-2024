@@ -63,4 +63,8 @@ public class TestingUtil {
       subsystem.close();
     }
   }
+
+  public static boolean almostEquals(double a, double b, double delta) {
+    return Math.abs(a - b) <= delta;
+  }
 }

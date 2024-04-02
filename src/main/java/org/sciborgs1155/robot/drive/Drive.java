@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
+import static org.sciborgs1155.lib.TestingUtil.almostEquals;
 import static org.sciborgs1155.robot.Constants.allianceRotation;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
@@ -40,6 +41,8 @@ import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.photonvision.EstimatedRobotPose;
+import org.sciborgs1155.lib.FaultLogger;
+import org.sciborgs1155.lib.FaultLogger.FaultType;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
@@ -382,6 +385,26 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
             setModuleStates(
                 new SwerveModuleState[] {front, back, back, front},
                 ControlMode.OPEN_LOOP_VELOCITY));
+  }
+
+  // note: .until() end condition values for drive are completly arbitrary
+  public Command testSubystem() {
+    return drive(() -> 0.5, () -> 0.5, () -> 0)
+        .until(() -> almostEquals(0.5, pose().getX(), 0.1) && almostEquals(0.5, pose().getY(), 0.1))
+        .withTimeout(.5)
+        .finallyDo(
+            interrupted -> {
+              if (!interrupted) {
+                FaultLogger.report(
+                    "Drive Failure",
+                    "Drive failed in testing mechanisms attempting 0.5 X and Y pose values, got"
+                        + pose().getX()
+                        + " and "
+                        + pose().getY(),
+                    FaultType.ERROR);
+              }
+            })
+        .andThen(stop());
   }
 
   public void close() throws Exception {

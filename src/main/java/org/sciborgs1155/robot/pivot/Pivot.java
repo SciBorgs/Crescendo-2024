@@ -24,6 +24,8 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.lib.FaultLogger;
+import org.sciborgs1155.lib.FaultLogger.FaultType;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
@@ -193,6 +195,24 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     log("feedback output", feedback);
     log("feedforward output", feedforward);
     hardware.setVoltage(feedback + feedforward);
+  }
+
+  public Command testSubsystem() {
+    return runPivot(PivotConstants.MIN_ANGLE)
+        .until(() -> atGoal())
+        .withTimeout(5)
+        .finallyDo(
+            interrupted -> {
+              if (!interrupted) {
+                FaultLogger.report(
+                    "Pivot Failure",
+                    "Pivot failure attempting "
+                        + PivotConstants.MIN_ANGLE
+                        + " and got "
+                        + position(),
+                    FaultType.ERROR);
+              }
+            });
   }
 
   @Override

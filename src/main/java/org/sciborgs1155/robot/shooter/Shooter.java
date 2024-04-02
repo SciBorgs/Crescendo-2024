@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.lib.FaultLogger;
+import org.sciborgs1155.lib.FaultLogger.FaultType;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.Robot;
@@ -159,6 +161,22 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   public Command dynamicBack() {
     return sysId.dynamic(Direction.kReverse);
+  }
+
+  public Command testSubsystem() {
+    return runShooter(6)
+        .until(() -> atSetpoint())
+        .withTimeout(1)
+        .finallyDo(
+            (boolean interrupted) -> {
+              if (!interrupted) {
+                FaultLogger.report(
+                    "Shooter Failure",
+                    "Shooter failed in test-mechanisms attempting 6 velocity but achieving "
+                        + topVelocity(),
+                    FaultType.ERROR);
+              }
+            });
   }
 
   @Override
