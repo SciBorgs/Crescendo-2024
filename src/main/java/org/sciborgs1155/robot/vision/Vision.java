@@ -41,7 +41,7 @@ public class Vision implements Logged {
 
   /** A factory to create new vision classes with our two configured cameras */
   public static Vision create() {
-    return new Vision(LEFT_CAMERA, RIGHT_CAMERA);
+    return new Vision(BACK_LEFT_CAMERA, BACK_RIGHT_CAMERA);
   }
 
   public Vision(CameraConfig... configs) {
