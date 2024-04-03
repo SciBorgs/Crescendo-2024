@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
@@ -9,7 +8,6 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.Constants.DEADBAND;
 import static org.sciborgs1155.robot.Constants.PERIOD;
-import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ACCEL;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_ACCEL;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_SPEED;
 import static org.sciborgs1155.robot.drive.DriveConstants.TELEOP_ANGULAR_SPEED;
@@ -163,8 +161,8 @@ public class Robot extends CommandRobot implements Logged {
 
     InputStream theta = InputStream.atan(x, y);
 
-    x = r.scale(theta.map(Math::cos)).rateLimit(MAX_ACCEL.in(MetersPerSecondPerSecond));
-    y = r.scale(theta.map(Math::sin)).rateLimit(MAX_ACCEL.in(MetersPerSecondPerSecond));
+    x = r.scale(theta.map(Math::cos)); // .rateLimit(MAX_ACCEL.in(MetersPerSecondPerSecond));
+    y = r.scale(theta.map(Math::sin)); // .rateLimit(MAX_ACCEL.in(MetersPerSecondPerSecond));
 
     InputStream omega =
         InputStream.of(driver::getRightX)
@@ -234,7 +232,7 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
 
     // operator note-unstuck (right bump)
-    operator.rightBumper().whileTrue(pivot.runPivot(Radians.of(1)).alongWith(intake.backward()));
+    operator.rightBumper().whileTrue(pivot.runPivot(Radians.of(0.6)).alongWith(intake.backward()));
 
     // operator manual amp (povUp)
     operator
