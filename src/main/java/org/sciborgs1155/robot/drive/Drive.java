@@ -2,6 +2,7 @@ package org.sciborgs1155.robot.drive;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -41,6 +42,7 @@ import monologue.Annotations.Log;
 import monologue.Logged;
 import org.photonvision.EstimatedRobotPose;
 import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.lib.SwerveUtils;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
@@ -57,6 +59,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   private final SwerveModule rearRight;
 
   @IgnoreLogged private final List<SwerveModule> modules;
+  private SwerveModulePosition[] modulePositions;
+  private SwerveModuleState[] moduleSetpoints;
+  private SwerveModuleState[] moduleStates;
 
   private final GyroIO gyro;
   private static Rotation2d simRotation = new Rotation2d();
@@ -114,6 +119,11 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     this.rearRight = new SwerveModule(rearRight, ANGULAR_OFFSETS.get(3), " RR");
 
     modules = List.of(this.frontLeft, this.frontRight, this.rearLeft, this.rearRight);
+    moduleStates = modules.stream().map(SwerveModule::state).toArray(SwerveModuleState[]::new);
+    modulePositions =
+        modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
+    moduleSetpoints =
+        modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
     modules2d = new FieldObject2d[modules.size()];
 
     sysid =
@@ -275,7 +285,14 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
       throw new IllegalArgumentException("desiredStates must have the same length as modules");
     }
 
+    for (int i = 0; i < desiredStates.length; i++) {
+      desiredStates[i] =
+          SwerveModuleState.optimize(desiredStates[i], getModuleSetpoints()[i].angle);
+    }
+
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_SPEED.in(MetersPerSecond));
+    SwerveUtils.desaturateWheelAcceleration(
+        desiredStates, getModuleSetpoints(), MAX_ACCEL.in(MetersPerSecondPerSecond), 0.02);
 
     for (int i = 0; i < modules.size(); i++) {
       modules.get(i).updateDesiredState(desiredStates[i], mode);
@@ -295,19 +312,19 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   /** Returns the module states. */
   @Log.NT
   public SwerveModuleState[] getModuleStates() {
-    return modules.stream().map(SwerveModule::state).toArray(SwerveModuleState[]::new);
+    return moduleStates;
   }
 
   /** Returns the module states. */
   @Log.NT
   private SwerveModuleState[] getModuleSetpoints() {
-    return modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
+    return moduleSetpoints;
   }
 
   /** Returns the module positions */
   @Log.NT
   public SwerveModulePosition[] getModulePositions() {
-    return modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
+    return modulePositions;
   }
 
   /** Returns the robot relative chassis speeds. */
@@ -356,6 +373,12 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
 
+    // updating the modules
+    moduleStates = modules.stream().map(SwerveModule::state).toArray(SwerveModuleState[]::new);
+    modulePositions =
+        modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
+    moduleSetpoints =
+        modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
     modules.forEach(SwerveModule::updatePID);
   }
 
