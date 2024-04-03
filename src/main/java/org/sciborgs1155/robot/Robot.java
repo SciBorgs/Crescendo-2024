@@ -2,6 +2,7 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
@@ -190,8 +191,13 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
-    driver.a().whileTrue(alignment.snapToStage(x, y));
+    // driver shoot (x)
+    driver
+        .x()
+        .whileTrue(shooting.shootWhileDriving(x, y))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
+    // driver auto-amp (y)
     driver
         .y()
         .whileTrue(
@@ -200,6 +206,43 @@ public class Robot extends CommandRobot implements Logged {
                 // .andThen(drive.stop())
                 .andThen(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY)));
 
+    // driver feed (left trigger)
+    driver
+        .leftTrigger()
+        .whileTrue(
+            shooting.shootWithPivot(PivotConstants.FEED_ANGLE, ShooterConstants.DEFAULT_VELOCITY));
+
+    // driver climb align (a)
+    driver.a().whileTrue(alignment.snapToStage(x, y));
+
+    // driver manual shooter (povUp)
+    driver
+        .povUp()
+        .whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
+
+    // intake (right trigger / top left bump)
+    driver
+        .rightTrigger()
+        .or(operator.leftBumper())
+        .whileTrue(intake.intake().deadlineWith(feeder.forward()))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+
+    // operator climb (b)
+    operator
+        .b()
+        .and(operator.rightTrigger())
+        .whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
+
+    // operator note-unstuck (right bump)
+    operator.rightBumper().whileTrue(pivot.runPivot(Radians.of(1)).alongWith(intake.backward()));
+
+    // operator manual amp (povUp)
+    operator
+        .povUp()
+        .whileTrue(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+
+    // operator manual pivot (a)
     operator
         .a()
         .toggleOnTrue(
@@ -209,37 +252,7 @@ public class Robot extends CommandRobot implements Logged {
                 .deadlineWith(Commands.idle(shooter)))
         .toggleOnTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
-    operator
-        .b()
-        .and(operator.rightTrigger())
-        .whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
-
-    driver
-        .x()
-        .whileTrue(shooting.shootWhileDriving(x, y))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
-
-    operator
-        .povUp()
-        .whileTrue(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
-
-    driver
-        .leftTrigger()
-        .whileTrue(
-            shooting.shootWithPivot(PivotConstants.FEED_ANGLE, ShooterConstants.DEFAULT_VELOCITY));
-
-    driver
-        .rightTrigger()
-        .or(operator.leftBumper())
-        .whileTrue(intake.intake().deadlineWith(feeder.forward()))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
-
-    driver
-        .povUp()
-        .whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
-
-    operator.rightBumper().whileTrue(intake.backward());
+    // operator manual shoot (povDown)
     operator
         .povDown()
         .whileTrue(shooting.shoot(RadiansPerSecond.of(350)))
