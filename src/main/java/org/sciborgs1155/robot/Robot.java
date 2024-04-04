@@ -14,7 +14,6 @@ import static org.sciborgs1155.robot.drive.DriveConstants.TELEOP_ANGULAR_SPEED;
 import static org.sciborgs1155.robot.pivot.PivotConstants.AMP_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 
-import com.revrobotics.CANSparkBase;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -30,6 +29,7 @@ import monologue.Logged;
 import monologue.Monologue;
 import org.littletonrobotics.urcl.URCL;
 import org.sciborgs1155.lib.CommandRobot;
+import org.sciborgs1155.lib.FakePDH;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
@@ -95,8 +95,6 @@ public class Robot extends CommandRobot implements Logged {
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
-  @Log.NT public static double current;
-
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
     super(PERIOD.in(Seconds));
@@ -118,10 +116,7 @@ public class Robot extends CommandRobot implements Logged {
     SmartDashboard.putData(CommandScheduler.getInstance());
     // Log PDH
     // SmartDashboard.putData("PDH", new PowerDistribution());
-    addPeriodic(
-        () ->
-            current = FaultLogger.sparks.stream().mapToDouble(CANSparkBase::getOutputCurrent).sum(),
-        kDefaultPeriod);
+    addPeriodic(() -> log("current", FakePDH.update()), PERIOD.in(Seconds));
 
     // Configure pose estimation updates every tick
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));

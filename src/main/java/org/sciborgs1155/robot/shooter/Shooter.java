@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.lib.FakePDH;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.Constants;
@@ -101,7 +102,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     setDefaultCommand(
         run(
             () -> {
-              if (Robot.current < Constants.BROWNOUT_CURRENT.in(Amps) - 80
+              if (FakePDH.current() < Constants.BROWNOUT_CURRENT.in(Amps) - 80
                   && rotationalVelocity() < IDLE_VELOCITY.in(RadiansPerSecond)) {
                 update(IDLE_VELOCITY.in(RadiansPerSecond));
               } else {
