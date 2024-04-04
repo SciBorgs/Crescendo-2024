@@ -203,6 +203,8 @@ public class Robot extends CommandRobot implements Logged {
     autonomous()
         .whileTrue(Commands.deferredProxy(autos::getSelected))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+    
+    test().whileTrue(systemsCheck());
 
     driver.b().whileTrue(drive.zeroHeading());
     driver
@@ -287,8 +289,6 @@ public class Robot extends CommandRobot implements Logged {
         .noteAtShooter()
         .onFalse(rumble(RumbleType.kRightRumble, 0.3))
         .whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
-
-    test().whileTrue(testMechanisms());
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {
@@ -305,13 +305,14 @@ public class Robot extends CommandRobot implements Logged {
             });
   }
 
-  public Command testMechanisms() {
-    return Commands.sequence(
-            drive.testSubystem(),
-            feeder.forward().withTimeout(1),
-            intake.forward().withTimeout(1),
-            pivot.testSubsystem(),
-            shooter.testSubsystem())
+  public Command systemsCheck() {
+    return 
+        Commands.sequence(
+            drive.systemsCheck(),
+            feeder.forward().withTimeout(0.5),
+            intake.forward().withTimeout(0.5),
+            pivot.systemsCheck(),
+            shooter.systemsCheck())
         .withName("Test Mechanisms");
   }
 }

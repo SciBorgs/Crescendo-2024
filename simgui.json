@@ -30,7 +30,9 @@
       "/Robot/pivot/pid": "ProfiledPIDController",
       "/Robot/pivot/positionVisualizer": "Mechanism2d",
       "/Robot/pivot/setpointVisualizer": "Mechanism2d",
+      "/Robot/shooter/bottomPID": "PIDController",
       "/Robot/shooter/pid": "PIDController",
+      "/Robot/shooter/topPID": "PIDController",
       "/Robot/shooting/drive/field2d": "Field2d",
       "/Robot/shooting/drive/frontLeft/driveFeedback": "PIDController",
       "/Robot/shooting/drive/frontLeft/turnFeedback": "PIDController",
@@ -95,13 +97,22 @@
     }
   },
   "NetworkTables": {
-    "Persistent Values": {
-      "open": false
-    },
-    "Retained Values": {
-      "open": false
-    },
     "transitory": {
+      "Faults": {
+        "Active Faults": {
+          "open": true,
+          "string[]##v_/Faults/Active Faults/errors": {
+            "open": true
+          }
+        },
+        "Total Faults": {
+          "open": true,
+          "string[]##v_/Faults/Total Faults/errors": {
+            "open": true
+          }
+        },
+        "open": true
+      },
       "Robot": {
         "drive": {
           "ChassisSpeeds##v_/Robot/drive/getFieldRelativeChassisSpeeds": {
@@ -110,7 +121,6 @@
           "driving": {
             "open": true
           },
-          "open": true,
           "turning": {
             "open": true
           }
@@ -121,7 +131,6 @@
         "intake": {
           "open": true
         },
-        "open": true,
         "pivot": {
           "hardware": {
             "open": true
@@ -138,8 +147,5 @@
       "open": true
     },
     "visible": true
-  },
-  "NetworkTables View": {
-    "visible": false
   }
 }

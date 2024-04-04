@@ -3,6 +3,7 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.autonomous;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.teleop;
+import static org.sciborgs1155.lib.TestingUtil.parameterizedSystemsCheck;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import edu.wpi.first.math.MathUtil;
@@ -16,12 +17,15 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
+import java.util.function.Function;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.FaultLogger;
@@ -197,22 +201,31 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     hardware.setVoltage(feedback + feedforward);
   }
 
-  public Command testSubsystem() {
-    return runPivot(PivotConstants.MIN_ANGLE)
-        .until(() -> atGoal())
-        .withTimeout(5)
-        .finallyDo(
-            interrupted -> {
-              if (!interrupted) {
-                FaultLogger.report(
-                    "Pivot Failure",
-                    "Pivot failure attempting "
-                        + PivotConstants.MIN_ANGLE
-                        + " and got "
-                        + position(),
-                    FaultType.ERROR);
-              }
-            });
+  public Command systemsCheck() {
+    Function<Measure<Angle>, Command> check =
+        goal ->
+            runPivot(goal)
+                .until(() -> atPosition(goal.in(Radians)))
+                .finallyDo(
+                    interrupted -> {
+                      if (interrupted) {
+                        FaultLogger.report(
+                            "Pivot Sys Check Angle",
+                            "expected: " + goal.in(Radians) + "; actual: " + position(),
+                            FaultType.ERROR);
+                      }
+                    })
+                .withTimeout(3);
+    return parameterizedSystemsCheck(
+            check,
+            List.of(
+                Degrees.of(40),
+                Degrees.of(30),
+                Degrees.of(-10),
+                Degrees.of(-20),
+                PivotConstants.MIN_ANGLE,
+                PivotConstants.STARTING_ANGLE))
+        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
   }
 
   @Override
