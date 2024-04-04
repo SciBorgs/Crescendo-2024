@@ -15,7 +15,7 @@ public class SimModule implements ModuleIO {
 
   private final DCMotorSim drive =
       new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(Driving.FF.V, Driving.FF.A),
+          LinearSystemId.createDCMotorSystem(Driving.FF.V, Driving.FF.kA_linear),
           DCMotor.getNeoVortex(1),
           1 / Driving.GEARING);
   private final DCMotorSim turn =

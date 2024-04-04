@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.351629376411438,
-      "y": 5.567087173461914
+      "x": 1.3779447078704834,
+      "y": 5.532890319824219
     },
-    "rotation": 1.7271429831471196e-27
+    "rotation": -8.197615953337812e-21
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "named",
           "data": {
-            "name": "subwoofer-shoot"
+            "name": "shoot-subwoofer"
           }
         },
         {
@@ -24,7 +24,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Subwoofer 4 Note.1"
+                  "pathName": "Subwoofer 5 Note.1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "aim"
                 }
               },
               {
@@ -39,7 +45,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "shoot-after-intake"
           }
         },
         {
@@ -49,7 +55,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Subwoofer 4 Note.2"
+                  "pathName": "Subwoofer 5 Note.2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "aim"
                 }
               },
               {
@@ -64,7 +76,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "shoot-after-intake"
           }
         },
         {
@@ -74,7 +86,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Subwoofer 4 Note.3"
+                  "pathName": "Subwoofer 5 Note.3"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "aim"
                 }
               },
               {
@@ -89,7 +107,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "shoot-after-intake"
           }
         },
         {
@@ -99,13 +117,32 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Subwoofer 4 Note.4"
+                  "pathName": "Subwoofer 5 Note.4"
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "intake"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intake"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "aim"
+                      }
+                    }
+                  ]
                 }
               }
             ]

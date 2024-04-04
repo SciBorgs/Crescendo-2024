@@ -94,6 +94,7 @@ public class SparkModule implements ModuleIO {
   public void setDriveVoltage(double voltage) {
     driveMotor.setVoltage(voltage);
     check(driveMotor);
+    log("current", driveMotor.getOutputCurrent());
   }
 
   @Override

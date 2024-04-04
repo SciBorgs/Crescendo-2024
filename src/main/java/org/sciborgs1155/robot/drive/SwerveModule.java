@@ -24,12 +24,13 @@ public class SwerveModule implements Logged, AutoCloseable {
     OPEN_LOOP_VELOCITY;
   }
 
-  private final ModuleIO module;
+  private final ModuleIO hardware;
 
   private final PIDController driveFeedback;
   private final PIDController turnFeedback;
 
-  private final SimpleMotorFeedforward driveFeedforward;
+  private final SimpleMotorFeedforward driveTranslationFeedforward;
+  private final SimpleMotorFeedforward driveRotationFeedforward;
 
   private SwerveModuleState setpoint = new SwerveModuleState();
 
@@ -46,17 +47,20 @@ public class SwerveModule implements Logged, AutoCloseable {
   /**
    * Constructs a SwerveModule for rev's MAX Swerve using vortexes (flex) or krakens (talon).
    *
-   * @param module talon OR flex swerve module
+   * @param hardware talon OR flex swerve module
    * @param angularOffset offset from drivetrain
    */
-  public SwerveModule(ModuleIO module, Rotation2d angularOffset, String name) {
-    this.module = module;
+  public SwerveModule(ModuleIO hardware, Rotation2d angularOffset, String name) {
+    this.hardware = hardware;
     this.name = name;
     driveFeedback = new PIDController(Driving.PID.P, Driving.PID.I, Driving.PID.D);
     turnFeedback = new PIDController(Turning.PID.P, Turning.PID.I, Turning.PID.D);
     turnFeedback.enableContinuousInput(-Math.PI, Math.PI);
 
-    driveFeedforward = new SimpleMotorFeedforward(Driving.FF.S, Driving.FF.V, Driving.FF.A);
+    driveTranslationFeedforward =
+        new SimpleMotorFeedforward(Driving.FF.S, Driving.FF.V, Driving.FF.kA_linear);
+    driveRotationFeedforward =
+        new SimpleMotorFeedforward(Driving.FF.S, Driving.FF.V, Driving.FF.kA_angular);
 
     setpoint = new SwerveModuleState();
   }
@@ -68,7 +72,7 @@ public class SwerveModule implements Logged, AutoCloseable {
    */
   @Log.NT
   public SwerveModuleState state() {
-    return new SwerveModuleState(module.driveVelocity(), module.rotation());
+    return new SwerveModuleState(hardware.driveVelocity(), hardware.rotation());
   }
 
   /**
@@ -78,7 +82,7 @@ public class SwerveModule implements Logged, AutoCloseable {
    */
   @Log.NT
   public SwerveModulePosition position() {
-    return new SwerveModulePosition(module.drivePosition(), module.rotation());
+    return new SwerveModulePosition(hardware.drivePosition(), hardware.rotation());
   }
 
   /**
@@ -86,31 +90,55 @@ public class SwerveModule implements Logged, AutoCloseable {
    *
    * <p>This method should be called periodically.
    *
-   * @param desiredState The desired state of the module.
+   * @param setpoint The desired state of the module.
    * @param mode The control mode to use when calculating drive voltage.
+   * @param movementRatio The ratio of translational velocity to the sum of rotational and
+   *     translational velocity being requested of the entire swerve drive. 1 for only translation,
    */
-  public void updateDesiredState(SwerveModuleState desiredState, ControlMode mode) {
+  public void updateSetpoint(SwerveModuleState setpoint, ControlMode mode, double movementRatio) {
     // Optimize the reference state to avoid spinning further than 90 degrees
-    setpoint = SwerveModuleState.optimize(desiredState, module.rotation());
-    // Scale setpoint by cos of turning error to improve tread wear
-    setpoint.speedMetersPerSecond *= setpoint.angle.minus(module.rotation()).getCos();
+    setpoint = SwerveModuleState.optimize(setpoint, hardware.rotation());
+    // Scale setpoint by cos of turning error to reduce tread wear
+    setpoint.speedMetersPerSecond *= setpoint.angle.minus(hardware.rotation()).getCos();
 
-    double driveVolts =
+    // Calculate two feedforward values for using different kA depending on if the robot is rotating
+    // or translating.
+    double driveTVolts =
         switch (mode) {
-          case OPEN_LOOP_VELOCITY -> driveFeedforward.calculate(setpoint.speedMetersPerSecond);
           case CLOSED_LOOP_VELOCITY ->
-              driveFeedforward.calculate(
-                      driveFeedback.getSetpoint(),
-                      setpoint.speedMetersPerSecond,
-                      PERIOD.in(Seconds))
-                  + driveFeedback.calculate(module.driveVelocity(), setpoint.speedMetersPerSecond);
+              driveTranslationFeedforward.calculate(
+                  this.setpoint.speedMetersPerSecond,
+                  setpoint.speedMetersPerSecond,
+                  PERIOD.in(Seconds));
+          case OPEN_LOOP_VELOCITY ->
+              driveTranslationFeedforward.calculate(setpoint.speedMetersPerSecond);
         };
 
-    double turnVolts =
-        turnFeedback.calculate(module.rotation().getRadians(), setpoint.angle.getRadians());
+    double driveRVolts =
+        switch (mode) {
+          case CLOSED_LOOP_VELOCITY ->
+              driveRotationFeedforward.calculate(
+                  this.setpoint.speedMetersPerSecond,
+                  setpoint.speedMetersPerSecond,
+                  PERIOD.in(Seconds));
+          case OPEN_LOOP_VELOCITY ->
+              driveRotationFeedforward.calculate(setpoint.speedMetersPerSecond);
+        };
 
-    module.setDriveVoltage(driveVolts);
-    module.setTurnVoltage(turnVolts);
+    double driveVolts = driveTVolts * movementRatio + driveRVolts * (1 - movementRatio);
+
+    if (mode == ControlMode.CLOSED_LOOP_VELOCITY) {
+      driveVolts +=
+          driveFeedback.calculate(hardware.driveVelocity(), setpoint.speedMetersPerSecond);
+    }
+
+    double turnVolts =
+        turnFeedback.calculate(hardware.rotation().getRadians(), setpoint.angle.getRadians());
+
+    hardware.setDriveVoltage(driveVolts);
+    hardware.setTurnVoltage(turnVolts);
+
+    this.setpoint = setpoint;
   }
 
   /**
@@ -125,10 +153,10 @@ public class SwerveModule implements Logged, AutoCloseable {
     setpoint.angle = angle;
 
     double turnVolts =
-        turnFeedback.calculate(module.rotation().getRadians(), setpoint.angle.getRadians());
+        turnFeedback.calculate(hardware.rotation().getRadians(), setpoint.angle.getRadians());
 
-    module.setDriveVoltage(voltage);
-    module.setTurnVoltage(turnVolts);
+    hardware.setDriveVoltage(voltage);
+    hardware.setTurnVoltage(turnVolts);
   }
 
   @Log.NT
@@ -137,7 +165,7 @@ public class SwerveModule implements Logged, AutoCloseable {
   }
 
   public void resetEncoders() {
-    module.resetEncoders();
+    hardware.resetEncoders();
   }
 
   public void updatePID() {
@@ -147,6 +175,6 @@ public class SwerveModule implements Logged, AutoCloseable {
 
   @Override
   public void close() {
-    module.close();
+    hardware.close();
   }
 }

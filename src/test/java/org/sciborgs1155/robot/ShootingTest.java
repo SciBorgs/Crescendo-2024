@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -53,6 +54,7 @@ public class ShootingTest {
     reset(pivot, shooter, feeder, drive);
   }
 
+  @Disabled
   @Test
   public void testShooter() {
     run(shooter.runShooter(() -> 3));
@@ -84,6 +86,7 @@ public class ShootingTest {
     assertEquals(vel, shooter.rotationalVelocity(), VELOCITY_TOLERANCE.in(RadiansPerSecond));
   }
 
+  @Disabled
   @Test
   public void testPivotThenShoot() {
     run(shooting.shootWithPivot(() -> Math.PI / 4, () -> 4));

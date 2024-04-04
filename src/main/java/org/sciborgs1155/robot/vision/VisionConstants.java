@@ -22,16 +22,28 @@ public class VisionConstants {
 
   public static final CameraConfig BACK_LEFT_CAMERA =
       new CameraConfig(
-          "left",
+          "back left",
           new Transform3d(
               new Translation3d(Inches.of(-10.74), Inches.of(11.617), Inches.of(17.25)),
               new Rotation3d(0, -Math.PI / 6, 5 * Math.PI / 6)));
   public static final CameraConfig BACK_RIGHT_CAMERA =
       new CameraConfig(
-          "right",
+          "back right",
           new Transform3d(
               new Translation3d(Inches.of(-10.74), Inches.of(-11.617), Inches.of(17.25)),
               new Rotation3d(0, -Math.PI / 6, -5 * Math.PI / 6)));
+  public static final CameraConfig FRONT_LEFT_CAMERA =
+      new CameraConfig(
+          "front left",
+          new Transform3d(
+              new Translation3d(-0.273, 0.106, 0.485),
+              new Rotation3d(0, -Math.PI / 6, Math.PI / 6)));
+  public static final CameraConfig FRONT_RIGHT_CAMERA =
+      new CameraConfig(
+          "front right",
+          new Transform3d(
+              new Translation3d(-0.273, -0.106, 0.485),
+              new Rotation3d(0, -Math.PI / 6, -Math.PI / 6)));
 
   // OV9281 constants for our configuration
   public static final int WIDTH = 1280;

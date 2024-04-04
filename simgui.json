@@ -1,11 +1,11 @@
 {
   "HALProvider": {
-    "Addressable LEDs": {
+    "Other Devices": {
       "window": {
-        "visible": true
+        "visible": false
       }
     },
-    "Other Devices": {
+    "Timing": {
       "window": {
         "visible": false
       }
@@ -47,6 +47,7 @@
       "/Robot/shooting/pivot/positionVisualizer": "Mechanism2d",
       "/Robot/shooting/pivot/setpointVisualizer": "Mechanism2d",
       "/Robot/shooting/shooter/pid": "PIDController",
+      "/SmartDashboard/Scheduler": "Scheduler",
       "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
       "/SmartDashboard/drive dynamic backward": "Command",
       "/SmartDashboard/drive dynamic forward": "Command",
@@ -56,17 +57,28 @@
       "/SmartDashboard/pivot dynamic forward": "Command",
       "/SmartDashboard/pivot quasistatic backward": "Command",
       "/SmartDashboard/pivot quasistatic forward": "Command",
+      "/SmartDashboard/rotation dynamic backward": "Command",
+      "/SmartDashboard/rotation dynamic forward": "Command",
+      "/SmartDashboard/rotation quasistatic backward": "Command",
+      "/SmartDashboard/rotation quasistatic forward": "Command",
+      "/SmartDashboard/shooter bottom dynamic backward": "Command",
+      "/SmartDashboard/shooter bottom dynamic forward": "Command",
+      "/SmartDashboard/shooter bottom quasistatic backward": "Command",
+      "/SmartDashboard/shooter bottom quasistatic forward": "Command",
       "/SmartDashboard/shooter dynamic backward": "Command",
       "/SmartDashboard/shooter dynamic forward": "Command",
       "/SmartDashboard/shooter quasistatic backward": "Command",
-      "/SmartDashboard/shooter quasistatic forward": "Command"
+      "/SmartDashboard/shooter quasistatic forward": "Command",
+      "/SmartDashboard/shooter top dynamic backward": "Command",
+      "/SmartDashboard/shooter top dynamic forward": "Command",
+      "/SmartDashboard/shooter top quasistatic backward": "Command",
+      "/SmartDashboard/shooter top quasistatic forward": "Command",
+      "/SmartDashboard/translation dynamic backward": "Command",
+      "/SmartDashboard/translation dynamic forward": "Command",
+      "/SmartDashboard/translation quasistatic backward": "Command",
+      "/SmartDashboard/translation quasistatic forward": "Command"
     },
     "windows": {
-      "/FMSInfo": {
-        "window": {
-          "visible": true
-        }
-      },
       "/Robot/autos": {
         "window": {
           "visible": true
@@ -109,6 +121,12 @@
           "ChassisSpeeds##v_/Robot/drive/getFieldRelativeChassisSpeeds": {
             "open": true
           },
+          "Pose2d##v_/Robot/drive/pose": {
+            "Translation2d##v_translation": {
+              "open": true
+            },
+            "open": true
+          },
           "driving": {
             "open": true
           },
@@ -131,6 +149,9 @@
           "pid": {
             "open": true
           }
+        },
+        "shooter": {
+          "open": true
         }
       }
     }
@@ -140,8 +161,5 @@
       "open": true
     },
     "visible": true
-  },
-  "NetworkTables View": {
-    "visible": false
   }
 }

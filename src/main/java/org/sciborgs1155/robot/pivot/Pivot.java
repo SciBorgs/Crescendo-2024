@@ -3,6 +3,7 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.autonomous;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.teleop;
+import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import edu.wpi.first.math.MathUtil;
@@ -38,7 +39,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
       new ProfiledPIDController(
           kP, kI, kD, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCEL));
 
-  private final ArmFeedforward ff = new ArmFeedforward(kS, kG, kV);
+  private final ArmFeedforward ff = new ArmFeedforward(kS, kG, kV, kA);
 
   // Visualization
   @Log.NT
@@ -79,7 +80,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
     setDefaultCommand(
         run(() -> update(MAX_ANGLE.in(Radians)))
-            .until(pid::atGoal)
+            .until(() -> pid.getGoal().position > MAX_ANGLE.in(Radians))
             .andThen(run(() -> pivot.setVoltage(0)))
             .withName("default position"));
     teleop().or(autonomous()).onTrue(Commands.runOnce(() -> pid.reset(hardware.getPosition())));
@@ -102,8 +103,9 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   /** Chainmaxxing fr */
   public Command lockedIn() {
-    return run(() -> hardware.setVoltage(12));
-    // .until(() -> hardware.getPosition() > STARTING_ANGLE.in(Radians));
+    return run(() -> hardware.setVoltage(12))
+        .beforeStarting(() -> hardware.setCurrentLimit(CLIMBER_CURRENT_LIMIT))
+        .finallyDo(() -> hardware.setCurrentLimit(CURRENT_LIMIT));
   }
 
   public Command manualPivot(DoubleSupplier stickInput) {
@@ -187,9 +189,11 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    */
   private void update(double goalAngle) {
     double goal = MathUtil.clamp(goalAngle, MIN_ANGLE.in(Radians), MAX_ANGLE.in(Radians));
+    var prevSetpoint = pid.getSetpoint();
     double feedback = pid.calculate(hardware.getPosition(), goal);
+    double accel = (pid.getSetpoint().velocity - prevSetpoint.velocity) / PERIOD.in(Seconds);
     double feedforward =
-        ff.calculate(pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity);
+        ff.calculate(pid.getSetpoint().position + Math.PI, pid.getSetpoint().velocity, accel);
     log("feedback output", feedback);
     log("feedforward output", feedforward);
     hardware.setVoltage(feedback + feedforward);

@@ -25,6 +25,7 @@ public class RealIntake implements IntakeIO {
     check(spark);
     check(spark, spark.setIdleMode(IdleMode.kBrake));
     check(spark, spark.setSmartCurrentLimit((int) CURRENT_LIMIT.in(Amps)));
+    check(spark, spark.setOpenLoopRampRate(RAMP_TIME.in(Seconds)));
     check(spark, spark.burnFlash());
 
     register(spark);
