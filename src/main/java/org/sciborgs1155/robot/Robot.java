@@ -205,7 +205,7 @@ public class Robot extends CommandRobot implements Logged {
                 .andThen(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY)));
 
     // driver feed (left trigger)
-    driver
+    operator
         .leftTrigger()
         .whileTrue(
             shooting.shootWithPivot(PivotConstants.FEED_ANGLE, ShooterConstants.DEFAULT_VELOCITY));
@@ -232,7 +232,7 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
 
     // operator note-unstuck (right bump)
-    operator.rightBumper().whileTrue(pivot.runPivot(Radians.of(0.6)).alongWith(intake.backward()));
+    operator.rightBumper().whileTrue(pivot.runPivot(Radians.of(0.8)).alongWith(intake.backward()));
 
     // operator manual amp (povUp)
     operator
