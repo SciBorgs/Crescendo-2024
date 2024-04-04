@@ -102,7 +102,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     setDefaultCommand(
         run(
             () -> {
-              if (FakePDH.current() < Constants.BROWNOUT_CURRENT.in(Amps) - 80
+              if (FakePDH.supplyCurrent() < Constants.BROWNOUT_CURRENT.in(Amps) - 50
                   && rotationalVelocity() < IDLE_VELOCITY.in(RadiansPerSecond)) {
                 update(IDLE_VELOCITY.in(RadiansPerSecond));
               } else {
