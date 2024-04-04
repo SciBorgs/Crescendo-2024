@@ -199,12 +199,6 @@ public class Robot extends CommandRobot implements Logged {
                 // .andThen(drive.stop())
                 .andThen(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY)));
 
-    // driver feed (left trigger)
-    operator
-        .leftTrigger()
-        .whileTrue(
-            shooting.shootWithPivot(PivotConstants.FEED_ANGLE, ShooterConstants.DEFAULT_VELOCITY));
-
     // driver climb align (a)
     driver.a().whileTrue(alignment.snapToStage(x, y));
 
@@ -219,6 +213,12 @@ public class Robot extends CommandRobot implements Logged {
         .or(operator.leftBumper())
         .whileTrue(intake.intake().deadlineWith(feeder.forward()))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+
+    // operator feed (left trigger)
+    operator
+        .leftTrigger()
+        .whileTrue(
+            shooting.shootWithPivot(PivotConstants.FEED_ANGLE, ShooterConstants.DEFAULT_VELOCITY));
 
     // operator climb (b)
     operator
