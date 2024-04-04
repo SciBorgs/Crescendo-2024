@@ -1,0 +1,44 @@
+{
+    "resolution": {
+        "width": 1280,
+        "height": 800
+    },
+    "cameraIntrinsics": {
+        "rows": 3,
+        "cols": 3,
+        "type": 6,
+        "data": [
+            900.065276,
+            0,
+            613.2234828,
+            0,
+            903.453267,
+            355.1263563,
+            0,
+            0,
+            1
+        ]
+    },
+    "distCoeffs": {
+        "rows": 1,
+        "cols": 8,
+        "type": 6,
+        "data": [
+            0.02247818587,
+            -0.03859126826,
+            -0.01187140299,
+            0.004634384467,
+            0.05856717922,
+            -0.01926400464,
+            0.03945107697,
+            0.03848866763
+        ]
+    },
+    "observations": [],
+    "calobjectWarp": [],
+    "calobjectSize": {
+        "width": 0,
+        "height": 0
+    },
+    "calobjectSpacing": 0
+}

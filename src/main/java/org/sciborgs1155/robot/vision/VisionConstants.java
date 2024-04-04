@@ -18,13 +18,15 @@ public class VisionConstants {
   public static final AprilTagFieldLayout TAG_LAYOUT =
       AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
 
-  public static final CameraConfig LEFT_CAMERA =
+  /* The front of the robot is defined at the intake */
+
+  public static final CameraConfig BACK_LEFT_CAMERA =
       new CameraConfig(
           "left",
           new Transform3d(
               new Translation3d(Inches.of(-10.74), Inches.of(11.617), Inches.of(17.25)),
               new Rotation3d(0, -Math.PI / 6, 5 * Math.PI / 6)));
-  public static final CameraConfig RIGHT_CAMERA =
+  public static final CameraConfig BACK_RIGHT_CAMERA =
       new CameraConfig(
           "right",
           new Transform3d(
