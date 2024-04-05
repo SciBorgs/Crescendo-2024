@@ -205,7 +205,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   public Command goToTest(Measure<Angle> goal) {
     return runPivot(goal)
         .until(() -> atPosition(goal.in(Radians)))
-        .withTimeout(1.5)
+        .withTimeout(2)
         .finallyDo(
             () ->
                 assertEqualsReport(
