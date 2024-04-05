@@ -312,18 +312,6 @@ public class Robot extends CommandRobot implements Logged {
             });
   }
 
-  public Command testToGoal(
-      Function<Double, Command> goTo,
-      double goal,
-      double delta,
-      Measure<Time> timeout,
-      Supplier<Double> pos,
-      String faultName) {
-    return goTo.apply(goal)
-        .withTimeout(timeout.in(Seconds))
-        .finallyDo(() -> assertEqualsReport(faultName, goal, pos.get(), delta));
-  }
-
   public Command systemsCheck() {
     return Commands.sequence(
             shooter.goToTest(RadiansPerSecond.of(100)),
