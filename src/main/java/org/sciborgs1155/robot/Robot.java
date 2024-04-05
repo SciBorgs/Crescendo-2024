@@ -12,6 +12,8 @@ import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_ACCEL;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_SPEED;
 import static org.sciborgs1155.robot.drive.DriveConstants.TELEOP_ANGULAR_SPEED;
 import static org.sciborgs1155.robot.pivot.PivotConstants.AMP_ANGLE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -177,6 +179,8 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(Commands.deferredProxy(autos::getSelected))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
+    test().whileTrue(systemsCheck());
+
     driver.b().whileTrue(drive.zeroHeading());
     driver
         .leftBumper()
@@ -273,6 +277,16 @@ public class Robot extends CommandRobot implements Logged {
               driver.getHID().setRumble(rumbleType, 0);
               operator.getHID().setRumble(rumbleType, 0);
             });
+  }
+
+  public Command systemsCheck() {
+    return Commands.sequence(
+            shooter.goToTest(RadiansPerSecond.of(100)),
+            intake.intake().deadlineWith(feeder.forward(), shooter.runShooter(100)).withTimeout(1),
+            pivot.goToTest(MIN_ANGLE),
+            pivot.goToTest(STARTING_ANGLE),
+            drive.systemsCheck())
+        .withName("Test Mechanisms");
   }
 
   @Override

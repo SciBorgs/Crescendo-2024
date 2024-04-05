@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.*;
+import static org.sciborgs1155.lib.TestingUtil.assertEqualsReport;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Ports.Shooter.BOTTOM_MOTOR;
 import static org.sciborgs1155.robot.Ports.Shooter.TOP_MOTOR;
@@ -10,6 +11,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.networktables.DoubleEntry;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -184,10 +188,21 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     return Shooting.flywheelToNoteSpeed(rotationalVelocity());
   }
 
+  public Command goToTest(Measure<Velocity<Angle>> goal) {
+    return runShooter(goal.in(RadiansPerSecond))
+        .withTimeout(3)
+        .finallyDo(
+            () ->
+                assertEqualsReport(
+                    "Shooter Syst Check Speed",
+                    goal.in(RadiansPerSecond),
+                    rotationalVelocity(),
+                    10));
+  }
+
   @Override
   public void periodic() {
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
-
     topPID.setPID(p.get(), i.get(), d.get());
     bottomPID.setPID(p.get(), i.get(), d.get());
   }

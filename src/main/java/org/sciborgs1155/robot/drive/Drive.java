@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
+import static org.sciborgs1155.lib.TestingUtil.assertEqualsReport;
 import static org.sciborgs1155.robot.Constants.allianceRotation;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
@@ -40,6 +41,8 @@ import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.photonvision.EstimatedRobotPose;
+import org.sciborgs1155.lib.FaultLogger;
+import org.sciborgs1155.lib.FaultLogger.FaultType;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
@@ -425,6 +428,29 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                 new SwerveModuleState[] {front, back, back, front},
                 ControlMode.OPEN_LOOP_VELOCITY,
                 1));
+  }
+
+  public Command systemsCheck() {
+    ChassisSpeeds speeds = new ChassisSpeeds(1, 0, 0);
+    return run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY))
+        .withTimeout(0.5)
+        .finallyDo(
+            () -> {
+              modules.forEach(
+                  m -> {
+                    assertEqualsReport(
+                        "Drive Syst Check Module Angle (degrees)",
+                        0,
+                        m.position().angle.getDegrees() % 180,
+                        2);
+                    if (m.state().speedMetersPerSecond < 1) {
+                      FaultLogger.report(
+                          "Drive Syst Check Module Speed",
+                          "expected: >= 1; actual: " + m.state().speedMetersPerSecond,
+                          FaultType.ERROR);
+                    }
+                  });
+            });
   }
 
   public void close() throws Exception {

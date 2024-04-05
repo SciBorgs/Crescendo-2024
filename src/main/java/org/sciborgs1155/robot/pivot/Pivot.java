@@ -3,6 +3,7 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.autonomous;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.teleop;
+import static org.sciborgs1155.lib.TestingUtil.assertEqualsReport;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
@@ -12,6 +13,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -83,6 +85,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
             .until(() -> pid.getGoal().position > MAX_ANGLE.in(Radians))
             .andThen(run(() -> pivot.setVoltage(0)))
             .withName("default position"));
+
     teleop().or(autonomous()).onTrue(Commands.runOnce(() -> pid.reset(hardware.getPosition())));
   }
 
@@ -197,6 +200,19 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     log("feedback output", feedback);
     log("feedforward output", feedforward);
     hardware.setVoltage(feedback + feedforward);
+  }
+
+  public Command goToTest(Measure<Angle> goal) {
+    return runPivot(goal)
+        .until(() -> atPosition(goal.in(Radians)))
+        .withTimeout(2)
+        .finallyDo(
+            () ->
+                assertEqualsReport(
+                    "Pivot Test Angle (degrees)",
+                    goal.in(Degrees),
+                    Units.radiansToDegrees(position()),
+                    2));
   }
 
   @Override

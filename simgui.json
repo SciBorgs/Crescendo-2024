@@ -109,13 +109,22 @@
     }
   },
   "NetworkTables": {
-    "Persistent Values": {
-      "open": false
-    },
-    "Retained Values": {
-      "open": false
-    },
     "transitory": {
+      "Faults": {
+        "Active Faults": {
+          "open": true,
+          "string[]##v_/Faults/Active Faults/errors": {
+            "open": true
+          }
+        },
+        "Total Faults": {
+          "open": true,
+          "string[]##v_/Faults/Total Faults/errors": {
+            "open": true
+          }
+        },
+        "open": true
+      },
       "Robot": {
         "drive": {
           "ChassisSpeeds##v_/Robot/drive/getFieldRelativeChassisSpeeds": {
@@ -130,7 +139,6 @@
           "driving": {
             "open": true
           },
-          "open": true,
           "turning": {
             "open": true
           }
@@ -141,7 +149,6 @@
         "intake": {
           "open": true
         },
-        "open": true,
         "pivot": {
           "hardware": {
             "open": true

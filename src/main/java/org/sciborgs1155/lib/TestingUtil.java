@@ -4,6 +4,7 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.sciborgs1155.lib.FaultLogger.FaultType;
 
 public class TestingUtil {
   /**
@@ -61,6 +62,14 @@ public class TestingUtil {
     CommandScheduler.getInstance().cancelAll();
     for (AutoCloseable subsystem : subsystems) {
       subsystem.close();
+    }
+  }
+
+  public static void assertEqualsReport(
+      String faultName, double expected, double actual, double delta) {
+    if (!(Math.abs(expected - actual) <= delta)) {
+      FaultLogger.report(
+          faultName, "expected: " + expected + "; actual: " + actual, FaultType.ERROR);
     }
   }
 }
