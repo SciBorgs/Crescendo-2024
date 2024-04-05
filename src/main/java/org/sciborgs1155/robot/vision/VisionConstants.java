@@ -37,7 +37,7 @@ public class VisionConstants {
           "front left",
           new Transform3d(
               new Translation3d(-0.273, 0.106, 0.485),
-              new Rotation3d(0, -Math.PI / 6, Math.PI / 6)));
+              new Rotation3d(Math.PI, -Math.PI / 6, Math.PI / 6)));
   public static final CameraConfig FRONT_RIGHT_CAMERA =
       new CameraConfig(
           "front right",
