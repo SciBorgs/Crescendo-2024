@@ -437,7 +437,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         .withTimeout(0.5)
         .finallyDo(
             () -> {
-
               modules.forEach(
                   m ->
                       assertEqualsReport(
