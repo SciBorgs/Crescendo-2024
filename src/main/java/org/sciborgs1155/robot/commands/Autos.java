@@ -93,6 +93,9 @@ public class Autos {
         "shoot-subwoofer", shooting.shoot(IDLE_VELOCITY).withTimeout(2.2));
 
     FollowPathCommand.warmupCommand().schedule();
-    return AutoBuilder.buildAutoChooser("Subwoofer 5 Note");
+    SendableChooser<Command> chooser = AutoBuilder.buildAutoChooser("Subwoofer 5 Note");
+    chooser.addOption("no auto", Commands.none());
+    chooser.addOption("subwoofer shoot", shooting.shoot(IDLE_VELOCITY).withTimeout(2.2));
+    return chooser;
   }
 }

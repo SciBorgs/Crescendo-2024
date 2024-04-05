@@ -36,13 +36,13 @@ public class VisionConstants {
       new CameraConfig(
           "front left",
           new Transform3d(
-              new Translation3d(-0.273, 0.106, 0.485),
+              new Translation3d(-0.089, 0.3, 0.46),
               new Rotation3d(Math.PI, -Math.PI / 6, Math.PI / 6)));
   public static final CameraConfig FRONT_RIGHT_CAMERA =
       new CameraConfig(
           "front right",
           new Transform3d(
-              new Translation3d(-0.273, -0.106, 0.485),
+              new Translation3d(-0.273, -0.3, 0.485),
               new Rotation3d(0, -Math.PI / 6, -Math.PI / 6)));
 
   // OV9281 constants for our configuration
@@ -50,8 +50,8 @@ public class VisionConstants {
   public static final int HEIGHT = 800;
   public static final Rotation2d FOV = Rotation2d.fromDegrees(70);
 
-  public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(1.5, 1.5, 6.24);
-  public static final Matrix<N3, N1> MULTIPLE_TAG_STD_DEVS = VecBuilder.fill(0.3, 0.3, 3.14);
+  public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(1.5, 1.5, 7);
+  public static final Matrix<N3, N1> MULTIPLE_TAG_STD_DEVS = VecBuilder.fill(0.3, 0.3, 4);
 
   public static final double MAX_HEIGHT = 0.305;
   public static final double MAX_ANGLE = 0.3;

@@ -12,7 +12,6 @@ import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_ACCEL;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_SPEED;
 import static org.sciborgs1155.robot.drive.DriveConstants.TELEOP_ANGULAR_SPEED;
 import static org.sciborgs1155.robot.pivot.PivotConstants.AMP_ANGLE;
-import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 
@@ -123,7 +122,7 @@ public class Robot extends CommandRobot implements Logged {
     // Configure pose estimation updates every tick
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));
 
-    RobotController.setBrownoutVoltage(6.3);
+    RobotController.setBrownoutVoltage(6.0);
 
     if (isReal()) {
       URCL.start();
@@ -150,10 +149,12 @@ public class Robot extends CommandRobot implements Logged {
 
     InputStream r =
         InputStream.hypot(x, y)
+            .log("Robot/raw joystick")
             .scale(() -> speedMultiplier)
             .clamp(1.0)
             .deadband(Constants.DEADBAND, 1.0)
             .signedPow(2.0)
+            .log("Robot/processed joystick")
             .scale(MAX_SPEED.in(MetersPerSecond));
 
     InputStream theta = InputStream.atan(x, y);
@@ -181,6 +182,8 @@ public class Robot extends CommandRobot implements Logged {
 
     test().whileTrue(systemsCheck());
 
+    disabled().onTrue(led.setLEDTheme(LEDTheme.NONE));
+
     driver.b().whileTrue(drive.zeroHeading());
     driver
         .leftBumper()
@@ -195,17 +198,17 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
     // driver auto-amp (y)
-    driver
-        .y()
-        .whileTrue(
-            alignment
-                .ampAlign()
-                // .andThen(drive.stop())
-                .andThen(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY)));
+    // driver
+    //     .y()
+    //     .whileTrue(
+    //         alignment
+    //             .ampAlign()
+    //             // .andThen(drive.stop())
+    //             .andThen(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY)));
 
     // driver climb align (a)
     driver.a().whileTrue(alignment.snapToStage(x, y));
-
+    // 3, 9, 20 can faults
     // driver manual shooter (povUp)
     driver
         .povUp()
@@ -283,7 +286,7 @@ public class Robot extends CommandRobot implements Logged {
     return Commands.sequence(
             shooter.goToTest(RadiansPerSecond.of(100)),
             intake.intake().deadlineWith(feeder.forward(), shooter.runShooter(100)).withTimeout(1),
-            pivot.goToTest(MIN_ANGLE),
+            pivot.goToTest(Radians.of(0)),
             pivot.goToTest(STARTING_ANGLE),
             drive.systemsCheck())
         .withName("Test Mechanisms");

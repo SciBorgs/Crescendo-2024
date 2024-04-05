@@ -23,7 +23,8 @@ public class FakePDH {
   public static double update() {
     double voltage = RobotController.getBatteryVoltage();
     double output = sparks.stream().mapToDouble(CANSparkBase::getAppliedOutput).sum();
-    statorCurrent = sparks.stream().mapToDouble(CANSparkBase::getOutputCurrent).sum();
+    statorCurrent =
+        sparks.stream().mapToDouble(CANSparkBase::getOutputCurrent).map(Math::abs).sum();
     supplyCurrent = voltage * output * statorCurrent;
     return supplyCurrent;
   }

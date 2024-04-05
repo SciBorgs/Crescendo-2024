@@ -2,6 +2,7 @@ package org.sciborgs1155.lib;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.networktables.DoubleEntry;
 import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 
@@ -127,7 +128,7 @@ public interface InputStream extends DoubleSupplier {
    * @return A deadbanded stream.
    */
   public default InputStream deadband(double deadband, double max) {
-    return map(x -> MathUtil.applyDeadband(x, deadband, Double.MAX_VALUE));
+    return map(x -> MathUtil.applyDeadband(x, deadband, max));
   }
 
   /**
@@ -149,5 +150,14 @@ public interface InputStream extends DoubleSupplier {
   public default InputStream rateLimit(double rate) {
     var limiter = new SlewRateLimiter(rate);
     return map(x -> limiter.calculate(x));
+  }
+
+  public default InputStream log(String key) {
+    DoubleEntry entry = Tuning.entry(key, 0.0);
+    return () -> {
+      double val = this.get();
+      entry.accept(val);
+      return val;
+    };
   }
 }

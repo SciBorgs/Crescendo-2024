@@ -441,9 +441,10 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                     assertEqualsReport(
                         "Drive Syst Check Module Angle (degrees)",
                         0,
-                        m.position().angle.getDegrees() % 180,
+                        (m.position().angle.getDegrees() % 360) % 180,
                         2);
-                    if (m.state().speedMetersPerSecond < 1) {
+                    if (m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos())
+                        < 1) {
                       FaultLogger.report(
                           "Drive Syst Check Module Speed",
                           "expected: >= 1; actual: " + m.state().speedMetersPerSecond,
