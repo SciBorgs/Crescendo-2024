@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
+import static java.lang.Math.PI;
+import static java.lang.Math.tan;
 import static org.sciborgs1155.lib.TestingUtil.assertEqualsReport;
 import static org.sciborgs1155.robot.Constants.allianceRotation;
 import static org.sciborgs1155.robot.Ports.Drive.*;
@@ -30,6 +32,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -428,25 +431,52 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                 1));
   }
 
-  // note: .until() end condition values for drive are completly arbitrary
-  public Command systemsCheck() {
-    return run(() ->
-            setChassisSpeeds(
-                ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(1, 1, 0.1), heading()),
-                ControlMode.OPEN_LOOP_VELOCITY))
-        .beforeStarting(() -> resetOdometry(new Pose2d()), this)
-        .withTimeout(2)
+  public Command testStraight(Rotation2d angle) {
+    ChassisSpeeds speeds = new ChassisSpeeds(angle.getCos(), angle.getSin(), 0);
+    return run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY))
+        .withTimeout(0.5)
         .finallyDo(
             () -> {
-              assertEqualsReport("Drive Sys Check X", 2, pose().getX(), 0.4);
-              assertEqualsReport("Drive Sys Check Y", 2, pose().getY(), 0.4);
-              assertEqualsReport(
-                  "Drive Sys Check Omega",
-                  0.1,
-                  getFieldRelativeChassisSpeeds().omegaRadiansPerSecond,
-                  0.05);
-            })
-        .andThen(stop());
+
+              modules.forEach(
+                  m ->
+                      assertEqualsReport(
+                          "Drive Syst Check Module Angle Tangent",
+                          angle.getTan(),
+                          tan(m.position().angle.getRadians()),
+                          0.03));
+            });
+  }
+
+  public Command systemsCheck() {
+    return Commands.sequence(
+        testStraight(Rotation2d.fromRadians(0)),
+        testStraight(Rotation2d.fromRadians(PI / 4)),
+        run(() -> setChassisSpeeds(new ChassisSpeeds(0, 0, 0.2), ControlMode.OPEN_LOOP_VELOCITY))
+            .withTimeout(0.5)
+            .finallyDo(
+                () -> {
+                  assertEqualsReport(
+                      "Drive Syst Check Front Left Angle",
+                      tan(3 * Math.PI / 4),
+                      tan(frontLeft.position().angle.getRadians()),
+                      0.03);
+                  assertEqualsReport(
+                      "Drive Syst Check Front Right Angle",
+                      tan(Math.PI / 4),
+                      tan(frontRight.position().angle.getRadians()),
+                      0.03);
+                  assertEqualsReport(
+                      "Drive Syst Check Rear Left Tan Angle",
+                      tan(-3 * PI / 4),
+                      tan(rearLeft.position().angle.getRadians()),
+                      0.03);
+                  assertEqualsReport(
+                      "Drive Syst Check Rear Right Angle",
+                      tan(-PI / 4),
+                      tan(rearRight.position().angle.getRadians()),
+                      0.03);
+                }));
   }
 
   public void close() throws Exception {
