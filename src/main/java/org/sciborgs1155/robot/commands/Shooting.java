@@ -3,6 +3,8 @@ package org.sciborgs1155.robot.commands;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static java.lang.Math.atan;
 import static java.lang.Math.pow;
 import static org.sciborgs1155.robot.Constants.Field.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
@@ -24,7 +26,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -36,6 +40,7 @@ import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.drive.Drive;
+import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.pivot.PivotConstants;
@@ -47,7 +52,9 @@ public class Shooting implements Logged {
    * The conversion between shooter tangential velocity and note launch velocity. Perhaps. This may
    * also account for other errors with our model.
    */
-  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 3.5);
+  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.80);
+
+  public static final Measure<Distance> MAX_DISTANCE = Meters.of(5.0);
 
   private static final InterpolatingDoubleTreeMap shotVelocityLookup =
       new InterpolatingDoubleTreeMap();
@@ -63,7 +70,7 @@ public class Shooting implements Logged {
     this.feeder = feeder;
     this.drive = drive;
 
-    shotVelocityLookup.put(0.0, 250.0);
+    shotVelocityLookup.put(0.0, 300.0);
     shotVelocityLookup.put(1.0, 450.0);
     // shotVelocityLookup.put(4.0, 550.0);
     shotVelocityLookup.put(4.0, MAX_VELOCITY.in(RadiansPerSecond));
@@ -132,12 +139,13 @@ public class Shooting implements Logged {
             () -> rotationalVelocityFromNoteVelocity(calculateNoteVelocity()),
             () ->
                 pivot.atPosition(pitchFromNoteVelocity(calculateNoteVelocity()))
-                    && drive.atHeadingSetpoint())
+                    && atYaw(yawFromNoteVelocity(calculateNoteVelocity())))
         .deadlineWith(
             drive.drive(
-                vx.scale(0.5), vy.scale(0.5), () -> yawFromNoteVelocity(calculateNoteVelocity())),
+                vx.scale(0.5),
+                vy.scale(0.5),
+                () -> yawFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.1)))),
             pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
-    // .unless(() -> !canShoot());
   }
 
   public static Pose2d robotPoseFacingSpeaker(Translation2d robotTranslation) {
@@ -148,16 +156,23 @@ public class Shooting implements Logged {
             .plus(Rotation2d.fromRadians(Math.PI / 2)));
   }
 
+  public Vector<N3> calculateNoteVelocity() {
+    return calculateNoteVelocity(drive.pose());
+  }
+
+  public Vector<N3> calculateNoteVelocity(Measure<Time> predictionTime) {
+    return calculateNoteVelocity(
+        predictedPose(drive.pose(), drive.getFieldRelativeChassisSpeeds(), predictionTime));
+  }
+
   /**
    * Calculates a vector for the desired note velocity relative to the robot for it to travel into
    * the speaker, accounting for the robot's current motion.
    *
    * @return A 3d vector representing the desired note initial velocity.
    */
-  public Vector<N3> calculateNoteVelocity() {
-    Pose2d robotPose = drive.pose();
+  public Vector<N3> calculateNoteVelocity(Pose2d robotPose) {
     ChassisSpeeds speeds = drive.getFieldRelativeChassisSpeeds();
-    // robot velocity is negated because our shooter is on the opposite end of our robot
     Vector<N3> robotVelocity =
         VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
     Translation2d difference = translationToSpeaker(robotPose.getTranslation());
@@ -173,6 +188,17 @@ public class Shooting implements Logged {
         new Translation3d(1, 0, 0).rotateBy(noteOrientation).toVector().unit().times(shotVelocity);
 
     return noteVelocity.minus(robotVelocity);
+  }
+
+  public static Pose2d predictedPose(
+      Pose2d robotPose, ChassisSpeeds speeds, Measure<Time> predictionTime) {
+    Vector<N3> current =
+        VecBuilder.fill(robotPose.getX(), robotPose.getY(), robotPose.getRotation().getRadians());
+    Vector<N3> velocity =
+        VecBuilder.fill(
+            speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond);
+    Vector<N3> predicted = current.plus(velocity.times(predictionTime.in(Seconds)));
+    return new Pose2d(predicted.get(0), predicted.get(1), Rotation2d.fromRadians(predicted.get(2)));
   }
 
   /**
@@ -191,18 +217,29 @@ public class Shooting implements Logged {
     return new Pose3d(robot).transformBy(pivot).transformBy(PivotConstants.SHOOTER_FROM_AXLE);
   }
 
+  public boolean isReady() {
+    return shooter.atSetpoint() && pivot.atGoal();
+  }
+
   /**
    * Calculates if the robot can make its current shot.
    *
    * @return Whether the robot can shoot from its current position at its current velocity.
    */
   @Log.NT
-  public boolean canShoot() {
+  public boolean inRange() {
     Vector<N3> shot = calculateNoteVelocity();
     double pitch = pitchFromNoteVelocity(shot);
     return MIN_ANGLE.in(Radians) < pitch
         && pitch < MAX_ANGLE.in(Radians)
-        && Math.abs(rotationalVelocityFromNoteVelocity(shot)) < MAX_VELOCITY.in(RadiansPerSecond);
+        && Math.abs(rotationalVelocityFromNoteVelocity(shot)) < MAX_VELOCITY.in(RadiansPerSecond)
+        && translationToSpeaker(drive.pose().getTranslation()).getNorm() < MAX_DISTANCE.in(Meters);
+  }
+
+  public boolean atYaw(Rotation2d yaw) {
+    double tolerance = DriveConstants.Rotation.TOLERANCE.in(Radians) * (1 - yaw.getSin());
+    Rotation2d diff = drive.heading().minus(yaw);
+    return Math.abs(atan(diff.getTan())) < tolerance;
   }
 
   /**

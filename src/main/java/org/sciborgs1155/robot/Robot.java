@@ -1,32 +1,29 @@
 package org.sciborgs1155.robot;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.robot.Constants.DEADBAND;
 import static org.sciborgs1155.robot.Constants.PERIOD;
-import static org.sciborgs1155.robot.Constants.alliance;
-import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
-import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_AMP_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
+import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_ACCEL;
+import static org.sciborgs1155.robot.drive.DriveConstants.MAX_SPEED;
+import static org.sciborgs1155.robot.drive.DriveConstants.TELEOP_ANGULAR_SPEED;
+import static org.sciborgs1155.robot.pivot.PivotConstants.AMP_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
-import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import monologue.Annotations.Log;
@@ -34,17 +31,15 @@ import monologue.Logged;
 import monologue.Monologue;
 import org.littletonrobotics.urcl.URCL;
 import org.sciborgs1155.lib.CommandRobot;
+import org.sciborgs1155.lib.FakePDH;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.Alignment;
+import org.sciborgs1155.robot.commands.Autos;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
-import org.sciborgs1155.robot.drive.DriveConstants;
-import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
-import org.sciborgs1155.robot.drive.DriveConstants.Translation;
-import org.sciborgs1155.robot.drive.SwerveModule.ControlMode;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.led.LedStrip;
@@ -93,20 +88,19 @@ public class Robot extends CommandRobot implements Logged {
   private final Vision vision = Vision.create();
 
   // COMMANDS
-  @Log.NT private final SendableChooser<Command> autos;
-
   private final Shooting shooting = new Shooting(shooter, pivot, feeder, drive);
   private final Alignment alignment = new Alignment(drive, pivot);
+
+  @Log.NT
+  private final SendableChooser<Command> autos =
+      Autos.configureAutos(shooting, drive, pivot, shooter, intake, feeder);
 
   @Log.NT private double speedMultiplier = Constants.FULL_SPEED_MULTIPLIER;
 
   /** The robot contains subsystems, OI devices, and commands. */
   public Robot() {
     super(PERIOD.in(Seconds));
-    configureAuto();
-    autos = AutoBuilder.buildAutoChooser();
     configureGameBehavior();
-    configureSubsystemDefaults();
     configureBindings();
   }
 
@@ -121,11 +115,15 @@ public class Robot extends CommandRobot implements Logged {
         () -> log("dist", Shooting.translationToSpeaker(drive.pose().getTranslation()).getNorm()),
         kDefaultPeriod);
 
+    SmartDashboard.putData(CommandScheduler.getInstance());
     // Log PDH
-    FaultLogger.register(new PowerDistribution());
+    // SmartDashboard.putData("PDH", new PowerDistribution());
+    addPeriodic(() -> log("current", FakePDH.update()), PERIOD.in(Seconds));
 
     // Configure pose estimation updates every tick
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));
+
+    RobotController.setBrownoutVoltage(6.3);
 
     if (isReal()) {
       URCL.start();
@@ -141,67 +139,42 @@ public class Robot extends CommandRobot implements Logged {
     }
   }
 
-  /** Creates an input stream for a joystick. */
-  private InputStream createJoystickStream(InputStream input, double maxSpeed) {
-    return input
-        .deadband(Constants.DEADBAND, 1)
-        .negate()
-        .signedPow(2)
-        .scale(maxSpeed)
-        .scale(() -> speedMultiplier);
-    // .rateLimit(DriveConstants.MAX_ACCEL.in(MetersPerSecondPerSecond));
-  }
-
-  public void configureAuto() {
-    // register named commands for auto
-    NamedCommands.registerCommand(
-        "shoot", shooting.shootWhileDriving(() -> 0, () -> 0).withTimeout(2));
-    NamedCommands.registerCommand(
-        "intake",
-        intake
-            .intake()
-            .deadlineWith(feeder.forward())
-            .andThen(
-                intake
-                    .stop()
-                    .alongWith(feeder.runFeeder(0))
-                    .alongWith(Commands.waitSeconds(0.5).andThen(shooting.aimWithoutShooting()))));
-    NamedCommands.registerCommand(
-        "subwoofer-shoot", shooting.shoot(DEFAULT_VELOCITY).withTimeout(3));
-    // NamedCommands.registerCommand("stop", drive.driveRobotRelative);
-
-    // configure auto
-    AutoBuilder.configureHolonomic(
-        drive::pose,
-        drive::resetOdometry,
-        drive::getRobotRelativeChassisSpeeds,
-        s -> drive.setChassisSpeeds(s, ControlMode.CLOSED_LOOP_VELOCITY),
-        new HolonomicPathFollowerConfig(
-            new PIDConstants(Translation.P, Translation.I, Translation.D),
-            new PIDConstants(Rotation.P, Rotation.I, Rotation.D),
-            DriveConstants.MAX_SPEED.in(MetersPerSecond),
-            DriveConstants.RADIUS.in(Meters),
-            new ReplanningConfig()),
-        () -> alliance() == Alliance.Red,
-        drive);
-  }
-
   /**
    * Configures subsystem default commands. Default commands are scheduled when no other command is
    * running on a subsystem.
    */
-  private void configureSubsystemDefaults() {
-    drive.setDefaultCommand(
-        drive.drive(
-            createJoystickStream(driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-            createJoystickStream(driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-            createJoystickStream(
-                driver::getRightX, DriveConstants.TELEOP_ANGULAR_SPEED.in(RadiansPerSecond))));
-    led.setDefaultCommand(led.setLEDTheme(LEDTheme.BLUE));
-  }
-
   /** Configures trigger -> command bindings */
   private void configureBindings() {
+    InputStream x = InputStream.of(driver::getLeftX).negate();
+    InputStream y = InputStream.of(driver::getLeftY).negate();
+
+    InputStream r =
+        InputStream.hypot(x, y)
+            .scale(() -> speedMultiplier)
+            .clamp(1.0)
+            .deadband(Constants.DEADBAND, 1.0)
+            .signedPow(2.0)
+            .scale(MAX_SPEED.in(MetersPerSecond));
+
+    InputStream theta = InputStream.atan(x, y);
+
+    x = r.scale(theta.map(Math::cos)); // .rateLimit(MAX_ACCEL.in(MetersPerSecondPerSecond));
+    y = r.scale(theta.map(Math::sin)); // .rateLimit(MAX_ACCEL.in(MetersPerSecondPerSecond));
+
+    InputStream omega =
+        InputStream.of(driver::getRightX)
+            .negate()
+            .scale(() -> speedMultiplier)
+            .clamp(1.0)
+            .deadband(DEADBAND, 1.0)
+            .signedPow(2.0)
+            .scale(TELEOP_ANGULAR_SPEED.in(RadiansPerSecond))
+            .rateLimit(MAX_ANGULAR_ACCEL.in(RadiansPerSecond.per(Second)));
+
+    drive.setDefaultCommand(drive.drive(x, y, omega));
+
+    led.setDefaultCommand(led.setLEDTheme(LEDTheme.BLUE));
+
     autonomous()
         .whileTrue(Commands.deferredProxy(autos::getSelected))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
@@ -215,26 +188,58 @@ public class Robot extends CommandRobot implements Logged {
         .onTrue(Commands.runOnce(() -> speedMultiplier = Constants.SLOW_SPEED_MULTIPLIER))
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
-    // driver
-    //     .a()
-    //     .whileTrue(
-    //         alignment
-    //             .snapToStage(
-    //                 createJoystickStream(
-    //                     driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-    //                 createJoystickStream(
-    //                     driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))));
-    // stop holding the button in order to climb with
-    // the pivot manually
-
+    // driver shoot (x)
     driver
-        .a()
+        .x()
+        .whileTrue(shooting.shootWhileDriving(x, y))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+
+    // driver auto-amp (y)
+    driver
+        .y()
         .whileTrue(
             alignment
                 .ampAlign()
-                .andThen(drive.stop())
-                .andThen(shooting.shootWithPivot(PRESET_AMP_ANGLE, AMP_VELOCITY)));
+                // .andThen(drive.stop())
+                .andThen(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY)));
 
+    // driver climb align (a)
+    driver.a().whileTrue(alignment.snapToStage(x, y));
+
+    // driver manual shooter (povUp)
+    driver
+        .povUp()
+        .whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
+
+    // intake (right trigger / top left bump)
+    driver
+        .rightTrigger()
+        .or(operator.leftBumper())
+        .whileTrue(intake.intake().deadlineWith(feeder.forward()))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+
+    // operator feed (left trigger)
+    operator
+        .leftTrigger()
+        .whileTrue(
+            shooting.shootWithPivot(PivotConstants.FEED_ANGLE, ShooterConstants.DEFAULT_VELOCITY));
+
+    // operator climb (b)
+    operator
+        .b()
+        .and(operator.rightTrigger())
+        .whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
+
+    // operator note-unstuck (right bump)
+    operator.rightBumper().whileTrue(pivot.runPivot(Radians.of(0.8)).alongWith(intake.backward()));
+
+    // operator manual amp (povUp)
+    operator
+        .povUp()
+        .whileTrue(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY))
+        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+
+    // operator manual pivot (a)
     operator
         .a()
         .toggleOnTrue(
@@ -244,40 +249,7 @@ public class Robot extends CommandRobot implements Logged {
                 .deadlineWith(Commands.idle(shooter)))
         .toggleOnTrue(led.setLEDTheme(LEDTheme.RAINDROP));
 
-    operator
-        .b()
-        .and(operator.rightTrigger())
-        .whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
-
-    driver
-        .x()
-        .whileTrue(
-            shooting.shootWhileDriving(
-                createJoystickStream(
-                    driver::getLeftY, DriveConstants.MAX_SPEED.in(MetersPerSecond)),
-                createJoystickStream(
-                    driver::getLeftX, DriveConstants.MAX_SPEED.in(MetersPerSecond))))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
-
-    driver
-        .y()
-        .or(operator.povUp())
-        .whileTrue(
-            shooting.shootWithPivot(PivotConstants.PRESET_AMP_ANGLE, ShooterConstants.AMP_VELOCITY))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
-
-    driver
-        .rightTrigger()
-        .or(operator.leftBumper())
-        .and(() -> pivot.atPosition(MAX_ANGLE.in(Radians)))
-        .whileTrue(intake.intake().deadlineWith(feeder.forward()))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
-
-    driver
-        .povUp()
-        .whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
-
-    operator.rightBumper().whileTrue(intake.backward());
+    // operator manual shoot (povDown)
     operator
         .povDown()
         .whileTrue(shooting.shoot(RadiansPerSecond.of(350)))
@@ -315,5 +287,19 @@ public class Robot extends CommandRobot implements Logged {
             pivot.goToTest(STARTING_ANGLE),
             drive.systemsCheck())
         .withName("Test Mechanisms");
+  }
+  
+  @Override
+  public void close() {
+    super.close();
+    led.close();
+    try {
+      intake.close();
+      shooter.close();
+      feeder.close();
+      pivot.close();
+      drive.close();
+    } catch (Exception e) {
+    }
   }
 }

@@ -22,13 +22,7 @@ public class RealWheel implements WheelIO {
     motor = new CANSparkFlex(id, MotorType.kBrushless);
     encoder = motor.getEncoder();
 
-    check(
-        motor,
-        SparkUtils.configureFrameStrategy(
-            motor,
-            Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
-            Set.of(Sensor.INTEGRATED),
-            false));
+    check(motor, motor.restoreFactoryDefaults());
     check(motor, motor.setIdleMode(IdleMode.kCoast));
     motor.setInverted(inverted);
     check(motor);
@@ -37,6 +31,13 @@ public class RealWheel implements WheelIO {
     check(motor, encoder.setVelocityConversionFactor(VELOCITY_FACTOR.in(RadiansPerSecond)));
     check(motor, encoder.setAverageDepth(16));
     check(motor, encoder.setMeasurementPeriod(32));
+    check(
+        motor,
+        SparkUtils.configureFrameStrategy(
+            motor,
+            Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
+            Set.of(Sensor.INTEGRATED),
+            false));
     check(motor, motor.burnFlash());
 
     register(motor);

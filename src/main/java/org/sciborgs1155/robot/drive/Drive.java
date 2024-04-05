@@ -70,7 +70,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   @Log.NT private final Field2d field2d = new Field2d();
   private final FieldObject2d[] modules2d;
 
-  private final SysIdRoutine sysid;
+  private final SysIdRoutine translationCharacterization;
+  private final SysIdRoutine rotationalCharacterization;
 
   @Log.NT
   private final ProfiledPIDController translationController =
@@ -117,7 +118,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     modules = List.of(this.frontLeft, this.frontRight, this.rearLeft, this.rearRight);
     modules2d = new FieldObject2d[modules.size()];
 
-    sysid =
+    translationCharacterization =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
@@ -125,7 +126,25 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                     modules.forEach(
                         m -> m.updateDriveVoltage(Rotation2d.fromRadians(0), volts.in(Volts))),
                 null,
-                this));
+                this,
+                "translation"));
+    rotationalCharacterization =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                volts -> {
+                  this.frontLeft.updateDriveVoltage(
+                      Rotation2d.fromRadians(3 * Math.PI / 4), volts.in(Volts));
+                  this.frontRight.updateDriveVoltage(
+                      Rotation2d.fromRadians(Math.PI / 4), volts.in(Volts));
+                  this.rearLeft.updateDriveVoltage(
+                      Rotation2d.fromRadians(-3 * Math.PI / 4), volts.in(Volts));
+                  this.rearRight.updateDriveVoltage(
+                      Rotation2d.fromRadians(-Math.PI / 4), volts.in(Volts));
+                },
+                null,
+                this,
+                "rotation"));
 
     odometry =
         new SwerveDrivePoseEstimator(
@@ -145,10 +164,25 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     rotationController.enableContinuousInput(0, 2 * Math.PI);
     rotationController.setTolerance(Rotation.TOLERANCE.in(Radians));
 
-    SmartDashboard.putData("drive quasistatic forward", sysid.quasistatic(Direction.kForward));
-    SmartDashboard.putData("drive dynamic forward", sysid.dynamic(Direction.kForward));
-    SmartDashboard.putData("drive quasistatic backward", sysid.quasistatic(Direction.kReverse));
-    SmartDashboard.putData("drive dynamic backward", sysid.dynamic(Direction.kReverse));
+    SmartDashboard.putData(
+        "translation quasistatic forward",
+        translationCharacterization.quasistatic(Direction.kForward));
+    SmartDashboard.putData(
+        "translation dynamic forward", translationCharacterization.dynamic(Direction.kForward));
+    SmartDashboard.putData(
+        "translation quasistatic backward",
+        translationCharacterization.quasistatic(Direction.kReverse));
+    SmartDashboard.putData(
+        "translation dynamic backward", translationCharacterization.dynamic(Direction.kReverse));
+    SmartDashboard.putData(
+        "rotation quasistatic forward", rotationalCharacterization.quasistatic(Direction.kForward));
+    SmartDashboard.putData(
+        "rotation dynamic forward", rotationalCharacterization.dynamic(Direction.kForward));
+    SmartDashboard.putData(
+        "rotation quasistatic backward",
+        rotationalCharacterization.quasistatic(Direction.kReverse));
+    SmartDashboard.putData(
+        "rotation dynamic backward", rotationalCharacterization.dynamic(Direction.kReverse));
   }
 
   /**
@@ -187,16 +221,16 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return drive(vx, vy, () -> translation.get().minus(pose().getTranslation()).getAngle());
   }
 
+  @Log.NT
+  public boolean atRotationalSetpoint() {
+    return rotationController.atSetpoint();
+  }
+
   public boolean isFacing(Translation2d target) {
     return Math.abs(
             gyro.getRotation2d().getRadians()
                 - target.minus(pose().getTranslation()).getAngle().getRadians())
         < rotationController.getPositionTolerance();
-  }
-
-  @Log.NT
-  public boolean atHeadingSetpoint() {
-    return rotationController.atSetpoint();
   }
 
   /**
@@ -239,30 +273,18 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         .beforeStarting(rotationController::reset);
   }
 
-  public Command driveTo(Pose2d target) {
-    return run(() -> {
-          Transform2d transform = target.minus(pose());
-          Vector<N3> difference =
-              VecBuilder.fill(
-                  transform.getX(),
-                  transform.getY(),
-                  transform.getRotation().getRadians() * RADIUS.in(Meters));
-          double out = -translationController.calculate(difference.norm(), 0);
-          Vector<N3> velocities = difference.unit().times(out);
-          setChassisSpeeds(
-              new ChassisSpeeds(
-                  velocities.get(0), velocities.get(1), velocities.get(2) / RADIUS.in(Meters)),
-              ControlMode.CLOSED_LOOP_VELOCITY);
-        })
-        .until(translationController::atGoal);
-  }
-
   /** Robot relative chassis speeds */
   public void setChassisSpeeds(ChassisSpeeds speeds, ControlMode mode) {
+    double speed = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+    double angularSpeed = Math.abs(speeds.omegaRadiansPerSecond);
+    double sum = speed + angularSpeed;
+    double factor = sum == 0 ? 0 : speed / sum;
+
     setModuleStates(
         kinematics.toSwerveModuleStates(
             ChassisSpeeds.discretize(speeds, Constants.PERIOD.in(Seconds))),
-        mode);
+        mode,
+        factor);
   }
 
   /**
@@ -271,7 +293,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param desiredStates The desired SwerveModule states.
    * @param mode The method to use when controlling the drive motor.
    */
-  public void setModuleStates(SwerveModuleState[] desiredStates, ControlMode mode) {
+  public void setModuleStates(
+      SwerveModuleState[] desiredStates, ControlMode mode, double movementFactor) {
     if (desiredStates.length != modules.size()) {
       throw new IllegalArgumentException("desiredStates must have the same length as modules");
     }
@@ -279,8 +302,27 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_SPEED.in(MetersPerSecond));
 
     for (int i = 0; i < modules.size(); i++) {
-      modules.get(i).updateDesiredState(desiredStates[i], mode);
+      modules.get(i).updateSetpoint(desiredStates[i], mode, movementFactor);
     }
+  }
+
+  public Command driveTo(Pose2d target) {
+    return run(() -> {
+          Transform2d transform = pose().minus(target);
+          Vector<N3> difference =
+              VecBuilder.fill(
+                  transform.getX(),
+                  transform.getY(),
+                  transform.getRotation().getRadians() * RADIUS.in(Meters));
+          double out = translationController.calculate(difference.norm(), 0);
+          Vector<N3> velocities = difference.unit().times(out);
+          setChassisSpeeds(
+              new ChassisSpeeds(
+                  velocities.get(0), velocities.get(1), velocities.get(2) / RADIUS.in(Meters)),
+              ControlMode.CLOSED_LOOP_VELOCITY);
+        })
+        .until(translationController::atGoal)
+        .withName("drive to pose");
   }
 
   /** Resets the drive encoders to currently read a position of 0. */
@@ -382,7 +424,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         () ->
             setModuleStates(
                 new SwerveModuleState[] {front, back, back, front},
-                ControlMode.OPEN_LOOP_VELOCITY));
+                ControlMode.OPEN_LOOP_VELOCITY,
+                1));
   }
 
   // note: .until() end condition values for drive are completly arbitrary

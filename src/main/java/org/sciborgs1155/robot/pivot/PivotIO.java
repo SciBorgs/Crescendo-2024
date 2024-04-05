@@ -1,5 +1,7 @@
 package org.sciborgs1155.robot.pivot;
 
+import edu.wpi.first.units.Current;
+import edu.wpi.first.units.Measure;
 import monologue.Logged;
 
 /** Represents the hardware of a pivot. */
@@ -10,6 +12,14 @@ public interface PivotIO extends AutoCloseable, Logged {
    * @param voltage The input voltage.
    */
   public void setVoltage(double voltage);
+
+  /**
+   * Sets the current limit of the pivot.
+   *
+   * @param limit The current limit. It should be <b>CURRENT_LIMIT</b> for regular pivot, and
+   *     <b>CLIMBER_CURRENT_LIMIT</b> for climbing pivot.
+   */
+  public void setCurrentLimit(Measure<Current> limit);
 
   /**
    * Returns the current position of the pivot.

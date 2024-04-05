@@ -6,6 +6,20 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Choreo",
+      "request": "launch",
+      "mainClass": "com.choreo.lib.Choreo",
+      "projectName": "Crescendo-2024"
+    },
+    {
+      "type": "java",
+      "name": "Drive",
+      "request": "launch",
+      "mainClass": "org.sciborgs1155.robot.drive.Drive",
+      "projectName": "Crescendo-2024"
+    },
+    {
+      "type": "java",
       "name": "Constants$Field",
       "request": "launch",
       "mainClass": "org.sciborgs1155.robot.Constants$Field",
