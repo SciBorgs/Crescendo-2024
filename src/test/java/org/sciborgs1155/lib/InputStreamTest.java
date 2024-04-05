@@ -20,8 +20,8 @@ public class InputStreamTest {
   @Test
   void deadband() {
     var stream = InputStream.of(this::two).negate().scale(0.25);
-    assert stream.deadband(0.6, 1).get() == 0.0;
-    assert stream.deadband(0.1, 1).get() == -0.4;
+    assertEquals(stream.deadband(0.6, 1).get(), 0.0);
+    assertEquals(stream.deadband(0.1, 1).get(), -0.444444, 0.01);
   }
 
   @Test
