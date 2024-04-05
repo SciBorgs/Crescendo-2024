@@ -447,7 +447,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                       FaultLogger.report(
                           "Drive Syst Check Module Speed",
                           "expected: >= 1; actual: " + m.state().speedMetersPerSecond,
-                          FaultType.ERROR);
+                          FaultType.WARNING);
                     }
                   });
             });

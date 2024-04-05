@@ -197,7 +197,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
                     "Shooter Syst Check Speed",
                     goal.in(RadiansPerSecond),
                     rotationalVelocity(),
-                    10));
+                    VELOCITY_TOLERANCE.in(RadiansPerSecond)));
   }
 
   @Override

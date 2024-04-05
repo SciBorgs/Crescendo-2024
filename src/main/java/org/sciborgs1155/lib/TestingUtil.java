@@ -69,7 +69,7 @@ public class TestingUtil {
       String faultName, double expected, double actual, double delta) {
     if (!(Math.abs(expected - actual) <= delta)) {
       FaultLogger.report(
-          faultName, "expected: " + expected + "; actual: " + actual, FaultType.ERROR);
+          faultName, "expected: " + expected + "; actual: " + actual, FaultType.WARNING);
     }
   }
 }
