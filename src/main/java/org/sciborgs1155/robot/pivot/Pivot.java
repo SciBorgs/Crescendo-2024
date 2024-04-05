@@ -3,7 +3,7 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.autonomous;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.teleop;
-import static org.sciborgs1155.lib.TestingUtil.parameterizedSystemsCheck;
+import static org.sciborgs1155.lib.TestingUtil.assertEqualsReport;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
 import edu.wpi.first.math.MathUtil;
@@ -12,24 +12,20 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
-import java.util.function.Function;
 import monologue.Annotations.Log;
 import monologue.Logged;
-import org.sciborgs1155.lib.FaultLogger;
-import org.sciborgs1155.lib.FaultLogger.FaultType;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
@@ -88,6 +84,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
             .until(pid::atGoal)
             .andThen(run(() -> pivot.setVoltage(0)))
             .withName("default position"));
+
     teleop().or(autonomous()).onTrue(Commands.runOnce(() -> pid.reset(hardware.getPosition())));
   }
 
@@ -201,31 +198,17 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     hardware.setVoltage(feedback + feedforward);
   }
 
-  public Command systemsCheck() {
-    Function<Measure<Angle>, Command> check =
-        goal ->
-            runPivot(goal)
-                .until(() -> atPosition(goal.in(Radians)))
-                .finallyDo(
-                    interrupted -> {
-                      if (interrupted) {
-                        FaultLogger.report(
-                            "Pivot Sys Check Angle",
-                            "expected: " + goal.in(Radians) + "; actual: " + position(),
-                            FaultType.ERROR);
-                      }
-                    })
-                .withTimeout(3);
-    return parameterizedSystemsCheck(
-            check,
-            List.of(
-                Degrees.of(40),
-                Degrees.of(30),
-                Degrees.of(-10),
-                Degrees.of(-20),
-                PivotConstants.MIN_ANGLE,
-                PivotConstants.STARTING_ANGLE))
-        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
+  public Command goToTest(Measure<Angle> goal) {
+    return runPivot(goal)
+        .until(() -> atPosition(goal.in(Radians)))
+        .withTimeout(1.5)
+        .finallyDo(
+            () ->
+                assertEqualsReport(
+                    "Pivot Test Angle (degrees)",
+                    goal.in(Degrees),
+                    Units.radiansToDegrees(position()),
+                    2));
   }
 
   @Override

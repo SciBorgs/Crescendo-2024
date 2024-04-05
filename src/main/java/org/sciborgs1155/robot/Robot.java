@@ -6,10 +6,13 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.lib.TestingUtil.assertEqualsReport;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Constants.alliance;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.PRESET_AMP_ANGLE;
+import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
 
@@ -18,6 +21,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -27,6 +32,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import monologue.Monologue;
@@ -203,7 +210,7 @@ public class Robot extends CommandRobot implements Logged {
     autonomous()
         .whileTrue(Commands.deferredProxy(autos::getSelected))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
-    
+
     test().whileTrue(systemsCheck());
 
     driver.b().whileTrue(drive.zeroHeading());
@@ -305,14 +312,25 @@ public class Robot extends CommandRobot implements Logged {
             });
   }
 
+  public Command testToGoal(
+      Function<Double, Command> goTo,
+      double goal,
+      double delta,
+      Measure<Time> timeout,
+      Supplier<Double> pos,
+      String faultName) {
+    return goTo.apply(goal)
+        .withTimeout(timeout.in(Seconds))
+        .finallyDo(() -> assertEqualsReport(faultName, goal, pos.get(), delta));
+  }
+
   public Command systemsCheck() {
-    return 
-        Commands.sequence(
-            drive.systemsCheck(),
-            feeder.forward().withTimeout(0.5),
-            intake.forward().withTimeout(0.5),
-            pivot.systemsCheck(),
-            shooter.systemsCheck())
+    return Commands.sequence(
+            shooter.goToTest(RadiansPerSecond.of(100)),
+            intake.intake().deadlineWith(feeder.forward(), shooter.runShooter(100)).withTimeout(1),
+            pivot.goToTest(MIN_ANGLE),
+            pivot.goToTest(STARTING_ANGLE),
+            drive.systemsCheck())
         .withName("Test Mechanisms");
   }
 }

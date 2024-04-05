@@ -4,9 +4,6 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import java.util.List;
-import java.util.function.Function;
 import org.sciborgs1155.lib.FaultLogger.FaultType;
 
 public class TestingUtil {
@@ -74,13 +71,5 @@ public class TestingUtil {
       FaultLogger.report(
           faultName, "expected: " + expected + "; actual: " + actual, FaultType.ERROR);
     }
-  }
-
-  public static <T> Command parameterizedSystemsCheck(Function<T, Command> check, List<T> values) {
-    Command c = Commands.none();
-    for (T val : values) {
-      c = c.andThen(check.apply(val));
-    }
-    return c;
   }
 }

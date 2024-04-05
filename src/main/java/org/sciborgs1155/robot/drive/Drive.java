@@ -387,8 +387,10 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   // note: .until() end condition values for drive are completly arbitrary
   public Command systemsCheck() {
-    return 
-        run(() -> setChassisSpeeds(new ChassisSpeeds(1, 1, 0.1), ControlMode.OPEN_LOOP_VELOCITY))
+    return run(() ->
+            setChassisSpeeds(
+                ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(1, 1, 0.1), heading()),
+                ControlMode.OPEN_LOOP_VELOCITY))
         .beforeStarting(() -> resetOdometry(new Pose2d()), this)
         .withTimeout(2)
         .finallyDo(
