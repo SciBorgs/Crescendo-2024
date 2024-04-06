@@ -1,8 +1,10 @@
 package org.sciborgs1155.lib;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.networktables.DoubleEntry;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 
@@ -121,6 +123,16 @@ public interface InputStream extends DoubleSupplier {
   }
 
   /**
+   * Filters the stream's outputs by the provided {@link LinearFilter}.
+   *
+   * @param filter The linear filter to use.
+   * @return A filtered stream.
+   */
+  public default InputStream filter(LinearFilter filter) {
+    return map(filter::calculate);
+  }
+
+  /**
    * Deadbands the stream outputs by a minimum bound and scales them from 0 to a maximum bound.
    *
    * @param bound The lower bound to deadband with.
@@ -152,11 +164,20 @@ public interface InputStream extends DoubleSupplier {
     return map(x -> limiter.calculate(x));
   }
 
+  /**
+   * Logs the output of this stream to networktables every time it is polled.
+   *
+   * <p>A new stream is returned that is identical to this stream, but publishes its output to
+   * networktables every time it is polled.
+   *
+   * @param key The NetworkTables key to publish to.
+   * @return A stream with the same output as this one.
+   */
   public default InputStream log(String key) {
-    DoubleEntry entry = Tuning.entry(key, 0.0);
+    DoublePublisher pub = NetworkTableInstance.getDefault().getDoubleTopic(key).publish();
     return () -> {
       double val = this.get();
-      entry.accept(val);
+      pub.set(val);
       return val;
     };
   }
