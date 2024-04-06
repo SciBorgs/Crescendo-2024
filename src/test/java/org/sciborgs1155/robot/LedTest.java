@@ -26,10 +26,10 @@ public class LedTest {
   @Test
   public void testThemeSet() {
     String correct = "[";
-    for (int i = 0; i < LedConstants.LEDLENGTH - 1; i++) {
-      correct += (i % 2 == 0) ? "#FFFF00," : "#A9A9A9,";
+    for (int i = 0; i < LedConstants.LED_LENGTH; i++) {
+      correct +=
+          (i % 2 == 0 ? "#FFFF00" : "#A9A9A9") + (i == LedConstants.LED_LENGTH - 1 ? "]" : ",");
     }
-    correct += (LedConstants.LEDLENGTH % 2 == 0) ? "#A9A9A9]" : "#FFFF00]";
 
     assertEquals(correct, LedStrip.getBufferDataString(LEDTheme.TEST.ledBuffer.get()));
   }

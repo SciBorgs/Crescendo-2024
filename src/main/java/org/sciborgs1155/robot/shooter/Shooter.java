@@ -10,7 +10,6 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
@@ -51,8 +50,6 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
 
   private final SysIdRoutine topCharacterization;
   private final SysIdRoutine bottomCharacterization;
-
-  private final Debouncer aboveIdleVelocity = new Debouncer(0.5);
 
   /** Creates real or simulated shooter based on {@link Robot#isReal()}. */
   public static Shooter create() {

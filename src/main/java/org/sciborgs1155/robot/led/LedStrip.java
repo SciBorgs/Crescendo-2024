@@ -1,7 +1,7 @@
 package org.sciborgs1155.robot.led;
 
 import static org.sciborgs1155.robot.Ports.Led.LED_PORT;
-import static org.sciborgs1155.robot.led.LedConstants.LEDLENGTH;
+import static org.sciborgs1155.robot.led.LedConstants.LED_LENGTH;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -61,7 +61,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   };
 
   public LedStrip() {
-    led.setLength(LEDLENGTH);
+    led.setLength(LED_LENGTH);
     led.setData(nothing());
     led.start();
   }
@@ -89,8 +89,8 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public static AddressableLEDBuffer gen(Function<Integer, Color> f) {
-    AddressableLEDBuffer buffer = new AddressableLEDBuffer(LEDLENGTH);
-    for (int i = 0; i < LEDLENGTH; i++) {
+    AddressableLEDBuffer buffer = new AddressableLEDBuffer(LED_LENGTH);
+    for (int i = 0; i < LED_LENGTH; i++) {
       buffer.setLED(i, f.apply(i));
     }
     return buffer;
@@ -126,7 +126,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   // (the ones that can't be copy paste)
 
   private static AddressableLEDBuffer rainbow() {
-    AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDLENGTH);
+    AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LED_LENGTH);
     final double scalar = 255 / 2;
     return gen(
         i -> {
@@ -145,7 +145,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     return gen(i -> fireColors[(int) (Math.floor((i + tick) % 5))]);
   }
 
-  private static Color[] raindrop = new Color[LEDLENGTH];
+  private static Color[] raindrop = new Color[LED_LENGTH];
 
   private static AddressableLEDBuffer raindrop() {
     if (Math.round(Math.random()) == 0) {
@@ -164,7 +164,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   private static AddressableLEDBuffer nothing() {
-    return new AddressableLEDBuffer(LEDLENGTH);
+    return new AddressableLEDBuffer(LED_LENGTH);
   }
 
   @Override
