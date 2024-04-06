@@ -33,6 +33,7 @@ import org.sciborgs1155.lib.CommandRobot;
 import org.sciborgs1155.lib.FakePDH;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.Alignment;
 import org.sciborgs1155.robot.commands.Autos;
@@ -122,6 +123,12 @@ public class Robot extends CommandRobot implements Logged {
     // Configure pose estimation updates every tick
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));
 
+    // Fuck REV Robotics.!!!!
+    for (var r : SparkUtils.getRunnables()) {
+      addPeriodic(r, 5);
+    }
+    // addPeriodic(SparkUtils::update, PERIOD.in(Seconds));
+
     RobotController.setBrownoutVoltage(6.0);
 
     if (isReal()) {
@@ -174,7 +181,7 @@ public class Robot extends CommandRobot implements Logged {
 
     drive.setDefaultCommand(drive.drive(x, y, omega));
 
-    led.setDefaultCommand(led.setLEDTheme(LEDTheme.BLUE));
+    led.setDefaultCommand(led.setLEDTheme(LEDTheme.ALLIANCE));
 
     autonomous()
         .whileTrue(Commands.deferredProxy(autos::getSelected))
@@ -215,9 +222,8 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
 
     // intake (right trigger / top left bump)
-    driver
-        .rightTrigger()
-        .or(operator.leftBumper())
+    operator
+        .leftBumper()
         .whileTrue(intake.intake().deadlineWith(feeder.forward()))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
 
@@ -235,6 +241,8 @@ public class Robot extends CommandRobot implements Logged {
 
     // operator note-unstuck (right bump)
     operator.rightBumper().whileTrue(pivot.runPivot(Radians.of(0.8)).alongWith(intake.backward()));
+
+    operator.x().whileTrue(intake.backward().alongWith(feeder.backward()));
 
     // operator manual amp (povUp)
     operator
@@ -286,6 +294,7 @@ public class Robot extends CommandRobot implements Logged {
     return Commands.sequence(
             shooter.goToTest(RadiansPerSecond.of(100)),
             intake.intake().deadlineWith(feeder.forward(), shooter.runShooter(100)).withTimeout(1),
+            pivot.goToTest(Radians.of(0.84374)), // this is the angle for the first shot in
             pivot.goToTest(Radians.of(0)),
             pivot.goToTest(STARTING_ANGLE),
             drive.systemsCheck())
