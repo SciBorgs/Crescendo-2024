@@ -5,7 +5,9 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
+import static java.lang.Math.atan;
 import static org.sciborgs1155.lib.TestingUtil.assertEqualsReport;
+import static org.sciborgs1155.lib.TestingUtil.assertReport;
 import static org.sciborgs1155.robot.Constants.allianceRotation;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
@@ -26,6 +28,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,8 +44,6 @@ import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.photonvision.EstimatedRobotPose;
-import org.sciborgs1155.lib.FaultLogger;
-import org.sciborgs1155.lib.FaultLogger.FaultType;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
@@ -431,7 +432,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command systemsCheck() {
-    ChassisSpeeds speeds = new ChassisSpeeds(1, 0, 0);
+    ChassisSpeeds speeds = new ChassisSpeeds(1, 1, 0);
     return run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY))
         .withTimeout(0.5)
         .finallyDo(
@@ -440,16 +441,14 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                   m -> {
                     assertEqualsReport(
                         "Drive Syst Check Module Angle (degrees)",
-                        0,
-                        (m.position().angle.getDegrees() % 360) % 180,
-                        2);
-                    if (m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos())
-                        < 1) {
-                      FaultLogger.report(
-                          "Drive Syst Check Module Speed",
-                          "expected: >= 1; actual: " + m.state().speedMetersPerSecond,
-                          FaultType.WARNING);
-                    }
+                        45,
+                        Units.radiansToDegrees(atan(m.position().angle.getTan())),
+                        0.5);
+                    assertReport(
+                        m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos())
+                            > 1,
+                        "Drive Syst Check Module Speed",
+                        "expected: >= 1; actual: " + m.state().speedMetersPerSecond);
                   });
             });
   }

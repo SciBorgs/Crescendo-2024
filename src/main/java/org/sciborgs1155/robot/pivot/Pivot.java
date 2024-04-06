@@ -212,7 +212,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
                     "Pivot Test Angle (degrees)",
                     goal.in(Degrees),
                     Units.radiansToDegrees(position()),
-                    POSITION_TOLERANCE.in(Degrees)));
+                    3));
   }
 
   @Override
