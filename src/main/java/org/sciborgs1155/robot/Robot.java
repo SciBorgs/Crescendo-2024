@@ -294,7 +294,6 @@ public class Robot extends CommandRobot implements Logged {
     return Commands.sequence(
             shooter.goToTest(RadiansPerSecond.of(100)),
             intake.intake().deadlineWith(feeder.forward(), shooter.runShooter(100)).withTimeout(1),
-            pivot.goToTest(Radians.of(0.84374)), // this is the angle for the first shot in
             pivot.goToTest(Radians.of(0)),
             pivot.goToTest(STARTING_ANGLE),
             drive.systemsCheck())

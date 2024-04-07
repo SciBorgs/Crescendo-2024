@@ -2,7 +2,6 @@ package org.sciborgs1155.robot.commands;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static org.sciborgs1155.robot.Constants.alliance;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.DEFAULT_VELOCITY;
@@ -94,13 +93,7 @@ public class Autos {
         "shoot-subwoofer", shooting.shoot(IDLE_VELOCITY).withTimeout(2.2));
     NamedCommands.registerCommand(
         "shoot-pivot-only",
-        shooting
-            .shootWithPivot()
-            .withTimeout(2.2)
-            .andThen(
-                shooting
-                    .shoot(RadiansPerSecond.of(shooter.rotationalVelocity()))
-                    .deadlineWith(pivot.runPivot(Radians.of(pivot.position())))));
+        shooting.shoot(IDLE_VELOCITY).deadlineWith(pivot.runPivot(() -> 0.887)).withTimeout(2.2));
     FollowPathCommand.warmupCommand().schedule();
     SendableChooser<Command> chooser = AutoBuilder.buildAutoChooser("Subwoofer 5 Note");
     chooser.addOption("no auto", Commands.none());

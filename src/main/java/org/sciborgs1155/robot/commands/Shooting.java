@@ -138,13 +138,13 @@ public class Shooting implements Logged {
     return shoot(
             () -> rotationalVelocityFromNoteVelocity(calculateNoteVelocity()),
             () ->
-                pivot.atPosition(pitchFromNoteVelocity(calculateNoteVelocity()))
+                pivot.atPosition(pitchFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.02))))
                     && atYaw(yawFromNoteVelocity(calculateNoteVelocity())))
         .deadlineWith(
             drive.drive(
                 vx.scale(0.5),
                 vy.scale(0.5),
-                () -> yawFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.1)))),
+                () -> yawFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.2)))),
             pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
   }
 
