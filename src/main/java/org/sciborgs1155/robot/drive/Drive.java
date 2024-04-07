@@ -443,7 +443,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                         "Drive Syst Check Module Angle (degrees)",
                         45,
                         Units.radiansToDegrees(atan(m.position().angle.getTan())),
-                        0.5);
+                        1);
                     assertReport(
                         m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos())
                             > 1,

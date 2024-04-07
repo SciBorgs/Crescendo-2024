@@ -121,6 +121,9 @@
           "open": true,
           "string[]##v_/Faults/Total Faults/errors": {
             "open": true
+          },
+          "string[]##v_/Faults/Total Faults/infos": {
+            "open": true
           }
         },
         "open": true
