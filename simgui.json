@@ -139,6 +139,13 @@
           "driving": {
             "open": true
           },
+          "field2d": {
+            "double[]##v_/Robot/drive/field2d/Robot": {
+              "open": true
+            },
+            "open": true
+          },
+          "open": true,
           "turning": {
             "open": true
           }
@@ -149,6 +156,7 @@
         "intake": {
           "open": true
         },
+        "open": true,
         "pivot": {
           "hardware": {
             "open": true
