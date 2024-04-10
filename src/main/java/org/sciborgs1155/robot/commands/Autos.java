@@ -91,8 +91,13 @@ public class Autos {
                     () -> Shooting.yawFromNoteVelocity(shooting.calculateNoteVelocity()))));
     NamedCommands.registerCommand(
         "shoot-subwoofer", shooting.shoot(IDLE_VELOCITY).withTimeout(2.2));
-
+    NamedCommands.registerCommand(
+        "shoot-pivot-only",
+        shooting.shoot(IDLE_VELOCITY).deadlineWith(pivot.runPivot(() -> 0.887)).withTimeout(2.2));
     FollowPathCommand.warmupCommand().schedule();
-    return AutoBuilder.buildAutoChooser("Subwoofer 5 Note");
+    SendableChooser<Command> chooser = AutoBuilder.buildAutoChooser("Subwoofer 5 Note");
+    chooser.addOption("no auto", Commands.none());
+    chooser.addOption("subwoofer shoot", shooting.shoot(IDLE_VELOCITY).withTimeout(2.2));
+    return chooser;
   }
 }

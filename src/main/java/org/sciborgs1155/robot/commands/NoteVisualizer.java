@@ -175,7 +175,7 @@ public class NoteVisualizer implements Logged {
             .toVector()
             .unit()
             .times(shotVelocity)
-            .plus(driveVelocity)
+            .minus(driveVelocity)
             .times(-1);
 
     pathPosition = new ArrayList<>();

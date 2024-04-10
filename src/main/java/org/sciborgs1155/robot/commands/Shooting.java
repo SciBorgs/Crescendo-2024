@@ -52,7 +52,7 @@ public class Shooting implements Logged {
    * The conversion between shooter tangential velocity and note launch velocity. Perhaps. This may
    * also account for other errors with our model.
    */
-  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.80);
+  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.75);
 
   public static final Measure<Distance> MAX_DISTANCE = Meters.of(5.0);
 
@@ -138,13 +138,13 @@ public class Shooting implements Logged {
     return shoot(
             () -> rotationalVelocityFromNoteVelocity(calculateNoteVelocity()),
             () ->
-                pivot.atPosition(pitchFromNoteVelocity(calculateNoteVelocity()))
+                pivot.atPosition(pitchFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.02))))
                     && atYaw(yawFromNoteVelocity(calculateNoteVelocity())))
         .deadlineWith(
             drive.drive(
                 vx.scale(0.5),
                 vy.scale(0.5),
-                () -> yawFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.1)))),
+                () -> yawFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.2)))),
             pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
   }
 

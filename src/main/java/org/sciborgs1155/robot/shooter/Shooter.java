@@ -106,8 +106,8 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     setDefaultCommand(
         run(
             () -> {
-              if (FakePDH.supplyCurrent() < Constants.BROWNOUT_CURRENT.in(Amps) - 50
-                  && rotationalVelocity() < IDLE_VELOCITY.in(RadiansPerSecond)) {
+              if (FakePDH.supplyCurrent() < Constants.MAX_CURRENT_DRAW.in(Amps)
+                  && rotationalVelocity() < IDLE_VELOCITY.in(RadiansPerSecond) + 50) {
                 update(IDLE_VELOCITY.in(RadiansPerSecond));
               } else {
                 setVoltage(0);
@@ -197,7 +197,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
                     "Shooter Syst Check Speed",
                     goal.in(RadiansPerSecond),
                     rotationalVelocity(),
-                    10));
+                    VELOCITY_TOLERANCE.in(RadiansPerSecond)));
   }
 
   @Override

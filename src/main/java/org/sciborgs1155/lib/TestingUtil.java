@@ -67,9 +67,16 @@ public class TestingUtil {
 
   public static void assertEqualsReport(
       String faultName, double expected, double actual, double delta) {
-    if (!(Math.abs(expected - actual) <= delta)) {
-      FaultLogger.report(
-          faultName, "expected: " + expected + "; actual: " + actual, FaultType.ERROR);
-    }
+    assertReport(
+        Math.abs(expected - actual) <= delta,
+        faultName,
+        "expected: " + expected + "; actual: " + actual);
+  }
+
+  public static void assertReport(boolean condition, String faultName, String description) {
+    FaultLogger.report(
+        faultName,
+        (condition ? "success! " : "") + description,
+        condition ? FaultType.INFO : FaultType.WARNING);
   }
 }

@@ -80,6 +80,15 @@ public class SparkModule implements ModuleIO {
             Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
             Set.of(Sensor.ABSOLUTE),
             false));
+    SparkUtils.addChecker(
+        () ->
+            check(
+                turnMotor,
+                SparkUtils.configureFrameStrategy(
+                    turnMotor,
+                    Set.of(Data.POSITION, Data.VELOCITY, Data.APPLIED_OUTPUT),
+                    Set.of(Sensor.ABSOLUTE),
+                    false)));
     check(turnMotor, turnMotor.burnFlash());
 
     register(driveMotor);

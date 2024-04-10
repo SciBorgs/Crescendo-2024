@@ -121,6 +121,9 @@
           "open": true,
           "string[]##v_/Faults/Total Faults/errors": {
             "open": true
+          },
+          "string[]##v_/Faults/Total Faults/infos": {
+            "open": true
           }
         },
         "open": true
@@ -139,6 +142,13 @@
           "driving": {
             "open": true
           },
+          "field2d": {
+            "double[]##v_/Robot/drive/field2d/Robot": {
+              "open": true
+            },
+            "open": true
+          },
+          "open": true,
           "turning": {
             "open": true
           }
@@ -149,6 +159,7 @@
         "intake": {
           "open": true
         },
+        "open": true,
         "pivot": {
           "hardware": {
             "open": true
