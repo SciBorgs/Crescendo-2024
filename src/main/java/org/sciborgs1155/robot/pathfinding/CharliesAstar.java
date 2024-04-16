@@ -48,7 +48,7 @@ public class CharliesAstar {
   }
 
   /**
-   * Finds the angle, as a Rotation2d, from one GridBox to another.
+   * Finds the angle, as a Rotation2d, from one GridBox to the setpoint.
    *
    * @param currentBox The starting point of the vector that the angle will be based off of.
    * @return A Rotation2d with the angle from the vector created.
