@@ -12,6 +12,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.Set;
+import java.util.function.Supplier;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
@@ -121,6 +122,8 @@ public class SparkModule implements ModuleIO {
 
   @Override
   public double driveVelocity() {
+    // create a supplier for getVelocity() that is registered by OdometryThread, called there, and
+    // then returned in some way to this method
     lastVelocity = SparkUtils.wrapCall(driveMotor, driveEncoder.getVelocity()).orElse(lastVelocity);
     return lastVelocity;
   }
@@ -139,5 +142,14 @@ public class SparkModule implements ModuleIO {
   public void close() {
     driveMotor.close();
     turnMotor.close();
+  }
+
+  @Override
+  public double[] odometryMeasurements() {
+    OdometryThread.lock.lock();
+    Supplier<Double> drivePosition = this::drivePosition;
+    Supplier<Double> driveVelocity = this::driveVelocity;
+    Supplier<Double> rotation = () -> rotation().getRadians();
+    return new double[0];
   }
 }

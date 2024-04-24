@@ -93,4 +93,10 @@ public class TalonModule implements ModuleIO {
     turnMotor.close();
     driveMotor.close();
   }
+
+  @Override
+  public double[] odometryMeasurements() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'odometryMeasurements'");
+  }
 }
