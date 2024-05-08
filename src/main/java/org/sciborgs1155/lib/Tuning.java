@@ -157,6 +157,9 @@ public final class Tuning {
     dblePub.accept(value);
 
     ArrayList<Double> arrayList = new ArrayList<>();
+    if(doubleHash.get(subtopic.getName()) != null) { 
+      arrayList = doubleHash.get(subtopic.getName());
+    }
     arrayList.add(value);
     ArrayList<Double> previousDble = doubleHash.put(subtopic.getName(), arrayList);
     if (previousDble == null) {
@@ -177,6 +180,9 @@ public final class Tuning {
     intPub.accept(value);
 
     ArrayList<Long> arrayList = new ArrayList<>();
+    if(intHash.get(subtopic.getName()) != null) { 
+      arrayList = intHash.get(subtopic.getName());
+    }
     arrayList.add(value);
     ArrayList<Long> previousInt = intHash.put(subtopic.getName(), arrayList);
     if (previousInt == null) {
@@ -197,6 +203,9 @@ public final class Tuning {
     strPub.accept(value);
 
     ArrayList<String> arrayList = new ArrayList<>();
+    if(stringHash.get(subtopic.getName()) != null) { 
+      arrayList = stringHash.get(subtopic.getName());
+    }
     arrayList.add(value);
     ArrayList<String> previousStr = stringHash.put(subtopic.getName(), arrayList);
     if (previousStr == null) {
@@ -217,6 +226,9 @@ public final class Tuning {
     boolPub.accept(value);
 
     ArrayList<Boolean> arrayList = new ArrayList<>();
+    if(booleanHash.get(subtopic.getName()) != null) { 
+      arrayList = booleanHash.get(subtopic.getName());
+    }
     arrayList.add(value);
     ArrayList<Boolean> previousBool = booleanHash.put(subtopic.getName(), arrayList);
     if (previousBool == null) {
@@ -238,6 +250,25 @@ public final class Tuning {
     return new ArrayList<>();
   }
 
+  public static ArrayList<Double> recentChanges(DoubleTopic topic, int pastNIndexes) {
+    ArrayList<Double> arrayList = Tuning.recentChanges(topic);
+    
+    if(pastNIndexes >= arrayList.size()){
+      return arrayList;
+    }
+    if(pastNIndexes < 0){
+      ArrayList<Double> list = new ArrayList<>();
+      list.add(arrayList.get(arrayList.size() -1));
+      return list;
+    }
+
+    ArrayList<Double> croppedList = new ArrayList<>();
+    for (int i = arrayList.size() -1 ; i > arrayList.size() -1 - pastNIndexes; i--) {
+      croppedList.add(arrayList.get(i));
+    }
+    return croppedList;
+  }
+
   /**
    * @param topic The topic that you want to get changes from.
    * @return An ArrayList containing all of the changes of the given topic
@@ -248,6 +279,18 @@ public final class Tuning {
       return changes;
     }
     return new ArrayList<>();
+  }
+
+  public static ArrayList<Long> recentChanges(IntegerTopic topic, int pastNIndexes) {
+    ArrayList<Long> arrayList = Tuning.recentChanges(topic);
+    ArrayList<Long> croppedList = new ArrayList<>();
+    if(pastNIndexes >= arrayList.size() || pastNIndexes < 0){
+      pastNIndexes = arrayList.size() -1;
+    }
+    for (int i = arrayList.size() -1 ; i > arrayList.size() -1 - pastNIndexes; i--) {
+      croppedList.add(arrayList.get(i));
+    }
+    return croppedList;
   }
 
   /**
@@ -262,6 +305,18 @@ public final class Tuning {
     return new ArrayList<>();
   }
 
+  public static ArrayList<String> recentChanges(StringTopic topic, int pastNIndexes) {
+    ArrayList<String> arrayList = Tuning.recentChanges(topic);
+    ArrayList<String> croppedList = new ArrayList<>();
+    if(pastNIndexes >= arrayList.size() || pastNIndexes < 0){
+      pastNIndexes = arrayList.size() -1;
+    }
+    for (int i = arrayList.size() -1; i > arrayList.size() -1 - pastNIndexes; i--) {
+      croppedList.add(arrayList.get(i));
+    }
+    return croppedList;
+  }
+
   /**
    * @param topic The topic that you want to get changes from.
    * @return An ArrayList containing all of the changes of the given topic
@@ -272,6 +327,18 @@ public final class Tuning {
       return changes;
     }
     return new ArrayList<>();
+  }
+
+  public static ArrayList<Boolean> recentChanges(BooleanTopic topic, int pastNIndexes) {
+    ArrayList<Boolean> arrayList = Tuning.recentChanges(topic);
+    ArrayList<Boolean> croppedList = new ArrayList<>();
+    if(pastNIndexes >= arrayList.size() || pastNIndexes < 0){
+      pastNIndexes = arrayList.size() -1;
+    }
+    for (int i = arrayList.size() -1; i > arrayList.size() -1 - pastNIndexes; i--) {
+      croppedList.add(arrayList.get(i));
+    }
+    return croppedList;
   }
 
   /**
@@ -288,10 +355,10 @@ public final class Tuning {
       if (!doubleHash.containsKey(topicName)) {
 
         ArrayList<Double> arrayList = new ArrayList<>();
-        arrayList.add(entryList.get(i).get());
+        // arrayList.add(entryList.get(i).get());
 
         doubleHash.put(topicName, arrayList);
-        prevDouble.put(topicName, arrayList.get(arrayList.size() - 1));
+        // prevDouble.put(topicName, arrayList.get(arrayList.size() - 1));
       }
 
       ArrayList<Double> arrayList = doubleHash.get(topicName);

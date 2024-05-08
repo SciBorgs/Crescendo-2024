@@ -43,6 +43,7 @@ import monologue.Annotations.Log;
 import monologue.Logged;
 import org.photonvision.EstimatedRobotPose;
 import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
@@ -213,14 +214,19 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @return The driving command.
    */
   public Command drive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier vOmega) {
+    var entry = Tuning.entry("/Robot/hi", 2.3);
     return run(
-        () ->
+        () -> {
+            Tuning.updateDoubles(List.of(entry));
+            System.out.println(Tuning.recentChanges(entry.getTopic(), -1));
+
+
             setChassisSpeeds(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                     vx.getAsDouble(),
                     vy.getAsDouble(),
                     vOmega.getAsDouble(),
-                    heading().plus(allianceRotation()))));
+                    heading().plus(allianceRotation())));});
   }
 
   /**
