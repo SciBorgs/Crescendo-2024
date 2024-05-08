@@ -9,6 +9,8 @@ import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import monologue.Annotations.Log;
+
+import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.robot.Ports;
 
