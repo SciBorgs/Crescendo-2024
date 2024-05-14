@@ -19,12 +19,14 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import monologue.Monologue;
@@ -56,13 +58,17 @@ public class Robot extends CommandRobot implements Logged {
   private final CommandXboxController operator = new CommandXboxController(OI.OPERATOR);
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
+  private boolean noteDetectected = false;
+  private EventLoop intakeTriggerPoller = new EventLoop();
+  private Trigger intakeTrigger = new Trigger(intakeTriggerPoller, () -> noteDetectected);
+
   // SUBSYSTEMS
   private final Drive drive = Drive.create();
 
   private final Intake intake =
       switch (Constants.ROBOT_TYPE) {
         case CHASSIS -> Intake.none();
-        default -> Intake.create();
+        default -> Intake.create((b) -> noteDetectected = b);
       };
 
   private final Shooter shooter =
@@ -122,6 +128,9 @@ public class Robot extends CommandRobot implements Logged {
 
     // Configure pose estimation updates every tick
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));
+
+    // polls intake at faster speed
+    addPeriodic(intakeTriggerPoller::poll, .005);
 
     // Fuck REV Robotics.!!!!
     for (var r : SparkUtils.getRunnables()) {
@@ -226,6 +235,8 @@ public class Robot extends CommandRobot implements Logged {
         .leftBumper()
         .whileTrue(intake.intake().deadlineWith(feeder.forward()))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+
+    intakeTrigger.onFalse(intake.stop());
 
     // operator feed (left trigger)
     operator

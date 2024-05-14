@@ -7,10 +7,10 @@ import static org.sciborgs1155.robot.intake.IntakeConstants.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import edu.wpi.first.util.function.BooleanConsumer;
+import edu.wpi.first.wpilibj.AsynchronousInterrupt;
 import edu.wpi.first.wpilibj.DigitalInput;
 import monologue.Annotations.Log;
-
-import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.robot.Ports;
 
@@ -19,8 +19,9 @@ public class RealIntake implements IntakeIO {
       new CANSparkFlex(Ports.Intake.INTAKE_SPARK, MotorType.kBrushless);
 
   private final DigitalInput beambreak = new DigitalInput(Ports.Intake.BEAMBREAK);
+  private final AsynchronousInterrupt asyncInterrupt;
 
-  public RealIntake() {
+  public RealIntake(BooleanConsumer observer) {
     check(spark, spark.restoreFactoryDefaults());
     check(spark, SparkUtils.configureNothingFrameStrategy(spark));
     spark.setInverted(true);
@@ -31,6 +32,20 @@ public class RealIntake implements IntakeIO {
     check(spark, spark.burnFlash());
 
     register(spark);
+
+    asyncInterrupt =
+        new AsynchronousInterrupt(
+            beambreak,
+            (Boolean rising, Boolean falling) -> {
+              if (falling) {
+                observer.accept(true);
+              } else if (rising) {
+                observer.accept(false);
+              }
+            });
+
+    asyncInterrupt.setInterruptEdges(true, true);
+    asyncInterrupt.enable();
   }
 
   @Override

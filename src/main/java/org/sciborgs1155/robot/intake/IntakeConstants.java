@@ -13,5 +13,4 @@ public final class IntakeConstants {
   public static final Measure<Time> DEBOUNCE_TIME = Seconds.of(0);
 
   public static final Measure<Current> STALL_THRESHOLD = Amps.of(40);
-  public static final Measure<Current> NOTE_INVASION_INDICATOR_OOGA_BOOGA = Amps.of(0); //TODO
 }
