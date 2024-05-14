@@ -58,9 +58,9 @@ public class Robot extends CommandRobot implements Logged {
   private final CommandXboxController operator = new CommandXboxController(OI.OPERATOR);
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
-  private boolean noteDetectected = false;
+  @Log.NT private boolean noteDetected = false;
   private EventLoop intakeTriggerPoller = new EventLoop();
-  private Trigger intakeTrigger = new Trigger(intakeTriggerPoller, () -> noteDetectected);
+  private Trigger intakeTrigger = new Trigger(intakeTriggerPoller, () -> noteDetected);
 
   // SUBSYSTEMS
   private final Drive drive = Drive.create();
@@ -68,7 +68,7 @@ public class Robot extends CommandRobot implements Logged {
   private final Intake intake =
       switch (Constants.ROBOT_TYPE) {
         case CHASSIS -> Intake.none();
-        default -> Intake.create((b) -> noteDetectected = b);
+        default -> Intake.create((b) -> noteDetected = b);
       };
 
   private final Shooter shooter =

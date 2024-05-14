@@ -7,7 +7,7 @@ import org.sciborgs1155.robot.intake.Intake;
 public class IntakeTest {
   @Test
   public void init() throws Exception {
-    Intake.create().close();
+    Intake.create((b) -> {}).close();
     TestingUtil.reset();
   }
 }
