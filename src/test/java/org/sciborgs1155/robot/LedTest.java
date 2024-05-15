@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.sciborgs1155.lib.TestingUtil;
 import org.sciborgs1155.robot.led.LedConstants;
 import org.sciborgs1155.robot.led.LedStrip;
-import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 
 public class LedTest {
   LedStrip led;
