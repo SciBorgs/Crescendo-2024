@@ -24,37 +24,6 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   // Robot Has A Note - Chase
   // Note Has Left The Robot - Raindrop for 0.5s
 
-  public static enum LEDTheme {
-    ORANGE(() -> solidColor(Color.kOrange)),
-    BLUE(() -> solidColor(Color.kDeepSkyBlue)),
-    BXSCIFLASH(() -> movingColor(Color.kGreen, Color.kYellow, 5)), // Yellow ??%, Green ??%, moving
-    FIRE(LedStrip::fire), // Suppose to look like fire
-    RAINBOW(LedStrip::rainbow), // RGB Gamer Robot
-    SCIBORGS(() -> movingColor(Color.kYellow, Color.kYellow, 4)), // Yellow 75%, Yellow 25%
-    FEMAIDENS(() -> alternatingColor(Color.kPurple, Color.kLime)), // Yellow 50%, Green 50%
-    ALLIANCE(() -> allianceColor()),
-    CHASE(
-        () ->
-            movingColor(
-                Color.kDeepSkyBlue,
-                Color.kCrimson,
-                5)), // Looks like those store lights with lights chasing each other in a loop
-    RAINDROP(LedStrip::raindrop), // falling notes thing, random colors drop from the top
-    TEST(
-        () ->
-            alternatingColor(
-                Color.kYellow,
-                Color.kDarkGray)), // theme used for tests (DO NOT CHANGE) Yellow 50%, Dark Grey 25%
-    NONE(LedStrip::nothing); // does nothing
-
-    public final Supplier<AddressableLEDBuffer> ledBuffer;
-
-    private LEDTheme(Supplier<AddressableLEDBuffer> ledBuffer) {
-      this.ledBuffer = ledBuffer;
-    }
-  }
-
-  // 1 tick = 0.02 seconds (because periodic)   50 ticks = 1 second
   static double tick = 0; // needs to be double or else rainbow breaks
   public static final Color[] colorpool = {
     Color.kRed, Color.kOrange, Color.kYellow, Color.kGreen, Color.kBlue, Color.kPurple
@@ -62,16 +31,94 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
 
   public LedStrip() {
     led.setLength(LED_LENGTH);
-    led.setData(nothing());
+    led.setData(new AddressableLEDBuffer(LED_LENGTH));
     led.start();
   }
 
-  /** Command to set LedTheme LEDs (look at enum) */
-  public Command setLEDTheme(LEDTheme ledTheme) {
-    return run(
-        () -> {
-          led.setData(ledTheme.ledBuffer.get());
-        });
+  public Command set(AddressableLEDBuffer addressableLEDBuffer) {
+    return run(() -> led.setData(addressableLEDBuffer));
+  }
+
+  public Command orange() {
+    return set(solidColor(Color.kOrange));
+  }
+
+  public Command blue() {
+    return set(solidColor(Color.kDeepSkyBlue));
+  }
+
+  public Command bxSciFlash() {
+    return set(movingColor(Color.kGreen, Color.kYellow, 5));
+  }
+
+  public Command fire() {
+    Color[] fireColors = {Color.kRed, Color.kOrange, Color.kYellow, Color.kOrangeRed, Color.kOrange};
+    return set(gen(i -> fireColors[(int) (Math.floor((i + tick) % 5))]));
+  }
+
+  public Command rainbow() {
+    final double scalar = 255 / 2;
+    return set(
+        gen(
+          i -> {
+            final double theta = tick / 10 + i / (LED_LENGTH * (Math.PI / 2));
+            return new Color(
+                (int) ((-Math.sin(theta) + 1) * scalar),
+                (int) ((Math.sin(theta) + 1) * scalar),
+                (int) ((Math.cos(theta) + 1) * scalar));
+        }));
+  }
+
+  public Command sciborgs() {
+    return set(movingColor(Color.kYellow, Color.kYellow, 4));
+  }
+
+  public Command femaidens() {
+    return set(alternatingColor(Color.kPurple, Color.kLime));
+  }
+
+  public Command alliance() {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      if (alliance.get() == DriverStation.Alliance.Blue) {
+        return set(gen(i -> (i + tick) % 2 == 0 ? Color.kBlue : Color.kDarkCyan));
+      }
+      if (alliance.get() == DriverStation.Alliance.Red) {
+        return set(gen(i -> (i + tick) % 2 == 0 ? Color.kRed : Color.kCrimson));
+      }
+    }
+    return set(gen(i -> (i + tick) % 2 == 0 ? Color.kOrange : Color.kYellow));
+  }
+
+  public Command chase() {
+    return set(movingColor(Color.kDeepSkyBlue, Color.kCrimson, 5));
+  }
+
+  private static Color[] raindrop = new Color[LED_LENGTH];
+  
+  public Command raindrop() {
+    if (Math.round(Math.random()) == 0) {
+      raindrop[0] = Color.kBlack;
+    } else {
+      if (Math.round(Math.random()) == 0) {
+        raindrop[0] = colorpool[(int) (Math.round(Math.random() * (colorpool.length - 1)))];
+      }
+    }
+
+    for (int i = raindrop.length - 1; i > 0; i -= 1) {
+      raindrop[i] = raindrop[i - 1];
+    }
+
+    return set(gen(i -> raindrop[i] == null ? Color.kBlack : raindrop[i]));
+  }
+
+  // wont work now
+  // public Command test() {
+  //   return set(alternatingColor(Color.kYellow, Color.kDarkGray));
+  // }
+
+  public Command none() {
+    return set(new AddressableLEDBuffer(LED_LENGTH));
   }
 
   // documentation:
@@ -107,64 +154,6 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   /** "every (interval) LEDs, LED should be (color 2). everyting else is (color 1)." */
   private static AddressableLEDBuffer movingColor(Color color1, Color color2, int interval) {
     return gen(i -> (i + tick) % interval == 0 ? color2 : color1);
-  }
-
-  private static AddressableLEDBuffer allianceColor() {
-    var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent()) {
-      if (alliance.get() == DriverStation.Alliance.Blue) {
-        return gen(i -> (i + tick) % 2 == 0 ? Color.kBlue : Color.kDarkCyan);
-      }
-      if (alliance.get() == DriverStation.Alliance.Red) {
-        return gen(i -> (i + tick) % 2 == 0 ? Color.kRed : Color.kCrimson);
-      }
-    }
-    return gen(i -> (i + tick) % 2 == 0 ? Color.kOrange : Color.kYellow);
-  }
-
-  // A bunch of methoeds for the LEDThemes below!
-  // (the ones that can't be copy paste)
-
-  private static AddressableLEDBuffer rainbow() {
-    AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LED_LENGTH);
-    final double scalar = 255 / 2;
-    return gen(
-        i -> {
-          final double theta = tick / 10 + i / (ledBuffer.getLength() * (Math.PI / 2));
-          return new Color(
-              (int) ((-Math.sin(theta) + 1) * scalar),
-              (int) ((Math.sin(theta) + 1) * scalar),
-              (int) ((Math.cos(theta) + 1) * scalar));
-        });
-  }
-
-  private static AddressableLEDBuffer fire() {
-    Color[] fireColors = {
-      Color.kRed, Color.kOrange, Color.kYellow, Color.kOrangeRed, Color.kOrange
-    };
-    return gen(i -> fireColors[(int) (Math.floor((i + tick) % 5))]);
-  }
-
-  private static Color[] raindrop = new Color[LED_LENGTH];
-
-  private static AddressableLEDBuffer raindrop() {
-    if (Math.round(Math.random()) == 0) {
-      raindrop[0] = Color.kBlack;
-    } else {
-      if (Math.round(Math.random()) == 0) {
-        raindrop[0] = colorpool[(int) (Math.round(Math.random() * (colorpool.length - 1)))];
-      }
-    }
-
-    for (int i = raindrop.length - 1; i > 0; i -= 1) {
-      raindrop[i] = raindrop[i - 1];
-    }
-
-    return gen(i -> raindrop[i] == null ? Color.kBlack : raindrop[i]);
-  }
-
-  private static AddressableLEDBuffer nothing() {
-    return new AddressableLEDBuffer(LED_LENGTH);
   }
 
   @Override
