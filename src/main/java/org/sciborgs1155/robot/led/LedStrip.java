@@ -38,31 +38,31 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command bxSciFlash() {
-    return set(movingColor(Color.kGreen, Color.kYellow, 5));
+    return run(() -> led.setData(movingColor(Color.kGreen, Color.kYellow, 5)));
   }
 
   public Command fire() {
-    return set(gen(i -> FIRE_COLORS[(int) (Math.floor((i + tick) % 5))]));
+    return run(() -> led.setData(gen(i -> FIRE_COLORS[(int) (Math.floor((i + tick) % 5))])));
   }
 
   public Command rainbow() {
-    return set(rainbowAddressableLEDBufffer());
+    return run(() -> led.setData(rainbowAddressableLEDBuffer()));
   }
 
-  public AddressableLEDBuffer rainbowAddressableLEDBufffer() {
+  public AddressableLEDBuffer rainbowAddressableLEDBuffer() {
     final double scalar = 255 / 2;
     return gen(
-          i -> {
-            final double theta = tick / 10 + i / (LED_LENGTH * (Math.PI / 2));
-            return new Color(
-                (int) ((-Math.sin(theta) + 1) * scalar),
-                (int) ((Math.sin(theta) + 1) * scalar),
-                (int) ((Math.cos(theta) + 1) * scalar));
-            });
+        i -> {
+          final double theta = tick / 10 + i / (LED_LENGTH * (Math.PI / 2));
+          return new Color(
+              (int) ((-Math.sin(theta) + 1) * scalar),
+              (int) ((Math.sin(theta) + 1) * scalar),
+              (int) ((Math.cos(theta) + 1) * scalar));
+        });
   }
 
   public Command sciborgs() {
-    return set(movingColor(Color.kYellow, Color.kYellow, 4));
+    return run(() -> led.setData(movingColor(Color.kYellow, Color.kYellow, 4)));
   }
 
   public Command femaidens() {
@@ -83,31 +83,33 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command chase() {
-    return set(movingColor(Color.kDeepSkyBlue, Color.kCrimson, 5));
+    return run(() -> led.setData(movingColor(Color.kDeepSkyBlue, Color.kCrimson, 5)));
   }
 
   private static Color[] raindrop = new Color[LED_LENGTH];
 
   public Command raindrop() {
-    if (Math.round(Math.random()) == 0) {
-      raindrop[0] = Color.kBlack;
-    } else {
-      if (Math.round(Math.random()) == 0) {
-        raindrop[0] = COLOR_POOL[(int) (Math.round(Math.random() * (COLOR_POOL.length - 1)))];
-      }
-    }
+    return run(
+        () -> {
+          if (Math.round(Math.random()) == 0) {
+            raindrop[0] = Color.kBlack;
+          } else {
+            if (Math.round(Math.random()) == 0) {
+              raindrop[0] = COLOR_POOL[(int) (Math.round(Math.random() * (COLOR_POOL.length - 1)))];
+            }
+          }
 
-    for (int i = raindrop.length - 1; i > 0; i -= 1) {
-      raindrop[i] = raindrop[i - 1];
-    }
-
-    return set(gen(i -> raindrop[i] == null ? Color.kBlack : raindrop[i]));
+          for (int i = raindrop.length - 1; i > 0; i -= 1) {
+            raindrop[i] = raindrop[i - 1];
+          }
+          led.setData(gen(i -> raindrop[i] == null ? Color.kBlack : raindrop[i]));
+        });
   }
-  
+
   public Command none() {
     return set(new AddressableLEDBuffer(LED_LENGTH));
   }
-  
+
   public AddressableLEDBuffer testAlternatingColor() {
     return alternatingColor(Color.kYellow, Color.kDarkGray);
   }
@@ -115,8 +117,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   public static String getBufferDataString(AddressableLEDBuffer ledBuffer) {
     String[] ledBufferData = new String[ledBuffer.getLength()];
     for (int i = 0; i < ledBuffer.getLength(); i++) {
-      ledBufferData[i] =
-          ledBuffer.getLED(i).toHexString();
+      ledBufferData[i] = ledBuffer.getLED(i).toHexString();
     }
     return ("[" + String.join(",", ledBufferData) + "]");
   }
