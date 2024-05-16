@@ -107,7 +107,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command none() {
-    return set(new AddressableLEDBuffer(LED_LENGTH));
+    return run(() -> {});
   }
 
   public AddressableLEDBuffer testAlternatingColor() {
