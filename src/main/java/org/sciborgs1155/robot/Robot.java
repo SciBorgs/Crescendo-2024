@@ -11,6 +11,7 @@ import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_ACCEL;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_SPEED;
 import static org.sciborgs1155.robot.drive.DriveConstants.TELEOP_ANGULAR_SPEED;
+import static org.sciborgs1155.robot.intake.IntakeConstants.INTAKE_FAST_PERIOD;
 import static org.sciborgs1155.robot.pivot.PivotConstants.AMP_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
@@ -19,14 +20,12 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import monologue.Monologue;
@@ -58,17 +57,13 @@ public class Robot extends CommandRobot implements Logged {
   private final CommandXboxController operator = new CommandXboxController(OI.OPERATOR);
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
-  @Log.NT private boolean noteDetected = false;
-  private EventLoop intakeTriggerPoller = new EventLoop();
-  private Trigger intakeTrigger = new Trigger(intakeTriggerPoller, () -> noteDetected);
-
   // SUBSYSTEMS
   private final Drive drive = Drive.create();
 
   private final Intake intake =
       switch (Constants.ROBOT_TYPE) {
         case CHASSIS -> Intake.none();
-        default -> Intake.create((b) -> noteDetected = b);
+        default -> Intake.create();
       };
 
   private final Shooter shooter =
@@ -130,7 +125,7 @@ public class Robot extends CommandRobot implements Logged {
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));
 
     // polls intake at faster speed
-    addPeriodic(intakeTriggerPoller::poll, .005);
+    addPeriodic(intake::pollTrigger, INTAKE_FAST_PERIOD.in(Seconds));
 
     // Fuck REV Robotics.!!!!
     for (var r : SparkUtils.getRunnables()) {
@@ -235,8 +230,6 @@ public class Robot extends CommandRobot implements Logged {
         .leftBumper()
         .whileTrue(intake.intake().deadlineWith(feeder.forward()))
         .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
-
-    intakeTrigger.onFalse(intake.stop());
 
     // operator feed (left trigger)
     operator

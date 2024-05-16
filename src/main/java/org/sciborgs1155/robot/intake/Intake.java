@@ -5,7 +5,7 @@ import static org.sciborgs1155.robot.intake.IntakeConstants.DEBOUNCE_TIME;
 
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.util.function.BooleanConsumer;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,8 +17,8 @@ import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 
 public class Intake extends SubsystemBase implements Logged, AutoCloseable {
-  public static Intake create(BooleanConsumer observer) {
-    return Robot.isReal() ? new Intake(new RealIntake(observer)) : new Intake(new NoIntake());
+  public static Intake create() {
+    return Robot.isReal() ? new Intake(new RealIntake()) : new Intake(new NoIntake());
   }
 
   public static Intake none() {
@@ -27,8 +27,14 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
 
   private final IntakeIO hardware;
 
+  private final EventLoop intakeTriggerPoller = new EventLoop();
+  private final Trigger intakeTrigger;
+
   public Intake(IntakeIO hardware) {
     this.hardware = hardware;
+
+    intakeTrigger = new Trigger(intakeTriggerPoller, hardware::seenNote);
+    intakeTrigger.onFalse(stop());
   }
 
   /**
@@ -86,6 +92,10 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
   @Log.NT
   public boolean stalling() {
     return hardware.current() > DCMotor.getNeoVortex(1).stallCurrentAmps;
+  }
+
+  public void pollTrigger() {
+    intakeTriggerPoller.poll();
   }
 
   @Override

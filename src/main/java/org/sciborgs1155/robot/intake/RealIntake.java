@@ -7,7 +7,6 @@ import static org.sciborgs1155.robot.intake.IntakeConstants.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.AsynchronousInterrupt;
 import edu.wpi.first.wpilibj.DigitalInput;
 import monologue.Annotations.Log;
@@ -20,8 +19,9 @@ public class RealIntake implements IntakeIO {
 
   private final DigitalInput beambreak = new DigitalInput(Ports.Intake.BEAMBREAK);
   private final AsynchronousInterrupt asyncInterrupt;
+  private boolean noteDetected = false;
 
-  public RealIntake(BooleanConsumer observer) {
+  public RealIntake() {
     check(spark, spark.restoreFactoryDefaults());
     check(spark, SparkUtils.configureNothingFrameStrategy(spark));
     spark.setInverted(true);
@@ -38,9 +38,9 @@ public class RealIntake implements IntakeIO {
             beambreak,
             (Boolean rising, Boolean falling) -> {
               if (falling) {
-                observer.accept(true);
+                noteDetected = true;
               } else if (rising) {
-                observer.accept(false);
+                noteDetected = false;
               }
             });
 
@@ -70,5 +70,11 @@ public class RealIntake implements IntakeIO {
   public void close() {
     beambreak.close();
     spark.close();
+  }
+
+  @Override
+  @Log.NT
+  public boolean seenNote() {
+    return noteDetected;
   }
 }
