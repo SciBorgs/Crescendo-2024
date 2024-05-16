@@ -17,12 +17,6 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
 
   // NOTE: THERE CAN ONLY BE ONE ADDRESABLELED (because roborio)
 
-  // Current LEDThemes:
-  // Autonoumous - Rainbow
-  // Default (not doing anything speical) - Fire
-  // Robot Has A Note - Chase
-  // Note Has Left The Robot - Raindrop for 0.5s
-
   static double tick = 0; // needs to be double or else rainbow breaks
   public static final Color[] colorpool = {
     Color.kRed, Color.kOrange, Color.kYellow, Color.kGreen, Color.kBlue, Color.kPurple
@@ -58,16 +52,19 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command rainbow() {
+    return set(rainbowAddressableLEDBufffer());
+  }
+
+  public AddressableLEDBuffer rainbowAddressableLEDBufffer() {
     final double scalar = 255 / 2;
-    return set(
-        gen(
-            i -> {
-              final double theta = tick / 10 + i / (LED_LENGTH * (Math.PI / 2));
-              return new Color(
-                  (int) ((-Math.sin(theta) + 1) * scalar),
-                  (int) ((Math.sin(theta) + 1) * scalar),
-                  (int) ((Math.cos(theta) + 1) * scalar));
-            }));
+    return gen(
+          i -> {
+            final double theta = tick / 10 + i / (LED_LENGTH * (Math.PI / 2));
+            return new Color(
+                (int) ((-Math.sin(theta) + 1) * scalar),
+                (int) ((Math.sin(theta) + 1) * scalar),
+                (int) ((Math.cos(theta) + 1) * scalar));
+            });
   }
 
   public Command sciborgs() {
@@ -112,26 +109,20 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
 
     return set(gen(i -> raindrop[i] == null ? Color.kBlack : raindrop[i]));
   }
-
-  // wont work now
-  // public Command test() {
-  //   return set(alternatingColor(Color.kYellow, Color.kDarkGray));
-  // }
-
+  
   public Command none() {
     return set(new AddressableLEDBuffer(LED_LENGTH));
   }
-
-  // documentation:
-  // https://docs.wpilib.org/en/stable/docs/software/hardware-apis/misc/addressable-leds.html
-  // some inspiration by:
-  // https://github.com/SciBorgs/ChargedUp-2023/blob/io-rewrite/src/main/java/org/sciborgs1155/robot/subsystems/LED.java
+  
+  public AddressableLEDBuffer testAlternatingColor() {
+    return alternatingColor(Color.kYellow, Color.kDarkGray);
+  }
 
   public static String getBufferDataString(AddressableLEDBuffer ledBuffer) {
     String[] ledBufferData = new String[ledBuffer.getLength()];
     for (int i = 0; i < ledBuffer.getLength(); i++) {
       ledBufferData[i] =
-          ledBuffer.getLED(i).toHexString(); // it is a hex number but it spits it out
+          ledBuffer.getLED(i).toHexString();
     }
     return ("[" + String.join(",", ledBufferData) + "]");
   }
