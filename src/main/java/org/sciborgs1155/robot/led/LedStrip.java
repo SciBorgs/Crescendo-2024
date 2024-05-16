@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import monologue.Logged;
 
 public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
@@ -52,7 +51,9 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command fire() {
-    Color[] fireColors = {Color.kRed, Color.kOrange, Color.kYellow, Color.kOrangeRed, Color.kOrange};
+    Color[] fireColors = {
+      Color.kRed, Color.kOrange, Color.kYellow, Color.kOrangeRed, Color.kOrange
+    };
     return set(gen(i -> fireColors[(int) (Math.floor((i + tick) % 5))]));
   }
 
@@ -60,13 +61,13 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     final double scalar = 255 / 2;
     return set(
         gen(
-          i -> {
-            final double theta = tick / 10 + i / (LED_LENGTH * (Math.PI / 2));
-            return new Color(
-                (int) ((-Math.sin(theta) + 1) * scalar),
-                (int) ((Math.sin(theta) + 1) * scalar),
-                (int) ((Math.cos(theta) + 1) * scalar));
-        }));
+            i -> {
+              final double theta = tick / 10 + i / (LED_LENGTH * (Math.PI / 2));
+              return new Color(
+                  (int) ((-Math.sin(theta) + 1) * scalar),
+                  (int) ((Math.sin(theta) + 1) * scalar),
+                  (int) ((Math.cos(theta) + 1) * scalar));
+            }));
   }
 
   public Command sciborgs() {
@@ -95,7 +96,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   private static Color[] raindrop = new Color[LED_LENGTH];
-  
+
   public Command raindrop() {
     if (Math.round(Math.random()) == 0) {
       raindrop[0] = Color.kBlack;

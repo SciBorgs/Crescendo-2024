@@ -182,9 +182,7 @@ public class Robot extends CommandRobot implements Logged {
 
     led.setDefaultCommand(led.alliance());
 
-    autonomous()
-        .whileTrue(Commands.deferredProxy(autos::getSelected))
-        .whileTrue(led.rainbow());
+    autonomous().whileTrue(Commands.deferredProxy(autos::getSelected)).whileTrue(led.rainbow());
 
     test().whileTrue(systemsCheck());
 
@@ -198,10 +196,7 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     // driver shoot (x)
-    driver
-        .x()
-        .whileTrue(shooting.shootWhileDriving(x, y))
-        .whileTrue(led.rainbow());
+    driver.x().whileTrue(shooting.shootWhileDriving(x, y)).whileTrue(led.rainbow());
 
     // driver auto-amp (y)
     // driver
@@ -260,19 +255,10 @@ public class Robot extends CommandRobot implements Logged {
         .toggleOnTrue(led.raindrop());
 
     // operator manual shoot (povDown)
-    operator
-        .povDown()
-        .whileTrue(shooting.shoot(RadiansPerSecond.of(350)))
-        .whileTrue(led.rainbow());
+    operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350))).whileTrue(led.rainbow());
 
-    intake
-        .hasNote()
-        .onTrue(rumble(RumbleType.kLeftRumble, 0.3))
-        .whileTrue(led.orange());
-    feeder
-        .noteAtShooter()
-        .onFalse(rumble(RumbleType.kRightRumble, 0.3))
-        .whileTrue(led.orange());
+    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3)).whileTrue(led.orange());
+    feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3)).whileTrue(led.orange());
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {
