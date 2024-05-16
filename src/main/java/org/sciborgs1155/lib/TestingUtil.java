@@ -4,6 +4,10 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import java.util.Set;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+import java.util.function.Function;
 import org.sciborgs1155.lib.FaultLogger.FaultType;
 
 public class TestingUtil {
@@ -44,6 +48,13 @@ public class TestingUtil {
     fastForward(runs);
   }
 
+  public static void runToCompletion(Command command) {
+    command.schedule();
+    while (command.isScheduled()) {
+      fastForward(1);
+    }
+  }
+
   /** Sets up DS and initializes HAL with default values and asserts that it doesn't fail. */
   public static void setupTests() {
     assert HAL.initialize(500, 0);
@@ -79,4 +90,29 @@ public class TestingUtil {
         (condition ? "success! " : "") + description,
         condition ? FaultType.INFO : FaultType.WARNING);
   }
+
+  public static Command systemsCheck(Test test) {
+    return test.testCommand
+        .apply(false)
+        .finallyDo(
+            () -> {
+              test.truthAssertions.forEach(
+                  a -> assertReport(a.condition.getAsBoolean(), a.faultName, a.description));
+              test.equalityAssertions.forEach(
+                  a ->
+                      assertEqualsReport(
+                          a.faultName, a.expected.getAsDouble(), a.actual.getAsDouble(), a.delta));
+            });
+  }
+
+  public static record TruthAssertion(
+      BooleanSupplier condition, String faultName, String description) {}
+
+  public static record EqualityAssertion(
+      String faultName, DoubleSupplier expected, DoubleSupplier actual, double delta) {}
+
+  public static record Test(
+      Function<Boolean, Command> testCommand,
+      Set<TruthAssertion> truthAssertions,
+      Set<EqualityAssertion> equalityAssertions) {}
 }
