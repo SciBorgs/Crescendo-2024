@@ -1,7 +1,7 @@
 package org.sciborgs1155.robot.led;
 
 import static org.sciborgs1155.robot.Ports.Led.LED_PORT;
-import static org.sciborgs1155.robot.led.LedConstants.LED_LENGTH;
+import static org.sciborgs1155.robot.led.LedConstants.*;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -18,9 +18,6 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   // NOTE: THERE CAN ONLY BE ONE ADDRESABLELED (because roborio)
 
   static double tick = 0; // needs to be double or else rainbow breaks
-  public static final Color[] colorpool = {
-    Color.kRed, Color.kOrange, Color.kYellow, Color.kGreen, Color.kBlue, Color.kPurple
-  };
 
   public LedStrip() {
     led.setLength(LED_LENGTH);
@@ -45,10 +42,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command fire() {
-    Color[] fireColors = {
-      Color.kRed, Color.kOrange, Color.kYellow, Color.kOrangeRed, Color.kOrange
-    };
-    return set(gen(i -> fireColors[(int) (Math.floor((i + tick) % 5))]));
+    return set(gen(i -> FIRE_COLORS[(int) (Math.floor((i + tick) % 5))]));
   }
 
   public Command rainbow() {
@@ -99,7 +93,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
       raindrop[0] = Color.kBlack;
     } else {
       if (Math.round(Math.random()) == 0) {
-        raindrop[0] = colorpool[(int) (Math.round(Math.random() * (colorpool.length - 1)))];
+        raindrop[0] = COLOR_POOL[(int) (Math.round(Math.random() * (COLOR_POOL.length - 1)))];
       }
     }
 
