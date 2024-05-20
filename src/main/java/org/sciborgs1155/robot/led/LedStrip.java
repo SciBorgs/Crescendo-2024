@@ -42,7 +42,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   public Command fire() {
-    return run(() -> led.setData(gen(i -> FIRE_COLORS[(int) (Math.floor((i + tick) % 5))])));
+    return run(() -> led.setData(genAlpha(i -> FIRE_COLORS[(int) (Math.floor((i + tick) % 5))])));
   }
 
   public Command rainbow() {
@@ -51,7 +51,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
 
   public AddressableLEDBuffer rainbowAddressableLEDBuffer() {
     final double scalar = 255 / 2;
-    return gen(
+    return genAlpha(
         i -> {
           final double theta = tick / 10 + i / (LED_LENGTH * (Math.PI / 2));
           return new Color(
@@ -73,13 +73,13 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
       if (alliance.get() == DriverStation.Alliance.Blue) {
-        return set(gen(i -> (i + tick) % 2 == 0 ? Color.kBlue : Color.kDarkCyan));
+        return set(genAlpha(i -> (i + tick) % 2 == 0 ? Color.kBlue : Color.kDarkCyan));
       }
       if (alliance.get() == DriverStation.Alliance.Red) {
-        return set(gen(i -> (i + tick) % 2 == 0 ? Color.kRed : Color.kCrimson));
+        return set(genAlpha(i -> (i + tick) % 2 == 0 ? Color.kRed : Color.kCrimson));
       }
     }
-    return set(gen(i -> (i + tick) % 2 == 0 ? Color.kOrange : Color.kYellow));
+    return set(genAlpha(i -> (i + tick) % 2 == 0 ? Color.kOrange : Color.kYellow));
   }
 
   public Command chase() {
@@ -102,7 +102,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
           for (int i = raindrop.length - 1; i > 0; i -= 1) {
             raindrop[i] = raindrop[i - 1];
           }
-          led.setData(gen(i -> raindrop[i] == null ? Color.kBlack : raindrop[i]));
+          led.setData(genAlpha(i -> raindrop[i] == null ? Color.kBlack : raindrop[i]));
         });
   }
 
@@ -122,7 +122,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     return ("[" + String.join(",", ledBufferData) + "]");
   }
 
-  public static AddressableLEDBuffer gen(Function<Integer, Color> f) {
+  public static AddressableLEDBuffer genAlpha(Function<Integer, Color> f) {
     AddressableLEDBuffer buffer = new AddressableLEDBuffer(LED_LENGTH);
     for (int i = 0; i < LED_LENGTH; i++) {
       buffer.setLED(i, f.apply(i));
@@ -131,16 +131,16 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   }
 
   private static AddressableLEDBuffer alternatingColor(Color color1, Color color2) {
-    return gen(i -> i % 2 == 0 ? color1 : color2);
+    return genAlpha(i -> i % 2 == 0 ? color1 : color2);
   }
 
   private static AddressableLEDBuffer solidColor(Color color1) {
-    return gen(i -> color1);
+    return genAlpha(i -> color1);
   }
 
   /** "every (interval) LEDs, LED should be (color 2). everyting else is (color 1)." */
   private static AddressableLEDBuffer movingColor(Color color1, Color color2, int interval) {
-    return gen(i -> (i + tick) % interval == 0 ? color2 : color1);
+    return genAlpha(i -> (i + tick) % interval == 0 ? color2 : color1);
   }
 
   @Override
