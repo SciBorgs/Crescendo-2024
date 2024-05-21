@@ -37,8 +37,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,7 +44,6 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-
 import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -443,19 +440,22 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     Function<Boolean, Command> testCommand =
         withTimeout(run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)), 0.5);
     Stream<SwerveModule> mods = Stream.of(0, 1, 2, 3).map(i -> modules.get(i));
-    Stream<Assertion> assertions = mods.flatMap(m -> Stream.of(
-      new TruthAssertion(
-                    () ->
-                        m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos())
-                            > 1,
-                    "Drive Syst Check Module Speed",
-                    "expected: >= 1; actual: " + m.state().speedMetersPerSecond),
-      new EqualityAssertion(
-                    "Drive Syst Check Module Angle (degrees)",
-                    () -> 45,
-                    () -> Units.radiansToDegrees(atan(m.position().angle.getTan())),
-                    1)
-    ));
+    Stream<Assertion> assertions =
+        mods.flatMap(
+            m ->
+                Stream.of(
+                    new TruthAssertion(
+                        () ->
+                            m.state().speedMetersPerSecond
+                                    * Math.signum(m.position().angle.getCos())
+                                > 1,
+                        "Drive Syst Check Module Speed",
+                        "expected: >= 1; actual: " + m.state().speedMetersPerSecond),
+                    new EqualityAssertion(
+                        "Drive Syst Check Module Angle (degrees)",
+                        () -> 45,
+                        () -> Units.radiansToDegrees(atan(m.position().angle.getTan())),
+                        1)));
     return new TestBad(testCommand, Set.copyOf(assertions.toList()));
   }
 

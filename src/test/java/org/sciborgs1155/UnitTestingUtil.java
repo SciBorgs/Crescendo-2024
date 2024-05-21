@@ -2,11 +2,9 @@ package org.sciborgs1155;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import edu.wpi.first.wpilibj2.command.Command;
-
 import static org.sciborgs1155.lib.TestingUtil.runToCompletion;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import org.sciborgs1155.lib.TestingUtil;
 import org.sciborgs1155.lib.TestingUtil.Test;
 import org.sciborgs1155.lib.TestingUtil.TestBad;

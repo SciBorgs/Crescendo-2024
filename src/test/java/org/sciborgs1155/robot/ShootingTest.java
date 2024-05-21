@@ -79,8 +79,11 @@ public class ShootingTest {
 
   @Test
   public void pivotSysCheck() {
-    UnitTestingUtil.runUnitTest(pivot.cursedGoToTest(MIN_ANGLE));
+    UnitTestingUtil.runUnitTest(pivot.cursedGoToTest(MAX_ANGLE));
   }
+
+  @Test
+  public void asf() {}
 
   @ParameterizedTest
   @ValueSource(doubles = {-200, -100, -15, 0, 15, 100, 200})

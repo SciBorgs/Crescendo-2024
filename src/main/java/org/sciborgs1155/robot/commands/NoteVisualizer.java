@@ -67,6 +67,7 @@ public class NoteVisualizer implements Logged {
   private static NetworkTable table;
   private static StructArrayPublisher<Pose3d> notePathPub;
   private static StructPublisher<Pose3d> shotNotePub;
+  @SuppressWarnings("unused")
   private static BooleanPublisher carryingNotePub;
 
   public static void setSuppliers(

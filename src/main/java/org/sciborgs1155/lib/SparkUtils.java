@@ -141,6 +141,7 @@ public class SparkUtils {
     }
 
     int[] frames = {status0, status1, status2, status3, status4, status5, status6, status7};
+    @SuppressWarnings("unused")
     List<Optional<DoubleSupplier>> suppliers =
         List.of(
             Optional.empty(),
