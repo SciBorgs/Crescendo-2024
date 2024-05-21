@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import java.util.Set;
+import java.util.function.Function;
 
 public class TestCommands {
   public static class TestCommand extends Command {
@@ -47,12 +48,12 @@ public class TestCommands {
       return this.raceWith(unitTest ? new TestWaitCommand(seconds) : new WaitCommand(seconds));
     }
 
-    public static TestCommand test(Command command, boolean unitTest) {
-      return new TestCommand(command, unitTest);
+    public static ParallelRaceGroup withTimeout(Command command, boolean unitTest, double seconds) {
+      return new TestCommand(command, unitTest).withTimeout(seconds);
     }
 
-    public static ParallelRaceGroup withTimeout(Command command, boolean unitTest, double seconds) {
-      return test(command, unitTest).withTimeout(seconds);
+    public static Function<Boolean, Command> withTimeout(Command command, double seconds) {
+      return u -> new TestCommand(command, u).withTimeout(seconds);
     }
   }
 

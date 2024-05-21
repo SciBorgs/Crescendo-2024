@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sciborgs1155.UnitTestingUtil;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
@@ -74,6 +75,11 @@ public class ShootingTest {
         MathUtil.clamp(theta, MIN_ANGLE.in(Radians), MAX_ANGLE.in(Radians)),
         pivot.rotation().getY(),
         0.15);
+  }
+
+  @Test
+  public void pivotSysCheck() {
+    UnitTestingUtil.runUnitTest(pivot.cursedGoToTest(MIN_ANGLE));
   }
 
   @ParameterizedTest

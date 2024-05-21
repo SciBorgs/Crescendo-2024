@@ -1,5 +1,8 @@
 package org.sciborgs1155.lib;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.sciborgs1155.lib.TestingUtil.Assertion.*;
+
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -114,18 +117,40 @@ public class TestingUtil {
     return c;
   }
 
-  public static record TruthAssertion(
-      BooleanSupplier condition, String faultName, String description) {}
+  public sealed interface Assertion {
+    public void apply(boolean unitTest);
+
+    public static record TruthAssertion(
+        BooleanSupplier condition, String faultName, String description) implements Assertion {
+      @Override
+      public void apply(boolean unitTest) {
+        if (unitTest) {
+          assertTrue(condition, faultName, description);
+        } else {
+          assertReport(condition.getAsBoolean(), faultName, description);
+        }
+      }
+    }
+
+    public static record EqualityAssertion(
+        String faultName, DoubleSupplier expected, DoubleSupplier actual, double delta)
+        implements Assertion {
+      @Override
+      public void apply(boolean unitTest) {
+        if (unitTest) {
+          assertEquals(expected.getAsDouble(), actual.getAsDouble(), delta, faultName);
+        }
+        assertEqualsReport(faultName, expected.getAsDouble(), actual.getAsDouble(), delta);
+      }
+    }
+  }
 
   public static TruthAssertion assertTrue(
       BooleanSupplier condition, String faultName, String description) {
     return new TruthAssertion(condition, faultName, description);
   }
 
-  public static record EqualityAssertion(
-      String faultName, DoubleSupplier expected, DoubleSupplier actual, double delta) {}
-
-  public static EqualityAssertion assertEquals(
+  public static EqualityAssertion eAssert(
       String faultName, DoubleSupplier expected, DoubleSupplier actual, double delta) {
     return new EqualityAssertion(faultName, expected, actual, delta);
   }
@@ -135,7 +160,29 @@ public class TestingUtil {
       Set<TruthAssertion> truthAssertions,
       Set<EqualityAssertion> equalityAssertions) {}
 
-  public static Test test(Command command) {
-    return new Test(b -> command, Set.of(), Set.of());
+  public static record TestBad(Function<Boolean, Command> testCommand, Set<Assertion> assertions) {}
+
+  public static TestBad test(Command command) {
+    return new TestBad(b -> command, Set.of());
+  }
+
+  public static Command systemsCheckStupid(TestBad test) {
+    return test.testCommand
+        .apply(false)
+        .finallyDo(() -> test.assertions.forEach(a -> a.apply(false)));
+  }
+
+  public static Command systemsCheckStupid(TestBad... tests) {
+    Command c = Commands.none();
+    for (TestBad test : tests) {
+      c = c.andThen(systemsCheckStupid(test));
+    }
+    return c;
+  }
+
+  public static Command unitTest(TestBad test) {
+    return test.testCommand
+        .apply(true)
+        .finallyDo(() -> test.assertions.forEach(a -> a.apply(true)));
   }
 }

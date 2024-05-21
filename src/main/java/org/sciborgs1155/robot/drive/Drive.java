@@ -6,8 +6,9 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import static java.lang.Math.atan;
-import static org.sciborgs1155.lib.TestCommands.TestCommand.test;
+import static org.sciborgs1155.lib.TestCommands.TestCommand.withTimeout;
 import static org.sciborgs1155.lib.TestingUtil.*;
+import static org.sciborgs1155.lib.TestingUtil.Assertion.*;
 import static org.sciborgs1155.robot.Constants.allianceRotation;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
@@ -44,6 +45,8 @@ import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
+
 import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -435,42 +438,31 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                 1));
   }
 
-  public static <T, K> Set<K> map(Collection<T> s, Function<T, K> f) {
-    ArrayList<K> resultsArr = new ArrayList<>();
-    for (T v : s) {
-      resultsArr.add(f.apply(v));
-    }
-    return Set.copyOf(resultsArr);
-  }
-
-  public Test systemsCheckTest() {
+  public TestBad systemsCheckTest() {
     ChassisSpeeds speeds = new ChassisSpeeds(1, 1, 0);
     Function<Boolean, Command> testCommand =
-        u ->
-            test(run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)), u)
-                .withTimeout(0.5);
-    ArrayList<TruthAssertion> asserts = new ArrayList<>();
-    ArrayList<EqualityAssertion> assertEqualities = new ArrayList<>();
-    for (var m : modules) {
-      asserts.add(
-          new TruthAssertion(
-              () -> m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos()) > 1,
-              "Drive Syst Check Module Speed",
-              "expected: >= 1; actual: " + m.state().speedMetersPerSecond));
-      assertEqualities.add(
-          new EqualityAssertion(
-              "Drive Syst Check Module Angle (degrees)",
-              () -> 45,
-              () -> Units.radiansToDegrees(atan(m.position().angle.getTan())),
-              1));
-    }
-    return new Test(testCommand, Set.copyOf(asserts), Set.copyOf(assertEqualities));
+        withTimeout(run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)), 0.5);
+    Stream<SwerveModule> mods = Stream.of(0, 1, 2, 3).map(i -> modules.get(i));
+    Stream<Assertion> assertions = mods.flatMap(m -> Stream.of(
+      new TruthAssertion(
+                    () ->
+                        m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos())
+                            > 1,
+                    "Drive Syst Check Module Speed",
+                    "expected: >= 1; actual: " + m.state().speedMetersPerSecond),
+      new EqualityAssertion(
+                    "Drive Syst Check Module Angle (degrees)",
+                    () -> 45,
+                    () -> Units.radiansToDegrees(atan(m.position().angle.getTan())),
+                    1)
+    ));
+    return new TestBad(testCommand, Set.copyOf(assertions.toList()));
   }
 
   public Command systemsCheck(boolean unitTest) {
     ChassisSpeeds speeds = new ChassisSpeeds(1, 1, 0);
-    return test(run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)), unitTest)
-        .withTimeout(0.5)
+    return withTimeout(
+            run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)), unitTest, 0.5)
         .finallyDo(
             () -> {
               modules.forEach(

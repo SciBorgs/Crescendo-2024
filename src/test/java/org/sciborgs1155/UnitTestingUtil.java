@@ -4,8 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import edu.wpi.first.wpilibj2.command.Command;
+
+import static org.sciborgs1155.lib.TestingUtil.runToCompletion;
+
 import org.sciborgs1155.lib.TestingUtil;
 import org.sciborgs1155.lib.TestingUtil.Test;
+import org.sciborgs1155.lib.TestingUtil.TestBad;
 
 public class UnitTestingUtil {
   public static Command unitTest(Test test) {
@@ -27,6 +31,10 @@ public class UnitTestingUtil {
   }
 
   public static void runUnitTest(Test test) {
-    TestingUtil.runToCompletion(unitTest(test));
+    runToCompletion(unitTest(test));
+  }
+
+  public static void runUnitTest(TestBad test) {
+    runToCompletion(TestingUtil.unitTest(test));
   }
 }
