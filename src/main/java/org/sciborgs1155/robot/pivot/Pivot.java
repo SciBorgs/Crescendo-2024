@@ -3,6 +3,8 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.autonomous;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.teleop;
+import static org.sciborgs1155.lib.TestCommands.TestCommand.withTimeout;
+import static org.sciborgs1155.lib.TestingUtil.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.assertEqualsReport;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
@@ -24,10 +26,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.DoubleSupplier;
+import java.util.function.Function;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.lib.TestingUtil.EqualityAssertion;
+import org.sciborgs1155.lib.TestingUtil.Test;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 
@@ -200,6 +206,18 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     log("feedback output", feedback);
     log("feedforward output", feedforward);
     hardware.setVoltage(feedback + feedforward);
+  }
+
+  public Test cursedGoToTest(Measure<Angle> goal) {
+    Function<Boolean, Command> testCommand =
+        u -> withTimeout(runPivot(goal).until(() -> atPosition(goal.in(Radians))), u, 2);
+    EqualityAssertion atGoal =
+        assertEquals(
+            "Pivot Test Angle (degrees)",
+            () -> goal.in(Degrees),
+            () -> Units.radiansToDegrees(position()),
+            POSITION_TOLERANCE.in(Degrees));
+    return new Test(testCommand, Set.of(), Set.of(atGoal));
   }
 
   public Command goToTest(Measure<Angle> goal) {

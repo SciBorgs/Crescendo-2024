@@ -50,6 +50,10 @@ public class TestCommands {
     public static TestCommand test(Command command, boolean unitTest) {
       return new TestCommand(command, unitTest);
     }
+
+    public static ParallelRaceGroup withTimeout(Command command, boolean unitTest, double seconds) {
+      return test(command, unitTest).withTimeout(seconds);
+    }
   }
 
   public static class TestWaitCommand extends Command {

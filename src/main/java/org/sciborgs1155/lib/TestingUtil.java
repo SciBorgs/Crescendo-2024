@@ -4,6 +4,7 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -105,14 +106,36 @@ public class TestingUtil {
             });
   }
 
+  public static Command systemsCheck(Test... tests) {
+    Command c = Commands.none();
+    for (Test test : tests) {
+      c = c.andThen(systemsCheck(test));
+    }
+    return c;
+  }
+
   public static record TruthAssertion(
       BooleanSupplier condition, String faultName, String description) {}
 
+  public static TruthAssertion assertTrue(
+      BooleanSupplier condition, String faultName, String description) {
+    return new TruthAssertion(condition, faultName, description);
+  }
+
   public static record EqualityAssertion(
       String faultName, DoubleSupplier expected, DoubleSupplier actual, double delta) {}
+
+  public static EqualityAssertion assertEquals(
+      String faultName, DoubleSupplier expected, DoubleSupplier actual, double delta) {
+    return new EqualityAssertion(faultName, expected, actual, delta);
+  }
 
   public static record Test(
       Function<Boolean, Command> testCommand,
       Set<TruthAssertion> truthAssertions,
       Set<EqualityAssertion> equalityAssertions) {}
+
+  public static Test test(Command command) {
+    return new Test(b -> command, Set.of(), Set.of());
+  }
 }
