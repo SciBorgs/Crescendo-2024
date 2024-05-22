@@ -95,28 +95,6 @@ public class TestingUtil {
         condition ? FaultType.INFO : FaultType.WARNING);
   }
 
-  public static Command systemsCheck(Test test) {
-    return test.testCommand
-        .apply(false)
-        .finallyDo(
-            () -> {
-              test.truthAssertions.forEach(
-                  a -> assertReport(a.condition.getAsBoolean(), a.faultName, a.description));
-              test.equalityAssertions.forEach(
-                  a ->
-                      assertEqualsReport(
-                          a.faultName, a.expected.getAsDouble(), a.actual.getAsDouble(), a.delta));
-            });
-  }
-
-  public static Command systemsCheck(Test... tests) {
-    Command c = Commands.none();
-    for (Test test : tests) {
-      c = c.andThen(systemsCheck(test));
-    }
-    return c;
-  }
-
   public sealed interface Assertion {
     public void apply(boolean unitTest);
 
@@ -125,7 +103,7 @@ public class TestingUtil {
       @Override
       public void apply(boolean unitTest) {
         if (unitTest) {
-          assertTrue(condition, faultName, description);
+          tAssert(condition, faultName, description);
         } else {
           assertReport(condition.getAsBoolean(), faultName, description);
         }
@@ -145,7 +123,7 @@ public class TestingUtil {
     }
   }
 
-  public static TruthAssertion assertTrue(
+  public static TruthAssertion tAssert(
       BooleanSupplier condition, String faultName, String description) {
     return new TruthAssertion(condition, faultName, description);
   }
@@ -155,34 +133,34 @@ public class TestingUtil {
     return new EqualityAssertion(faultName, expected, actual, delta);
   }
 
-  public static record Test(
-      Function<Boolean, Command> testCommand,
-      Set<TruthAssertion> truthAssertions,
-      Set<EqualityAssertion> equalityAssertions) {}
+  public static record Test(Function<Boolean, Command> testCommand, Set<Assertion> assertions) {}
 
-  public static record TestBad(Function<Boolean, Command> testCommand, Set<Assertion> assertions) {}
-
-  public static TestBad test(Command command) {
-    return new TestBad(b -> command, Set.of());
+  // i hate this name but it makes something else nicer idk
+  public static Test genTest(Command command) {
+    return new Test(b -> command, Set.of());
   }
 
-  public static Command systemsCheckStupid(TestBad test) {
+  public static Command systemsCheckStupid(Test test) {
     return test.testCommand
         .apply(false)
         .finallyDo(() -> test.assertions.forEach(a -> a.apply(false)));
   }
 
-  public static Command systemsCheckStupid(TestBad... tests) {
+  public static Command systemsCheckStupid(Test... tests) {
     Command c = Commands.none();
-    for (TestBad test : tests) {
+    for (Test test : tests) {
       c = c.andThen(systemsCheckStupid(test));
     }
     return c;
   }
 
-  public static Command unitTest(TestBad test) {
+  public static Command unitTest(Test test) {
     return test.testCommand
         .apply(true)
         .finallyDo(() -> test.assertions.forEach(a -> a.apply(true)));
+  }
+
+  public static void runUnitTest(Test test) {
+    runToCompletion(TestingUtil.unitTest(test));
   }
 }

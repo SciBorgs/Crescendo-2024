@@ -435,7 +435,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                 1));
   }
 
-  public TestBad systemsCheckTest() {
+  public Test systemsCheck() {
     ChassisSpeeds speeds = new ChassisSpeeds(1, 1, 0);
     Function<Boolean, Command> testCommand =
         withTimeout(run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)), 0.5);
@@ -456,51 +456,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                         () -> 45,
                         () -> Units.radiansToDegrees(atan(m.position().angle.getTan())),
                         1)));
-    return new TestBad(testCommand, Set.copyOf(assertions.toList()));
-  }
-
-  public Command systemsCheck(boolean unitTest) {
-    ChassisSpeeds speeds = new ChassisSpeeds(1, 1, 0);
-    return withTimeout(
-            run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)), unitTest, 0.5)
-        .finallyDo(
-            () -> {
-              modules.forEach(
-                  m -> {
-                    assertEqualsReport(
-                        "Drive Syst Check Module Angle (degrees)",
-                        45,
-                        Units.radiansToDegrees(atan(m.position().angle.getTan())),
-                        1);
-                    assertReport(
-                        m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos())
-                            > 1,
-                        "Drive Syst Check Module Speed",
-                        "expected: >= 1; actual: " + m.state().speedMetersPerSecond);
-                  });
-            });
-  }
-
-  public Command systemsCheck() {
-    ChassisSpeeds speeds = new ChassisSpeeds(1, 1, 0);
-    return run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY))
-        .withTimeout(0.5)
-        .finallyDo(
-            () -> {
-              modules.forEach(
-                  m -> {
-                    assertEqualsReport(
-                        "Drive Syst Check Module Angle (degrees)",
-                        45,
-                        Units.radiansToDegrees(atan(m.position().angle.getTan())),
-                        1);
-                    assertReport(
-                        m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos())
-                            > 1,
-                        "Drive Syst Check Module Speed",
-                        "expected: >= 1; actual: " + m.state().speedMetersPerSecond);
-                  });
-            });
+    return new Test(testCommand, Set.copyOf(assertions.toList()));
   }
 
   public void close() throws Exception {

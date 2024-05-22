@@ -45,6 +45,11 @@ public class SwerveTest {
   }
 
   @Test
+  public void systemCheck() {
+    runUnitTest(drive.systemsCheck());
+  }
+
+  @Test
   public void reachesRobotVelocity() {
     double xVelocitySetpoint = -0.5;
     double yVelocitySetpoint = 0.25;

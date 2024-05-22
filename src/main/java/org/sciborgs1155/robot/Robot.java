@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
+import static org.sciborgs1155.lib.TestingUtil.genTest;
 import static org.sciborgs1155.robot.Constants.DEADBAND;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_ACCEL;
@@ -292,26 +293,16 @@ public class Robot extends CommandRobot implements Logged {
   }
 
   public Command systemsCheck() {
-    return Commands.sequence(
-            TestingUtil.systemsCheckStupid(shooter.goToTest(RadiansPerSecond.of(100))),
-            intake.intake().deadlineWith(feeder.forward(), shooter.runShooter(100)).withTimeout(1),
-            pivot.goToTest(Radians.of(0)),
-            pivot.goToTest(STARTING_ANGLE),
-            drive.systemsCheck())
-        .withName("Test Mechanisms");
-  }
-
-  public Command systemsCheckCursed() {
     return TestingUtil.systemsCheckStupid(
             shooter.goToTest(RadiansPerSecond.of(100)),
-            TestingUtil.test(
+            genTest(
                 intake
                     .intake()
                     .deadlineWith(feeder.forward(), shooter.runShooter(100))
                     .withTimeout(1)),
-            pivot.cursedGoToTest(Radians.of(0)),
-            pivot.cursedGoToTest(STARTING_ANGLE),
-            drive.systemsCheckTest())
+            pivot.goToTest(Radians.of(0)),
+            pivot.goToTest(STARTING_ANGLE),
+            drive.systemsCheck())
         .withName("Test Mechanisms");
   }
 

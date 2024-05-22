@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sciborgs1155.UnitTestingUtil;
 import org.sciborgs1155.robot.commands.Shooting;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
@@ -79,7 +78,7 @@ public class ShootingTest {
 
   @Test
   public void pivotSysCheck() {
-    UnitTestingUtil.runUnitTest(pivot.cursedGoToTest(MAX_ANGLE));
+    runUnitTest(pivot.goToTest(MAX_ANGLE));
   }
 
   @Test

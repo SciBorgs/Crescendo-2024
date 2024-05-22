@@ -60,7 +60,7 @@ public class TestCommands {
   public static class TestWaitCommand extends Command {
     private double elapsed = 0;
     private final double duration;
-    private static final double TICK_RATE = 0.2;
+    private static final double TICK_RATE = 0.02;
 
     public TestWaitCommand(double seconds) {
       this.duration = seconds;
