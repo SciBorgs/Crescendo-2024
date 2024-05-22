@@ -1,7 +1,7 @@
 package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.*;
-import static org.sciborgs1155.lib.TestCommands.TestCommand.withTimeout;
+import static org.sciborgs1155.lib.TestWaitCommand.withTimeout;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.EqualityAssertion;
 import static org.sciborgs1155.lib.TestingUtil.eAssert;
 import static org.sciborgs1155.robot.Constants.PERIOD;

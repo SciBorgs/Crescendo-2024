@@ -103,7 +103,7 @@ public class TestingUtil {
       @Override
       public void apply(boolean unitTest) {
         if (unitTest) {
-          tAssert(condition, faultName, description);
+          assertTrue(condition, faultName + ": " + description);
         } else {
           assertReport(condition.getAsBoolean(), faultName, description);
         }
@@ -140,16 +140,16 @@ public class TestingUtil {
     return new Test(b -> command, Set.of());
   }
 
-  public static Command systemsCheckStupid(Test test) {
+  public static Command systemsCheck(Test test) {
     return test.testCommand
         .apply(false)
         .finallyDo(() -> test.assertions.forEach(a -> a.apply(false)));
   }
 
-  public static Command systemsCheckStupid(Test... tests) {
+  public static Command systemsCheck(Test... tests) {
     Command c = Commands.none();
     for (Test test : tests) {
-      c = c.andThen(systemsCheckStupid(test));
+      c = c.andThen(systemsCheck(test));
     }
     return c;
   }

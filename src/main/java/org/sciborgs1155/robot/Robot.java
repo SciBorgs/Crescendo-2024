@@ -293,7 +293,7 @@ public class Robot extends CommandRobot implements Logged {
   }
 
   public Command systemsCheck() {
-    return TestingUtil.systemsCheckStupid(
+    return TestingUtil.systemsCheck(
             shooter.goToTest(RadiansPerSecond.of(100)),
             genTest(
                 intake

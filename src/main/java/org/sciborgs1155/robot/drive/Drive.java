@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import static java.lang.Math.atan;
-import static org.sciborgs1155.lib.TestCommands.TestCommand.withTimeout;
 import static org.sciborgs1155.lib.TestingUtil.*;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.*;
 import static org.sciborgs1155.robot.Constants.allianceRotation;
@@ -43,12 +42,14 @@ import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.photonvision.EstimatedRobotPose;
 import org.sciborgs1155.lib.InputStream;
+import static org.sciborgs1155.lib.TestWaitCommand.withTimeout;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
@@ -439,9 +440,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     ChassisSpeeds speeds = new ChassisSpeeds(1, 1, 0);
     Function<Boolean, Command> testCommand =
         withTimeout(run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)), 0.5);
-    Stream<SwerveModule> mods = Stream.of(0, 1, 2, 3).map(i -> modules.get(i));
-    Stream<Assertion> assertions =
-        mods.flatMap(
+    Set<Assertion> assertions =
+        modules.stream().flatMap(
             m ->
                 Stream.of(
                     new TruthAssertion(
@@ -455,8 +455,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                         "Drive Syst Check Module Angle (degrees)",
                         () -> 45,
                         () -> Units.radiansToDegrees(atan(m.position().angle.getTan())),
-                        1)));
-    return new Test(testCommand, Set.copyOf(assertions.toList()));
+                        1))).collect(Collectors.toSet());
+    return new Test(testCommand, assertions);
   }
 
   public void close() throws Exception {

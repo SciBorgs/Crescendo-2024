@@ -82,6 +82,12 @@ public class ShootingTest {
   }
 
   @Test
+  public void shootSysCheck() {
+    runUnitTest(shooter.goToTest(RadiansPerSecond.of(400)));
+  }
+
+
+  @Test
   public void asf() {}
 
   @ParameterizedTest
