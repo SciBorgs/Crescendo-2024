@@ -186,7 +186,7 @@ public class Robot extends CommandRobot implements Logged {
 
     test().whileTrue(systemsCheck());
 
-    disabled().onTrue(led.none());
+    disabled().onTrue(led.alliance());
 
     driver.b().whileTrue(drive.zeroHeading());
     driver
