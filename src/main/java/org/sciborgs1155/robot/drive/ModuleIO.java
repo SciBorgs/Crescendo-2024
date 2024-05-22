@@ -1,10 +1,18 @@
 package org.sciborgs1155.robot.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import monologue.Logged;
 
 /** Generalized hardware internals for a swerve module */
-public interface ModuleIO extends AutoCloseable, Logged {
+public interface ModuleIO extends Logged, AutoCloseable {
+  /** The method to use when controlling the drive motor. */
+  public static enum ControlMode {
+    CLOSED_LOOP_VELOCITY,
+    OPEN_LOOP_VELOCITY;
+  }
+
   /**
    * Sets the drive voltage of the module.
    *
@@ -43,9 +51,50 @@ public interface ModuleIO extends AutoCloseable, Logged {
   /** Resets all encoders. */
   void resetEncoders();
 
-  void setDriveSetpoint(double setpoint);
+  /**
+   * Returns the current state of the module.
+   *
+   * @return The current state of the module.
+   */
+  SwerveModuleState state();
 
-  void setTurnSetpoint(double setpoint);
+  /**
+   * Returns the current position of the module.
+   *
+   * @return The current position of the module.
+   */
+  SwerveModulePosition position();
+
+  /**
+   * Returns the desired position of the module.
+   * 
+   * @return The desired position of the module.
+   */
+  SwerveModuleState desiredState();
+  
+  /**
+   * Sets the setpoint value for the onboard drive PID.
+   * 
+   * @param velocity The velocity setpoint.
+   */
+  void setDriveSetpoint(double velocity);
+
+  /**
+   * Sets the setpoint value for the onboard turn PID.
+   * 
+   * @param angle The angle setpoint.
+   */
+  void setTurnSetpoint(double angle);
+
+  /**
+   * Updates controllers based on an optimized desired state and actuates the module accordingly.
+   *
+   * <p>This method should be called periodically.
+   *
+   * @param setpoint The desired state of the module.
+   * @param mode The control mode to use when calculating drive voltage.
+   */
+  void updateSetpoint(SwerveModuleState setpoint, ControlMode mode);
   
   @Override
   void close();

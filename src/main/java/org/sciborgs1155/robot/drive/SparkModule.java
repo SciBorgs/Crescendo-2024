@@ -9,11 +9,11 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
@@ -33,6 +33,7 @@ public class SparkModule implements ModuleIO {
   private final SparkPIDController drivePID;
   private final SparkPIDController turnPID;
 
+  private final SimpleMotorFeedforward driveFF;
   private final Rotation2d angularOffset;
 
   private double lastPosition;
@@ -48,7 +49,8 @@ public class SparkModule implements ModuleIO {
     driveMotor = new CANSparkFlex(drivePort, MotorType.kBrushless);
     driveEncoder = driveMotor.getEncoder();
     drivePID = driveMotor.getPIDController();
-
+    driveFF = new SimpleMotorFeedforward(Driving.FF.S, Driving.FF.V, Driving.FF.kA_linear); // TODO: Re-tune probably?
+    
     // TODO: Re-tune
     drivePID.setP(Driving.PID.P);
     drivePID.setI(Driving.PID.I);
@@ -150,7 +152,7 @@ public class SparkModule implements ModuleIO {
   }
 
   @Override
-  public void setDriveSetpoint(double setpoint) {
+  public void setDriveSetpoint(double setpoint ) {
     drivePID.setReference(setpoint, ControlType.kVelocity);
   }
 
