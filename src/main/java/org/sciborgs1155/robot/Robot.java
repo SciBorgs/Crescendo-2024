@@ -257,8 +257,8 @@ public class Robot extends CommandRobot implements Logged {
     // operator manual shoot (povDown)
     operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350))).whileTrue(led.rainbow());
 
-    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3)).whileTrue(led.orange());
-    feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3)).whileTrue(led.orange());
+    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3)).whileTrue(led.green());
+    feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3)).whileTrue(led.green());
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {

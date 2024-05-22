@@ -29,8 +29,8 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     return run(() -> led.setData(addressableLEDBuffer));
   }
 
-  public Command orange() {
-    return set(solidColor(Color.kOrange));
+  public Command green() {
+    return set(solidColor(Color.kGreen));
   }
 
   public Command blue() {
