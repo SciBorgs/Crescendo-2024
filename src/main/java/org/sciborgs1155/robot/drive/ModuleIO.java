@@ -43,6 +43,10 @@ public interface ModuleIO extends AutoCloseable, Logged {
   /** Resets all encoders. */
   void resetEncoders();
 
+  void setDriveSetpoint(double setpoint);
+
+  void setTurnSetpoint(double setpoint);
+  
   @Override
   void close();
 }

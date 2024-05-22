@@ -26,8 +26,16 @@ public class NoModule implements ModuleIO {
   }
 
   @Override
+  public void setDriveSetpoint(double setpoint) {}
+
+  @Override
+  public void setTurnSetpoint(double setpoint) {}
+  
+  @Override
   public void resetEncoders() {}
 
   @Override
   public void close() {}
+
+  
 }

@@ -4,12 +4,16 @@ import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.lib.FaultLogger.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.COUPLING_RATIO;
 
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
+import com.revrobotics.SparkPIDController;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
@@ -26,6 +30,9 @@ public class SparkModule implements ModuleIO {
   private final RelativeEncoder driveEncoder;
   private final SparkAbsoluteEncoder turningEncoder;
 
+  private final SparkPIDController drivePID;
+  private final SparkPIDController turnPID;
+
   private final Rotation2d angularOffset;
 
   private double lastPosition;
@@ -40,6 +47,12 @@ public class SparkModule implements ModuleIO {
   public SparkModule(int drivePort, int turnPort, Rotation2d angularOffset) {
     driveMotor = new CANSparkFlex(drivePort, MotorType.kBrushless);
     driveEncoder = driveMotor.getEncoder();
+    drivePID = driveMotor.getPIDController();
+
+    // TODO: Re-tune
+    drivePID.setP(Driving.PID.P);
+    drivePID.setI(Driving.PID.I);
+    drivePID.setD(Driving.PID.D);
 
     check(driveMotor, driveMotor.restoreFactoryDefaults());
     check(driveMotor, driveMotor.setIdleMode(IdleMode.kBrake));
@@ -61,6 +74,12 @@ public class SparkModule implements ModuleIO {
 
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
     turningEncoder = turnMotor.getAbsoluteEncoder();
+    turnPID = turnMotor.getPIDController();
+
+    // TODO: Re-tune
+    turnPID.setP(Turning.PID.P);
+    turnPID.setI(Turning.PID.I);
+    turnPID.setD(Turning.PID.D);
 
     check(turnMotor, turnMotor.restoreFactoryDefaults());
     check(turnMotor, turnMotor.setIdleMode(IdleMode.kBrake));
@@ -128,6 +147,16 @@ public class SparkModule implements ModuleIO {
   @Override
   public Rotation2d rotation() {
     return Rotation2d.fromRadians(turningEncoder.getPosition()).minus(angularOffset);
+  }
+
+  @Override
+  public void setDriveSetpoint(double setpoint) {
+    drivePID.setReference(setpoint, ControlType.kVelocity);
+  }
+
+  @Override
+  public void setTurnSetpoint(double setpoint) {
+    turnPID.setReference(setpoint, ControlType.kPosition);
   }
 
   @Override
