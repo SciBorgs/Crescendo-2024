@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.*;
-import static org.sciborgs1155.lib.TestWaitCommand.withTimeout;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.EqualityAssertion;
 import static org.sciborgs1155.lib.TestingUtil.eAssert;
 import static org.sciborgs1155.robot.Constants.PERIOD;
@@ -24,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
-import java.util.function.Function;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.FakePDH;
@@ -194,7 +192,7 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Test goToTest(Measure<Velocity<Angle>> goal) {
-    Function<Boolean, Command> testCommand = withTimeout(runShooter(goal.in(RadiansPerSecond)), 3);
+    Command testCommand = runShooter(goal.in(RadiansPerSecond)).withTimeout(3);
     EqualityAssertion atGoal =
         eAssert(
             "Shooter Syst Check Speed",

@@ -3,7 +3,6 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.autonomous;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.teleop;
-import static org.sciborgs1155.lib.TestWaitCommand.withTimeout;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.EqualityAssertion;
 import static org.sciborgs1155.lib.TestingUtil.eAssert;
 import static org.sciborgs1155.robot.Constants.PERIOD;
@@ -28,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
-import java.util.function.Function;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
@@ -208,8 +206,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Test goToTest(Measure<Angle> goal) {
-    Function<Boolean, Command> testCommand =
-        withTimeout(runPivot(goal).until(() -> atPosition(goal.in(Radians))), 2);
+    Command testCommand = runPivot(goal).until(() -> atPosition(goal.in(Radians))).withTimeout(2);
     EqualityAssertion atGoal =
         eAssert(
             "Pivot Test Angle (degrees)",

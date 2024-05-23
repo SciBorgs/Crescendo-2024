@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import static java.lang.Math.atan;
-import static org.sciborgs1155.lib.TestWaitCommand.withTimeout;
 import static org.sciborgs1155.lib.TestingUtil.*;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.*;
 import static org.sciborgs1155.robot.Constants.allianceRotation;
@@ -438,8 +437,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   public Test systemsCheck() {
     ChassisSpeeds speeds = new ChassisSpeeds(1, 1, 0);
-    Function<Boolean, Command> testCommand =
-        withTimeout(run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)), 0.5);
+    Command testCommand =
+        run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)).withTimeout(0.5);
+
     Function<SwerveModule, TruthAssertion> speedCheck =
         m ->
             tAssert(

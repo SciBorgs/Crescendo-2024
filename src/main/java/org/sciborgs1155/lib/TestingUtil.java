@@ -5,13 +5,13 @@ import static org.sciborgs1155.lib.TestingUtil.Assertion.*;
 
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
+import edu.wpi.first.wpilibj.simulation.SimHooks;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-import java.util.function.Function;
 import org.sciborgs1155.lib.FaultLogger.FaultType;
 
 public class TestingUtil {
@@ -23,6 +23,7 @@ public class TestingUtil {
   public static void fastForward(int ticks) {
     for (int i = 0; i < ticks; i++) {
       CommandScheduler.getInstance().run();
+      SimHooks.stepTiming(0.02);
     }
   }
 
@@ -133,17 +134,15 @@ public class TestingUtil {
     return new EqualityAssertion(faultName, expected, actual, delta);
   }
 
-  public static record Test(Function<Boolean, Command> testCommand, Set<Assertion> assertions) {}
+  public static record Test(Command testCommand, Set<Assertion> assertions) {}
 
   // i hate this name but it makes something else nicer idk
   public static Test genTest(Command command) {
-    return new Test(b -> command, Set.of());
+    return new Test(command, Set.of());
   }
 
   public static Command systemsCheck(Test test) {
-    return test.testCommand
-        .apply(false)
-        .finallyDo(() -> test.assertions.forEach(a -> a.apply(false)));
+    return test.testCommand.finallyDo(() -> test.assertions.forEach(a -> a.apply(false)));
   }
 
   public static Command systemsCheck(Test... tests) {
@@ -155,9 +154,7 @@ public class TestingUtil {
   }
 
   public static Command unitTest(Test test) {
-    return test.testCommand
-        .apply(true)
-        .finallyDo(() -> test.assertions.forEach(a -> a.apply(true)));
+    return test.testCommand.finallyDo(() -> test.assertions.forEach(a -> a.apply(true)));
   }
 
   public static void runUnitTest(Test test) {
