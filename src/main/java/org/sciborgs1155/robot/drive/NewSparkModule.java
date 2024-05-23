@@ -184,8 +184,20 @@ public class NewSparkModule implements ModuleIO {
 
     @Override
     public void updateSetpoint(SwerveModuleState setpoint, ControlMode mode) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateSetpoint'");
+        // Optimize the reference state to avoid spinning further than 90 degrees
+        setpoint = SwerveModuleState.optimize(setpoint, rotation());
+        // Scale setpoint by cos of turning error to reduce tread wear
+        setpoint.speedMetersPerSecond *= setpoint.angle.minus(rotation()).getCos();
+
+        if (mode == ModuleIO.ControlMode.OPEN_LOOP_VELOCITY) {
+            double ff = driveFF.calculate(setpoint.speedMetersPerSecond);
+            setDriveVoltage(ff);
+        }
+        else {
+            setDriveSetpoint(setpoint.speedMetersPerSecond);
+            setTurnSetpoint(setpoint.angle.getRadians());
+        }
+        this.setpoint = setpoint;
     }
 
     @Override
