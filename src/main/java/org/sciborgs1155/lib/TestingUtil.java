@@ -1,9 +1,12 @@
 package org.sciborgs1155.lib;
 
+import static edu.wpi.first.units.Units.Seconds;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.*;
 
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.simulation.SimHooks;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,6 +18,8 @@ import java.util.function.DoubleSupplier;
 import org.sciborgs1155.lib.FaultLogger.FaultType;
 
 public class TestingUtil {
+  public static final Measure<Time> TICK_RATE = Seconds.of(0.02);
+
   /**
    * Runs CommandScheduler repeatedly to fast forward subsystems and run commands.
    *
@@ -25,6 +30,10 @@ public class TestingUtil {
       CommandScheduler.getInstance().run();
       SimHooks.stepTiming(0.02);
     }
+  }
+
+  public static void fastForward(Measure<Time> time) {
+    fastForward((int) (time.in(Seconds) / TICK_RATE.in(Seconds)));
   }
 
   /** Runs CommandScheduler 200 times to fast forward subsystems and run commands. */
