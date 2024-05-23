@@ -91,7 +91,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
   public Command raindrop() {
     return run(
         () -> {
-          if (Math.round(Math.random()) == 0) {
+          if (Math.random() < 0.5) {
             raindrop[0] = Color.kBlack;
           } else {
             if (Math.round(Math.random()) == 0) {
@@ -124,9 +124,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
 
   public static AddressableLEDBuffer genBuffer(Function<Integer, Color> f) {
     AddressableLEDBuffer buffer = new AddressableLEDBuffer(LED_LENGTH);
-    for (int i = 0; i < LED_LENGTH; i++) {
-      buffer.setLED(i, f.apply(i));
-    }
+    buffer.forEach((i, r, g, b) -> buffer.setLED(i, f.apply(i)));
     return buffer;
   }
 
