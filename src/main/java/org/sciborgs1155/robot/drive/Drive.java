@@ -117,7 +117,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   public Drive(
       GyroIO gyro, ModuleIO frontLeft, ModuleIO frontRight, ModuleIO rearLeft, ModuleIO rearRight) {
     this.gyro = gyro;
-    this.frontLeft = new SwerveModule(frontLeft, ANGULAR_OFFSETS.get(0), " FL");
+    this.frontLeft = new SwerveModule(frontLeft, ANGULAR_OFFSETS.get(0), "FL");
     this.frontRight = new SwerveModule(frontRight, ANGULAR_OFFSETS.get(1), "FR");
     this.rearLeft = new SwerveModule(rearLeft, ANGULAR_OFFSETS.get(2), "RL");
     this.rearRight = new SwerveModule(rearRight, ANGULAR_OFFSETS.get(3), " RR");
@@ -439,17 +439,16 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     ChassisSpeeds speeds = new ChassisSpeeds(1, 1, 0);
     Command testCommand =
         run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)).withTimeout(0.5);
-
     Function<SwerveModule, TruthAssertion> speedCheck =
         m ->
             tAssert(
                 () -> m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos()) > 1,
-                "Drive Syst Check Module Speed",
+                "Drive Syst Check " + m.name + " Module Speed",
                 "expected: >= 1; actual: " + m.state().speedMetersPerSecond);
     Function<SwerveModule, EqualityAssertion> atAngle =
         m ->
             eAssert(
-                "Drive Syst Check Module Angle (degrees)",
+                "Drive Syst Check " + m.name + " Module Angle (degrees)",
                 () -> 45,
                 () -> Units.radiansToDegrees(atan(m.position().angle.getTan())),
                 1);
