@@ -4,7 +4,7 @@ import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.autonomous;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.teleop;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.EqualityAssertion;
-import static org.sciborgs1155.lib.TestingUtil.eAssert;
+import static org.sciborgs1155.lib.TestingUtil.Assertion.eAssert;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 

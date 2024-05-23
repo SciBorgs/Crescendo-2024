@@ -2,7 +2,6 @@ package org.sciborgs1155.lib;
 
 import static edu.wpi.first.units.Units.Seconds;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.sciborgs1155.lib.TestingUtil.Assertion.*;
 
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.units.Measure;
@@ -21,7 +20,7 @@ public class TestingUtil {
   public static final Measure<Time> TICK_RATE = Seconds.of(0.02);
 
   /**
-   * Runs CommandScheduler repeatedly to fast forward subsystems and run commands.
+   * Runs CommandScheduler and updates timer repeatedly to fast forward subsystems and run commands.
    *
    * @param ticks The number of times CommandScheduler is run
    */
@@ -32,17 +31,24 @@ public class TestingUtil {
     }
   }
 
+  /**
+   * Fasts forward in time by running CommandScheduler and updating timer
+   *
+   * @param time
+   */
   public static void fastForward(Measure<Time> time) {
     fastForward((int) (time.in(Seconds) / TICK_RATE.in(Seconds)));
   }
 
-  /** Runs CommandScheduler 200 times to fast forward subsystems and run commands. */
+  /**
+   * Runs CommandScheduler and upates timer 200 times to fast forward subsystems and run commands.
+   */
   public static void fastForward() {
     fastForward(200);
   }
 
   /**
-   * Schedules and runs a command while disabled
+   * Schedules and runs a command
    *
    * @param command The command to run.
    */
@@ -52,7 +58,7 @@ public class TestingUtil {
   }
 
   /**
-   * Schedules and runs a command while disabled.
+   * Schedules and runs a command.
    *
    * @param command The command to run.
    * @param runs The number of times CommandScheduler is run.
@@ -62,6 +68,11 @@ public class TestingUtil {
     fastForward(runs);
   }
 
+  /**
+   * Schedules a command and runs it until it ends
+   *
+   * @param command
+   */
   public static void runToCompletion(Command command) {
     command.schedule();
     while (command.isScheduled()) {
@@ -90,6 +101,14 @@ public class TestingUtil {
     }
   }
 
+  /**
+   * Asserts that two values are equal (with some tolerance), and reports to FaultLogger
+   *
+   * @param faultName
+   * @param expected
+   * @param actual
+   * @param delta tolerance
+   */
   public static void assertEqualsReport(
       String faultName, double expected, double actual, double delta) {
     assertReport(
@@ -98,6 +117,13 @@ public class TestingUtil {
         "expected: " + expected + "; actual: " + actual);
   }
 
+  /**
+   * Asserts that a condition is true, and reports to FaultLogger
+   *
+   * @param condition
+   * @param faultName
+   * @param description
+   */
   public static void assertReport(boolean condition, String faultName, String description) {
     FaultLogger.report(
         faultName,
@@ -131,29 +157,40 @@ public class TestingUtil {
         assertEqualsReport(faultName, expected.getAsDouble(), actual.getAsDouble(), delta);
       }
     }
+
+    /**
+     * @return a truth assertion
+     */
+    public static TruthAssertion tAssert(
+        BooleanSupplier condition, String faultName, String description) {
+      return new TruthAssertion(condition, faultName, description);
+    }
+
+    /**
+     * @return an equality assertion
+     */
+    public static EqualityAssertion eAssert(
+        String faultName, DoubleSupplier expected, DoubleSupplier actual, double delta) {
+      return new EqualityAssertion(faultName, expected, actual, delta);
+    }
   }
 
-  public static TruthAssertion tAssert(
-      BooleanSupplier condition, String faultName, String description) {
-    return new TruthAssertion(condition, faultName, description);
+  public static record Test(Command testCommand, Set<Assertion> assertions) {
+    /**
+     * @param command
+     * @return a Test with no assertions
+     */
+    public static Test fromCommand(Command command) {
+      return new Test(command, Set.of());
+    }
   }
 
-  public static EqualityAssertion eAssert(
-      String faultName, DoubleSupplier expected, DoubleSupplier actual, double delta) {
-    return new EqualityAssertion(faultName, expected, actual, delta);
-  }
-
-  public static record Test(Command testCommand, Set<Assertion> assertions) {}
-
-  // i hate this name but it makes something else nicer idk
-  public static Test genTest(Command command) {
-    return new Test(command, Set.of());
-  }
-
+  /** Creates a systems check command from a Test. */
   public static Command systemsCheck(Test test) {
     return test.testCommand.finallyDo(() -> test.assertions.forEach(a -> a.apply(false)));
   }
 
+  /** Creates a systems check sequential command from Tests. */
   public static Command systemsCheck(Test... tests) {
     Command c = Commands.none();
     for (Test test : tests) {
@@ -162,10 +199,15 @@ public class TestingUtil {
     return c;
   }
 
-  public static Command unitTest(Test test) {
+  private static Command unitTest(Test test) {
     return test.testCommand.finallyDo(() -> test.assertions.forEach(a -> a.apply(true)));
   }
 
+  /**
+   * Runs a unit test based on a Test.
+   *
+   * @param test
+   */
   public static void runUnitTest(Test test) {
     runToCompletion(unitTest(test));
   }

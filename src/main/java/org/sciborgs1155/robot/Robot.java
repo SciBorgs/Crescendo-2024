@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
-import static org.sciborgs1155.lib.TestingUtil.genTest;
 import static org.sciborgs1155.robot.Constants.DEADBAND;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_ACCEL;
@@ -36,6 +35,7 @@ import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.TestingUtil;
+import org.sciborgs1155.lib.TestingUtil.Test;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.Alignment;
 import org.sciborgs1155.robot.commands.Autos;
@@ -295,7 +295,7 @@ public class Robot extends CommandRobot implements Logged {
   public Command systemsCheck() {
     return TestingUtil.systemsCheck(
             shooter.goToTest(RadiansPerSecond.of(100)),
-            genTest(
+            Test.fromCommand(
                 intake
                     .intake()
                     .deadlineWith(feeder.forward(), shooter.runShooter(100))

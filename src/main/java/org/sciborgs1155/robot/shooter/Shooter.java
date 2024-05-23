@@ -2,7 +2,7 @@ package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.*;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.EqualityAssertion;
-import static org.sciborgs1155.lib.TestingUtil.eAssert;
+import static org.sciborgs1155.lib.TestingUtil.Assertion.eAssert;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Ports.Shooter.BOTTOM_MOTOR;
 import static org.sciborgs1155.robot.Ports.Shooter.TOP_MOTOR;
