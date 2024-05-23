@@ -209,7 +209,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
 
   public Test goToTest(Measure<Angle> goal) {
     Function<Boolean, Command> testCommand =
-        u -> withTimeout(runPivot(goal).until(() -> atPosition(goal.in(Radians))), u, 2);
+        withTimeout(runPivot(goal).until(() -> atPosition(goal.in(Radians))), 2);
     EqualityAssertion atGoal =
         eAssert(
             "Pivot Test Angle (degrees)",

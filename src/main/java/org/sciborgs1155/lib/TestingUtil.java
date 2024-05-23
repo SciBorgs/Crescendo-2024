@@ -161,6 +161,6 @@ public class TestingUtil {
   }
 
   public static void runUnitTest(Test test) {
-    runToCompletion(TestingUtil.unitTest(test));
+    runToCompletion(unitTest(test));
   }
 }

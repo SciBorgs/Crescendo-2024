@@ -194,15 +194,14 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Test goToTest(Measure<Velocity<Angle>> goal) {
-    Function<Boolean, Command> testCommand =
-        unitTest -> withTimeout(runShooter(goal.in(RadiansPerSecond)), unitTest, 3);
-    EqualityAssertion eAssert =
+    Function<Boolean, Command> testCommand = withTimeout(runShooter(goal.in(RadiansPerSecond)), 3);
+    EqualityAssertion atGoal =
         eAssert(
             "Shooter Syst Check Speed",
             () -> goal.in(RadiansPerSecond),
             this::rotationalVelocity,
             VELOCITY_TOLERANCE.in(RadiansPerSecond));
-    return new Test(testCommand, Set.of(eAssert));
+    return new Test(testCommand, Set.of(atGoal));
   }
 
   @Override

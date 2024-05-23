@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import static java.lang.Math.atan;
+import static org.sciborgs1155.lib.TestWaitCommand.withTimeout;
 import static org.sciborgs1155.lib.TestingUtil.*;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.*;
 import static org.sciborgs1155.robot.Constants.allianceRotation;
@@ -49,7 +50,6 @@ import monologue.Annotations.Log;
 import monologue.Logged;
 import org.photonvision.EstimatedRobotPose;
 import org.sciborgs1155.lib.InputStream;
-import static org.sciborgs1155.lib.TestWaitCommand.withTimeout;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
@@ -440,22 +440,23 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     ChassisSpeeds speeds = new ChassisSpeeds(1, 1, 0);
     Function<Boolean, Command> testCommand =
         withTimeout(run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)), 0.5);
+    Function<SwerveModule, TruthAssertion> speedCheck =
+        m ->
+            tAssert(
+                () -> m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos()) > 1,
+                "Drive Syst Check Module Speed",
+                "expected: >= 1; actual: " + m.state().speedMetersPerSecond);
+    Function<SwerveModule, EqualityAssertion> atAngle =
+        m ->
+            eAssert(
+                "Drive Syst Check Module Angle (degrees)",
+                () -> 45,
+                () -> Units.radiansToDegrees(atan(m.position().angle.getTan())),
+                1);
     Set<Assertion> assertions =
-        modules.stream().flatMap(
-            m ->
-                Stream.of(
-                    new TruthAssertion(
-                        () ->
-                            m.state().speedMetersPerSecond
-                                    * Math.signum(m.position().angle.getCos())
-                                > 1,
-                        "Drive Syst Check Module Speed",
-                        "expected: >= 1; actual: " + m.state().speedMetersPerSecond),
-                    new EqualityAssertion(
-                        "Drive Syst Check Module Angle (degrees)",
-                        () -> 45,
-                        () -> Units.radiansToDegrees(atan(m.position().angle.getTan())),
-                        1))).collect(Collectors.toSet());
+        modules.stream()
+            .flatMap(m -> Stream.of(speedCheck.apply(m), atAngle.apply(m)))
+            .collect(Collectors.toSet());
     return new Test(testCommand, assertions);
   }
 

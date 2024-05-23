@@ -86,7 +86,6 @@ public class ShootingTest {
     runUnitTest(shooter.goToTest(RadiansPerSecond.of(400)));
   }
 
-
   @Test
   public void asf() {}
 
