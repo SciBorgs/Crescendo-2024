@@ -1,5 +1,6 @@
 package org.sciborgs1155.lib;
 
+import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.eAssert;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.tAssert;
@@ -7,14 +8,12 @@ import static org.sciborgs1155.lib.TestingUtil.runToCompletion;
 import static org.sciborgs1155.lib.TestingUtil.runUnitTest;
 import static org.sciborgs1155.lib.TestingUtil.setupTests;
 import static org.sciborgs1155.lib.TestingUtil.systemsCheck;
-import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,7 +32,7 @@ public class TestUtilTest {
     setupTests();
     x = 0;
   }
-  
+
   @AfterEach
   public void clear() throws Exception {
     TestingUtil.reset();
@@ -69,11 +68,12 @@ public class TestUtilTest {
   public void assertFaultCount(int infoCount, int warningCount, int errorCount) {
     FaultLogger.update();
     Set<Fault> faults = FaultLogger.totalFaults();
-    Set<Fault> infos = faults.stream()
-            .filter(f -> f.type() == FaultType.INFO)
-            .collect(Collectors.toSet());
-    Set<Fault> warnings = faults.stream().filter(f -> f.type() == FaultType.WARNING).collect(Collectors.toSet());
-    Set<Fault> errors = faults.stream().filter(f -> f.type() == FaultType.ERROR).collect(Collectors.toSet());
+    Set<Fault> infos =
+        faults.stream().filter(f -> f.type() == FaultType.INFO).collect(Collectors.toSet());
+    Set<Fault> warnings =
+        faults.stream().filter(f -> f.type() == FaultType.WARNING).collect(Collectors.toSet());
+    Set<Fault> errors =
+        faults.stream().filter(f -> f.type() == FaultType.ERROR).collect(Collectors.toSet());
     assertEquals(infoCount, infos.size(), infos.toString());
     assertEquals(warningCount, warnings.size());
     assertEquals(errorCount, errors.size());
@@ -109,8 +109,11 @@ public class TestUtilTest {
 
     TruthAssertion badAssertion = tAssert(() -> x != this.x, "x", "fails");
     Test fails = new Test(runOnce(() -> set(x)), Set.of(badAssertion));
-    try { runUnitTest(fails); assert false; }
-    catch (Error e) {}
+    try {
+      runUnitTest(fails);
+      assert false;
+    } catch (Error e) {
+    }
     assertFaultCount(0, 0, 0);
   }
 }
