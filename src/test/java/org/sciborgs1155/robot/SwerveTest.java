@@ -1,5 +1,6 @@
 package org.sciborgs1155.robot;
 
+import static edu.wpi.first.units.Units.Seconds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.TestingUtil.*;
 
@@ -88,8 +89,9 @@ public class SwerveTest {
     double xVelocitySetpoint = 2.265;
     double yVelocitySetpoint = 0;
 
-    double deltaX = xVelocitySetpoint * 4;
-    double deltaY = yVelocitySetpoint * 4;
+    double deltaT = 4;
+    double deltaX = xVelocitySetpoint * deltaT;
+    double deltaY = yVelocitySetpoint * deltaT;
     run(
         drive.run(
             () ->
@@ -98,7 +100,7 @@ public class SwerveTest {
                         xVelocitySetpoint, yVelocitySetpoint, 0, drive.heading()),
                     ControlMode.CLOSED_LOOP_VELOCITY)));
 
-    fastForward(); // 200 ticks, 50 ticks/s = 4 seconds
+    fastForward(Seconds.of(deltaT));
 
     Pose2d pose = drive.pose();
 

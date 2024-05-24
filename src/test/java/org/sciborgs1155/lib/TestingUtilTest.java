@@ -2,6 +2,7 @@ package org.sciborgs1155.lib;
 
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.eAssert;
 import static org.sciborgs1155.lib.TestingUtil.Assertion.tAssert;
 import static org.sciborgs1155.lib.TestingUtil.runToCompletion;
@@ -9,6 +10,7 @@ import static org.sciborgs1155.lib.TestingUtil.runUnitTest;
 import static org.sciborgs1155.lib.TestingUtil.setupTests;
 import static org.sciborgs1155.lib.TestingUtil.systemsCheck;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -24,7 +26,7 @@ import org.sciborgs1155.lib.TestingUtil.Assertion.EqualityAssertion;
 import org.sciborgs1155.lib.TestingUtil.Assertion.TruthAssertion;
 import org.sciborgs1155.lib.TestingUtil.Test;
 
-public class TestUtilTest {
+public class TestingUtilTest {
   int x;
 
   @BeforeEach
@@ -45,6 +47,11 @@ public class TestUtilTest {
 
   public void set(int x) {
     this.x = x;
+  }
+
+  @org.junit.jupiter.api.Test
+  public void enabled() {
+    assertTrue(DriverStation.isEnabled());
   }
 
   @org.junit.jupiter.api.Test
