@@ -19,6 +19,69 @@ import org.sciborgs1155.lib.FaultLogger.FaultType;
 public class TestingUtil {
   public static final Measure<Time> TICK_RATE = Seconds.of(0.02);
 
+  public static record Test(Command testCommand, Set<Assertion> assertions) {
+    /**
+     * @param command
+     * @return a Test with no assertions
+     */
+    public static Test fromCommand(Command command) {
+      return new Test(command, Set.of());
+    }
+  }
+
+  public sealed interface Assertion {
+    public void apply(boolean unitTest);
+
+    public static record TruthAssertion(
+        BooleanSupplier condition, String faultName, String description) implements Assertion {
+      @Override
+      public void apply(boolean unitTest) {
+        if (unitTest) {
+          assertTrue(condition, faultName + ": " + description);
+        } else {
+          assertReport(condition.getAsBoolean(), faultName, description);
+        }
+      }
+    }
+
+    public static record EqualityAssertion(
+        String faultName, DoubleSupplier expected, DoubleSupplier actual, double delta)
+        implements Assertion {
+      @Override
+      public void apply(boolean unitTest) {
+        if (unitTest) {
+          assertEquals(expected.getAsDouble(), actual.getAsDouble(), delta, faultName);
+        } else {
+          assertEqualsReport(faultName, expected.getAsDouble(), actual.getAsDouble(), delta);
+        }
+      }
+    }
+
+    /**
+     * @return a truth assertion
+     */
+    public static TruthAssertion tAssert(
+        BooleanSupplier condition, String faultName, String description) {
+      return new TruthAssertion(condition, faultName, description);
+    }
+
+    /**
+     * @return an equality assertion
+     */
+    public static EqualityAssertion eAssert(
+        String faultName, DoubleSupplier expected, DoubleSupplier actual, double delta) {
+      return new EqualityAssertion(faultName, expected, actual, delta);
+    }
+
+    /**
+     * @return an equality assertion
+     */
+    public static EqualityAssertion eAssert(
+        String faultName, DoubleSupplier expected, DoubleSupplier actual) {
+      return eAssert(faultName, expected, actual, 0);
+    }
+  }
+
   /**
    * Runs CommandScheduler and updates timer repeatedly to fast forward subsystems and run commands.
    *
@@ -75,6 +138,7 @@ public class TestingUtil {
    */
   public static void runToCompletion(Command command) {
     command.schedule();
+    fastForward(1);
     while (command.isScheduled()) {
       fastForward(1);
     }
@@ -86,6 +150,8 @@ public class TestingUtil {
     DriverStationSim.setEnabled(true);
     DriverStationSim.setTest(true);
     DriverStationSim.notifyNewData();
+    FaultLogger.clear();
+    FaultLogger.unregisterAll();
   }
 
   /**
@@ -129,60 +195,6 @@ public class TestingUtil {
         faultName,
         (condition ? "success! " : "") + description,
         condition ? FaultType.INFO : FaultType.WARNING);
-  }
-
-  public sealed interface Assertion {
-    public void apply(boolean unitTest);
-
-    public static record TruthAssertion(
-        BooleanSupplier condition, String faultName, String description) implements Assertion {
-      @Override
-      public void apply(boolean unitTest) {
-        if (unitTest) {
-          assertTrue(condition, faultName + ": " + description);
-        } else {
-          assertReport(condition.getAsBoolean(), faultName, description);
-        }
-      }
-    }
-
-    public static record EqualityAssertion(
-        String faultName, DoubleSupplier expected, DoubleSupplier actual, double delta)
-        implements Assertion {
-      @Override
-      public void apply(boolean unitTest) {
-        if (unitTest) {
-          assertEquals(expected.getAsDouble(), actual.getAsDouble(), delta, faultName);
-        }
-        assertEqualsReport(faultName, expected.getAsDouble(), actual.getAsDouble(), delta);
-      }
-    }
-
-    /**
-     * @return a truth assertion
-     */
-    public static TruthAssertion tAssert(
-        BooleanSupplier condition, String faultName, String description) {
-      return new TruthAssertion(condition, faultName, description);
-    }
-
-    /**
-     * @return an equality assertion
-     */
-    public static EqualityAssertion eAssert(
-        String faultName, DoubleSupplier expected, DoubleSupplier actual, double delta) {
-      return new EqualityAssertion(faultName, expected, actual, delta);
-    }
-  }
-
-  public static record Test(Command testCommand, Set<Assertion> assertions) {
-    /**
-     * @param command
-     * @return a Test with no assertions
-     */
-    public static Test fromCommand(Command command) {
-      return new Test(command, Set.of());
-    }
   }
 
   /** Creates a systems check command from a Test. */
