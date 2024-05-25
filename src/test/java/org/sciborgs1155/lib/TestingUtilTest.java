@@ -2,6 +2,7 @@ package org.sciborgs1155.lib;
 
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sciborgs1155.lib.Assertion.eAssert;
 import static org.sciborgs1155.lib.Assertion.tAssert;
@@ -19,6 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sciborgs1155.lib.Assertion.EqualityAssertion;
@@ -55,7 +57,7 @@ public class TestingUtilTest {
   }
 
   @org.junit.jupiter.api.Test
-  public void testFromCommand() throws Exception {
+  public void fromCommandTest() throws Exception {
     assertEquals(0, x);
     Test t = Test.fromCommand(Commands.runOnce(this::increment));
     Command c = toCommand(t);
@@ -88,7 +90,7 @@ public class TestingUtilTest {
 
   @ParameterizedTest
   @ValueSource(ints = {-4, 3, 9})
-  public void systemCheck(int x) {
+  public void systemCheckTest(int x) {
     EqualityAssertion goodAssertion = eAssert("x", () -> x, () -> this.x);
     Test passes = new Test(runOnce(() -> set(x)), Set.of(goodAssertion));
     runToCompletion(toCommand(passes));
@@ -108,7 +110,7 @@ public class TestingUtilTest {
 
   @ParameterizedTest
   @ValueSource(ints = {-4, 3, 9})
-  public void unitTest(int x) {
+  public void unitTestTest(int x) {
     EqualityAssertion goodAssertion = eAssert("x", () -> x, () -> this.x);
     Test passes = new Test(runOnce(() -> set(x)), Set.of(goodAssertion));
     runUnitTest(passes);
@@ -116,11 +118,7 @@ public class TestingUtilTest {
 
     TruthAssertion badAssertion = tAssert(() -> x != this.x, "x", "fails");
     Test fails = new Test(runOnce(() -> set(x)), Set.of(badAssertion));
-    try {
-      runUnitTest(fails);
-      assert false;
-    } catch (Error e) {
-    }
+    assertThrows(AssertionError.class, (Executable) () -> runUnitTest(fails));
     assertFaultCount(0, 0, 0);
   }
 }
