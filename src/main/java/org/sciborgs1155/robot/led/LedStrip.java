@@ -122,6 +122,12 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     return ("[" + String.join(",", ledBufferData) + "]");
   }
 
+  /***
+   * Returns an AddressableLEDBuffer based on a function.
+   * 
+   * @param f A function that takes in an integer and spits out a color.
+   * @return An AddressableLEDBuffer
+   */
   public static AddressableLEDBuffer genBuffer(Function<Integer, Color> f) {
     AddressableLEDBuffer buffer = new AddressableLEDBuffer(LED_LENGTH);
     buffer.forEach((i, r, g, b) -> buffer.setLED(i, f.apply(i)));
@@ -136,7 +142,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
     return genBuffer(i -> color1);
   }
 
-  /** "every (interval) LEDs, LED should be (color 2). everyting else is (color 1)." */
+  /** "Every (interval) LEDs, LED should be (color 2). Everyting else is (color 1)." */
   private static AddressableLEDBuffer movingColor(Color color1, Color color2, int interval) {
     return genBuffer(i -> (i + tick) % interval == 0 ? color2 : color1);
   }
