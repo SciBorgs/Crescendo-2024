@@ -10,36 +10,36 @@ import org.sciborgs1155.lib.FaultLogger.FaultType;
 public sealed interface Assertion {
   public void apply(boolean unitTest);
 
-  // TODO i hate that the assert reports are here, but idk what to do with them
+  public static class ReportAssertions {
+    /**
+     * Asserts that a condition is true, and reports to FaultLogger
+     *
+     * @param condition
+     * @param faultName
+     * @param description
+     */
+    private static void assertReport(boolean condition, String faultName, String description) {
+      FaultLogger.report(
+          faultName,
+          (condition ? "success! " : "") + description,
+          condition ? FaultType.INFO : FaultType.WARNING);
+    }
 
-  /**
-   * Asserts that a condition is true, and reports to FaultLogger
-   *
-   * @param condition
-   * @param faultName
-   * @param description
-   */
-  private static void assertReport(boolean condition, String faultName, String description) {
-    FaultLogger.report(
-        faultName,
-        (condition ? "success! " : "") + description,
-        condition ? FaultType.INFO : FaultType.WARNING);
-  }
-
-  /**
-   * Asserts that two values are equal (with some tolerance), and reports to FaultLogger
-   *
-   * @param faultName
-   * @param expected
-   * @param actual
-   * @param delta tolerance
-   */
-  public static void assertEqualsReport(
-      String faultName, double expected, double actual, double delta) {
-    assertReport(
-        Math.abs(expected - actual) <= delta,
-        faultName,
-        "expected: " + expected + "; actual: " + actual);
+    /**
+     * Asserts that two values are equal (with some tolerance), and reports to FaultLogger
+     *
+     * @param faultName
+     * @param expected
+     * @param actual
+     * @param delta tolerance
+     */
+    public static void assertEqualsReport(
+        String faultName, double expected, double actual, double delta) {
+      assertReport(
+          Math.abs(expected - actual) <= delta,
+          faultName,
+          "expected: " + expected + "; actual: " + actual);
+    }
   }
 
   public static record TruthAssertion(
@@ -49,7 +49,7 @@ public sealed interface Assertion {
       if (unitTest) {
         assertTrue(condition, faultName + ": " + description);
       } else {
-        assertReport(condition.getAsBoolean(), faultName, description);
+        ReportAssertions.assertReport(condition.getAsBoolean(), faultName, description);
       }
     }
   }
@@ -62,7 +62,8 @@ public sealed interface Assertion {
       if (unitTest) {
         assertEquals(expected.getAsDouble(), actual.getAsDouble(), delta, faultName);
       } else {
-        assertEqualsReport(faultName, expected.getAsDouble(), actual.getAsDouble(), delta);
+        ReportAssertions.assertEqualsReport(
+            faultName, expected.getAsDouble(), actual.getAsDouble(), delta);
       }
     }
   }
