@@ -3,8 +3,8 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.autonomous;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.teleop;
-import static org.sciborgs1155.lib.TestingUtil.Assertion.EqualityAssertion;
-import static org.sciborgs1155.lib.TestingUtil.Assertion.eAssert;
+import static org.sciborgs1155.lib.Assertion.EqualityAssertion;
+import static org.sciborgs1155.lib.Assertion.eAssert;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
@@ -30,7 +30,7 @@ import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
-import org.sciborgs1155.lib.TestingUtil.Test;
+import org.sciborgs1155.lib.Test;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 

@@ -1,8 +1,8 @@
 package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.*;
-import static org.sciborgs1155.lib.TestingUtil.Assertion.EqualityAssertion;
-import static org.sciborgs1155.lib.TestingUtil.Assertion.eAssert;
+import static org.sciborgs1155.lib.Assertion.EqualityAssertion;
+import static org.sciborgs1155.lib.Assertion.eAssert;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Ports.Shooter.BOTTOM_MOTOR;
 import static org.sciborgs1155.robot.Ports.Shooter.TOP_MOTOR;
@@ -27,7 +27,7 @@ import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.FakePDH;
 import org.sciborgs1155.lib.InputStream;
-import org.sciborgs1155.lib.TestingUtil.Test;
+import org.sciborgs1155.lib.Test;
 import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;

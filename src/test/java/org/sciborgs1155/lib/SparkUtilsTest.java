@@ -2,7 +2,7 @@ package org.sciborgs1155.lib;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sciborgs1155.lib.FaultLogger.*;
-import static org.sciborgs1155.lib.TestingUtil.setupTests;
+import static org.sciborgs1155.lib.UnitTestingUtil.setupTests;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;

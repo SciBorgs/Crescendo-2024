@@ -2,7 +2,8 @@ package org.sciborgs1155.robot;
 
 import static edu.wpi.first.units.Units.Seconds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sciborgs1155.lib.TestingUtil.*;
+import static org.sciborgs1155.lib.Test.runUnitTest;
+import static org.sciborgs1155.lib.UnitTestingUtil.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sciborgs1155.lib.TestingUtil;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.NoGyro;
 import org.sciborgs1155.robot.drive.SimModule;
@@ -42,7 +42,7 @@ public class SwerveTest {
 
   @AfterEach
   public void destroy() throws Exception {
-    TestingUtil.reset(drive);
+    reset(drive);
   }
 
   @Test

@@ -1,7 +1,7 @@
 package org.sciborgs1155.lib;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sciborgs1155.lib.TestingUtil.setupTests;
+import static org.sciborgs1155.lib.UnitTestingUtil.setupTests;
 
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.DoubleEntry;

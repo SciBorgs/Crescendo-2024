@@ -34,8 +34,7 @@ import org.sciborgs1155.lib.FakePDH;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.SparkUtils;
-import org.sciborgs1155.lib.TestingUtil;
-import org.sciborgs1155.lib.TestingUtil.Test;
+import org.sciborgs1155.lib.Test;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.Alignment;
 import org.sciborgs1155.robot.commands.Autos;
@@ -293,7 +292,7 @@ public class Robot extends CommandRobot implements Logged {
   }
 
   public Command systemsCheck() {
-    return TestingUtil.systemsCheck(
+    return Test.toCommand(
             shooter.goToTest(RadiansPerSecond.of(100)),
             Test.fromCommand(
                 intake

@@ -3,12 +3,13 @@ package org.sciborgs1155.lib;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.sciborgs1155.lib.TestingUtil.Assertion.eAssert;
-import static org.sciborgs1155.lib.TestingUtil.Assertion.tAssert;
-import static org.sciborgs1155.lib.TestingUtil.runToCompletion;
-import static org.sciborgs1155.lib.TestingUtil.runUnitTest;
-import static org.sciborgs1155.lib.TestingUtil.setupTests;
-import static org.sciborgs1155.lib.TestingUtil.systemsCheck;
+import static org.sciborgs1155.lib.Assertion.eAssert;
+import static org.sciborgs1155.lib.Assertion.tAssert;
+import static org.sciborgs1155.lib.Test.runUnitTest;
+import static org.sciborgs1155.lib.Test.toCommand;
+import static org.sciborgs1155.lib.UnitTestingUtil.reset;
+import static org.sciborgs1155.lib.UnitTestingUtil.runToCompletion;
+import static org.sciborgs1155.lib.UnitTestingUtil.setupTests;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -20,11 +21,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sciborgs1155.lib.Assertion.EqualityAssertion;
+import org.sciborgs1155.lib.Assertion.TruthAssertion;
 import org.sciborgs1155.lib.FaultLogger.Fault;
 import org.sciborgs1155.lib.FaultLogger.FaultType;
-import org.sciborgs1155.lib.TestingUtil.Assertion.EqualityAssertion;
-import org.sciborgs1155.lib.TestingUtil.Assertion.TruthAssertion;
-import org.sciborgs1155.lib.TestingUtil.Test;
 
 public class TestingUtilTest {
   int x;
@@ -37,7 +37,7 @@ public class TestingUtilTest {
 
   @AfterEach
   public void clear() throws Exception {
-    TestingUtil.reset();
+    reset();
     x = 0;
   }
 
@@ -58,7 +58,7 @@ public class TestingUtilTest {
   public void testFromCommand() throws Exception {
     assertEquals(0, x);
     Test t = Test.fromCommand(Commands.runOnce(this::increment));
-    Command c = systemsCheck(t);
+    Command c = toCommand(t);
     runToCompletion(c);
     assertEquals(1, x);
   }
@@ -91,18 +91,18 @@ public class TestingUtilTest {
   public void systemCheck(int x) {
     EqualityAssertion goodAssertion = eAssert("x", () -> x, () -> this.x);
     Test passes = new Test(runOnce(() -> set(x)), Set.of(goodAssertion));
-    runToCompletion(systemsCheck(passes));
+    runToCompletion(toCommand(passes));
     assertFaultCount(1, 0, 0);
 
     TruthAssertion badAssertion = tAssert(() -> x != this.x, "x", "fails");
     Test fails = new Test(runOnce(() -> set(x)), Set.of(badAssertion));
-    runToCompletion(systemsCheck(fails));
+    runToCompletion(toCommand(fails));
     assertFaultCount(1, 1, 0);
 
     FaultLogger.clear();
     FaultLogger.unregisterAll();
     Test combo = new Test(runOnce(() -> set(x)), Set.of(goodAssertion, badAssertion));
-    runToCompletion(systemsCheck(combo));
+    runToCompletion(toCommand(combo));
     assertFaultCount(1, 1, 0);
   }
 
