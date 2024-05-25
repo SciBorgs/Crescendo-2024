@@ -124,7 +124,7 @@ public class LedStrip extends SubsystemBase implements Logged, AutoCloseable {
 
   /***
    * Returns an AddressableLEDBuffer based on a function.
-   * 
+   *
    * @param f A function that takes in an integer and spits out a color.
    * @return An AddressableLEDBuffer
    */
