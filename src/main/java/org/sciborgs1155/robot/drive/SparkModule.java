@@ -11,8 +11,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 import edu.wpi.first.math.geometry.Rotation2d;
+import java.util.Queue;
 import java.util.Set;
-import java.util.function.Supplier;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
@@ -29,8 +29,15 @@ public class SparkModule implements ModuleIO {
 
   private final Rotation2d angularOffset;
 
+  private final OdometryThread thread;
+
+  private Queue<Double> position;
+  private Queue<Double> velocity;
+  private Queue<Double> rotation;
+
   private double lastPosition;
   private double lastVelocity;
+  private Rotation2d lastRotation;
 
   /**
    * Constructs a SwerveModule for rev's MAX Swerve.
@@ -92,6 +99,11 @@ public class SparkModule implements ModuleIO {
                     false)));
     check(turnMotor, turnMotor.burnFlash());
 
+    thread = OdometryThread.getInstance();
+    position = thread.registerSignals(this::drivePosition);
+    velocity = thread.registerSignals(this::driveVelocity);
+    rotation = thread.registerSignals(() -> rotation().getRadians());
+
     register(driveMotor);
     register(turnMotor);
 
@@ -122,15 +134,30 @@ public class SparkModule implements ModuleIO {
 
   @Override
   public double driveVelocity() {
-    // create a supplier for getVelocity() that is registered by OdometryThread, called there, and
-    // then returned in some way to this method
     lastVelocity = SparkUtils.wrapCall(driveMotor, driveEncoder.getVelocity()).orElse(lastVelocity);
     return lastVelocity;
   }
 
   @Override
   public Rotation2d rotation() {
-    return Rotation2d.fromRadians(turningEncoder.getPosition()).minus(angularOffset);
+    lastRotation =
+        SparkUtils.wrapCall(
+                turnMotor,
+                Rotation2d.fromRadians(turningEncoder.getPosition()).minus(angularOffset))
+            .orElse(lastRotation);
+    return lastRotation;
+  }
+
+  @Override
+  public double[][] odometrySignals() {
+    OdometryThread.lock.readLock().lock();
+    double[][] data = {
+      position.stream().mapToDouble((Double d) -> d).toArray(),
+      velocity.stream().mapToDouble((Double d) -> d).toArray(),
+      rotation.stream().mapToDouble((Double d) -> d).toArray()
+    };
+    OdometryThread.lock.readLock().unlock();
+    return data;
   }
 
   @Override
@@ -142,14 +169,5 @@ public class SparkModule implements ModuleIO {
   public void close() {
     driveMotor.close();
     turnMotor.close();
-  }
-
-  @Override
-  public double[] odometryMeasurements() {
-    OdometryThread.lock.lock();
-    Supplier<Double> drivePosition = this::drivePosition;
-    Supplier<Double> driveVelocity = this::driveVelocity;
-    Supplier<Double> rotation = () -> rotation().getRadians();
-    return new double[0];
   }
 }

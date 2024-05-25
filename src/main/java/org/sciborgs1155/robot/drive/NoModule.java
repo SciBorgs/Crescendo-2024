@@ -26,8 +26,8 @@ public class NoModule implements ModuleIO {
   }
 
   @Override
-  public double[] odometryMeasurements() {
-    return new double[0];
+  public double[][] odometrySignals() {
+    return new double[0][0];
   }
 
   @Override

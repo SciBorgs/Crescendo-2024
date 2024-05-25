@@ -53,6 +53,7 @@ public class Constants {
   }
 
   public static final Measure<Time> PERIOD = Seconds.of(0.02); // roborio tickrate (s)
+  public static final Measure<Time> ODOMETRY_PERIOD = Seconds.of(1.0 / 250.0);
   public static final double DEADBAND = 0.15;
   public static final double MAX_RATE =
       DriveConstants.MAX_ACCEL.baseUnitMagnitude()

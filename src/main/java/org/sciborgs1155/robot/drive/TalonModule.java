@@ -95,7 +95,7 @@ public class TalonModule implements ModuleIO {
   }
 
   @Override
-  public double[] odometryMeasurements() {
+  public double[][] odometrySignals() {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'odometryMeasurements'");
   }

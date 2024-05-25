@@ -1,19 +1,22 @@
 package org.sciborgs1155.robot.drive;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import edu.wpi.first.wpilibj.Notifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.DoubleSupplier;
+import org.sciborgs1155.robot.Constants;
 
 class OdometryThread {
   private List<DoubleSupplier> signals = new ArrayList<>();
   private List<Queue<Double>> queues = new ArrayList<>();
 
-  public static final Lock lock = new ReentrantLock();
+  public static final ReadWriteLock lock = new ReentrantReadWriteLock();
 
   private final Notifier notifier;
 
@@ -32,25 +35,25 @@ class OdometryThread {
   }
 
   public void start() {
-    notifier.startPeriodic(1.0 / 250.0);
+    notifier.startPeriodic(Constants.ODOMETRY_PERIOD.in(Seconds));
   }
 
   public Queue<Double> registerSignals(DoubleSupplier signal) {
     Queue<Double> entry = new ArrayBlockingQueue<>(10);
-    lock.lock();
+    lock.writeLock().lock();
 
     signals.add(signal);
     queues.add(entry);
 
-    lock.unlock();
+    lock.writeLock().unlock();
     return entry;
   }
 
   private void periodic() {
-    lock.lock();
+    lock.writeLock().lock();
     for (int i = 0; i < signals.size(); i++) {
       queues.get(i).offer(signals.get(i).getAsDouble());
     }
-    lock.unlock();
+    lock.writeLock().unlock();
   }
 }
