@@ -12,24 +12,23 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.DoubleSupplier;
 import org.sciborgs1155.robot.Constants;
 
-class OdometryThread {
+class SparkOdometryThread {
   private List<DoubleSupplier> signals = new ArrayList<>();
   private List<Queue<Double>> queues = new ArrayList<>();
-
   public static final ReadWriteLock lock = new ReentrantReadWriteLock();
 
   private final Notifier notifier;
 
-  private static OdometryThread instance = null;
+  private static SparkOdometryThread instance = null;
 
-  public static OdometryThread getInstance() {
+  public static SparkOdometryThread getInstance() {
     if (instance == null) {
-      instance = new OdometryThread();
+      instance = new SparkOdometryThread();
     }
     return instance;
   }
 
-  private OdometryThread() {
+  private SparkOdometryThread() {
     notifier = new Notifier(this::periodic);
     notifier.setName("odometry-thread");
   }
@@ -38,7 +37,7 @@ class OdometryThread {
     notifier.startPeriodic(Constants.ODOMETRY_PERIOD.in(Seconds));
   }
 
-  public Queue<Double> registerSignals(DoubleSupplier signal) {
+  public Queue<Double> registerSignal(DoubleSupplier signal) {
     Queue<Double> entry = new ArrayBlockingQueue<>(10);
     lock.writeLock().lock();
 

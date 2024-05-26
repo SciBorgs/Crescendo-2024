@@ -61,7 +61,7 @@ public class SimModule implements ModuleIO {
   public void close() {}
 
   @Override
-  public double[][] odometrySignals() {
+  public double[][] odometryData() {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'odometryMeasurements'");
   }

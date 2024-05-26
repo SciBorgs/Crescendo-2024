@@ -40,7 +40,7 @@ public interface ModuleIO extends AutoCloseable, Logged {
    */
   Rotation2d rotation();
 
-  double[][] odometrySignals();
+  double[][] odometryData();
 
   /** Resets all encoders. */
   void resetEncoders();

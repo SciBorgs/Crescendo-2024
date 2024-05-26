@@ -85,6 +85,16 @@ public class SwerveModule implements Logged, AutoCloseable {
     return new SwerveModulePosition(hardware.drivePosition(), hardware.rotation());
   }
 
+  public SwerveModulePosition[] odometryData() {
+    SwerveModulePosition[] positions = new SwerveModulePosition[10];
+    // turn rotation into rotation2ds, and create swervemodule
+    var data = hardware.odometryData();
+    for (int i = 0; i < data.length; i++) {
+      positions[i] = new SwerveModulePosition(data[i][0], Rotation2d.fromRadians(data[i][2]));
+    }
+    return positions;
+  }
+
   /**
    * Updates controllers based on an optimized desired state and actuates the module accordingly.
    *

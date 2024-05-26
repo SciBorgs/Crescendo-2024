@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.geometry.Rotation2d;
+import java.util.Queue;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
@@ -23,9 +24,19 @@ public class TalonModule implements ModuleIO {
   private final TalonFX driveMotor;
   private final CANSparkMax turnMotor;
 
+  private final Queue<Double> position;
+  private final Queue<Double> velocity;
+  private final Queue<Double> rotation;
+
   private final SparkAbsoluteEncoder turnEncoder;
 
-  public TalonModule(int drivePort, int turnPort) {
+  private final Rotation2d angularOffset;
+  private Rotation2d lastRotation;
+
+  private final SparkOdometryThread sparkThread;
+  private final TalonOdometryThread talonThread;
+
+  public TalonModule(int drivePort, int turnPort, Rotation2d angularOffset) {
     driveMotor = new TalonFX(drivePort);
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
 
@@ -55,7 +66,15 @@ public class TalonModule implements ModuleIO {
     TalonUtils.addMotor(driveMotor);
     resetEncoders();
 
+    sparkThread = SparkOdometryThread.getInstance();
+    rotation = sparkThread.registerSignal(() -> rotation().getRadians());
+
+    talonThread = TalonOdometryThread.getInstance();
+    position = talonThread.registerSignal(driveMotor.getPosition());
+    velocity = talonThread.registerSignal(driveMotor.getVelocity());
+
     turnMotor.burnFlash();
+    this.angularOffset = angularOffset;
   }
 
   @Override
@@ -80,7 +99,23 @@ public class TalonModule implements ModuleIO {
 
   @Override
   public Rotation2d rotation() {
-    return Rotation2d.fromRadians(turnEncoder.getPosition());
+    lastRotation =
+        SparkUtils.wrapCall(
+                turnMotor, Rotation2d.fromRadians(turnEncoder.getPosition()).minus(angularOffset))
+            .orElse(lastRotation);
+    return lastRotation;
+  }
+
+  @Override
+  public double[][] odometryData() {
+    SparkOdometryThread.lock.readLock().lock();
+    double[][] data = {
+      position.stream().mapToDouble((Double d) -> d).toArray(),
+      velocity.stream().mapToDouble((Double d) -> d).toArray(),
+      rotation.stream().mapToDouble((Double d) -> d).toArray()
+    };
+    SparkOdometryThread.lock.readLock().unlock();
+    return data;
   }
 
   @Override
@@ -92,11 +127,5 @@ public class TalonModule implements ModuleIO {
   public void close() {
     turnMotor.close();
     driveMotor.close();
-  }
-
-  @Override
-  public double[][] odometrySignals() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'odometryMeasurements'");
   }
 }

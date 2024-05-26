@@ -29,7 +29,7 @@ public class SparkModule implements ModuleIO {
 
   private final Rotation2d angularOffset;
 
-  private final OdometryThread thread;
+  private final SparkOdometryThread thread;
 
   private Queue<Double> position;
   private Queue<Double> velocity;
@@ -99,10 +99,10 @@ public class SparkModule implements ModuleIO {
                     false)));
     check(turnMotor, turnMotor.burnFlash());
 
-    thread = OdometryThread.getInstance();
-    position = thread.registerSignals(this::drivePosition);
-    velocity = thread.registerSignals(this::driveVelocity);
-    rotation = thread.registerSignals(() -> rotation().getRadians());
+    thread = SparkOdometryThread.getInstance();
+    position = thread.registerSignal(this::drivePosition);
+    velocity = thread.registerSignal(this::driveVelocity);
+    rotation = thread.registerSignal(() -> rotation().getRadians());
 
     register(driveMotor);
     register(turnMotor);
@@ -149,14 +149,14 @@ public class SparkModule implements ModuleIO {
   }
 
   @Override
-  public double[][] odometrySignals() {
-    OdometryThread.lock.readLock().lock();
+  public double[][] odometryData() {
+    SparkOdometryThread.lock.readLock().lock();
     double[][] data = {
       position.stream().mapToDouble((Double d) -> d).toArray(),
       velocity.stream().mapToDouble((Double d) -> d).toArray(),
       rotation.stream().mapToDouble((Double d) -> d).toArray()
     };
-    OdometryThread.lock.readLock().unlock();
+    SparkOdometryThread.lock.readLock().unlock();
     return data;
   }
 
