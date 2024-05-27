@@ -38,6 +38,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Annotations.IgnoreLogged;
@@ -69,6 +71,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   // Odometry and pose estimation
   private final SwerveDrivePoseEstimator odometry;
+  public static final ReadWriteLock lock = new ReentrantReadWriteLock();
 
   @Log.NT private final Field2d field2d = new Field2d();
   private final FieldObject2d[] modules2d;
@@ -386,15 +389,24 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   @Override
   public void periodic() {
-    double[] timestamps = modules.get(0).timestamps();
-    // get the positions of all modules at a given timestamp
-    for (int i = 0; i < timestamps.length; i++) {
-      SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-      for (int m = 0; m < modules.size(); m++) {
-        modulePositions[m] = modules.get(m).odometryData()[i];
+    if (Robot.isReal()) {
+      lock.readLock().lock();
+      try {
+        double[] timestamps = modules.get(0).timestamps();
+        // get the positions of all modules at a given timestamp
+        for (int i = 0; i < timestamps.length; i++) {
+          SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+          for (int m = 0; m < modules.size(); m++) {
+            modulePositions[m] = modules.get(m).odometryData()[i];
+          }
+          odometry.updateWithTime(
+              timestamps[i], Robot.isReal() ? gyro.getRotation2d() : simRotation, modulePositions);
+        }
+      } finally {
+        lock.readLock().unlock();
       }
-      odometry.updateWithTime(
-          timestamps[i], Robot.isReal() ? gyro.getRotation2d() : simRotation, modulePositions);
+    } else {
+      odometry.update(simRotation, getModulePositions());
     }
 
     field2d.setRobotPose(pose());

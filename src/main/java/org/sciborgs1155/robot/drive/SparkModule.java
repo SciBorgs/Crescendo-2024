@@ -150,14 +150,17 @@ public class SparkModule implements ModuleIO {
 
   @Override
   public double[][] odometryData() {
-    SparkOdometryThread.lock.readLock().lock();
-    double[][] data = {
-      position.stream().mapToDouble((Double d) -> d).toArray(),
-      rotation.stream().mapToDouble((Double d) -> d).toArray(),
-      timestamps.stream().mapToDouble((Double d) -> d).toArray()
-    };
-    SparkOdometryThread.lock.readLock().unlock();
-    return data;
+    Drive.lock.readLock().lock();
+    try {
+      double[][] data = {
+        position.stream().mapToDouble((Double d) -> d).toArray(),
+        rotation.stream().mapToDouble((Double d) -> d).toArray(),
+        timestamps.stream().mapToDouble((Double d) -> d).toArray()
+      };
+      return data;
+    } finally {
+      Drive.lock.readLock().unlock();
+    }
   }
 
   @Override

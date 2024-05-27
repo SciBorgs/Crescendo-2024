@@ -8,13 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.sciborgs1155.robot.Constants;
 
 class TalonOdometryThread extends Thread {
-  public static final ReadWriteLock lock = new ReentrantReadWriteLock();
-
   private BaseStatusSignal[] signals = new BaseStatusSignal[0];
   private final List<Queue<Double>> queues = new ArrayList<>();
   private final List<Queue<Double>> timestampQueues = new ArrayList<>();
@@ -37,7 +33,7 @@ class TalonOdometryThread extends Thread {
 
   public Queue<Double> registerSignal(StatusSignal<Double> signal) {
     Queue<Double> queue = new ArrayBlockingQueue<>(20);
-    lock.writeLock().lock();
+    Drive.lock.writeLock().lock();
     try {
       BaseStatusSignal[] newSignals = new BaseStatusSignal[signals.length + 1];
       System.arraycopy(signals, 0, newSignals, 0, signals.length);
@@ -45,14 +41,19 @@ class TalonOdometryThread extends Thread {
       signals = newSignals;
       queues.add(queue);
     } finally {
-      lock.writeLock().unlock();
+      Drive.lock.writeLock().unlock();
     }
     return queue;
   }
 
   public Queue<Double> makeTimestampQueue() {
     Queue<Double> queue = new ArrayBlockingQueue<>(20);
-    timestampQueues.add(queue);
+    Drive.lock.writeLock().lock();
+    try {
+      timestampQueues.add(queue);
+    } finally {
+      Drive.lock.writeLock().lock();
+    }
     return queue;
   }
 
@@ -60,25 +61,28 @@ class TalonOdometryThread extends Thread {
   public void run() {
     while (true) {
       BaseStatusSignal.waitForAll(2.0 / Constants.ODOMETRY_PERIOD.in(Seconds), signals);
-      double timestamp = signals[0].getTimestamp().getTime(); // should all be measured together
 
-      lock.writeLock().lock();
+      Drive.lock.writeLock().lock();
 
-      double totalLatency = 0.0;
-      for (BaseStatusSignal signal : signals) {
-        totalLatency += signal.getTimestamp().getLatency();
-      }
-      if (signals.length > 0) {
-        timestamp -= totalLatency / signals.length;
-      }
-      for (int i = 0; i < signals.length; i++) {
-        queues.get(i).offer(signals[i].getValueAsDouble());
-      }
-      for (int i = 0; i < timestampQueues.size(); i++) {
-        timestampQueues.get(i).offer(timestamp);
-      }
+      try {
+        double timestamp = signals[0].getTimestamp().getTime(); // should all be measured together
 
-      lock.writeLock().unlock();
+        double totalLatency = 0.0;
+        for (BaseStatusSignal signal : signals) {
+          totalLatency += signal.getTimestamp().getLatency();
+        }
+        if (signals.length > 0) {
+          timestamp -= totalLatency / signals.length;
+        }
+        for (int i = 0; i < signals.length; i++) {
+          queues.get(i).offer(signals[i].getValueAsDouble());
+        }
+        for (int i = 0; i < timestampQueues.size(); i++) {
+          timestampQueues.get(i).offer(timestamp);
+        }
+      } finally {
+        Drive.lock.writeLock().unlock();
+      }
     }
   }
 }

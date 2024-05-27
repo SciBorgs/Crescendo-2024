@@ -88,10 +88,12 @@ public class SwerveModule implements Logged, AutoCloseable {
   /** Returns the list of positions of the module for the last tick, from a faster thread. */
   public SwerveModulePosition[] odometryData() {
     SwerveModulePosition[] positions = new SwerveModulePosition[10];
+    Drive.lock.readLock().lock();
     var data = hardware.odometryData();
     for (int i = 0; i < data.length; i++) {
       positions[i] = new SwerveModulePosition(data[0][i], Rotation2d.fromRadians(data[1][i]));
     }
+    Drive.lock.readLock().unlock();
     return positions;
   }
 
