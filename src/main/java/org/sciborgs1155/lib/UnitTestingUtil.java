@@ -58,10 +58,11 @@ public class UnitTestingUtil {
   }
 
   /**
-   * Runs CommandScheduler and updates timer 200 times to fast forward subsystems and run commands.
+   * Runs CommandScheduler and updates timer to fast forward subsystems by 4 seconds and run
+   * commands.
    */
   public static void fastForward() {
-    fastForward(200);
+    fastForward(Seconds.of(4));
   }
 
   /**

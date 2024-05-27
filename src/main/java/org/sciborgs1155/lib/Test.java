@@ -15,9 +15,13 @@ public record Test(Command testCommand, Set<Assertion> assertions) {
     return new Test(command, Set.of());
   }
 
+  private static Command toCommand(Test test, boolean unitTest) {
+    return test.testCommand.finallyDo(() -> test.assertions.forEach(a -> a.apply(unitTest)));
+  }
+
   /** Creates a command from a Test */
   public static Command toCommand(Test test) {
-    return test.testCommand.finallyDo(() -> test.assertions.forEach(a -> a.apply(false)));
+    return toCommand(test, false);
   }
 
   /** Creates a sequential command from Tests. */
@@ -29,16 +33,12 @@ public record Test(Command testCommand, Set<Assertion> assertions) {
     return c;
   }
 
-  private static Command toUnitTestCommand(Test test) {
-    return test.testCommand.finallyDo(() -> test.assertions.forEach(a -> a.apply(true)));
-  }
-
   /**
    * Runs a unit test based on a Test.
    *
    * @param test
    */
   public static void runUnitTest(Test test) {
-    runToCompletion(toUnitTestCommand(test));
+    runToCompletion(toCommand(test, true));
   }
 }

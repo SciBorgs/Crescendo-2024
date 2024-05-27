@@ -10,36 +10,33 @@ import org.sciborgs1155.lib.FaultLogger.FaultType;
 public sealed interface Assertion {
   public void apply(boolean unitTest);
 
-  public static class ReportAssertions {
-    /**
-     * Asserts that a condition is true, and reports to FaultLogger
-     *
-     * @param condition
-     * @param faultName
-     * @param description
-     */
-    private static void assertReport(boolean condition, String faultName, String description) {
-      FaultLogger.report(
-          faultName,
-          (condition ? "success! " : "") + description,
-          condition ? FaultType.INFO : FaultType.WARNING);
-    }
+  /**
+   * Asserts that a condition is true, and reports to FaultLogger
+   *
+   * @param condition
+   * @param faultName
+   * @param description
+   */
+  private static void reportTrue(boolean condition, String faultName, String description) {
+    FaultLogger.report(
+        faultName,
+        (condition ? "success! " : "") + description,
+        condition ? FaultType.INFO : FaultType.WARNING);
+  }
 
-    /**
-     * Asserts that two values are equal (with some tolerance), and reports to FaultLogger
-     *
-     * @param faultName
-     * @param expected
-     * @param actual
-     * @param delta tolerance
-     */
-    public static void assertEqualsReport(
-        String faultName, double expected, double actual, double delta) {
-      assertReport(
-          Math.abs(expected - actual) <= delta,
-          faultName,
-          "expected: " + expected + "; actual: " + actual);
-    }
+  /**
+   * Asserts that two values are equal (with some tolerance), and reports to FaultLogger
+   *
+   * @param faultName
+   * @param expected
+   * @param actual
+   * @param delta tolerance
+   */
+  private static void reportEquals(String faultName, double expected, double actual, double delta) {
+    reportTrue(
+        Math.abs(expected - actual) <= delta,
+        faultName,
+        "expected: " + expected + "; actual: " + actual);
   }
 
   public static record TruthAssertion(
@@ -49,7 +46,7 @@ public sealed interface Assertion {
       if (unitTest) {
         assertTrue(condition, faultName + ": " + description);
       } else {
-        ReportAssertions.assertReport(condition.getAsBoolean(), faultName, description);
+        reportTrue(condition.getAsBoolean(), faultName, description);
       }
     }
   }
@@ -62,8 +59,7 @@ public sealed interface Assertion {
       if (unitTest) {
         assertEquals(expected.getAsDouble(), actual.getAsDouble(), delta, faultName);
       } else {
-        ReportAssertions.assertEqualsReport(
-            faultName, expected.getAsDouble(), actual.getAsDouble(), delta);
+        reportEquals(faultName, expected.getAsDouble(), actual.getAsDouble(), delta);
       }
     }
   }
