@@ -71,7 +71,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   // Odometry and pose estimation
   private final SwerveDrivePoseEstimator odometry;
-  private SwerveModulePosition[] lastModulePositions = getModulePositions();
+  private SwerveModulePosition[] lastModulePositions;
   public static final ReadWriteLock lock = new ReentrantReadWriteLock();
 
   @Log.NT private final Field2d field2d = new Field2d();
@@ -124,6 +124,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
     modules = List.of(this.frontLeft, this.frontRight, this.rearLeft, this.rearRight);
     modules2d = new FieldObject2d[modules.size()];
+    lastModulePositions = getModulePositions();
 
     translationCharacterization =
         new SysIdRoutine(
@@ -170,6 +171,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     translationController.setTolerance(Translation.TOLERANCE.in(Meters));
     rotationController.enableContinuousInput(0, 2 * Math.PI);
     rotationController.setTolerance(Rotation.TOLERANCE.in(Radians));
+
+    SparkOdometryThread.getInstance().start();
+    TalonOdometryThread.getInstance().start();
 
     SmartDashboard.putData(
         "translation quasistatic forward",
