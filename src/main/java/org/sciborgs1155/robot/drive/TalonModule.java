@@ -24,10 +24,6 @@ public class TalonModule implements ModuleIO {
   private final TalonFX driveMotor;
   private final CANSparkMax turnMotor;
 
-  private final Queue<Double> position;
-  private final Queue<Double> velocity;
-  private final Queue<Double> rotation;
-
   private final SparkAbsoluteEncoder turnEncoder;
 
   private final Rotation2d angularOffset;
@@ -35,6 +31,10 @@ public class TalonModule implements ModuleIO {
 
   private final SparkOdometryThread sparkThread;
   private final TalonOdometryThread talonThread;
+
+  private final Queue<Double> position;
+  private final Queue<Double> rotation;
+  private final Queue<Double> timestamps;
 
   public TalonModule(int drivePort, int turnPort, Rotation2d angularOffset) {
     driveMotor = new TalonFX(drivePort);
@@ -71,7 +71,7 @@ public class TalonModule implements ModuleIO {
 
     talonThread = TalonOdometryThread.getInstance();
     position = talonThread.registerSignal(driveMotor.getPosition());
-    velocity = talonThread.registerSignal(driveMotor.getVelocity());
+    timestamps = talonThread.makeTimestampQueue();
 
     turnMotor.burnFlash();
     this.angularOffset = angularOffset;
@@ -111,8 +111,8 @@ public class TalonModule implements ModuleIO {
     SparkOdometryThread.lock.readLock().lock();
     double[][] data = {
       position.stream().mapToDouble((Double d) -> d).toArray(),
-      velocity.stream().mapToDouble((Double d) -> d).toArray(),
-      rotation.stream().mapToDouble((Double d) -> d).toArray()
+      rotation.stream().mapToDouble((Double d) -> d).toArray(),
+      timestamps.stream().mapToDouble((Double d) -> d).toArray()
     };
     SparkOdometryThread.lock.readLock().unlock();
     return data;

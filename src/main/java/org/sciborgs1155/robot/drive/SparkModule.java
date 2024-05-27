@@ -29,15 +29,15 @@ public class SparkModule implements ModuleIO {
 
   private final Rotation2d angularOffset;
 
-  private final SparkOdometryThread thread;
-
-  private Queue<Double> position;
-  private Queue<Double> velocity;
-  private Queue<Double> rotation;
-
   private double lastPosition;
   private double lastVelocity;
   private Rotation2d lastRotation;
+
+  private final SparkOdometryThread thread;
+
+  private final Queue<Double> position;
+  private final Queue<Double> rotation;
+  private final Queue<Double> timestamps;
 
   /**
    * Constructs a SwerveModule for rev's MAX Swerve.
@@ -101,8 +101,8 @@ public class SparkModule implements ModuleIO {
 
     thread = SparkOdometryThread.getInstance();
     position = thread.registerSignal(this::drivePosition);
-    velocity = thread.registerSignal(this::driveVelocity);
     rotation = thread.registerSignal(() -> rotation().getRadians());
+    timestamps = thread.makeTimestampQueue();
 
     register(driveMotor);
     register(turnMotor);
@@ -153,8 +153,8 @@ public class SparkModule implements ModuleIO {
     SparkOdometryThread.lock.readLock().lock();
     double[][] data = {
       position.stream().mapToDouble((Double d) -> d).toArray(),
-      velocity.stream().mapToDouble((Double d) -> d).toArray(),
-      rotation.stream().mapToDouble((Double d) -> d).toArray()
+      rotation.stream().mapToDouble((Double d) -> d).toArray(),
+      timestamps.stream().mapToDouble((Double d) -> d).toArray()
     };
     SparkOdometryThread.lock.readLock().unlock();
     return data;

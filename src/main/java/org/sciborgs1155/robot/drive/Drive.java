@@ -386,7 +386,16 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   @Override
   public void periodic() {
-    odometry.update(Robot.isReal() ? gyro.getRotation2d() : simRotation, getModulePositions());
+    double[] timestamps = modules.get(0).timestamps();
+    // get the positions of all modules at a given timestamp
+    for (int i = 0; i < timestamps.length; i++) {
+      SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+      for (int m = 0; m < modules.size(); m++) {
+        modulePositions[m] = modules.get(m).odometryData()[i];
+      }
+      odometry.updateWithTime(
+          timestamps[i], Robot.isReal() ? gyro.getRotation2d() : simRotation, modulePositions);
+    }
 
     field2d.setRobotPose(pose());
 
