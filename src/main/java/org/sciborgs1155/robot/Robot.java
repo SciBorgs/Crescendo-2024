@@ -119,7 +119,7 @@ public class Robot extends CommandRobot implements Logged {
     // SmartDashboard.putData("PDH", new PowerDistribution());
     addPeriodic(() -> log("current", FakePDH.update()), PERIOD.in(Seconds));
 
-    // Configure pose estimation updates every tick
+    // Configure pose estimation updates from vision every tick
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));
 
     // Fuck REV Robotics.!!!!

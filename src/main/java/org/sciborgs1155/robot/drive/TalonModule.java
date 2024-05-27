@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.drive;
 
 import static edu.wpi.first.units.Units.*;
+import static org.sciborgs1155.robot.Constants.ODOMETRY_PERIOD;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -11,6 +12,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.geometry.Rotation2d;
+import java.util.Queue;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
@@ -25,7 +27,17 @@ public class TalonModule implements ModuleIO {
 
   private final SparkAbsoluteEncoder turnEncoder;
 
-  public TalonModule(int drivePort, int turnPort) {
+  private final Rotation2d angularOffset;
+  private Rotation2d lastRotation;
+
+  private final SparkOdometryThread sparkThread;
+  private final TalonOdometryThread talonThread;
+
+  private final Queue<Double> position;
+  private final Queue<Double> rotation;
+  private final Queue<Double> timestamps;
+
+  public TalonModule(int drivePort, int turnPort, Rotation2d angularOffset) {
     driveMotor = new TalonFX(drivePort);
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
 
@@ -33,7 +45,7 @@ public class TalonModule implements ModuleIO {
     turnMotor.setIdleMode(IdleMode.kBrake);
     turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps));
 
-    driveMotor.getPosition().setUpdateFrequency(100);
+    driveMotor.getPosition().setUpdateFrequency(1.0 / ODOMETRY_PERIOD.in(Seconds));
     driveMotor.getVelocity().setUpdateFrequency(100);
 
     turnEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);
@@ -55,7 +67,16 @@ public class TalonModule implements ModuleIO {
     TalonUtils.addMotor(driveMotor);
     resetEncoders();
 
+    sparkThread = SparkOdometryThread.getInstance();
+    rotation = sparkThread.registerSignal(() -> rotation().getRadians());
+
+    talonThread = TalonOdometryThread.getInstance();
+    position = talonThread.registerSignal(driveMotor.getPosition());
+
+    timestamps = talonThread.makeTimestampQueue();
+
     turnMotor.burnFlash();
+    this.angularOffset = angularOffset;
   }
 
   @Override
@@ -80,7 +101,26 @@ public class TalonModule implements ModuleIO {
 
   @Override
   public Rotation2d rotation() {
-    return Rotation2d.fromRadians(turnEncoder.getPosition());
+    lastRotation =
+        SparkUtils.wrapCall(
+                turnMotor, Rotation2d.fromRadians(turnEncoder.getPosition()).minus(angularOffset))
+            .orElse(lastRotation);
+    return lastRotation;
+  }
+
+  @Override
+  public double[][] odometryData() {
+    Drive.lock.readLock().lock();
+    try {
+      double[][] data = {
+        position.stream().mapToDouble((Double d) -> d).toArray(),
+        rotation.stream().mapToDouble((Double d) -> d).toArray(),
+        timestamps.stream().mapToDouble((Double d) -> d).toArray()
+      };
+      return data;
+    } finally {
+      Drive.lock.readLock().unlock();
+    }
   }
 
   @Override

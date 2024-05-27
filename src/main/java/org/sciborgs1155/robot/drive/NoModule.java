@@ -26,6 +26,11 @@ public class NoModule implements ModuleIO {
   }
 
   @Override
+  public double[][] odometryData() {
+    return new double[0][0];
+  }
+
+  @Override
   public void resetEncoders() {}
 
   @Override

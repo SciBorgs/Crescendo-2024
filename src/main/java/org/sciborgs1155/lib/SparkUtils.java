@@ -32,6 +32,7 @@ public class SparkUtils {
   public static final int FRAME_STRATEGY_MEDIUM = 100;
   public static final int FRAME_STRATEGY_FAST = 20;
   public static final int FRAME_STRATEGY_VERY_FAST = 10;
+  public static final int FRAME_STRATEGY_VERY_VERY_FAST = 4;
 
   public static final int THROUGHBORE_CPR = 8192;
 
@@ -112,7 +113,7 @@ public class SparkUtils {
     }
 
     if (sensors.contains(Sensor.INTEGRATED) && data.contains(Data.POSITION)) {
-      status2 = FRAME_STRATEGY_FAST;
+      status2 = FRAME_STRATEGY_VERY_VERY_FAST; // TODO change after onboarding
       supplier2 = Optional.of(() -> spark.getEncoder().getPosition());
     }
 
@@ -131,7 +132,7 @@ public class SparkUtils {
 
     if (sensors.contains(Sensor.ABSOLUTE)) {
       if (data.contains(Data.POSITION)) {
-        status5 = FRAME_STRATEGY_FAST;
+        status5 = FRAME_STRATEGY_VERY_VERY_FAST; // TODO this too
         supplier5 = Optional.of(() -> spark.getAbsoluteEncoder().getPosition());
       }
       if (data.contains(Data.VELOCITY)) {

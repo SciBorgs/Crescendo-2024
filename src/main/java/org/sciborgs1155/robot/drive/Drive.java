@@ -38,6 +38,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import monologue.Annotations.IgnoreLogged;
@@ -69,6 +71,8 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   // Odometry and pose estimation
   private final SwerveDrivePoseEstimator odometry;
+  private SwerveModulePosition[] lastModulePositions;
+  public static final ReadWriteLock lock = new ReentrantReadWriteLock();
 
   @Log.NT private final Field2d field2d = new Field2d();
   private final FieldObject2d[] modules2d;
@@ -120,6 +124,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
     modules = List.of(this.frontLeft, this.frontRight, this.rearLeft, this.rearRight);
     modules2d = new FieldObject2d[modules.size()];
+    lastModulePositions = getModulePositions();
 
     translationCharacterization =
         new SysIdRoutine(
@@ -153,7 +158,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         new SwerveDrivePoseEstimator(
             kinematics,
             gyro.getRotation2d(),
-            getModulePositions(),
+            lastModulePositions,
             new Pose2d(new Translation2d(), Rotation2d.fromDegrees(180)));
 
     for (int i = 0; i < modules.size(); i++) {
@@ -166,6 +171,9 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     translationController.setTolerance(Translation.TOLERANCE.in(Meters));
     rotationController.enableContinuousInput(0, 2 * Math.PI);
     rotationController.setTolerance(Rotation.TOLERANCE.in(Radians));
+
+    SparkOdometryThread.getInstance().start();
+    TalonOdometryThread.getInstance().start();
 
     SmartDashboard.putData(
         "translation quasistatic forward",
@@ -204,7 +212,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
-    odometry.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
+    odometry.resetPosition(gyro.getRotation2d(), lastModulePositions, pose);
   }
 
   public Rotation2d heading() {
@@ -386,7 +394,27 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   @Override
   public void periodic() {
-    odometry.update(Robot.isReal() ? gyro.getRotation2d() : simRotation, getModulePositions());
+    if (Robot.isReal()) {
+      lock.readLock().lock();
+      try {
+        double[] timestamps = modules.get(0).timestamps();
+        // get the positions of all modules at a given timestamp
+        for (int i = 0; i < timestamps.length; i++) {
+          SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+          for (int m = 0; m < modules.size(); m++) {
+            modulePositions[m] = modules.get(m).odometryData()[i];
+          }
+          odometry.updateWithTime(
+              timestamps[i], Robot.isReal() ? gyro.getRotation2d() : simRotation, modulePositions);
+          lastModulePositions = modulePositions;
+        }
+      } finally {
+        lock.readLock().unlock();
+      }
+    } else {
+      odometry.update(simRotation, getModulePositions());
+      lastModulePositions = getModulePositions();
+    }
 
     field2d.setRobotPose(pose());
 

@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 import edu.wpi.first.math.geometry.Rotation2d;
+import java.util.Queue;
 import java.util.Set;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
@@ -30,6 +31,13 @@ public class SparkModule implements ModuleIO {
 
   private double lastPosition;
   private double lastVelocity;
+  private Rotation2d lastRotation;
+
+  private final SparkOdometryThread thread;
+
+  private final Queue<Double> position;
+  private final Queue<Double> rotation;
+  private final Queue<Double> timestamps;
 
   /**
    * Constructs a SwerveModule for rev's MAX Swerve.
@@ -91,6 +99,11 @@ public class SparkModule implements ModuleIO {
                     false)));
     check(turnMotor, turnMotor.burnFlash());
 
+    thread = SparkOdometryThread.getInstance();
+    position = thread.registerSignal(this::drivePosition);
+    rotation = thread.registerSignal(() -> rotation().getRadians());
+    timestamps = thread.makeTimestampQueue();
+
     register(driveMotor);
     register(turnMotor);
 
@@ -127,7 +140,27 @@ public class SparkModule implements ModuleIO {
 
   @Override
   public Rotation2d rotation() {
-    return Rotation2d.fromRadians(turningEncoder.getPosition()).minus(angularOffset);
+    lastRotation =
+        SparkUtils.wrapCall(
+                turnMotor,
+                Rotation2d.fromRadians(turningEncoder.getPosition()).minus(angularOffset))
+            .orElse(lastRotation);
+    return lastRotation;
+  }
+
+  @Override
+  public double[][] odometryData() {
+    Drive.lock.readLock().lock();
+    try {
+      double[][] data = {
+        position.stream().mapToDouble((Double d) -> d).toArray(),
+        rotation.stream().mapToDouble((Double d) -> d).toArray(),
+        timestamps.stream().mapToDouble((Double d) -> d).toArray()
+      };
+      return data;
+    } finally {
+      Drive.lock.readLock().unlock();
+    }
   }
 
   @Override
