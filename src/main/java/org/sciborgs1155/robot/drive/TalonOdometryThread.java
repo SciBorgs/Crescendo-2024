@@ -60,7 +60,7 @@ class TalonOdometryThread extends Thread {
   @Override
   public void run() {
     while (true) {
-      BaseStatusSignal.waitForAll(2.0 / Constants.ODOMETRY_PERIOD.in(Seconds), signals);
+      BaseStatusSignal.waitForAll(2.0 * Constants.ODOMETRY_PERIOD.in(Seconds), signals);
 
       Drive.lock.writeLock().lock();
 

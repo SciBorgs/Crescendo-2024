@@ -1,6 +1,7 @@
 package org.sciborgs1155.robot.drive;
 
 import static edu.wpi.first.units.Units.*;
+import static org.sciborgs1155.robot.Constants.ODOMETRY_PERIOD;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -44,7 +45,7 @@ public class TalonModule implements ModuleIO {
     turnMotor.setIdleMode(IdleMode.kBrake);
     turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps));
 
-    driveMotor.getPosition().setUpdateFrequency(100);
+    driveMotor.getPosition().setUpdateFrequency(1.0 / ODOMETRY_PERIOD.in(Seconds));
     driveMotor.getVelocity().setUpdateFrequency(100);
 
     turnEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);
@@ -71,6 +72,7 @@ public class TalonModule implements ModuleIO {
 
     talonThread = TalonOdometryThread.getInstance();
     position = talonThread.registerSignal(driveMotor.getPosition());
+
     timestamps = talonThread.makeTimestampQueue();
 
     turnMotor.burnFlash();

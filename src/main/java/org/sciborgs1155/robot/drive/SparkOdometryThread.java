@@ -34,7 +34,7 @@ class SparkOdometryThread {
 
   public void start() {
     if (timestampQueues.size() > 0) {
-      notifier.startPeriodic(1.0 / Constants.ODOMETRY_PERIOD.in(Seconds));
+      notifier.startPeriodic(Constants.ODOMETRY_PERIOD.in(Seconds));
     }
   } // <3 6328
 

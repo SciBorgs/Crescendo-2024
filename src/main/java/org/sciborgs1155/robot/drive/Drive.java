@@ -71,6 +71,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   // Odometry and pose estimation
   private final SwerveDrivePoseEstimator odometry;
+  private SwerveModulePosition[] lastModulePositions = getModulePositions();
   public static final ReadWriteLock lock = new ReentrantReadWriteLock();
 
   @Log.NT private final Field2d field2d = new Field2d();
@@ -156,7 +157,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         new SwerveDrivePoseEstimator(
             kinematics,
             gyro.getRotation2d(),
-            getModulePositions(),
+            lastModulePositions,
             new Pose2d(new Translation2d(), Rotation2d.fromDegrees(180)));
 
     for (int i = 0; i < modules.size(); i++) {
@@ -207,7 +208,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
-    odometry.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
+    odometry.resetPosition(gyro.getRotation2d(), lastModulePositions, pose);
   }
 
   public Rotation2d heading() {
@@ -401,12 +402,14 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
           }
           odometry.updateWithTime(
               timestamps[i], Robot.isReal() ? gyro.getRotation2d() : simRotation, modulePositions);
+          lastModulePositions = modulePositions;
         }
       } finally {
         lock.readLock().unlock();
       }
     } else {
       odometry.update(simRotation, getModulePositions());
+      lastModulePositions = getModulePositions();
     }
 
     field2d.setRobotPose(pose());
