@@ -25,7 +25,7 @@ import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 import org.sciborgs1155.robot.drive.DriveConstants.Translation;
-import org.sciborgs1155.robot.drive.SwerveModule.ControlMode;
+import org.sciborgs1155.robot.drive.ModuleIO.ControlMode;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.pivot.Pivot;

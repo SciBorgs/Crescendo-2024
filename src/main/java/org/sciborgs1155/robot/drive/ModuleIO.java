@@ -14,6 +14,13 @@ public interface ModuleIO extends Logged, AutoCloseable {
   }
 
   /**
+   * Returns the name of the swerve module (e.g. "FR" indicating the front right swerve module.)
+   *
+   * @return The name of the swerve module.
+   */
+  String getName();
+
+  /**
    * Sets the drive voltage of the module.
    *
    * @param voltage The voltage to inputted into the drive motor.
@@ -67,21 +74,21 @@ public interface ModuleIO extends Logged, AutoCloseable {
 
   /**
    * Returns the desired position of the module.
-   * 
+   *
    * @return The desired position of the module.
    */
   SwerveModuleState desiredState();
-  
+
   /**
-   * Sets the setpoint value for the onboard drive PID.
-   * 
+   * Sets the setpoint value for the onboard drive motor's PID.
+   *
    * @param velocity The velocity setpoint.
    */
   void setDriveSetpoint(double velocity);
 
   /**
-   * Sets the setpoint value for the onboard turn PID.
-   * 
+   * Sets the setpoint value for the onboard turn motor's PID.
+   *
    * @param angle The angle setpoint.
    */
   void setTurnSetpoint(double angle);
@@ -95,7 +102,17 @@ public interface ModuleIO extends Logged, AutoCloseable {
    * @param mode The control mode to use when calculating drive voltage.
    */
   void updateSetpoint(SwerveModuleState setpoint, ControlMode mode);
-  
+
+  /**
+   * Updates the drive voltage and turn angle.
+   *
+   * <p>This is useful for SysId characterization, but should never be run otherwise.
+   *
+   * @param angle The desired angle of the module.
+   * @param voltage The voltage to supply to the drive motor.
+   */
+  void updateDriveVoltage(Rotation2d angle, double voltage);
+
   @Override
   void close();
 }

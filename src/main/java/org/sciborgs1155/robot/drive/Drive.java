@@ -49,18 +49,18 @@ import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
 import org.sciborgs1155.robot.drive.DriveConstants.Translation;
-import org.sciborgs1155.robot.drive.SwerveModule.ControlMode;
+import org.sciborgs1155.robot.drive.ModuleIO.ControlMode;
 import org.sciborgs1155.robot.vision.Vision.PoseEstimate;
 
 public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   // Modules
-  private final SwerveModule frontLeft;
-  private final SwerveModule frontRight;
-  private final SwerveModule rearLeft;
-  private final SwerveModule rearRight;
+  private final ModuleIO frontLeft;
+  private final ModuleIO frontRight;
+  private final ModuleIO rearLeft;
+  private final ModuleIO rearRight;
 
-  @IgnoreLogged private final List<SwerveModule> modules;
+  @IgnoreLogged private final List<ModuleIO> modules;
 
   private final GyroIO gyro;
   private static Rotation2d simRotation = new Rotation2d();
@@ -96,12 +96,16 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     return Robot.isReal()
         ? new Drive(
             new NavXGyro(),
-            new SparkModule(FRONT_LEFT_DRIVE, FRONT_LEFT_TURNING, ANGULAR_OFFSETS.get(0)),
-            new SparkModule(FRONT_RIGHT_DRIVE, FRONT_RIGHT_TURNING, ANGULAR_OFFSETS.get(1)),
-            new SparkModule(REAR_LEFT_DRIVE, REAR_LEFT_TURNING, ANGULAR_OFFSETS.get(2)),
-            new SparkModule(REAR_RIGHT_DRIVE, REAR_RIGHT_TURNING, ANGULAR_OFFSETS.get(3)))
+            new SparkModule(FRONT_LEFT_DRIVE, FRONT_LEFT_TURNING, ANGULAR_OFFSETS.get(0), "FL"),
+            new SparkModule(FRONT_RIGHT_DRIVE, FRONT_RIGHT_TURNING, ANGULAR_OFFSETS.get(1), "FR"),
+            new SparkModule(REAR_LEFT_DRIVE, REAR_LEFT_TURNING, ANGULAR_OFFSETS.get(2), "RL"),
+            new SparkModule(REAR_RIGHT_DRIVE, REAR_RIGHT_TURNING, ANGULAR_OFFSETS.get(3), "RR"))
         : new Drive(
-            new NoGyro(), new SimModule(), new SimModule(), new SimModule(), new SimModule());
+            new NoGyro(),
+            new SimModule("FL"),
+            new SimModule("FR"),
+            new SimModule("RL"),
+            new SimModule("RR"));
   }
 
   /** A factory to create a nonexistent swerve drive. */
@@ -113,10 +117,10 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   public Drive(
       GyroIO gyro, ModuleIO frontLeft, ModuleIO frontRight, ModuleIO rearLeft, ModuleIO rearRight) {
     this.gyro = gyro;
-    this.frontLeft = new SwerveModule(frontLeft, ANGULAR_OFFSETS.get(0), " FL");
-    this.frontRight = new SwerveModule(frontRight, ANGULAR_OFFSETS.get(1), "FR");
-    this.rearLeft = new SwerveModule(rearLeft, ANGULAR_OFFSETS.get(2), "RL");
-    this.rearRight = new SwerveModule(rearRight, ANGULAR_OFFSETS.get(3), " RR");
+    this.frontLeft = frontLeft;
+    this.frontRight = frontRight;
+    this.rearLeft = rearLeft;
+    this.rearRight = rearRight;
 
     modules = List.of(this.frontLeft, this.frontRight, this.rearLeft, this.rearRight);
     modules2d = new FieldObject2d[modules.size()];
@@ -158,7 +162,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
     for (int i = 0; i < modules.size(); i++) {
       var module = modules.get(i);
-      modules2d[i] = field2d.getObject("module-" + module.name);
+      modules2d[i] = field2d.getObject("module-" + module.getName());
     }
 
     gyro.reset();
@@ -305,7 +309,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_SPEED.in(MetersPerSecond));
 
     for (int i = 0; i < modules.size(); i++) {
-      modules.get(i).updateSetpoint(desiredStates[i], mode, movementFactor);
+      modules.get(i).updateSetpoint(desiredStates[i], mode);
     }
   }
 
@@ -330,7 +334,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
 
   /** Resets the drive encoders to currently read a position of 0. */
   public void resetEncoders() {
-    modules.forEach(SwerveModule::resetEncoders);
+    modules.forEach(ModuleIO::resetEncoders);
   }
 
   /** Zeroes the heading of the robot. */
@@ -341,19 +345,19 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   /** Returns the module states. */
   @Log.NT
   public SwerveModuleState[] getModuleStates() {
-    return modules.stream().map(SwerveModule::state).toArray(SwerveModuleState[]::new);
+    return modules.stream().map(ModuleIO::state).toArray(SwerveModuleState[]::new);
   }
 
   /** Returns the module states. */
   @Log.NT
   private SwerveModuleState[] getModuleSetpoints() {
-    return modules.stream().map(SwerveModule::desiredState).toArray(SwerveModuleState[]::new);
+    return modules.stream().map(ModuleIO::desiredState).toArray(SwerveModuleState[]::new);
   }
 
   /** Returns the module positions */
   @Log.NT
   public SwerveModulePosition[] getModulePositions() {
-    return modules.stream().map(SwerveModule::position).toArray(SwerveModulePosition[]::new);
+    return modules.stream().map(ModuleIO::position).toArray(SwerveModulePosition[]::new);
   }
 
   /** Returns the robot relative chassis speeds. */
@@ -401,8 +405,6 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
         new Pose2d(pose().getTranslation(), new Rotation2d(rotationController.getSetpoint())));
 
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
-
-    modules.forEach(SwerveModule::updatePID);
   }
 
   @Override
