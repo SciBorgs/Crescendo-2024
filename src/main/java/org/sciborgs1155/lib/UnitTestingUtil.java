@@ -87,7 +87,8 @@ public class UnitTestingUtil {
   }
 
   /**
-   * Schedules a command and runs it until it ends.
+   * Schedules a command and runs it until it ends. Be careful -- if the command you give never
+   * ends, this will be an infinate loop!
    *
    * @param command
    */

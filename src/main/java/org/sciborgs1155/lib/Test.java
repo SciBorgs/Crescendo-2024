@@ -20,12 +20,21 @@ public record Test(Command testCommand, Set<Assertion> assertions) {
     return test.testCommand.finallyDo(() -> test.assertions.forEach(a -> a.apply(unitTest)));
   }
 
-  /** Creates a command from a Test */
+  /**
+   * Creates a command from a Test
+   *
+   * @param test a Test
+   * @return a command that runs the testCommand in test and then applies all assertions
+   */
   public static Command toCommand(Test test) {
     return toCommand(test, false);
   }
 
-  /** Creates a sequential command from Tests. */
+  /**
+   * Creates a sequential command from Tests.
+   *
+   * @return a command that runs the testCommand and assertions from each test in turn
+   */
   public static Command toCommand(Test... tests) {
     Command c = Commands.none();
     for (Test test : tests) {
