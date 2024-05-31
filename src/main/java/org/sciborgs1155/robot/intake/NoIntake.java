@@ -16,4 +16,9 @@ public class NoIntake implements IntakeIO {
   public double current() {
     return 0;
   }
+
+  @Override
+  public boolean seenNote() {
+    return false;
+  }
 }

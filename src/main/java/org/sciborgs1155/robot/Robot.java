@@ -11,6 +11,7 @@ import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_ACCEL;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_SPEED;
 import static org.sciborgs1155.robot.drive.DriveConstants.TELEOP_ANGULAR_SPEED;
+import static org.sciborgs1155.robot.intake.IntakeConstants.INTAKE_FAST_PERIOD;
 import static org.sciborgs1155.robot.pivot.PivotConstants.AMP_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
@@ -121,6 +122,9 @@ public class Robot extends CommandRobot implements Logged {
 
     // Configure pose estimation updates every tick
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));
+
+    // polls intake at faster speed
+    addPeriodic(intake::pollTrigger, INTAKE_FAST_PERIOD.in(Seconds));
 
     // Fuck REV Robotics.!!!!
     for (var r : SparkUtils.getRunnables()) {

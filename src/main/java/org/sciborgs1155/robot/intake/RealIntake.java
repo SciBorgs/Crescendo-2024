@@ -7,6 +7,7 @@ import static org.sciborgs1155.robot.intake.IntakeConstants.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import edu.wpi.first.wpilibj.AsynchronousInterrupt;
 import edu.wpi.first.wpilibj.DigitalInput;
 import monologue.Annotations.Log;
 import org.sciborgs1155.lib.SparkUtils;
@@ -17,6 +18,8 @@ public class RealIntake implements IntakeIO {
       new CANSparkFlex(Ports.Intake.INTAKE_SPARK, MotorType.kBrushless);
 
   private final DigitalInput beambreak = new DigitalInput(Ports.Intake.BEAMBREAK);
+  private final AsynchronousInterrupt asyncInterrupt;
+  private boolean noteDetected = false;
 
   public RealIntake() {
     check(spark, spark.restoreFactoryDefaults());
@@ -29,6 +32,20 @@ public class RealIntake implements IntakeIO {
     check(spark, spark.burnFlash());
 
     register(spark);
+
+    asyncInterrupt =
+        new AsynchronousInterrupt(
+            beambreak,
+            (Boolean rising, Boolean falling) -> {
+              if (falling) {
+                noteDetected = true;
+              } else if (rising) {
+                noteDetected = false;
+              }
+            });
+
+    asyncInterrupt.setInterruptEdges(true, true);
+    asyncInterrupt.enable();
   }
 
   @Override
@@ -53,5 +70,11 @@ public class RealIntake implements IntakeIO {
   public void close() {
     beambreak.close();
     spark.close();
+  }
+
+  @Override
+  @Log.NT
+  public boolean seenNote() {
+    return noteDetected;
   }
 }

@@ -8,4 +8,6 @@ public interface IntakeIO extends AutoCloseable, Logged {
   boolean beambreak();
 
   double current();
+
+  boolean seenNote();
 }
