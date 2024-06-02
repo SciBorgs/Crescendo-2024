@@ -2,12 +2,11 @@ package org.sciborgs1155.robot;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.sciborgs1155.lib.TestingUtil.*;
+import static org.sciborgs1155.lib.UnitTestingUtil.*;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sciborgs1155.lib.TestingUtil;
 import org.sciborgs1155.robot.led.LedConstants;
 import org.sciborgs1155.robot.led.LedStrip;
 
@@ -43,6 +42,6 @@ public class LedTest {
 
   @AfterEach
   public void destroy() throws Exception {
-    TestingUtil.reset(led);
+    reset(led);
   }
 }

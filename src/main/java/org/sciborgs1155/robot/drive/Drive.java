@@ -6,8 +6,7 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import static java.lang.Math.atan;
-import static org.sciborgs1155.lib.TestingUtil.assertEqualsReport;
-import static org.sciborgs1155.lib.TestingUtil.assertReport;
+import static org.sciborgs1155.lib.Assertion.*;
 import static org.sciborgs1155.robot.Constants.allianceRotation;
 import static org.sciborgs1155.robot.Ports.Drive.*;
 import static org.sciborgs1155.robot.drive.DriveConstants.*;
@@ -38,13 +37,19 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.DoubleSupplier;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import monologue.Annotations.IgnoreLogged;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.photonvision.EstimatedRobotPose;
+import org.sciborgs1155.lib.Assertion;
 import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.lib.Test;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.drive.DriveConstants.Rotation;
@@ -113,7 +118,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
   public Drive(
       GyroIO gyro, ModuleIO frontLeft, ModuleIO frontRight, ModuleIO rearLeft, ModuleIO rearRight) {
     this.gyro = gyro;
-    this.frontLeft = new SwerveModule(frontLeft, ANGULAR_OFFSETS.get(0), " FL");
+    this.frontLeft = new SwerveModule(frontLeft, ANGULAR_OFFSETS.get(0), "FL");
     this.frontRight = new SwerveModule(frontRight, ANGULAR_OFFSETS.get(1), "FR");
     this.rearLeft = new SwerveModule(rearLeft, ANGULAR_OFFSETS.get(2), "RL");
     this.rearRight = new SwerveModule(rearRight, ANGULAR_OFFSETS.get(3), " RR");
@@ -431,26 +436,28 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
                 1));
   }
 
-  public Command systemsCheck() {
+  public Test systemsCheck() {
     ChassisSpeeds speeds = new ChassisSpeeds(1, 1, 0);
-    return run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY))
-        .withTimeout(0.5)
-        .finallyDo(
-            () -> {
-              modules.forEach(
-                  m -> {
-                    assertEqualsReport(
-                        "Drive Syst Check Module Angle (degrees)",
-                        45,
-                        Units.radiansToDegrees(atan(m.position().angle.getTan())),
-                        1);
-                    assertReport(
-                        m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos())
-                            > 1,
-                        "Drive Syst Check Module Speed",
-                        "expected: >= 1; actual: " + m.state().speedMetersPerSecond);
-                  });
-            });
+    Command testCommand =
+        run(() -> setChassisSpeeds(speeds, ControlMode.OPEN_LOOP_VELOCITY)).withTimeout(0.5);
+    Function<SwerveModule, TruthAssertion> speedCheck =
+        m ->
+            tAssert(
+                () -> m.state().speedMetersPerSecond * Math.signum(m.position().angle.getCos()) > 1,
+                "Drive Syst Check " + m.name + " Module Speed",
+                "expected: >= 1; actual: " + m.state().speedMetersPerSecond);
+    Function<SwerveModule, EqualityAssertion> atAngle =
+        m ->
+            eAssert(
+                "Drive Syst Check " + m.name + " Module Angle (degrees)",
+                () -> 45,
+                () -> Units.radiansToDegrees(atan(m.position().angle.getTan())),
+                1);
+    Set<Assertion> assertions =
+        modules.stream()
+            .flatMap(m -> Stream.of(speedCheck.apply(m), atAngle.apply(m)))
+            .collect(Collectors.toSet());
+    return new Test(testCommand, assertions);
   }
 
   public void close() throws Exception {

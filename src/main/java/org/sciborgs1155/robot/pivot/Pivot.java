@@ -3,7 +3,8 @@ package org.sciborgs1155.robot.pivot;
 import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.autonomous;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.teleop;
-import static org.sciborgs1155.lib.TestingUtil.assertEqualsReport;
+import static org.sciborgs1155.lib.Assertion.EqualityAssertion;
+import static org.sciborgs1155.lib.Assertion.eAssert;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.pivot.PivotConstants.*;
 
@@ -24,10 +25,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.lib.Test;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 
@@ -202,17 +205,15 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
     hardware.setVoltage(feedback + feedforward);
   }
 
-  public Command goToTest(Measure<Angle> goal) {
-    return runPivot(goal)
-        .until(() -> atPosition(goal.in(Radians)))
-        .withTimeout(2)
-        .finallyDo(
-            () ->
-                assertEqualsReport(
-                    "Pivot Test Angle (degrees)",
-                    goal.in(Degrees),
-                    Units.radiansToDegrees(position()),
-                    POSITION_TOLERANCE.in(Degrees)));
+  public Test goToTest(Measure<Angle> goal) {
+    Command testCommand = runPivot(goal).until(() -> atPosition(goal.in(Radians))).withTimeout(2);
+    EqualityAssertion atGoal =
+        eAssert(
+            "Pivot Test Angle (degrees)",
+            () -> goal.in(Degrees),
+            () -> Units.radiansToDegrees(position()),
+            POSITION_TOLERANCE.in(Degrees));
+    return new Test(testCommand, Set.of(atGoal));
   }
 
   @Override

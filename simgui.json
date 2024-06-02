@@ -129,6 +129,9 @@
           },
           "string[]##v_/Faults/Total Faults/infos": {
             "open": true
+          },
+          "string[]##v_/Faults/Total Faults/warnings": {
+            "open": true
           }
         },
         "open": true
@@ -181,7 +184,6 @@
   "NetworkTables Info": {
     "Server": {
       "open": true
-    },
-    "visible": true
+    }
   }
 }

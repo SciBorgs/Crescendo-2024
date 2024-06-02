@@ -11,8 +11,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.BooleanTopic;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
@@ -67,7 +65,6 @@ public class NoteVisualizer implements Logged {
   private static NetworkTable table;
   private static StructArrayPublisher<Pose3d> notePathPub;
   private static StructPublisher<Pose3d> shotNotePub;
-  private static BooleanPublisher carryingNotePub;
 
   public static void setSuppliers(
       Supplier<Pose2d> drivePose,
@@ -87,12 +84,10 @@ public class NoteVisualizer implements Logged {
     StructArrayTopic<Pose3d> notesTopic = table.getStructArrayTopic("notes", Pose3d.struct);
     StructArrayTopic<Pose3d> notePathTopic = table.getStructArrayTopic("note path", Pose3d.struct);
     StructTopic<Pose3d> shotNoteTopic = table.getStructTopic("shot note", Pose3d.struct);
-    BooleanTopic carryingNoteTopic = table.getBooleanTopic("carrying note");
 
     notesPub = notesTopic.publish();
     notePathPub = notePathTopic.publish();
     shotNotePub = shotNoteTopic.publish();
-    carryingNotePub = carryingNoteTopic.publish();
 
     notesPub.set(notes.toArray(new Pose3d[0]));
   }

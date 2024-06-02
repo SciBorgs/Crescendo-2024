@@ -138,7 +138,7 @@ public class Shooting implements Logged {
     return shoot(
             () -> rotationalVelocityFromNoteVelocity(calculateNoteVelocity()),
             () ->
-                pivot.atPosition(pitchFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.02))))
+                pivot.atPosition(pitchFromNoteVelocity(calculateNoteVelocity()))
                     && atYaw(yawFromNoteVelocity(calculateNoteVelocity())))
         .deadlineWith(
             drive.drive(
@@ -215,10 +215,6 @@ public class Shooting implements Logged {
 
   public static Pose3d shooterPose(Transform3d pivot, Pose2d robot) {
     return new Pose3d(robot).transformBy(pivot).transformBy(PivotConstants.SHOOTER_FROM_AXLE);
-  }
-
-  public boolean isReady() {
-    return shooter.atSetpoint() && pivot.atGoal();
   }
 
   /**

@@ -1,7 +1,9 @@
 package org.sciborgs1155.robot;
 
+import static edu.wpi.first.units.Units.Seconds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sciborgs1155.lib.TestingUtil.*;
+import static org.sciborgs1155.lib.Test.runUnitTest;
+import static org.sciborgs1155.lib.UnitTestingUtil.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -10,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sciborgs1155.lib.TestingUtil;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.NoGyro;
 import org.sciborgs1155.robot.drive.SimModule;
@@ -41,7 +42,12 @@ public class SwerveTest {
 
   @AfterEach
   public void destroy() throws Exception {
-    TestingUtil.reset(drive);
+    reset(drive);
+  }
+
+  @Test
+  public void systemCheck() {
+    runUnitTest(drive.systemsCheck());
   }
 
   @Test
@@ -83,8 +89,9 @@ public class SwerveTest {
     double xVelocitySetpoint = 2.265;
     double yVelocitySetpoint = 0;
 
-    double deltaX = xVelocitySetpoint * 4;
-    double deltaY = yVelocitySetpoint * 4;
+    double deltaT = 4;
+    double deltaX = xVelocitySetpoint * deltaT;
+    double deltaY = yVelocitySetpoint * deltaT;
     run(
         drive.run(
             () ->
@@ -93,7 +100,7 @@ public class SwerveTest {
                         xVelocitySetpoint, yVelocitySetpoint, 0, drive.heading()),
                     ControlMode.CLOSED_LOOP_VELOCITY)));
 
-    fastForward(); // 200 ticks, 50 ticks/s = 4 seconds
+    fastForward(Seconds.of(deltaT));
 
     Pose2d pose = drive.pose();
 
