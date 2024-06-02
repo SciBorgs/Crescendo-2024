@@ -1,11 +1,14 @@
 package org.sciborgs1155.lib;
 
 import com.revrobotics.CANSparkBase;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.REVLibError;
+import com.revrobotics.SparkRelativeEncoder.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.DoubleSupplier;
 
 /** Utility class for configuration of Spark motor controllers */
 public class SparkUtils {
@@ -13,7 +16,7 @@ public class SparkUtils {
   private static final List<Runnable> runnables = new ArrayList<>();
 
   public static void addChecker(Runnable runnable) {
-    // runnables.add(runnable);
+    runnables.add(runnable);
   }
 
   public static List<Runnable> getRunnables() {
@@ -76,88 +79,87 @@ public class SparkUtils {
    */
   public static REVLibError configureFrameStrategy(
       CANSparkBase spark, Set<Data> data, Set<Sensor> sensors, boolean withFollower) {
-    // int status0 = FRAME_STRATEGY_MEDIUM; // output, faults
-    // int status1 = FRAME_STRATEGY_SLOW;
-    // // integrated velocity, temperature, input voltage, current | default 20
-    // int status2 = FRAME_STRATEGY_SLOW; // integrated position | default 20
-    // int status3 = FRAME_STRATEGY_DISABLED; // analog encoder | default 50
-    // int status4 = FRAME_STRATEGY_DISABLED; // alternate quadrature encoder | default 20
-    // int status5 = FRAME_STRATEGY_DISABLED; // duty cycle position | default 200
-    // int status6 = FRAME_STRATEGY_DISABLED; // duty cycle velocity | default 200
-    // int status7 = FRAME_STRATEGY_DISABLED;
+    int status0 = FRAME_STRATEGY_MEDIUM; // output, faults
+    int status1 = FRAME_STRATEGY_SLOW;
+    // integrated velocity, temperature, input voltage, current | default 20
+    int status2 = FRAME_STRATEGY_SLOW; // integrated position | default 20
+    int status3 = FRAME_STRATEGY_DISABLED; // analog encoder | default 50
+    int status4 = FRAME_STRATEGY_DISABLED; // alternate quadrature encoder | default 20
+    int status5 = FRAME_STRATEGY_DISABLED; // duty cycle position | default 200
+    int status6 = FRAME_STRATEGY_DISABLED; // duty cycle velocity | default 200
+    int status7 = FRAME_STRATEGY_DISABLED;
     // // status frame 7 is cursed, the only mention i found of it in rev's docs is at
     // //
     // https://docs.revrobotics.com/brushless/spark-flex/revlib/spark-flex-firmware-changelog#breaking-changes
     // // if it's only IAccum, there's literally no reason to enable the frame
 
-    // Optional<DoubleSupplier> supplier1 = Optional.empty();
-    // Optional<DoubleSupplier> supplier2 = Optional.empty();
-    // Optional<DoubleSupplier> supplier3 = Optional.empty();
-    // Optional<DoubleSupplier> supplier4 = Optional.empty();
-    // Optional<DoubleSupplier> supplier5 = Optional.empty();
-    // Optional<DoubleSupplier> supplier6 = Optional.empty();
+    Optional<DoubleSupplier> supplier1 = Optional.empty();
+    Optional<DoubleSupplier> supplier2 = Optional.empty();
+    Optional<DoubleSupplier> supplier3 = Optional.empty();
+    Optional<DoubleSupplier> supplier4 = Optional.empty();
+    Optional<DoubleSupplier> supplier5 = Optional.empty();
+    Optional<DoubleSupplier> supplier6 = Optional.empty();
 
-    // if (withFollower || data.contains(Data.APPLIED_OUTPUT)) {
-    //   status0 = FRAME_STRATEGY_VERY_FAST;
-    // }
+    if (withFollower || data.contains(Data.APPLIED_OUTPUT)) {
+      status0 = FRAME_STRATEGY_VERY_FAST;
+    }
 
-    // if (sensors.contains(Sensor.INTEGRATED) && data.contains(Data.VELOCITY)
-    //     || data.contains(Data.INPUT_VOLTAGE)
-    //     || data.contains(Data.CURRENT)
-    //     || data.contains(Data.TEMPERATURE)) {
-    //   status1 = FRAME_STRATEGY_FAST;
-    //   supplier1 = Optional.of(spark::getOutputCurrent);
-    // }
+    if (sensors.contains(Sensor.INTEGRATED) && data.contains(Data.VELOCITY)
+        || data.contains(Data.INPUT_VOLTAGE)
+        || data.contains(Data.CURRENT)
+        || data.contains(Data.TEMPERATURE)) {
+      status1 = FRAME_STRATEGY_FAST;
+      supplier1 = Optional.of(spark::getOutputCurrent);
+    }
 
-    // if (sensors.contains(Sensor.INTEGRATED) && data.contains(Data.POSITION)) {
-    //   status2 = FRAME_STRATEGY_FAST;
-    //   supplier2 = Optional.of(() -> spark.getEncoder().getPosition());
-    // }
+    if (sensors.contains(Sensor.INTEGRATED) && data.contains(Data.POSITION)) {
+      status2 = FRAME_STRATEGY_FAST;
+      supplier2 = Optional.of(() -> spark.getEncoder().getPosition());
+    }
 
-    // if (sensors.contains(Sensor.ANALOG)
-    //     && (data.contains(Data.VELOCITY) || data.contains(Data.POSITION))) {
-    //   status3 = FRAME_STRATEGY_FAST;
-    //   supplier3 = Optional.of(() -> spark.getEncoder().getVelocity());
-    // }
+    if (sensors.contains(Sensor.ANALOG)
+        && (data.contains(Data.VELOCITY) || data.contains(Data.POSITION))) {
+      status3 = FRAME_STRATEGY_FAST;
+      supplier3 = Optional.of(() -> spark.getEncoder().getVelocity());
+    }
 
-    // if (sensors.contains(Sensor.ALTERNATE)
-    //     && (data.contains(Data.VELOCITY) || data.contains(Data.POSITION))) {
-    //   status4 = FRAME_STRATEGY_FAST;
-    //   supplier4 =
-    //       Optional.of(() -> spark.getEncoder(Type.kQuadrature, THROUGHBORE_CPR).getPosition());
-    // }
+    if (sensors.contains(Sensor.ALTERNATE)
+        && (data.contains(Data.VELOCITY) || data.contains(Data.POSITION))) {
+      status4 = FRAME_STRATEGY_FAST;
+      supplier4 =
+          Optional.of(() -> spark.getEncoder(Type.kQuadrature, THROUGHBORE_CPR).getPosition());
+    }
 
-    // if (sensors.contains(Sensor.ABSOLUTE)) {
-    //   if (data.contains(Data.POSITION)) {
-    //     status5 = FRAME_STRATEGY_FAST;
-    //     supplier5 = Optional.of(() -> spark.getAbsoluteEncoder().getPosition());
-    //   }
-    //   if (data.contains(Data.VELOCITY)) {
-    //     status6 = FRAME_STRATEGY_FAST;
-    //     supplier6 = Optional.of(() -> spark.getAbsoluteEncoder().getVelocity());
-    //   }
-    // }
+    if (sensors.contains(Sensor.ABSOLUTE)) {
+      if (data.contains(Data.POSITION)) {
+        status5 = FRAME_STRATEGY_FAST;
+        supplier5 = Optional.of(() -> spark.getAbsoluteEncoder().getPosition());
+      }
+      if (data.contains(Data.VELOCITY)) {
+        status6 = FRAME_STRATEGY_FAST;
+        supplier6 = Optional.of(() -> spark.getAbsoluteEncoder().getVelocity());
+      }
+    }
 
-    // int[] frames = {status0, status1, status2, status3, status4, status5, status6, status7};
-    // List<Optional<DoubleSupplier>> suppliers =
-    //     List.of(
-    //         Optional.empty(),
-    //         supplier1,
-    //         supplier2,
-    //         supplier3,
-    //         supplier4,
-    //         supplier5,
-    //         supplier6,
-    //         Optional.empty());
-    // REVLibError error = REVLibError.kOk;
-    // for (int i = 0; i < frames.length; i++) {
-    //   REVLibError e = spark.setPeriodicFramePeriod(PeriodicFrame.fromId(i), frames[i]);
-    //   if (e != REVLibError.kOk) {
-    //     error = e;
-    //   }
-    // }
-    // return error;
-    return REVLibError.kOk;
+    int[] frames = {status0, status1, status2, status3, status4, status5, status6, status7};
+    List<Optional<DoubleSupplier>> suppliers =
+        List.of(
+            Optional.empty(),
+            supplier1,
+            supplier2,
+            supplier3,
+            supplier4,
+            supplier5,
+            supplier6,
+            Optional.empty());
+    REVLibError error = REVLibError.kOk;
+    for (int i = 0; i < frames.length; i++) {
+      REVLibError e = spark.setPeriodicFramePeriod(PeriodicFrame.fromId(i), frames[i]);
+      if (e != REVLibError.kOk) {
+        error = e;
+      }
+    }
+    return error;
   }
 
   /**

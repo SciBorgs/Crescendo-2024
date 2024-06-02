@@ -80,9 +80,10 @@ public class SparkModule implements ModuleIO {
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
     turningEncoder = turnMotor.getAbsoluteEncoder();
     turnPID = turnMotor.getPIDController();
-    // TODO: Re-tune
+
     check(turnMotor, turnMotor.restoreFactoryDefaults());
 
+    // TODO: Re-tune
     check(turnMotor, turnPID.setP(Turning.PID.SPARK.P));
     check(turnMotor, turnPID.setI(Turning.PID.SPARK.I));
     check(turnMotor, turnPID.setD(Turning.PID.SPARK.D));
