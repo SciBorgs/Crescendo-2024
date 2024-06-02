@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sciborgs1155.robot.led.LedConstants;
 import org.sciborgs1155.robot.led.LedStrip;
-import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 
 public class LedTest {
   LedStrip led;
@@ -30,14 +29,14 @@ public class LedTest {
           (i % 2 == 0 ? "#FFFF00" : "#A9A9A9") + (i == LedConstants.LED_LENGTH - 1 ? "]" : ",");
     }
 
-    assertEquals(correct, LedStrip.getBufferDataString(LEDTheme.TEST.ledBuffer.get()));
+    assertEquals(correct, LedStrip.getBufferDataString(led.testAlternatingColor()));
   }
 
   @Test
   public void testRainbowTheme() {
-    var rainbow1 = LedStrip.getBufferDataString(LEDTheme.RAINBOW.ledBuffer.get());
+    var rainbow1 = LedStrip.getBufferDataString(led.rainbowAddressableLEDBuffer());
     fastForward(2);
-    var rainbow2 = LedStrip.getBufferDataString(LEDTheme.RAINBOW.ledBuffer.get());
+    var rainbow2 = LedStrip.getBufferDataString(led.rainbowAddressableLEDBuffer());
     assertNotEquals(rainbow1, rainbow2);
   }
 

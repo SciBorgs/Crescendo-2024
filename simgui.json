@@ -1,5 +1,10 @@
 {
   "HALProvider": {
+    "Addressable LEDs": {
+      "window": {
+        "visible": true
+      }
+    },
     "Other Devices": {
       "window": {
         "visible": false
@@ -151,7 +156,6 @@
             },
             "open": true
           },
-          "open": true,
           "turning": {
             "open": true
           }

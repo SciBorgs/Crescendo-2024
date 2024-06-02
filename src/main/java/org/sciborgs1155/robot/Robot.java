@@ -11,6 +11,7 @@ import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_ACCEL;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_SPEED;
 import static org.sciborgs1155.robot.drive.DriveConstants.TELEOP_ANGULAR_SPEED;
+import static org.sciborgs1155.robot.intake.IntakeConstants.INTAKE_FAST_PERIOD;
 import static org.sciborgs1155.robot.pivot.PivotConstants.AMP_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
@@ -44,7 +45,6 @@ import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.led.LedStrip;
-import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
@@ -124,6 +124,9 @@ public class Robot extends CommandRobot implements Logged {
     // Configure pose estimation updates every tick
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));
 
+    // polls intake at faster speed
+    addPeriodic(intake::pollTrigger, INTAKE_FAST_PERIOD.in(Seconds));
+
     // Fuck REV Robotics.!!!!
     for (var r : SparkUtils.getRunnables()) {
       addPeriodic(r, 5);
@@ -182,15 +185,13 @@ public class Robot extends CommandRobot implements Logged {
 
     drive.setDefaultCommand(drive.drive(x, y, omega));
 
-    led.setDefaultCommand(led.setLEDTheme(LEDTheme.ALLIANCE));
+    led.setDefaultCommand(led.alliance());
 
-    autonomous()
-        .whileTrue(Commands.deferredProxy(autos::getSelected))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+    autonomous().whileTrue(Commands.deferredProxy(autos::getSelected)).whileTrue(led.rainbow());
 
     test().whileTrue(systemsCheck());
 
-    disabled().onTrue(led.setLEDTheme(LEDTheme.NONE));
+    disabled().onTrue(led.alliance());
 
     driver.b().whileTrue(drive.zeroHeading());
     driver
@@ -200,10 +201,7 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     // driver shoot (x)
-    driver
-        .x()
-        .whileTrue(shooting.shootWhileDriving(x, y))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+    driver.x().whileTrue(shooting.shootWhileDriving(x, y)).whileTrue(led.rainbow());
 
     // driver auto-amp (y)
     // driver
@@ -226,7 +224,7 @@ public class Robot extends CommandRobot implements Logged {
     operator
         .leftBumper()
         .whileTrue(intake.intake().deadlineWith(feeder.forward()))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+        .whileTrue(led.rainbow());
 
     // operator feed (left trigger)
     operator
@@ -249,7 +247,7 @@ public class Robot extends CommandRobot implements Logged {
     operator
         .povUp()
         .whileTrue(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+        .whileTrue(led.rainbow());
 
     // operator manual pivot (a)
     operator
@@ -259,22 +257,13 @@ public class Robot extends CommandRobot implements Logged {
                 .manualPivot(
                     InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1))
                 .deadlineWith(Commands.idle(shooter)))
-        .toggleOnTrue(led.setLEDTheme(LEDTheme.RAINDROP));
+        .toggleOnTrue(led.raindrop());
 
     // operator manual shoot (povDown)
-    operator
-        .povDown()
-        .whileTrue(shooting.shoot(RadiansPerSecond.of(350)))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+    operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350))).whileTrue(led.rainbow());
 
-    intake
-        .hasNote()
-        .onTrue(rumble(RumbleType.kLeftRumble, 0.3))
-        .whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
-    feeder
-        .noteAtShooter()
-        .onFalse(rumble(RumbleType.kRightRumble, 0.3))
-        .whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
+    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3)).whileTrue(led.green());
+    feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3)).whileTrue(led.green());
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {
