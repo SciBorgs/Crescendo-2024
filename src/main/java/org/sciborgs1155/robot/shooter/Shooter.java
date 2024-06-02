@@ -131,21 +131,32 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public void update(double velocity) {
-    double topFF = topFeedforward.calculate(setpoint, velocity, PERIOD.in(Seconds));
-    double topFB = topPID.calculate(top.velocity(), velocity);
-    double bottomFF = bottomFeedforward.calculate(setpoint, velocity, PERIOD.in(Seconds));
-    double bottomFB = bottomPID.calculate(bottom.velocity(), velocity);
+    double clamped =
+        Double.isNaN(velocity)
+            ? DEFAULT_VELOCITY.in(RadiansPerSecond)
+            : MathUtil.clamp(
+                velocity, -MAX_VELOCITY.in(RadiansPerSecond), MAX_VELOCITY.in(RadiansPerSecond));
+    double topFF = topFeedforward.calculate(setpoint, clamped, PERIOD.in(Seconds));
+    double topFB = topPID.calculate(top.velocity(), clamped);
+    double bottomFF = bottomFeedforward.calculate(setpoint, clamped, PERIOD.in(Seconds));
+    double bottomFB = bottomPID.calculate(bottom.velocity(), clamped);
     log("top output", topFF + topFB);
     log("bottom output", bottomFF + bottomFB);
 
     top.setVoltage(MathUtil.clamp(topFF + topFB, -12, 12));
     bottom.setVoltage(MathUtil.clamp(bottomFF + bottomFB, -12, 12));
-    setpoint = velocity;
+
+    setpoint = clamped;
   }
 
   @Log.NT
   public boolean atSetpoint() {
     return topPID.atSetpoint() && bottomPID.atSetpoint();
+  }
+
+  public boolean atVelocity(double velocity) {
+    return Math.abs(topVelocity() - velocity) < topPID.getVelocityTolerance()
+        && Math.abs(bottomVelocity() - velocity) < bottomPID.getVelocityTolerance();
   }
 
   public double setpoint() {
