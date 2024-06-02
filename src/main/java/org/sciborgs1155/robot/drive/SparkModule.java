@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import java.util.Set;
+import monologue.Annotations.Log;
 import org.sciborgs1155.lib.SparkUtils;
 import org.sciborgs1155.lib.SparkUtils.Data;
 import org.sciborgs1155.lib.SparkUtils.Sensor;
@@ -39,7 +40,7 @@ public class SparkModule implements ModuleIO {
   private double lastPosition;
   private double lastVelocity;
 
-  private SwerveModuleState setpoint = new SwerveModuleState();
+  @Log.NT private SwerveModuleState setpoint = new SwerveModuleState();
 
   public final String name;
 
@@ -51,12 +52,14 @@ public class SparkModule implements ModuleIO {
         new SimpleMotorFeedforward(
             Driving.FF.S, Driving.FF.V, Driving.FF.kA_linear); // TODO: Re-tune probably?
 
-    // TODO: Re-tune
-    drivePID.setP(Driving.PID.SPARK.P);
-    drivePID.setI(Driving.PID.SPARK.I);
-    drivePID.setD(Driving.PID.SPARK.D);
-
     check(driveMotor, driveMotor.restoreFactoryDefaults());
+
+    // TODO: Re-tune
+    check(driveMotor, drivePID.setP(Driving.PID.SPARK.P));
+    check(driveMotor, drivePID.setI(Driving.PID.SPARK.I));
+    check(driveMotor, drivePID.setD(Driving.PID.SPARK.D));
+    check(driveMotor, drivePID.setFeedbackDevice(driveEncoder));
+
     check(driveMotor, driveMotor.setIdleMode(IdleMode.kBrake));
     check(driveMotor, driveMotor.setSmartCurrentLimit((int) Driving.CURRENT_LIMIT.in(Amps)));
     check(driveMotor, driveEncoder.setPositionConversionFactor(Driving.POSITION_FACTOR.in(Meters)));
@@ -77,13 +80,17 @@ public class SparkModule implements ModuleIO {
     turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
     turningEncoder = turnMotor.getAbsoluteEncoder();
     turnPID = turnMotor.getPIDController();
-
     // TODO: Re-tune
-    turnPID.setP(Turning.PID.SPARK.P);
-    turnPID.setI(Turning.PID.SPARK.I);
-    turnPID.setD(Turning.PID.SPARK.D);
-
     check(turnMotor, turnMotor.restoreFactoryDefaults());
+
+    check(turnMotor, turnPID.setP(Turning.PID.SPARK.P));
+    check(turnMotor, turnPID.setI(Turning.PID.SPARK.I));
+    check(turnMotor, turnPID.setD(Turning.PID.SPARK.D));
+    check(turnMotor, turnPID.setPositionPIDWrappingEnabled(true));
+    check(turnMotor, turnPID.setPositionPIDWrappingMinInput(-Math.PI));
+    check(turnMotor, turnPID.setPositionPIDWrappingMaxInput(Math.PI));
+    check(turnMotor, turnPID.setFeedbackDevice(turningEncoder));
+
     check(turnMotor, turnMotor.setIdleMode(IdleMode.kBrake));
     check(turnMotor, turnMotor.setSmartCurrentLimit((int) Turning.CURRENT_LIMIT.in(Amps)));
     turningEncoder.setInverted(Turning.ENCODER_INVERTED);
@@ -126,6 +133,11 @@ public class SparkModule implements ModuleIO {
     driveMotor.setVoltage(voltage);
     check(driveMotor);
     log("current", driveMotor.getOutputCurrent());
+  }
+
+  @Log.NT
+  public double getP() {
+    return turnPID.getP();
   }
 
   @Override
@@ -174,7 +186,7 @@ public class SparkModule implements ModuleIO {
 
   @Override
   public void setDriveSetpoint(double velocity) {
-    drivePID.setReference(velocity, ControlType.kVelocity);
+    drivePID.setReference(velocity, ControlType.kVelocity, 0, driveFF.calculate(velocity));
   }
 
   @Override
@@ -190,12 +202,12 @@ public class SparkModule implements ModuleIO {
     setpoint.speedMetersPerSecond *= setpoint.angle.minus(rotation()).getCos();
 
     if (mode == ModuleIO.ControlMode.OPEN_LOOP_VELOCITY) {
-      double ff = driveFF.calculate(setpoint.speedMetersPerSecond);
-      setDriveVoltage(ff);
+      setDriveVoltage(driveFF.calculate(setpoint.speedMetersPerSecond));
     } else {
       setDriveSetpoint(setpoint.speedMetersPerSecond);
-      setTurnSetpoint(setpoint.angle.getRadians());
     }
+
+    setTurnSetpoint(setpoint.angle.getRadians());
     this.setpoint = setpoint;
   }
 

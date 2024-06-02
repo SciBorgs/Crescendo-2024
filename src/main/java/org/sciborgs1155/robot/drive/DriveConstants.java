@@ -90,7 +90,7 @@ public final class DriveConstants {
 
       public static final class PID {
         public static final class SPARK {
-          public static final double P = 3.2;
+          public static final double P = 1;
           public static final double I = 0.0;
           public static final double D = 0.0;
         }
@@ -134,7 +134,7 @@ public final class DriveConstants {
 
       public static final class PID {
         public static final class SPARK {
-          public static final double P = 9;
+          public static final double P = 0.3; // FAKE DOES NOT WORK
           public static final double I = 0.0;
           public static final double D = 0.05;
         }
