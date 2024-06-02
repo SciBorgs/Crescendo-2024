@@ -89,9 +89,23 @@ public final class DriveConstants {
       public static final Measure<Current> CURRENT_LIMIT = Amps.of(60);
 
       public static final class PID {
-        public static final double P = 3.2;
-        public static final double I = 0.0;
-        public static final double D = 0.0;
+        public static final class SPARK {
+          public static final double P = 3.2;
+          public static final double I = 0.0;
+          public static final double D = 0.0;
+        }
+
+        public static final class TALON {
+          public static final double P = 3.2;
+          public static final double I = 0.0;
+          public static final double D = 0.0;
+        }
+
+        public static final class SIM {
+          public static final double P = 3.2;
+          public static final double I = 0.0;
+          public static final double D = 0.0;
+        }
       }
 
       public static final class FF {
@@ -119,9 +133,23 @@ public final class DriveConstants {
       public static final Measure<Current> CURRENT_LIMIT = Amps.of(20);
 
       public static final class PID {
-        public static final double P = 9;
-        public static final double I = 0.0;
-        public static final double D = 0.05;
+        public static final class SPARK {
+          public static final double P = 9;
+          public static final double I = 0.0;
+          public static final double D = 0.05;
+        }
+
+        public static final class TALON {
+          public static final double P = 9;
+          public static final double I = 0.0;
+          public static final double D = 0.05;
+        }
+
+        public static final class SIM {
+          public static final double P = 9;
+          public static final double I = 0.0;
+          public static final double D = 0.05;
+        }
       }
 
       // system constants only used in simulation
