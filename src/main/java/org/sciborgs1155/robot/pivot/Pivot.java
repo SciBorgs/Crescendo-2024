@@ -191,7 +191,7 @@ public class Pivot extends SubsystemBase implements AutoCloseable, Logged {
    * @param goalAngle The position to move the pivot to.
    */
   private void update(double goalAngle) {
-    double goal = MathUtil.clamp(goalAngle, MIN_ANGLE.in(Radians), MAX_ANGLE.in(Radians));
+    double goal = Double.isNaN(goalAngle) ? MAX_ANGLE.in(Radians) : MathUtil.clamp(goalAngle, MIN_ANGLE.in(Radians), MAX_ANGLE.in(Radians));
     var prevSetpoint = pid.getSetpoint();
     double feedback = pid.calculate(hardware.getPosition(), goal);
     double accel = (pid.getSetpoint().velocity - prevSetpoint.velocity) / PERIOD.in(Seconds);
