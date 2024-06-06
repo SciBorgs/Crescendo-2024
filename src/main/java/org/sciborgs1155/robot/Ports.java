@@ -12,7 +12,7 @@ public final class Ports {
   }
 
   public static final class Pivot {
-    public static final int SPARK_LEFT_TOP = 23;
+    public static final int SPARK_LEFT_TOP = 7;
     public static final int SPARK_RIGHT_TOP = 39;
     public static final int SPARK_LEFT_BOTTOM = 51;
     public static final int SPARK_RIGHT_BOTTOM = 55;

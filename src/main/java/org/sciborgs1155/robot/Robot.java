@@ -19,6 +19,7 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,7 +32,6 @@ import monologue.Logged;
 import monologue.Monologue;
 import org.littletonrobotics.urcl.URCL;
 import org.sciborgs1155.lib.CommandRobot;
-import org.sciborgs1155.lib.FakePDH;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.SparkUtils;
@@ -118,8 +118,8 @@ public class Robot extends CommandRobot implements Logged {
 
     SmartDashboard.putData(CommandScheduler.getInstance());
     // Log PDH
-    // SmartDashboard.putData("PDH", new PowerDistribution());
-    addPeriodic(() -> log("current", FakePDH.update()), PERIOD.in(Seconds));
+    SmartDashboard.putData("PDH", new PowerDistribution());
+    // addPeriodic(() -> log("current", FakePDH.update()), PERIOD.in(Seconds));
 
     // Configure pose estimation updates every tick
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));

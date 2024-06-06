@@ -133,7 +133,14 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     return bottom.velocity();
   }
 
-  public void update(double velocity) {
+  public void update(double velocitySetpoint) {
+    double velocity =
+        Double.isNaN(velocitySetpoint)
+            ? DEFAULT_VELOCITY.in(RadiansPerSecond)
+            : MathUtil.clamp(
+                velocitySetpoint,
+                -MAX_VELOCITY.in(RadiansPerSecond),
+                MAX_VELOCITY.in(RadiansPerSecond));
     double topFF = topFeedforward.calculate(setpoint, velocity, PERIOD.in(Seconds));
     double topFB = topPID.calculate(top.velocity(), velocity);
     double bottomFF = bottomFeedforward.calculate(setpoint, velocity, PERIOD.in(Seconds));
@@ -149,6 +156,11 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   @Log.NT
   public boolean atSetpoint() {
     return topPID.atSetpoint() && bottomPID.atSetpoint();
+  }
+
+  public boolean atVelocity(double velocity) {
+    return Math.abs(velocity - topVelocity()) < VELOCITY_TOLERANCE.in(RadiansPerSecond)
+        && Math.abs(velocity - bottomVelocity()) < VELOCITY_TOLERANCE.in(RadiansPerSecond);
   }
 
   public double setpoint() {
