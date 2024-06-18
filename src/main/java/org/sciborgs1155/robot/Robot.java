@@ -84,6 +84,7 @@ public class Robot extends CommandRobot implements Logged {
         default -> Pivot.none();
       };
 
+  private final PowerDistribution pdh = new PowerDistribution();
   private final LedStrip led = new LedStrip();
 
   private final Vision vision = Vision.create();
@@ -118,7 +119,7 @@ public class Robot extends CommandRobot implements Logged {
 
     SmartDashboard.putData(CommandScheduler.getInstance());
     // Log PDH
-    SmartDashboard.putData("PDH", new PowerDistribution());
+    SmartDashboard.putData("PDH", pdh);
     // addPeriodic(() -> log("current", FakePDH.update()), PERIOD.in(Seconds));
 
     // Configure pose estimation updates every tick
@@ -137,6 +138,8 @@ public class Robot extends CommandRobot implements Logged {
 
     if (isReal()) {
       URCL.start();
+      pdh.clearStickyFaults();
+      pdh.setSwitchableChannel(true);
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
       addPeriodic(() -> vision.simulationPeriodic(drive.pose()), PERIOD.in(Seconds));
@@ -231,6 +234,12 @@ public class Robot extends CommandRobot implements Logged {
         .leftTrigger()
         .whileTrue(
             shooting.shootWithPivot(PivotConstants.FEED_ANGLE, ShooterConstants.DEFAULT_VELOCITY));
+
+    // shoot 45 deg FAST (far as possible)
+    // operator
+    //     .povLeft()
+    //     .whileTrue(
+    //         shooting.shootWithPivot(Radians.of(0.619), ShooterConstants.MAX_VELOCITY));
 
     // operator climb (b)
     operator
