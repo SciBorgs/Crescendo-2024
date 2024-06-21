@@ -204,7 +204,10 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     // driver shoot (x)
-    driver.x().whileTrue(shooting.shootWhileDriving(x.scale(0.5), y.scale(0.5))).whileTrue(led.rainbow());
+    driver
+        .x()
+        .whileTrue(shooting.shootWhileDriving(x.scale(0.5), y.scale(0.5)))
+        .whileTrue(led.rainbow());
 
     // driver auto-amp (y)
     // driver
