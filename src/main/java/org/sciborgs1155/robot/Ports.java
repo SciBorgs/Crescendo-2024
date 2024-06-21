@@ -12,10 +12,10 @@ public final class Ports {
   }
 
   public static final class Pivot {
-    public static final int SPARK_LEFT_TOP = 23;
+    public static final int SPARK_LEFT_TOP = 7;
     public static final int SPARK_RIGHT_TOP = 39;
     public static final int SPARK_LEFT_BOTTOM = 51;
-    public static final int SPARK_RIGHT_BOTTOM = 55;
+    public static final int SPARK_RIGHT_BOTTOM = 35;
   }
 
   public static final class Feeder {
@@ -41,6 +41,6 @@ public final class Ports {
   }
 
   public static final class Led {
-    public static final int LED_PORT = 2; // led port
+    public static final int LED_PORT = 1; // led port
   }
 }

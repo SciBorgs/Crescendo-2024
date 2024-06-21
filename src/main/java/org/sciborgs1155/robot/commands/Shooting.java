@@ -52,9 +52,10 @@ public class Shooting implements Logged {
    * The conversion between shooter tangential velocity and note launch velocity. Perhaps. This may
    * also account for other errors with our model.
    */
-  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.75);
+  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.4);
 
   public static final Measure<Distance> MAX_DISTANCE = Meters.of(5.0);
+  
 
   private static final InterpolatingDoubleTreeMap shotVelocityLookup =
       new InterpolatingDoubleTreeMap();
@@ -94,7 +95,9 @@ public class Shooting implements Logged {
    * @param shootCondition Condition after which the feeder will run.
    */
   public Command shoot(DoubleSupplier desiredVelocity, BooleanSupplier shootCondition) {
-    return Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean())
+    return Commands.waitUntil(
+            () ->
+                shooter.atVelocity(desiredVelocity.getAsDouble()) && shootCondition.getAsBoolean())
         .andThen(feeder.eject())
         .deadlineWith(shooter.runShooter(desiredVelocity));
   }
