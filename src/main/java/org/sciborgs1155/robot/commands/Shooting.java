@@ -55,7 +55,6 @@ public class Shooting implements Logged {
   public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.3);
 
   public static final Measure<Distance> MAX_DISTANCE = Meters.of(5.0);
-  
 
   private static final InterpolatingDoubleTreeMap shotVelocityLookup =
       new InterpolatingDoubleTreeMap();
