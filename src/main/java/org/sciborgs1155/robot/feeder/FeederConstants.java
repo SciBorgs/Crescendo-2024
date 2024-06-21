@@ -10,7 +10,7 @@ import edu.wpi.first.units.Velocity;
 
 public class FeederConstants {
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(45);
-  public static final Measure<Velocity<Distance>> FEEDER_VELOCITY = MetersPerSecond.of(1);
+  public static final Measure<Velocity<Distance>> FEEDER_VELOCITY = MetersPerSecond.of(0.8);
   public static final double GEARING = 18.0 / 64.0;
   public static final Measure<Distance> RADIUS = Inches.of(0.63);
 
