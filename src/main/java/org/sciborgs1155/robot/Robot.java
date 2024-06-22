@@ -221,7 +221,7 @@ public class Robot extends CommandRobot implements Logged {
     // intake (right trigger / top left bump)
     operator
         .leftBumper()
-        .whileTrue(intake.intake().deadlineWith(feeder.forward()))
+        .whileTrue(intake.intake().deadlineWith(feeder.slowForward()))
         .whileTrue(led.rainbow());
 
     // operator feed (left trigger)
@@ -289,7 +289,7 @@ public class Robot extends CommandRobot implements Logged {
             shooter.goToTest(RadiansPerSecond.of(100)),
             Test.fromCommand(
                 intake
-                    .intake()
+                    .intake().asProxy()
                     .deadlineWith(feeder.forward(), shooter.runShooter(100))
                     .withTimeout(1)),
             pivot.goToTest(Radians.of(0)),

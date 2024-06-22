@@ -14,7 +14,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot-pivot-only"
+            "name": "shoot-subwoofer"
           }
         },
         {
@@ -46,7 +46,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.5
+                        "waitTime": 0.7
                       }
                     },
                     {
@@ -96,7 +96,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.5
+                        "waitTime": 0.7
                       }
                     },
                     {

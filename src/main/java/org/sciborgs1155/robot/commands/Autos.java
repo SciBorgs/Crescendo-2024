@@ -75,7 +75,7 @@ public class Autos {
                         rotation =
                             Optional.of(
                                 Shooting.yawFromNoteVelocity(shooting.calculateNoteVelocity()))))
-            .finallyDo(() -> rotation = Optional.empty()));
+            .finallyDo(() -> rotation = Optional.empty()));   
     NamedCommands.registerCommand(
         "shoot", shooting.shootWhileDriving(() -> 0, () -> 0).withTimeout(2));
     // .deadlineWith(drive.lock()));
