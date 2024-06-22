@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Our past PDH couldnt connect to CAN, so this was a workaround to (poorly) estimate our total used
+ * Our old PDH couldn't connect to CAN, so this was a workaround to (poorly) estimate our total used
  * current based on the stator currents of all our motors with the formula:
  *
  * <p>supply current = battery voltage * applied output * stator current

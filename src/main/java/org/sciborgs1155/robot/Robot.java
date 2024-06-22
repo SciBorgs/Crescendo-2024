@@ -128,7 +128,6 @@ public class Robot extends CommandRobot implements Logged {
     // polls intake at faster speed
     addPeriodic(intake::pollTrigger, INTAKE_FAST_PERIOD.in(Seconds));
 
-    // Fuck REV Robotics.!!!!
     for (var r : SparkUtils.getRunnables()) {
       addPeriodic(r, 5);
     }
@@ -152,11 +151,7 @@ public class Robot extends CommandRobot implements Logged {
     }
   }
 
-  /**
-   * Configures subsystem default commands. Default commands are scheduled when no other command is
-   * running on a subsystem.
-   */
-  /** Configures trigger -> command bindings */
+  /** Configures subsystem default commands & trigger -> command bindings. */
   private void configureBindings() {
     InputStream x = InputStream.of(driver::getLeftX).negate();
     InputStream y = InputStream.of(driver::getLeftY).negate();
@@ -217,7 +212,7 @@ public class Robot extends CommandRobot implements Logged {
 
     // driver climb align (a)
     driver.a().whileTrue(alignment.snapToStage(x, y));
-    // 3, 9, 20 can faults
+
     // driver manual shooter (povUp)
     driver
         .povUp()
