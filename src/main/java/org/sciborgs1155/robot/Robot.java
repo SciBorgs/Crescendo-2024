@@ -19,6 +19,7 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,7 +32,6 @@ import monologue.Logged;
 import monologue.Monologue;
 import org.littletonrobotics.urcl.URCL;
 import org.sciborgs1155.lib.CommandRobot;
-import org.sciborgs1155.lib.FakePDH;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.SparkUtils;
@@ -84,6 +84,7 @@ public class Robot extends CommandRobot implements Logged {
         default -> Pivot.none();
       };
 
+  private final PowerDistribution pdh = new PowerDistribution();
   private final LedStrip led = new LedStrip();
 
   private final Vision vision = Vision.create();
@@ -118,8 +119,8 @@ public class Robot extends CommandRobot implements Logged {
 
     SmartDashboard.putData(CommandScheduler.getInstance());
     // Log PDH
-    // SmartDashboard.putData("PDH", new PowerDistribution());
-    addPeriodic(() -> log("current", FakePDH.update()), PERIOD.in(Seconds));
+    SmartDashboard.putData("PDH", pdh);
+    // addPeriodic(() -> log("current", FakePDH.update()), PERIOD.in(Seconds));
 
     // Configure pose estimation updates every tick
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));
@@ -127,7 +128,6 @@ public class Robot extends CommandRobot implements Logged {
     // polls intake at faster speed
     addPeriodic(intake::pollTrigger, INTAKE_FAST_PERIOD.in(Seconds));
 
-    // Fuck REV Robotics.!!!!
     for (var r : SparkUtils.getRunnables()) {
       addPeriodic(r, 5);
     }
@@ -137,6 +137,8 @@ public class Robot extends CommandRobot implements Logged {
 
     if (isReal()) {
       URCL.start();
+      pdh.clearStickyFaults();
+      pdh.setSwitchableChannel(true);
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
       addPeriodic(() -> vision.simulationPeriodic(drive.pose()), PERIOD.in(Seconds));
@@ -149,11 +151,7 @@ public class Robot extends CommandRobot implements Logged {
     }
   }
 
-  /**
-   * Configures subsystem default commands. Default commands are scheduled when no other command is
-   * running on a subsystem.
-   */
-  /** Configures trigger -> command bindings */
+  /** Configures subsystem default commands & trigger -> command bindings. */
   private void configureBindings() {
     InputStream x = InputStream.of(driver::getLeftX).negate();
     InputStream y = InputStream.of(driver::getLeftY).negate();
@@ -214,7 +212,7 @@ public class Robot extends CommandRobot implements Logged {
 
     // driver climb align (a)
     driver.a().whileTrue(alignment.snapToStage(x, y));
-    // 3, 9, 20 can faults
+
     // driver manual shooter (povUp)
     driver
         .povUp()
@@ -231,6 +229,12 @@ public class Robot extends CommandRobot implements Logged {
         .leftTrigger()
         .whileTrue(
             shooting.shootWithPivot(PivotConstants.FEED_ANGLE, ShooterConstants.DEFAULT_VELOCITY));
+
+    // shoot 45 deg FAST (far as possible)
+    // operator
+    //     .povLeft()
+    //     .whileTrue(
+    //         shooting.shootWithPivot(Radians.of(0.619), ShooterConstants.MAX_VELOCITY));
 
     // operator climb (b)
     operator
