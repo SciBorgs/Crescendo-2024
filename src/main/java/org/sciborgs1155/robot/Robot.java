@@ -289,7 +289,8 @@ public class Robot extends CommandRobot implements Logged {
             shooter.goToTest(RadiansPerSecond.of(100)),
             Test.fromCommand(
                 intake
-                    .intake().asProxy()
+                    .intake()
+                    .asProxy()
                     .deadlineWith(feeder.forward(), shooter.runShooter(100))
                     .withTimeout(1)),
             pivot.goToTest(Radians.of(0)),
