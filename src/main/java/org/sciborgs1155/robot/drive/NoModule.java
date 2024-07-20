@@ -13,6 +13,11 @@ public class NoModule implements ModuleIO {
   public void setTurnVoltage(double voltage) {}
 
   @Override
+  public String name() {
+    return "NoModule";
+  }
+
+  @Override
   public double drivePosition() {
     return 0;
   }
@@ -56,11 +61,6 @@ public class NoModule implements ModuleIO {
 
   @Override
   public void close() {}
-
-  @Override
-  public String getName() {
-    return "NoModule";
-  }
 
   @Override
   public void updateDriveVoltage(Rotation2d angle, double voltage) {}

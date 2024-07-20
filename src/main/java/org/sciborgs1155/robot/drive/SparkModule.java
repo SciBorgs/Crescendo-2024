@@ -42,7 +42,7 @@ public class SparkModule implements ModuleIO {
 
   @Log.NT private SwerveModuleState setpoint = new SwerveModuleState();
 
-  public final String name;
+  private final String name;
 
   public SparkModule(int drivePort, int turnPort, Rotation2d angularOffset, String name) {
     driveMotor = new CANSparkFlex(drivePort, MotorType.kBrushless);
@@ -50,7 +50,7 @@ public class SparkModule implements ModuleIO {
     drivePID = driveMotor.getPIDController();
     driveFF =
         new SimpleMotorFeedforward(
-            Driving.FF.S, Driving.FF.V, Driving.FF.kA_linear); // TODO: Re-tune probably?
+            Driving.FF.S, Driving.FF.V, Driving.FF.kA_linear); // TODO: Re-tune
 
     check(driveMotor, driveMotor.restoreFactoryDefaults());
 
@@ -136,15 +136,15 @@ public class SparkModule implements ModuleIO {
     log("current", driveMotor.getOutputCurrent());
   }
 
-  @Log.NT
-  public double getP() {
-    return turnPID.getP();
-  }
-
   @Override
   public void setTurnVoltage(double voltage) {
     turnMotor.setVoltage(voltage);
     check(turnMotor);
+  }
+
+  @Override
+  public String name() {
+    return name;
   }
 
   @Override
@@ -216,11 +216,6 @@ public class SparkModule implements ModuleIO {
   public void close() {
     driveMotor.close();
     turnMotor.close();
-  }
-
-  @Override
-  public String getName() {
-    return name;
   }
 
   @Override

@@ -52,7 +52,7 @@ public class Shooting implements Logged {
    * The conversion between shooter tangential velocity and note launch velocity. Perhaps. This may
    * also account for other errors with our model.
    */
-  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.75);
+  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.42);
 
   public static final Measure<Distance> MAX_DISTANCE = Meters.of(5.0);
 
@@ -94,7 +94,9 @@ public class Shooting implements Logged {
    * @param shootCondition Condition after which the feeder will run.
    */
   public Command shoot(DoubleSupplier desiredVelocity, BooleanSupplier shootCondition) {
-    return Commands.waitUntil(() -> shooter.atSetpoint() && shootCondition.getAsBoolean())
+    return Commands.waitUntil(
+            () ->
+                shooter.atVelocity(desiredVelocity.getAsDouble()) && shootCondition.getAsBoolean())
         .andThen(feeder.eject())
         .deadlineWith(shooter.runShooter(desiredVelocity));
   }
@@ -138,7 +140,7 @@ public class Shooting implements Logged {
     return shoot(
             () -> rotationalVelocityFromNoteVelocity(calculateNoteVelocity()),
             () ->
-                pivot.atPosition(pitchFromNoteVelocity(calculateNoteVelocity(Seconds.of(0.02))))
+                pivot.atPosition(pitchFromNoteVelocity(calculateNoteVelocity()))
                     && atYaw(yawFromNoteVelocity(calculateNoteVelocity())))
         .deadlineWith(
             drive.drive(
@@ -215,10 +217,6 @@ public class Shooting implements Logged {
 
   public static Pose3d shooterPose(Transform3d pivot, Pose2d robot) {
     return new Pose3d(robot).transformBy(pivot).transformBy(PivotConstants.SHOOTER_FROM_AXLE);
-  }
-
-  public boolean isReady() {
-    return shooter.atSetpoint() && pivot.atGoal();
   }
 
   /**

@@ -33,7 +33,7 @@ public class TalonModule implements ModuleIO {
 
   private SwerveModuleState setpoint = new SwerveModuleState();
 
-  public final String name;
+  private final String name;
 
   public TalonModule(int drivePort, int turnPort, String name) {
     driveMotor = new TalonFX(drivePort);
@@ -83,6 +83,11 @@ public class TalonModule implements ModuleIO {
   @Override
   public void setTurnVoltage(double voltage) {
     turnMotor.setVoltage(voltage);
+  }
+
+  @Override
+  public String name() {
+    return name;
   }
 
   @Override
@@ -142,11 +147,6 @@ public class TalonModule implements ModuleIO {
     // SOON
     // WARNING: NO CODE HERE
     // TODO: Write code
-  }
-
-  @Override
-  public String getName() {
-    return name;
   }
 
   @Override

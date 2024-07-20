@@ -1,7 +1,8 @@
 package org.sciborgs1155.robot.shooter;
 
 import static edu.wpi.first.units.Units.*;
-import static org.sciborgs1155.lib.TestingUtil.assertEqualsReport;
+import static org.sciborgs1155.lib.Assertion.EqualityAssertion;
+import static org.sciborgs1155.lib.Assertion.eAssert;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.Ports.Shooter.BOTTOM_MOTOR;
 import static org.sciborgs1155.robot.Ports.Shooter.TOP_MOTOR;
@@ -20,15 +21,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.DoubleSupplier;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.sciborgs1155.lib.Assertion.EqualityAssertion;
 import org.sciborgs1155.lib.FakePDH;
 import org.sciborgs1155.lib.InputStream;
+import org.sciborgs1155.lib.Test;
 import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.Robot;
 import org.sciborgs1155.robot.commands.Shooting;
+import org.sciborgs1155.robot.shooter.ShooterConstants.Bottom;
+import org.sciborgs1155.robot.shooter.ShooterConstants.Top;
 
 public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   private final WheelIO top;
@@ -155,8 +161,8 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public boolean atVelocity(double velocity) {
-    return Math.abs(topVelocity() - velocity) < topPID.getVelocityTolerance()
-        && Math.abs(bottomVelocity() - velocity) < bottomPID.getVelocityTolerance();
+    return Math.abs(velocity - topVelocity()) < VELOCITY_TOLERANCE.in(RadiansPerSecond)
+        && Math.abs(velocity - bottomVelocity()) < VELOCITY_TOLERANCE.in(RadiansPerSecond);
   }
 
   public double setpoint() {
@@ -199,16 +205,15 @@ public class Shooter extends SubsystemBase implements AutoCloseable, Logged {
     return Shooting.flywheelToNoteSpeed(rotationalVelocity());
   }
 
-  public Command goToTest(Measure<Velocity<Angle>> goal) {
-    return runShooter(goal.in(RadiansPerSecond))
-        .withTimeout(3)
-        .finallyDo(
-            () ->
-                assertEqualsReport(
-                    "Shooter Syst Check Speed",
-                    goal.in(RadiansPerSecond),
-                    rotationalVelocity(),
-                    VELOCITY_TOLERANCE.in(RadiansPerSecond)));
+  public Test goToTest(Measure<Velocity<Angle>> goal) {
+    Command testCommand = runShooter(goal.in(RadiansPerSecond)).withTimeout(3);
+    EqualityAssertion atGoal =
+        eAssert(
+            "Shooter Syst Check Speed",
+            () -> goal.in(RadiansPerSecond),
+            this::rotationalVelocity,
+            VELOCITY_TOLERANCE.in(RadiansPerSecond));
+    return new Test(testCommand, Set.of(atGoal));
   }
 
   @Override

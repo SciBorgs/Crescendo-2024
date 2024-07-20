@@ -18,7 +18,7 @@ public interface ModuleIO extends Logged, AutoCloseable {
    *
    * @return The name of the swerve module.
    */
-  String getName();
+  String name();
 
   /**
    * Sets the drive voltage of the module.

@@ -11,6 +11,7 @@ import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_ACCEL;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_SPEED;
 import static org.sciborgs1155.robot.drive.DriveConstants.TELEOP_ANGULAR_SPEED;
+import static org.sciborgs1155.robot.intake.IntakeConstants.INTAKE_FAST_PERIOD;
 import static org.sciborgs1155.robot.pivot.PivotConstants.AMP_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
@@ -18,6 +19,7 @@ import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,10 +32,10 @@ import monologue.Logged;
 import monologue.Monologue;
 import org.littletonrobotics.urcl.URCL;
 import org.sciborgs1155.lib.CommandRobot;
-import org.sciborgs1155.lib.FakePDH;
 import org.sciborgs1155.lib.FaultLogger;
 import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.SparkUtils;
+import org.sciborgs1155.lib.Test;
 import org.sciborgs1155.robot.Ports.OI;
 import org.sciborgs1155.robot.commands.Alignment;
 import org.sciborgs1155.robot.commands.Autos;
@@ -43,7 +45,6 @@ import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.intake.Intake;
 import org.sciborgs1155.robot.led.LedStrip;
-import org.sciborgs1155.robot.led.LedStrip.LEDTheme;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.pivot.PivotConstants;
 import org.sciborgs1155.robot.shooter.Shooter;
@@ -83,6 +84,7 @@ public class Robot extends CommandRobot implements Logged {
         default -> Pivot.none();
       };
 
+  private final PowerDistribution pdh = new PowerDistribution();
   private final LedStrip led = new LedStrip();
 
   private final Vision vision = Vision.create();
@@ -117,13 +119,15 @@ public class Robot extends CommandRobot implements Logged {
 
     SmartDashboard.putData(CommandScheduler.getInstance());
     // Log PDH
-    // SmartDashboard.putData("PDH", new PowerDistribution());
-    addPeriodic(() -> log("current", FakePDH.update()), PERIOD.in(Seconds));
+    SmartDashboard.putData("PDH", pdh);
+    // addPeriodic(() -> log("current", FakePDH.update()), PERIOD.in(Seconds));
 
     // Configure pose estimation updates every tick
     addPeriodic(() -> drive.updateEstimates(vision.getEstimatedGlobalPoses()), PERIOD.in(Seconds));
 
-    // Fuck REV Robotics.!!!!
+    // polls intake at faster speed
+    addPeriodic(intake::pollTrigger, INTAKE_FAST_PERIOD.in(Seconds));
+
     for (var r : SparkUtils.getRunnables()) {
       addPeriodic(r, 5);
     }
@@ -133,6 +137,8 @@ public class Robot extends CommandRobot implements Logged {
 
     if (isReal()) {
       URCL.start();
+      pdh.clearStickyFaults();
+      pdh.setSwitchableChannel(true);
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
       addPeriodic(() -> vision.simulationPeriodic(drive.pose()), PERIOD.in(Seconds));
@@ -145,11 +151,7 @@ public class Robot extends CommandRobot implements Logged {
     }
   }
 
-  /**
-   * Configures subsystem default commands. Default commands are scheduled when no other command is
-   * running on a subsystem.
-   */
-  /** Configures trigger -> command bindings */
+  /** Configures subsystem default commands & trigger -> command bindings. */
   private void configureBindings() {
     InputStream x = InputStream.of(driver::getLeftX).negate();
     InputStream y = InputStream.of(driver::getLeftY).negate();
@@ -181,15 +183,13 @@ public class Robot extends CommandRobot implements Logged {
 
     drive.setDefaultCommand(drive.drive(x, y, omega));
 
-    led.setDefaultCommand(led.setLEDTheme(LEDTheme.ALLIANCE));
+    led.setDefaultCommand(led.alliance());
 
-    autonomous()
-        .whileTrue(Commands.deferredProxy(autos::getSelected))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+    autonomous().whileTrue(Commands.deferredProxy(autos::getSelected)).whileTrue(led.rainbow());
 
     test().whileTrue(systemsCheck());
 
-    disabled().onTrue(led.setLEDTheme(LEDTheme.NONE));
+    disabled().onTrue(led.alliance());
 
     driver.b().whileTrue(drive.zeroHeading());
     driver
@@ -199,10 +199,7 @@ public class Robot extends CommandRobot implements Logged {
         .onFalse(Commands.runOnce(() -> speedMultiplier = Constants.FULL_SPEED_MULTIPLIER));
 
     // driver shoot (x)
-    driver
-        .x()
-        .whileTrue(shooting.shootWhileDriving(x, y))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+    driver.x().whileTrue(shooting.shootWhileDriving(x, y)).whileTrue(led.rainbow());
 
     // driver auto-amp (y)
     // driver
@@ -215,7 +212,7 @@ public class Robot extends CommandRobot implements Logged {
 
     // driver climb align (a)
     driver.a().whileTrue(alignment.snapToStage(x, y));
-    // 3, 9, 20 can faults
+
     // driver manual shooter (povUp)
     driver
         .povUp()
@@ -224,14 +221,20 @@ public class Robot extends CommandRobot implements Logged {
     // intake (right trigger / top left bump)
     operator
         .leftBumper()
-        .whileTrue(intake.intake().deadlineWith(feeder.forward()))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+        .whileTrue(intake.intake().deadlineWith(feeder.slowForward()))
+        .whileTrue(led.rainbow());
 
     // operator feed (left trigger)
     operator
         .leftTrigger()
         .whileTrue(
             shooting.shootWithPivot(PivotConstants.FEED_ANGLE, ShooterConstants.DEFAULT_VELOCITY));
+
+    // shoot 45 deg FAST (far as possible)
+    // operator
+    //     .povLeft()
+    //     .whileTrue(
+    //         shooting.shootWithPivot(Radians.of(0.619), ShooterConstants.MAX_VELOCITY));
 
     // operator climb (b)
     operator
@@ -248,7 +251,7 @@ public class Robot extends CommandRobot implements Logged {
     operator
         .povUp()
         .whileTrue(shooting.shootWithPivot(AMP_ANGLE, AMP_VELOCITY))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+        .whileTrue(led.rainbow());
 
     // operator manual pivot (a)
     operator
@@ -258,22 +261,13 @@ public class Robot extends CommandRobot implements Logged {
                 .manualPivot(
                     InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1))
                 .deadlineWith(Commands.idle(shooter)))
-        .toggleOnTrue(led.setLEDTheme(LEDTheme.RAINDROP));
+        .toggleOnTrue(led.raindrop());
 
     // operator manual shoot (povDown)
-    operator
-        .povDown()
-        .whileTrue(shooting.shoot(RadiansPerSecond.of(350)))
-        .whileTrue(led.setLEDTheme(LEDTheme.RAINBOW));
+    operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350))).whileTrue(led.rainbow());
 
-    intake
-        .hasNote()
-        .onTrue(rumble(RumbleType.kLeftRumble, 0.3))
-        .whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
-    feeder
-        .noteAtShooter()
-        .onFalse(rumble(RumbleType.kRightRumble, 0.3))
-        .whileTrue(led.setLEDTheme(LEDTheme.ORANGE));
+    intake.hasNote().onTrue(rumble(RumbleType.kLeftRumble, 0.3)).whileTrue(led.green());
+    feeder.noteAtShooter().onFalse(rumble(RumbleType.kRightRumble, 0.3)).whileTrue(led.green());
   }
 
   public Command rumble(RumbleType rumbleType, double strength) {
@@ -291,9 +285,14 @@ public class Robot extends CommandRobot implements Logged {
   }
 
   public Command systemsCheck() {
-    return Commands.sequence(
+    return Test.toCommand(
             shooter.goToTest(RadiansPerSecond.of(100)),
-            intake.intake().deadlineWith(feeder.forward(), shooter.runShooter(100)).withTimeout(1),
+            Test.fromCommand(
+                intake
+                    .intake()
+                    .asProxy()
+                    .deadlineWith(feeder.forward(), shooter.runShooter(100))
+                    .withTimeout(1)),
             pivot.goToTest(Radians.of(0)),
             pivot.goToTest(STARTING_ANGLE),
             drive.systemsCheck())

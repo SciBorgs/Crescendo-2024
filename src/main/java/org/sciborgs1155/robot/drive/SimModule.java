@@ -41,7 +41,7 @@ public class SimModule implements ModuleIO {
 
   private SwerveModuleState setpoint = new SwerveModuleState();
 
-  public final String name;
+  private final String name;
 
   public SimModule(String name) {
     this.name = name;
@@ -84,7 +84,7 @@ public class SimModule implements ModuleIO {
   public void close() {}
 
   @Override
-  public String getName() {
+  public String name() {
     return name;
   }
 

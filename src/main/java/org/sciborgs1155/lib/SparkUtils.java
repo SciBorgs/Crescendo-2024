@@ -3,12 +3,10 @@ package org.sciborgs1155.lib;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.REVLibError;
-import com.revrobotics.SparkRelativeEncoder.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.DoubleSupplier;
 
 /** Utility class for configuration of Spark motor controllers */
 public class SparkUtils {
@@ -93,13 +91,6 @@ public class SparkUtils {
     // https://docs.revrobotics.com/brushless/spark-flex/revlib/spark-flex-firmware-changelog#breaking-changes
     // // if it's only IAccum, there's literally no reason to enable the frame
 
-    Optional<DoubleSupplier> supplier1 = Optional.empty();
-    Optional<DoubleSupplier> supplier2 = Optional.empty();
-    Optional<DoubleSupplier> supplier3 = Optional.empty();
-    Optional<DoubleSupplier> supplier4 = Optional.empty();
-    Optional<DoubleSupplier> supplier5 = Optional.empty();
-    Optional<DoubleSupplier> supplier6 = Optional.empty();
-
     if (withFollower || data.contains(Data.APPLIED_OUTPUT)) {
       status0 = FRAME_STRATEGY_VERY_FAST;
     }
@@ -109,49 +100,32 @@ public class SparkUtils {
         || data.contains(Data.CURRENT)
         || data.contains(Data.TEMPERATURE)) {
       status1 = FRAME_STRATEGY_FAST;
-      supplier1 = Optional.of(spark::getOutputCurrent);
     }
 
     if (sensors.contains(Sensor.INTEGRATED) && data.contains(Data.POSITION)) {
       status2 = FRAME_STRATEGY_FAST;
-      supplier2 = Optional.of(() -> spark.getEncoder().getPosition());
     }
 
     if (sensors.contains(Sensor.ANALOG)
         && (data.contains(Data.VELOCITY) || data.contains(Data.POSITION))) {
       status3 = FRAME_STRATEGY_FAST;
-      supplier3 = Optional.of(() -> spark.getEncoder().getVelocity());
     }
 
     if (sensors.contains(Sensor.ALTERNATE)
         && (data.contains(Data.VELOCITY) || data.contains(Data.POSITION))) {
       status4 = FRAME_STRATEGY_FAST;
-      supplier4 =
-          Optional.of(() -> spark.getEncoder(Type.kQuadrature, THROUGHBORE_CPR).getPosition());
     }
 
     if (sensors.contains(Sensor.ABSOLUTE)) {
       if (data.contains(Data.POSITION)) {
         status5 = FRAME_STRATEGY_FAST;
-        supplier5 = Optional.of(() -> spark.getAbsoluteEncoder().getPosition());
       }
       if (data.contains(Data.VELOCITY)) {
         status6 = FRAME_STRATEGY_FAST;
-        supplier6 = Optional.of(() -> spark.getAbsoluteEncoder().getVelocity());
       }
     }
 
     int[] frames = {status0, status1, status2, status3, status4, status5, status6, status7};
-    List<Optional<DoubleSupplier>> suppliers =
-        List.of(
-            Optional.empty(),
-            supplier1,
-            supplier2,
-            supplier3,
-            supplier4,
-            supplier5,
-            supplier6,
-            Optional.empty());
     REVLibError error = REVLibError.kOk;
     for (int i = 0; i < frames.length; i++) {
       REVLibError e = spark.setPeriodicFramePeriod(PeriodicFrame.fromId(i), frames[i]);

@@ -1,5 +1,10 @@
 {
   "HALProvider": {
+    "Addressable LEDs": {
+      "window": {
+        "visible": true
+      }
+    },
     "Other Devices": {
       "window": {
         "visible": false
@@ -124,6 +129,9 @@
           },
           "string[]##v_/Faults/Total Faults/infos": {
             "open": true
+          },
+          "string[]##v_/Faults/Total Faults/warnings": {
+            "open": true
           }
         },
         "open": true
@@ -148,7 +156,6 @@
             },
             "open": true
           },
-          "open": true,
           "turning": {
             "open": true
           }
@@ -179,5 +186,8 @@
       "open": true
     },
     "visible": true
+  },
+  "NetworkTables View": {
+    "visible": false
   }
 }
