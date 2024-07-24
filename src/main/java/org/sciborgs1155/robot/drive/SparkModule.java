@@ -50,7 +50,7 @@ public class SparkModule implements ModuleIO {
     drivePID = driveMotor.getPIDController();
     driveFF =
         new SimpleMotorFeedforward(
-            Driving.FF.S, Driving.FF.V, Driving.FF.kA_linear); // TODO: Re-tune
+            Driving.FF.SPARK.S, Driving.FF.SPARK.V, Driving.FF.SPARK.kA_linear); // TODO: Re-tune
 
     check(driveMotor, driveMotor.restoreFactoryDefaults());
 
@@ -202,7 +202,7 @@ public class SparkModule implements ModuleIO {
     // Scale setpoint by cos of turning error to reduce tread wear
     setpoint.speedMetersPerSecond *= setpoint.angle.minus(rotation()).getCos();
 
-    if (mode == ModuleIO.ControlMode.OPEN_LOOP_VELOCITY) {
+    if (mode == ControlMode.OPEN_LOOP_VELOCITY) {
       setDriveVoltage(driveFF.calculate(setpoint.speedMetersPerSecond));
     } else {
       setDriveSetpoint(setpoint.speedMetersPerSecond);
@@ -216,12 +216,5 @@ public class SparkModule implements ModuleIO {
   public void close() {
     driveMotor.close();
     turnMotor.close();
-  }
-
-  @Override
-  public void updateDriveVoltage(Rotation2d angle, double voltage) {
-    setpoint.angle = angle;
-    setDriveVoltage(voltage);
-    setTurnSetpoint(angle.getRadians());
   }
 }

@@ -20,7 +20,7 @@ public class SimModule implements ModuleIO {
 
   private final DCMotorSim drive =
       new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(Driving.FF.V, Driving.FF.kA_linear),
+          LinearSystemId.createDCMotorSystem(Driving.FF.SPARK.V, Driving.FF.SPARK.kA_linear),
           DCMotor.getNeoVortex(1),
           1 / Driving.GEARING);
   private final DCMotorSim turn =
@@ -35,9 +35,11 @@ public class SimModule implements ModuleIO {
       new PIDController(Turning.PID.SIM.P, Turning.PID.SIM.I, Turning.PID.SIM.D);
 
   private final SimpleMotorFeedforward driveTranslationFeedforward =
-      new SimpleMotorFeedforward(Driving.FF.S, Driving.FF.V, Driving.FF.kA_linear);
+      new SimpleMotorFeedforward(
+          Driving.FF.SPARK.S, Driving.FF.SPARK.V, Driving.FF.SPARK.kA_linear);
   private final SimpleMotorFeedforward driveRotationFeedforward =
-      new SimpleMotorFeedforward(Driving.FF.S, Driving.FF.V, Driving.FF.kA_angular);
+      new SimpleMotorFeedforward(
+          Driving.FF.SPARK.S, Driving.FF.SPARK.V, Driving.FF.SPARK.kA_angular);
 
   private SwerveModuleState setpoint = new SwerveModuleState();
 

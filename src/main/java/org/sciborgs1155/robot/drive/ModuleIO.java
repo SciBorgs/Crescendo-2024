@@ -111,7 +111,10 @@ public interface ModuleIO extends Logged, AutoCloseable {
    * @param angle The desired angle of the module.
    * @param voltage The voltage to supply to the drive motor.
    */
-  void updateDriveVoltage(Rotation2d angle, double voltage);
+  default void updateDriveVoltage(Rotation2d angle, double voltage) {
+    setDriveVoltage(voltage);
+    setTurnSetpoint(angle.getRadians());
+  }
 
   @Override
   void close();
