@@ -56,6 +56,9 @@ public class TalonModule implements ModuleIO {
     driveVelocity.setUpdateFrequency(1 / SENSOR_PERIOD.in(Seconds));
 
     TalonFXConfiguration talonConfig = new TalonFXConfiguration();
+    // reset config
+    driveMotor.getConfigurator().apply(talonConfig);
+
     talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     talonConfig.CurrentLimits.SupplyCurrentLimit = 80;
     talonConfig.Slot0.kP = Driving.PID.TALON.P;
@@ -144,17 +147,6 @@ public class TalonModule implements ModuleIO {
   }
 
   @Override
-  public void resetEncoders() {
-    driveMotor.setPosition(0);
-  }
-
-  @Override
-  public void close() {
-    turnMotor.close();
-    driveMotor.close();
-  }
-
-  @Override
   public SwerveModuleState state() {
     return new SwerveModuleState(driveVelocity(), rotation());
   }
@@ -167,6 +159,11 @@ public class TalonModule implements ModuleIO {
   @Override
   public SwerveModuleState desiredState() {
     return setpoint;
+  }
+
+  @Override
+  public void resetEncoders() {
+    driveMotor.setPosition(0);
   }
 
   @Override
@@ -194,5 +191,18 @@ public class TalonModule implements ModuleIO {
 
     setTurnSetpoint(setpoint.angle.getRadians());
     this.setpoint = setpoint;
+  }
+
+  @Override
+  public void updateInputs(Rotation2d angle, double voltage) {
+    setpoint.angle = angle;
+    setDriveVoltage(voltage);
+    setTurnSetpoint(angle.getRadians());
+  }
+
+  @Override
+  public void close() {
+    turnMotor.close();
+    driveMotor.close();
   }
 }

@@ -77,15 +77,6 @@ public class SimModule implements ModuleIO {
   }
 
   @Override
-  public void resetEncoders() {
-    drive.setState(VecBuilder.fill(0, 0));
-    turn.setState(VecBuilder.fill(0, 0));
-  }
-
-  @Override
-  public void close() {}
-
-  @Override
   public String name() {
     return name;
   }
@@ -103,6 +94,12 @@ public class SimModule implements ModuleIO {
   @Override
   public SwerveModuleState desiredState() {
     return setpoint;
+  }
+
+  @Override
+  public void resetEncoders() {
+    drive.setState(VecBuilder.fill(0, 0));
+    turn.setState(VecBuilder.fill(0, 0));
   }
 
   @Override
@@ -155,7 +152,7 @@ public class SimModule implements ModuleIO {
   }
 
   @Override
-  public void updateDriveVoltage(Rotation2d angle, double voltage) {
+  public void updateInputs(Rotation2d angle, double voltage) {
     setpoint.angle = angle;
 
     double turnVolts = turnFeedback.calculate(rotation().getRadians(), setpoint.angle.getRadians());
@@ -163,4 +160,7 @@ public class SimModule implements ModuleIO {
     setDriveVoltage(voltage);
     setTurnVoltage(turnVolts);
   }
+
+  @Override
+  public void close() {}
 }

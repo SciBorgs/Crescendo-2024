@@ -213,6 +213,13 @@ public class SparkModule implements ModuleIO {
   }
 
   @Override
+  public void updateInputs(Rotation2d angle, double voltage) {
+    setpoint.angle = angle;
+    setDriveVoltage(voltage);
+    setTurnSetpoint(angle.getRadians());
+  }
+
+  @Override
   public void close() {
     driveMotor.close();
     turnMotor.close();

@@ -55,9 +55,6 @@ public interface ModuleIO extends Logged, AutoCloseable {
    */
   Rotation2d rotation();
 
-  /** Resets all encoders. */
-  void resetEncoders();
-
   /**
    * Returns the current state of the module.
    *
@@ -78,6 +75,9 @@ public interface ModuleIO extends Logged, AutoCloseable {
    * @return The desired position of the module.
    */
   SwerveModuleState desiredState();
+
+  /** Resets all encoders. */
+  void resetEncoders();
 
   /**
    * Sets the setpoint value for the onboard drive motor's PID.
@@ -111,10 +111,7 @@ public interface ModuleIO extends Logged, AutoCloseable {
    * @param angle The desired angle of the module.
    * @param voltage The voltage to supply to the drive motor.
    */
-  default void updateDriveVoltage(Rotation2d angle, double voltage) {
-    setDriveVoltage(voltage);
-    setTurnSetpoint(angle.getRadians());
-  }
+  void updateInputs(Rotation2d angle, double voltage);
 
   @Override
   void close();

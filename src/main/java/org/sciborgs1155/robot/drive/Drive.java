@@ -58,7 +58,6 @@ import org.sciborgs1155.robot.drive.ModuleIO.ControlMode;
 import org.sciborgs1155.robot.vision.Vision.PoseEstimate;
 
 public class Drive extends SubsystemBase implements Logged, AutoCloseable {
-
   // Modules
   private final ModuleIO frontLeft;
   private final ModuleIO frontRight;
@@ -136,7 +135,7 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
             new SysIdRoutine.Mechanism(
                 volts ->
                     modules.forEach(
-                        m -> m.updateDriveVoltage(Rotation2d.fromRadians(0), volts.in(Volts))),
+                        m -> m.updateInputs(Rotation2d.fromRadians(0), volts.in(Volts))),
                 null,
                 this,
                 "translation"));
@@ -145,13 +144,13 @@ public class Drive extends SubsystemBase implements Logged, AutoCloseable {
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
                 volts -> {
-                  this.frontLeft.updateDriveVoltage(
+                  this.frontLeft.updateInputs(
                       Rotation2d.fromRadians(3 * Math.PI / 4), volts.in(Volts));
-                  this.frontRight.updateDriveVoltage(
+                  this.frontRight.updateInputs(
                       Rotation2d.fromRadians(Math.PI / 4), volts.in(Volts));
-                  this.rearLeft.updateDriveVoltage(
+                  this.rearLeft.updateInputs(
                       Rotation2d.fromRadians(-3 * Math.PI / 4), volts.in(Volts));
-                  this.rearRight.updateDriveVoltage(
+                  this.rearRight.updateInputs(
                       Rotation2d.fromRadians(-Math.PI / 4), volts.in(Volts));
                 },
                 null,

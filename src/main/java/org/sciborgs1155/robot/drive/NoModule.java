@@ -63,5 +63,5 @@ public class NoModule implements ModuleIO {
   public void close() {}
 
   @Override
-  public void updateDriveVoltage(Rotation2d angle, double voltage) {}
+  public void updateInputs(Rotation2d angle, double voltage) {}
 }
