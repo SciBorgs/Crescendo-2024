@@ -79,7 +79,7 @@ public class Shooting implements Logged {
   /**
    * Runs the shooter before feeding it the note.
    *
-   * @param desiredVelocity The velocity in radians per second to shoot at.
+   * @param desiredVelocity Target velocity for the flywheel.
    * @return The command to shoot at the desired velocity.
    */
   public Command shoot(Measure<Velocity<Angle>> desiredVelocity) {
@@ -90,7 +90,7 @@ public class Shooting implements Logged {
    * Runs shooter to desired velocity, runs feeder once it reaches its velocity and shootCondition
    * is true.
    *
-   * @param desiredVelocity Target velocity for the flywheel.
+   * @param desiredVelocity Target velocity for the flywheel in radians per second.
    * @param shootCondition Condition after which the feeder will run.
    */
   public Command shoot(DoubleSupplier desiredVelocity, BooleanSupplier shootCondition) {
@@ -245,7 +245,7 @@ public class Shooting implements Logged {
    * vector, the return value will also be the pivot angle.
    *
    * @param velocity Note initial velocity vector
-   * @return Pitch/pivot angle
+   * @return Pitch/pivot angle in radians
    */
   public static double pitchFromNoteVelocity(Vector<N3> velocity) {
     return Math.atan(velocity.get(2) / VecBuilder.fill(velocity.get(0), velocity.get(1)).norm());

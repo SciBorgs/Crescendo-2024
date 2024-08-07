@@ -153,11 +153,11 @@ public class Robot extends CommandRobot implements Logged {
 
   /** Configures subsystem default commands & trigger -> command bindings. */
   private void configureBindings() {
-    InputStream x = InputStream.of(driver::getLeftX).negate();
-    InputStream y = InputStream.of(driver::getLeftY).negate();
+    InputStream xRaw = InputStream.of(driver::getLeftX).negate();
+    InputStream yRaw = InputStream.of(driver::getLeftY).negate();
 
     InputStream r =
-        InputStream.hypot(x, y)
+        InputStream.hypot(xRaw, yRaw)
             .log("Robot/raw joystick")
             .scale(() -> speedMultiplier)
             .clamp(1.0)
@@ -166,10 +166,12 @@ public class Robot extends CommandRobot implements Logged {
             .log("Robot/processed joystick")
             .scale(MAX_SPEED.in(MetersPerSecond));
 
-    InputStream theta = InputStream.atan(x, y);
+    InputStream theta = InputStream.atan(xRaw, yRaw);
 
-    x = r.scale(theta.map(Math::cos)); // .rateLimit(MAX_ACCEL.in(MetersPerSecondPerSecond));
-    y = r.scale(theta.map(Math::sin)); // .rateLimit(MAX_ACCEL.in(MetersPerSecondPerSecond));
+    InputStream x =
+        r.scale(theta.map(Math::cos)); // .rateLimit(MAX_ACCEL.in(MetersPerSecondPerSecond));
+    InputStream y =
+        r.scale(theta.map(Math::sin)); // .rateLimit(MAX_ACCEL.in(MetersPerSecondPerSecond));
 
     InputStream omega =
         InputStream.of(driver::getRightX)
