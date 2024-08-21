@@ -11,8 +11,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
@@ -280,8 +282,12 @@ public final class FaultLogger {
    * @return If the spark is working without errors.
    */
   public static boolean check(CANSparkBase spark, REVLibError error) {
+    Map<Integer, String> nickname = new HashMap<>();
+    // nicknames for motors with corresponding ids
+    // ...
+
     if (error != REVLibError.kOk) {
-      report(SparkUtils.name(spark), error.name(), FaultType.ERROR);
+      report(nickname.get(spark.getDeviceId()), error.name(), FaultType.ERROR);
       return false;
     }
     return true;
