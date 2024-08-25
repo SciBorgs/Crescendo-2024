@@ -287,7 +287,12 @@ public final class FaultLogger {
     // ...
 
     if (error != REVLibError.kOk) {
-      report(String.format("Name - %s ID- %s", nickname.get(spark.getDeviceId()), String.valueOf(spark.getDeviceId())), error.name(), FaultType.ERROR);
+      report(
+          String.format(
+              "Name - %s ID- %s",
+              nickname.get(spark.getDeviceId()), String.valueOf(spark.getDeviceId())),
+          error.name(),
+          FaultType.ERROR);
       return false;
     }
     return true;
