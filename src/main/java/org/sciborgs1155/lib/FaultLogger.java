@@ -11,15 +11,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.photonvision.PhotonCamera;
+import org.sciborgs1155.robot.Ports;
 
 /**
  * FaultLogger allows for faults to be logged and displayed.
@@ -191,7 +190,12 @@ public final class FaultLogger {
         () -> {
           for (FaultID fault : FaultID.values()) {
             if (spark.getFault(fault)) {
-              report(SparkUtils.name(spark), fault.name(), FaultType.ERROR);
+              report(
+                  String.format(
+                      "Name - %s ID- %s",
+                      Ports.idToName.get(spark.getDeviceId()), String.valueOf(spark.getDeviceId())),
+                  fault.name(),
+                  FaultType.ERROR);
             }
           }
         });
@@ -282,15 +286,12 @@ public final class FaultLogger {
    * @return If the spark is working without errors.
    */
   public static boolean check(CANSparkBase spark, REVLibError error) {
-    Map<Integer, String> nickname = new HashMap<>();
-    // nicknames for motors with corresponding ids
-    // ...
 
     if (error != REVLibError.kOk) {
       report(
           String.format(
               "Name - %s ID- %s",
-              nickname.get(spark.getDeviceId()), String.valueOf(spark.getDeviceId())),
+              Ports.idToName.get(spark.getDeviceId()), String.valueOf(spark.getDeviceId())),
           error.name(),
           FaultType.ERROR);
       return false;

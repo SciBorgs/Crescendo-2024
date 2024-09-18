@@ -1,6 +1,17 @@
 package org.sciborgs1155.robot;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class Ports {
+
+  public static Map<Integer, String> idToName;
+
+  static {
+    idToName = new HashMap();
+    // idToName.put(id, name);
+  }
+
   public static final class OI {
     public static final int OPERATOR = 0;
     public static final int DRIVER = 1;
