@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.button.RobotModeTriggers.*;
 import static org.sciborgs1155.robot.Constants.DEADBAND;
+import static org.sciborgs1155.robot.Constants.Field.feedTarget;
 import static org.sciborgs1155.robot.Constants.PERIOD;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_ANGULAR_ACCEL;
 import static org.sciborgs1155.robot.drive.DriveConstants.MAX_SPEED;
@@ -16,6 +17,8 @@ import static org.sciborgs1155.robot.pivot.PivotConstants.AMP_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.STARTING_ANGLE;
 import static org.sciborgs1155.robot.shooter.ShooterConstants.AMP_VELOCITY;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -116,6 +119,9 @@ public class Robot extends CommandRobot implements Logged {
     addPeriodic(
         () -> log("dist", Shooting.translationToSpeaker(drive.pose().getTranslation()).getNorm()),
         kDefaultPeriod);
+
+    addPeriodic(
+        () -> log("feedTarget", new Pose2d(feedTarget(), new Rotation2d())), kDefaultPeriod);
 
     SmartDashboard.putData(CommandScheduler.getInstance());
     // Log PDH
@@ -262,6 +268,8 @@ public class Robot extends CommandRobot implements Logged {
                     InputStream.of(operator::getLeftY).negate().deadband(Constants.DEADBAND, 1))
                 .deadlineWith(Commands.idle(shooter)))
         .toggleOnTrue(led.raindrop());
+
+    operator.y().onTrue(shooting.feedToAmp());
 
     // operator manual shoot (povDown)
     operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350))).whileTrue(led.rainbow());

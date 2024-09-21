@@ -1,11 +1,14 @@
 package org.sciborgs1155.robot.commands;
 
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static java.lang.Math.atan;
+import static java.lang.Math.cos;
 import static java.lang.Math.pow;
+import static java.lang.Math.tan;
 import static org.sciborgs1155.robot.Constants.Field.*;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MAX_ANGLE;
 import static org.sciborgs1155.robot.pivot.PivotConstants.MIN_ANGLE;
@@ -41,6 +44,7 @@ import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
+import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Driving;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.pivot.PivotConstants;
@@ -53,6 +57,8 @@ public class Shooting implements Logged {
    * also account for other errors with our model.
    */
   public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.42);
+
+  public static final DoubleEntry ethansConstant = Tuning.entry("/Robot/Ethan's Constant", 4.42);
 
   public static final Measure<Distance> MAX_DISTANCE = Meters.of(5.0);
 
@@ -150,6 +156,22 @@ public class Shooting implements Logged {
             pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
   }
 
+  public Command feedToAmp() {
+    return shoot(
+            () -> calculateStationaryNoteVector().norm() / RADIUS.in(Meters) * ethansConstant.get(),
+            () ->
+                atYaw(yawFromNoteVelocity(calculateStationaryNoteVector()))
+                    && Math.abs(drive.getFieldRelativeChassisSpeeds().vxMetersPerSecond)
+                        < Driving.VELOCITY_TOLERANCE.in(MetersPerSecond)
+                    && Math.abs(drive.getFieldRelativeChassisSpeeds().vyMetersPerSecond)
+                        < Driving.VELOCITY_TOLERANCE.in(MetersPerSecond)
+                    && pivot.atPosition(pitchFromNoteVelocity(calculateStationaryNoteVector())))
+        .deadlineWith(
+            drive.drive(
+                () -> 0, () -> 0, () -> yawFromNoteVelocity(calculateStationaryNoteVector())),
+            pivot.runPivot(() -> pitchFromNoteVelocity(calculateStationaryNoteVector())));
+  }
+
   public static Pose2d robotPoseFacingSpeaker(Translation2d robotTranslation) {
     return new Pose2d(
         robotTranslation,
@@ -190,6 +212,26 @@ public class Shooting implements Logged {
         new Translation3d(1, 0, 0).rotateBy(noteOrientation).toVector().unit().times(shotVelocity);
 
     return noteVelocity.minus(robotVelocity);
+  }
+
+  public Vector<N3> calculateStationaryNoteVector() {
+    return calculateStationaryNoteVector(drive.pose());
+  }
+
+  /**
+   * method used to calculate the robot relative velocity vector that sends it to the amp
+   *
+   * @return A 3d vector representing the desired initial velocity
+   */
+  public Vector<N3> calculateStationaryNoteVector(Pose2d robotPose) {
+    Translation2d difference = translationToFeedTarget(robotPose.getTranslation());
+    double shotVelocity = calculateVelocityFromPitch(robotPose, pivot.position());
+    Rotation3d rotation = new Rotation3d(0, -pivot.position(), difference.getAngle().getRadians());
+
+    Vector<N3> noteVelocity =
+        new Translation3d(1, 0, 0).rotateBy(rotation).toVector().unit().times(shotVelocity);
+
+    return noteVelocity;
   }
 
   public static Pose2d predictedPose(
@@ -288,6 +330,10 @@ public class Shooting implements Logged {
     return speaker().toTranslation2d().minus(robotTranslation);
   }
 
+  public static Translation2d translationToFeedTarget(Translation2d robotTranslation) {
+    return feedTarget().minus(robotTranslation);
+  }
+
   public static double calculateStationaryVelocity(double distance) {
     return flywheelToNoteSpeed(shotVelocityLookup.get(distance));
   }
@@ -320,5 +366,17 @@ public class Shooting implements Logged {
       return pitch;
     }
     return calculateStationaryPitch(robotPose, velocity, pitch, i + 1);
+  }
+
+  private static double calculateVelocityFromPitch(Pose2d robotPose, double pitch) {
+    double G = 9.81;
+    Translation3d shooterTranslation =
+        shooterPose(Pivot.transform(-pitch), robotPose).getTranslation();
+    double dist = translationToFeedTarget(shooterTranslation.toTranslation2d()).getNorm();
+    double h = 0;
+    double denom = 2 * pow(cos(pitch), 2) * (h - (dist * tan(pitch)));
+    double numerator = -G * pow(dist, 2);
+
+    return Math.sqrt(numerator / denom);
   }
 }
