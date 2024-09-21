@@ -269,7 +269,7 @@ public class Robot extends CommandRobot implements Logged {
                 .deadlineWith(Commands.idle(shooter)))
         .toggleOnTrue(led.raindrop());
 
-    operator.y().onTrue(shooting.feedToAmp());
+    operator.y().onTrue(shooting.feedToAmp(x, y));
 
     // operator manual shoot (povDown)
     operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350))).whileTrue(led.rainbow());

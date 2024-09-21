@@ -1,7 +1,6 @@
 package org.sciborgs1155.robot.commands;
 
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -44,7 +43,6 @@ import org.sciborgs1155.lib.InputStream;
 import org.sciborgs1155.lib.Tuning;
 import org.sciborgs1155.robot.drive.Drive;
 import org.sciborgs1155.robot.drive.DriveConstants;
-import org.sciborgs1155.robot.drive.DriveConstants.ModuleConstants.Driving;
 import org.sciborgs1155.robot.feeder.Feeder;
 import org.sciborgs1155.robot.pivot.Pivot;
 import org.sciborgs1155.robot.pivot.PivotConstants;
@@ -156,20 +154,18 @@ public class Shooting implements Logged {
             pivot.runPivot(() -> pitchFromNoteVelocity(calculateNoteVelocity())));
   }
 
-  public Command feedToAmp() {
+  public Command feedToAmp(InputStream vx, InputStream vy) {
     return shoot(
-            () -> calculateStationaryNoteVector().norm() / RADIUS.in(Meters) * ethansConstant.get(),
+            () -> calculateFeedNoteVelocity().norm() / RADIUS.in(Meters) * ethansConstant.get(),
             () ->
-                atYaw(yawFromNoteVelocity(calculateStationaryNoteVector()))
-                    && Math.abs(drive.getFieldRelativeChassisSpeeds().vxMetersPerSecond)
-                        < Driving.VELOCITY_TOLERANCE.in(MetersPerSecond)
-                    && Math.abs(drive.getFieldRelativeChassisSpeeds().vyMetersPerSecond)
-                        < Driving.VELOCITY_TOLERANCE.in(MetersPerSecond)
-                    && pivot.atPosition(pitchFromNoteVelocity(calculateStationaryNoteVector())))
+                atYaw(yawFromNoteVelocity(calculateFeedNoteVelocity()))
+                    && pivot.atPosition(pitchFromNoteVelocity(calculateFeedNoteVelocity())))
         .deadlineWith(
             drive.drive(
-                () -> 0, () -> 0, () -> yawFromNoteVelocity(calculateStationaryNoteVector())),
-            pivot.runPivot(() -> pitchFromNoteVelocity(calculateStationaryNoteVector())));
+                vx.scale(0.5),
+                vy.scale(0.5),
+                () -> yawFromNoteVelocity(calculateFeedNoteVelocity())),
+            pivot.runPivot(() -> pitchFromNoteVelocity(calculateFeedNoteVelocity())));
   }
 
   public static Pose2d robotPoseFacingSpeaker(Translation2d robotTranslation) {
@@ -185,8 +181,37 @@ public class Shooting implements Logged {
   }
 
   public Vector<N3> calculateNoteVelocity(Measure<Time> predictionTime) {
-    return calculateNoteVelocity(
+    Pose2d predictedPose =
+        predictedPose(drive.pose(), drive.getFieldRelativeChassisSpeeds(), predictionTime);
+
+    return calculateNoteVelocity(predictedPose);
+  }
+
+  public Vector<N3> calculateNoteVelocity(Pose2d robotPose) {
+    Translation2d difference = translationToSpeaker(robotPose.getTranslation());
+    double shotVelocity = calculateStationaryVelocity(difference.getNorm());
+    double pitch =
+        calculateStationaryPitch(
+            robotPoseFacingSpeaker(robotPose.getTranslation()), shotVelocity, pivot.position());
+
+    return calculateNoteVelocity(robotPose, difference, shotVelocity, pitch);
+  }
+
+  public Vector<N3> calculateFeedNoteVelocity() {
+    return calculateFeedNoteVelocity(drive.pose());
+  }
+
+  public Vector<N3> calculateFeedNoteVelocity(Measure<Time> predictionTime) {
+    return calculateFeedNoteVelocity(
         predictedPose(drive.pose(), drive.getFieldRelativeChassisSpeeds(), predictionTime));
+  }
+
+  public Vector<N3> calculateFeedNoteVelocity(Pose2d robotPose) {
+    double pitch = pivot.position();
+    double shotVelocity = calculateVelocityFromPitch(robotPose, pitch);
+
+    return calculateNoteVelocity(
+        robotPose, translationToFeedTarget(robotPose.getTranslation()), shotVelocity, pitch);
   }
 
   /**
@@ -195,43 +220,17 @@ public class Shooting implements Logged {
    *
    * @return A 3d vector representing the desired note initial velocity.
    */
-  public Vector<N3> calculateNoteVelocity(Pose2d robotPose) {
+  public Vector<N3> calculateNoteVelocity(
+      Pose2d robotPose, Translation2d difference, double shotVelocity, double pitch) {
     ChassisSpeeds speeds = drive.getFieldRelativeChassisSpeeds();
     Vector<N3> robotVelocity =
         VecBuilder.fill(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
-    Translation2d difference = translationToSpeaker(robotPose.getTranslation());
-    double shotVelocity = calculateStationaryVelocity(difference.getNorm());
-    Rotation3d noteOrientation =
-        new Rotation3d(
-            0,
-            -calculateStationaryPitch(
-                robotPoseFacingSpeaker(robotPose.getTranslation()), shotVelocity, pivot.position()),
-            difference.getAngle().getRadians());
+    Rotation3d noteOrientation = new Rotation3d(0, -pitch, difference.getAngle().getRadians());
     // rotate unit forward vector by note orientation and scale by our shot velocity
     Vector<N3> noteVelocity =
         new Translation3d(1, 0, 0).rotateBy(noteOrientation).toVector().unit().times(shotVelocity);
 
     return noteVelocity.minus(robotVelocity);
-  }
-
-  public Vector<N3> calculateStationaryNoteVector() {
-    return calculateStationaryNoteVector(drive.pose());
-  }
-
-  /**
-   * method used to calculate the robot relative velocity vector that sends it to the amp
-   *
-   * @return A 3d vector representing the desired initial velocity
-   */
-  public Vector<N3> calculateStationaryNoteVector(Pose2d robotPose) {
-    Translation2d difference = translationToFeedTarget(robotPose.getTranslation());
-    double shotVelocity = calculateVelocityFromPitch(robotPose, pivot.position());
-    Rotation3d rotation = new Rotation3d(0, -pivot.position(), difference.getAngle().getRadians());
-
-    Vector<N3> noteVelocity =
-        new Translation3d(1, 0, 0).rotateBy(rotation).toVector().unit().times(shotVelocity);
-
-    return noteVelocity;
   }
 
   public static Pose2d predictedPose(
