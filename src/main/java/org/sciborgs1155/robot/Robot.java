@@ -218,23 +218,25 @@ public class Robot extends CommandRobot implements Logged {
         .povUp()
         .whileTrue(shooter.runShooter(-ShooterConstants.IDLE_VELOCITY.in(RadiansPerSecond)));
 
+    // driver intake button
+    driver.leftTrigger().whileTrue(intake.intake());
+
     // intake (right trigger / top left bump)
     operator
-        .leftBumper()
+        .leftTrigger()
         .whileTrue(intake.intake().deadlineWith(feeder.slowForward()))
         .whileTrue(led.rainbow());
 
-    // operator feed (left trigger)
+    // operator feed (left trigger) underfeeding
     operator
-        .leftTrigger()
+        .leftBumper()
         .whileTrue(
             shooting.shootWithPivot(PivotConstants.FEED_ANGLE, ShooterConstants.DEFAULT_VELOCITY));
 
-    // shoot 45 deg FAST (far as possible)
-    // operator
-    //     .povLeft()
-    //     .whileTrue(
-    //         shooting.shootWithPivot(Radians.of(0.619), ShooterConstants.MAX_VELOCITY));
+    // shoot 45 deg FAST (far as possible) overfeeding
+    operator
+        .rightBumper()
+        .whileTrue(shooting.shootWithPivot(Radians.of(0.619), ShooterConstants.MAX_VELOCITY));
 
     // operator climb (b)
     operator
@@ -243,7 +245,7 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(pivot.lockedIn().deadlineWith(Commands.idle(shooter)));
 
     // operator note-unstuck (right bump)
-    operator.rightBumper().whileTrue(pivot.runPivot(Radians.of(0.8)).alongWith(intake.backward()));
+    operator.y().whileTrue(pivot.runPivot(Radians.of(0.8)).alongWith(intake.backward()));
 
     operator.x().whileTrue(intake.backward().alongWith(feeder.backward()));
 
