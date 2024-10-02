@@ -17,10 +17,10 @@ public final class Ports {
     idToName.put(51, "pivot l bottom");
     idToName.put(35, "pivot r bottom");
     idToName.put(10, "feeder");
-    idToName.put(2, "drive front l tra");
-    idToName.put(4, "drive rear l tra");
-    idToName.put(3, "drive front r tra");
-    idToName.put(1, "drive rear r tra");
+    idToName.put(2, "drive front l transl");
+    idToName.put(4, "drive rear l transl");
+    idToName.put(3, "drive front r transl");
+    idToName.put(1, "drive rear r transl");
     idToName.put(21, "drive front l rot");
     idToName.put(24, "drive rear l rot");
     idToName.put(34, "drive front r rot");
