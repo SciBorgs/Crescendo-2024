@@ -10,22 +10,22 @@ public final class Ports {
   static {
     idToName = new HashMap();
     // idToName.put(id, name);
-    idToName.put(6, "shooter - top motor");
-    idToName.put(9, "shooter - bottom motor");
-    idToName.put(7, "pivot - top left motor");
-    idToName.put(39, "pivot - right bottom motor");
-    idToName.put(51, "pivot - left bottom motor");
-    idToName.put(35, "pivot - right bottom motor");
-    idToName.put(10, "feeder - motor");
-    idToName.put(2, "drive - front left translational motor");
-    idToName.put(4, "drive - rear left translational motor");
-    idToName.put(3, "drive - front right translational motor");
-    idToName.put(1, "drive - rear right translational motor");
-    idToName.put(21, "drive - front left rotational motor");
-    idToName.put(24, "drive - rear left rotational motor");
-    idToName.put(34, "drive - front right rotational motor");
-    idToName.put(20, "drive - rear right rotational motor");
-    idToName.put(5, "intake - motor");
+    idToName.put(6, "shooter top");
+    idToName.put(9, "shooter bottom");
+    idToName.put(7, "pivot top l");
+    idToName.put(39, "pivot r bottom");
+    idToName.put(51, "pivot l bottom");
+    idToName.put(35, "pivot r bottom");
+    idToName.put(10, "feeder");
+    idToName.put(2, "drive front l tra");
+    idToName.put(4, "drive rear l tra");
+    idToName.put(3, "drive front r tra");
+    idToName.put(1, "drive rear r tra");
+    idToName.put(21, "drive front l rot");
+    idToName.put(24, "drive rear l rot");
+    idToName.put(34, "drive front r rot");
+    idToName.put(20, "drive rear r rot");
+    idToName.put(5, "intake");
   }
 
   public static final class OI {
