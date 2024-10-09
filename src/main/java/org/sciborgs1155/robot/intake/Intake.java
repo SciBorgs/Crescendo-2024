@@ -18,7 +18,7 @@ import org.sciborgs1155.robot.commands.NoteVisualizer;
 
 public class Intake extends SubsystemBase implements Logged, AutoCloseable {
   public static Intake create() {
-    return Robot.isReal() ? new Intake(new RealIntake()) : new Intake(new NoIntake());
+    return Robot.isReal() ? new Intake(new RealIntake()) : new Intake(new SimIntake());
   }
 
   public static Intake none() {

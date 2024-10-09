@@ -1,11 +1,9 @@
 package org.sciborgs1155.robot.feeder;
 
 import static edu.wpi.first.units.Units.Seconds;
-import static org.sciborgs1155.robot.feeder.FeederConstants.DEBOUNCE_TIME;
 import static org.sciborgs1155.robot.feeder.FeederConstants.POWER;
 import static org.sciborgs1155.robot.feeder.FeederConstants.TIMEOUT;
 
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -22,7 +20,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
 
   /** Creates a real or non-existent feeder based on {@link Robot#isReal()}. */
   public static Feeder create() {
-    return Robot.isReal() ? new Feeder(new RealFeeder()) : new Feeder(new NoFeeder());
+    return Robot.isReal() ? new Feeder(new RealFeeder()) : new Feeder(new SimFeeder());
   }
 
   /** Creates a non-existent feeder. */
@@ -32,6 +30,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
 
   public Feeder(FeederIO feeder) {
     this.feeder = feeder;
+    noteAtShooter().onTrue(Commands.runOnce(() -> System.out.println("note at shooter")));
   }
 
   public Command runFeeder(double power) {
@@ -60,6 +59,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
    */
   public Command eject() {
     return Commands.waitUntil(noteAtShooter())
+        .andThen(Commands.runOnce(() -> System.out.println("moved on")))
         .andThen(Commands.waitUntil(noteAtShooter().negate()))
         .deadlineWith(forward())
         .alongWith(NoteVisualizer.shoot())
@@ -76,9 +76,13 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
    * @return A trigger based on the upper feeder beambreak.
    */
   public Trigger noteAtShooter() {
-    return new Trigger(feeder::beambreak)
-        .negate()
-        .debounce(DEBOUNCE_TIME.in(Seconds), DebounceType.kFalling);
+    return new Trigger(feeder::beambreak).negate();
+    // .debounce(DEBOUNCE_TIME.in(Seconds), DebounceType.kFalling);
+  }
+
+  @Log.NT
+  public boolean beambreak() {
+    return feeder.beambreak();
   }
 
   @Log.NT

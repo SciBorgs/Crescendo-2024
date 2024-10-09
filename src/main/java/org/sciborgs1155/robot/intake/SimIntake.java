@@ -1,4 +1,4 @@
-package org.sciborgs1155.robot.feeder;
+package org.sciborgs1155.robot.intake;
 
 import static edu.wpi.first.units.Units.Seconds;
 import static org.sciborgs1155.robot.feeder.FeederConstants.*;
@@ -10,7 +10,7 @@ import monologue.Annotations.Log;
 import org.sciborgs1155.robot.Constants;
 import org.sciborgs1155.robot.commands.NoteVisualizer;
 
-public class SimFeeder implements FeederIO {
+public class SimIntake implements IntakeIO {
   private final DCMotorSim sim =
       new DCMotorSim(LinearSystemId.createDCMotorSystem(kV, kA), DCMotor.getNeoVortex(1), GEARING);
 
@@ -29,6 +29,11 @@ public class SimFeeder implements FeederIO {
   @Override
   public double current() {
     return sim.getCurrentDrawAmps();
+  }
+
+  @Override
+  public boolean seenNote() {
+    return NoteVisualizer.hasNote();
   }
 
   @Override

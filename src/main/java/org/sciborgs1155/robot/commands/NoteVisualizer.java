@@ -49,6 +49,9 @@ public class NoteVisualizer implements Logged {
   private static boolean carryingNote = true;
   private static List<Pose3d> pathPosition = new ArrayList<>();
 
+  private static boolean intakeBeam = true;
+  private static boolean feederBeam = true;
+
   // suppliers
   private static Supplier<Pose2d> drive = Pose2d::new;
   private static Supplier<Pose3d> shooter = Pose3d::new;
@@ -99,24 +102,31 @@ public class NoteVisualizer implements Logged {
                   if (carryingNote) {
                     return Commands.none();
                   }
-                  return Commands.run(
-                      () -> {
-                        Pose2d intakePose = drive.get();
-                        for (Pose3d note : notes) {
-                          double distance =
-                              Math.abs(
-                                  note.getTranslation()
-                                      .toTranslation2d()
-                                      .getDistance(intakePose.getTranslation()));
-                          if (distance > 0.6) {
-                            continue;
-                          }
-                          carryingNote = true;
-                          notes.remove(note);
-                          notesPub.set(notes.toArray(new Pose3d[0]));
-                          break;
-                        }
-                      });
+                  return Commands.runOnce(
+                          () -> {
+                            intakeBeam = false;
+                            Pose2d intakePose = drive.get();
+                            for (Pose3d note : notes) {
+                              double distance =
+                                  Math.abs(
+                                      note.getTranslation()
+                                          .toTranslation2d()
+                                          .getDistance(intakePose.getTranslation()));
+                              if (distance > 0.6) {
+                                continue;
+                              }
+                              notes.remove(note);
+                              notesPub.set(notes.toArray(new Pose3d[0]));
+                              break;
+                            }
+                          })
+                      .andThen(
+                          Commands.waitSeconds(.3),
+                          Commands.runOnce(
+                              () -> {
+                                carryingNote = true;
+                                intakeBeam = true;
+                              }));
                 },
                 Set.of()))
         .unless(Robot::isReal);
@@ -126,6 +136,7 @@ public class NoteVisualizer implements Logged {
     return new ScheduleCommand(
             Commands.defer(
                 () -> {
+                  feederBeam = false;
                   var poses = generatePath();
                   if (poses.length == 0) return Commands.runOnce(() -> {});
                   step = 0;
@@ -142,6 +153,7 @@ public class NoteVisualizer implements Logged {
                             shotNotePub.set(new Pose3d());
                             notePathPub.set(new Pose3d[0]);
                             carryingNote = false;
+                            feederBeam = true;
                           });
                 },
                 Set.of()))
@@ -152,6 +164,14 @@ public class NoteVisualizer implements Logged {
 
   public static boolean hasNote() {
     return carryingNote;
+  }
+
+  public static boolean intakeBeam() {
+    return intakeBeam;
+  }
+
+  public static boolean feederBeam() {
+    return feederBeam;
   }
 
   private static Pose3d[] generatePath() {
