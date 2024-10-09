@@ -241,7 +241,7 @@ public class Robot extends CommandRobot implements Logged {
         .whileTrue(
             shooting.shootWithPivot(PivotConstants.OVERFEED_ANGLE, ShooterConstants.MAX_VELOCITY));
      */
-    
+
     // operator climb (b)
     operator
         .b()
