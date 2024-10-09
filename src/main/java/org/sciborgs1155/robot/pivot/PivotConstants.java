@@ -55,8 +55,8 @@ public class PivotConstants {
   public static final Measure<Current> CURRENT_LIMIT = Amps.of(30);
   public static final Measure<Current> CLIMBER_CURRENT_LIMIT = Amps.of(60);
 
-  public static final Measure<Angle> FEED_ANGLE = Radians.of(-0.027);
-
+  public static final Measure<Angle> UNDERFEED_ANGLE = Radians.of(-0.027);
+  public static final Measure<Angle> OVERFEED_ANGLE = Radians.of(0.619);
   public static final double kP = 8.0;
   public static final double kI = 0.0;
   public static final double kD = 0.5;
