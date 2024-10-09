@@ -9,7 +9,6 @@ public final class Ports {
 
   static {
     idToName = new HashMap();
-    // idToName.put(id, name);
     idToName.put(6, "shooter top");
     idToName.put(9, "shooter bottom");
     idToName.put(7, "pivot top l");
