@@ -192,7 +192,7 @@ public final class FaultLogger {
             if (spark.getFault(fault)) {
               report(
                   String.format(
-                      "Name - %s ID- %s",
+                      "%s ID %s",
                       Ports.idToName.get(spark.getDeviceId()), String.valueOf(spark.getDeviceId())),
                   fault.name(),
                   FaultType.ERROR);
@@ -290,7 +290,7 @@ public final class FaultLogger {
     if (error != REVLibError.kOk) {
       report(
           String.format(
-              "Name - %s ID- %s",
+              "%s ID %s",
               Ports.idToName.get(spark.getDeviceId()), String.valueOf(spark.getDeviceId())),
           error.name(),
           FaultType.ERROR);
