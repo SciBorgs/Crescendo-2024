@@ -148,13 +148,14 @@ public class Robot extends CommandRobot implements Logged {
     } else {
       DriverStation.silenceJoystickConnectionWarning(true);
       addPeriodic(() -> vision.simulationPeriodic(drive.pose()), PERIOD.in(Seconds));
-      NoteVisualizer.setSuppliers(
-          drive::pose,
-          shooting::shooterPose,
-          drive::getFieldRelativeChassisSpeeds,
-          shooter::tangentialVelocity);
-      NoteVisualizer.startPublishing();
     }
+
+    NoteVisualizer.setSuppliers(
+        drive::pose,
+        shooting::shooterPose,
+        drive::getFieldRelativeChassisSpeeds,
+        shooter::tangentialVelocity);
+    NoteVisualizer.startPublishing();
   }
 
   /** Configures subsystem default commands & trigger -> command bindings. */
@@ -269,7 +270,7 @@ public class Robot extends CommandRobot implements Logged {
                 .deadlineWith(Commands.idle(shooter)))
         .toggleOnTrue(led.raindrop());
 
-    operator.y().whileTrue(shooting.feedToAmp(x, y));
+    driver.y().whileTrue(shooting.feedToAmp(x, y));
 
     // operator manual shoot (povDown)
     operator.povDown().whileTrue(shooting.shoot(RadiansPerSecond.of(350))).whileTrue(led.rainbow());
