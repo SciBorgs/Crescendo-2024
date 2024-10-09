@@ -235,11 +235,13 @@ public class Robot extends CommandRobot implements Logged {
                 PivotConstants.UNDERFEED_ANGLE, ShooterConstants.DEFAULT_VELOCITY));
 
     // shoot 45 deg FAST (far as possible) overfeeding
+    /*
     operator
         .rightBumper()
         .whileTrue(
             shooting.shootWithPivot(PivotConstants.OVERFEED_ANGLE, ShooterConstants.MAX_VELOCITY));
-
+     */
+    
     // operator climb (b)
     operator
         .b()
