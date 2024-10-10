@@ -86,9 +86,10 @@ public class SparkUtils {
     int status5 = FRAME_STRATEGY_DISABLED; // duty cycle position | default 200
     int status6 = FRAME_STRATEGY_DISABLED; // duty cycle velocity | default 200
     int status7 = FRAME_STRATEGY_DISABLED;
-    // status frame 7 is cursed, the only mention i found of it in rev's docs is at
+    // // status frame 7 is cursed, the only mention i found of it in rev's docs is at
+    // //
     // https://docs.revrobotics.com/brushless/spark-flex/revlib/spark-flex-firmware-changelog#breaking-changes
-    // if it's only IAccum, there's literally no reason to enable the frame
+    // // if it's only IAccum, there's literally no reason to enable the frame
 
     if (withFollower || data.contains(Data.APPLIED_OUTPUT)) {
       status0 = FRAME_STRATEGY_VERY_FAST;

@@ -9,10 +9,14 @@ import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Velocity;
 import java.util.List;
 
 public final class DriveConstants {
+  // Rate at which sensors update periodicially
+  public static final Measure<Time> SENSOR_PERIOD = Seconds.of(0.001);
+
   // Distance between centers of right and left wheels on robot
   public static final Measure<Distance> TRACK_WIDTH = Meters.of(0.5715);
   // Distance between front and back wheels on robot
@@ -89,9 +93,23 @@ public final class DriveConstants {
       public static final Measure<Current> CURRENT_LIMIT = Amps.of(50);
 
       public static final class PID {
-        public static final double P = 3.2;
-        public static final double I = 0.0;
-        public static final double D = 0.0;
+        public static final class SPARK {
+          public static final double P = 1;
+          public static final double I = 0.0;
+          public static final double D = 0.0;
+        }
+
+        public static final class TALON {
+          public static final double P = 3.2;
+          public static final double I = 0.0;
+          public static final double D = 0.0;
+        }
+
+        public static final class SIM {
+          public static final double P = 3.2;
+          public static final double I = 0.0;
+          public static final double D = 0.0;
+        }
       }
 
       public static final class FF {
@@ -100,10 +118,19 @@ public final class DriveConstants {
         // a linear: 0.17586, 0.13707, 0.23915, 0.26842
         // a rotation: 0.37587, 0.20079
         // 2 has 0.55 R^2
-        public static final double S = 0.23963;
-        public static final double V = 2.0681;
-        public static final double kA_linear = 0.205;
-        public static final double kA_angular = 0.376;
+        public static final class SPARK {
+          public static final double S = 0.23963;
+          public static final double V = 2.0681;
+          public static final double kA_linear = 0.205;
+          public static final double kA_angular = 0.376;
+        }
+
+        public static final class TALON {
+          public static final double S = -1; // TODO
+          public static final double V = 2.0681;
+          public static final double kA_linear = 0.205;
+          public static final double kA_angular = 0.376;
+        }
       }
     }
 
@@ -119,9 +146,23 @@ public final class DriveConstants {
       public static final Measure<Current> CURRENT_LIMIT = Amps.of(20);
 
       public static final class PID {
-        public static final double P = 9;
-        public static final double I = 0.0;
-        public static final double D = 0.05;
+        public static final class SPARK {
+          public static final double P = 0.3; // FAKE DOES NOT WORK
+          public static final double I = 0.0;
+          public static final double D = 0.05;
+        }
+
+        public static final class TALON {
+          public static final double P = 9;
+          public static final double I = 0.0;
+          public static final double D = 0.05;
+        }
+
+        public static final class SIM {
+          public static final double P = 9;
+          public static final double I = 0.0;
+          public static final double D = 0.05;
+        }
       }
 
       // system constants only used in simulation

@@ -6,7 +6,7 @@ public class NoIntake implements IntakeIO {
 
   @Override
   public boolean beambreak() {
-    return false;
+    return true;
   }
 
   @Override
