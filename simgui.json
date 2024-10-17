@@ -1,6 +1,9 @@
 {
   "HALProvider": {
     "Addressable LEDs": {
+      "0": {
+        "serpentine": true
+      },
       "window": {
         "visible": true
       }
@@ -100,6 +103,11 @@
           "visible": true
         }
       },
+      "/Robot/pivot/positionVisualizer": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/VisionSystemSim-main/Sim Field": {
         "bottom": 1476,
         "height": 8.210550308227539,
@@ -160,23 +168,21 @@
             "open": true
           }
         },
-        "feeder": {
-          "open": true
-        },
-        "intake": {
-          "open": true
-        },
         "open": true,
         "pivot": {
+          "Rotation3d##v_/Robot/pivot/rotation": {
+            "open": true
+          },
           "hardware": {
             "open": true
           },
+          "open": true,
           "pid": {
             "open": true
+          },
+          "positionVisualizer": {
+            "open": true
           }
-        },
-        "shooter": {
-          "open": true
         }
       }
     }
@@ -186,8 +192,5 @@
       "open": true
     },
     "visible": true
-  },
-  "NetworkTables View": {
-    "visible": false
   }
 }

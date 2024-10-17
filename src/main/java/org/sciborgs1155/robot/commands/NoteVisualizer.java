@@ -146,7 +146,7 @@ public class NoteVisualizer implements Logged {
                 },
                 Set.of()))
         // .unless(() -> !carryingNote)
-        .unless(Robot::isReal)
+        // .unless(Robot::isReal)
         .ignoringDisable(true);
   }
 

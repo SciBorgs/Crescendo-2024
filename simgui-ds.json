@@ -1,12 +1,7 @@
 {
-  "FMS": {
+  "Keyboard 0 Settings": {
     "window": {
-      "visible": false
-    }
-  },
-  "Joysticks": {
-    "window": {
-      "visible": false
+      "visible": true
     }
   },
   "System Joysticks": {
