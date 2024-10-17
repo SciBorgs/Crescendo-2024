@@ -56,7 +56,7 @@ public class Shooting implements Logged {
    */
   public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.42);
 
-  public static final DoubleEntry ethansConstant = Tuning.entry("/Robot/Ethan's Constant", 3.7);
+  public static final DoubleEntry ethansConstant = Tuning.entry("/Robot/Ethan's Constant", 3.2);
 
   public static final Measure<Distance> MAX_DISTANCE = Meters.of(5.0);
 
