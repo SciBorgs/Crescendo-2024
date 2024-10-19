@@ -1,0 +1,236 @@
+{
+  "hubs": [
+    {
+      "x": -8,
+      "y": -8,
+      "width": 1552,
+      "height": 832,
+      "state": {
+        "sidebar": {
+          "width": 300,
+          "expanded": [
+            "/NT/Robot",
+            "/NT/Robot/feeder/feeder",
+            "/NT/SmartDashboard",
+            "/NT",
+            "/NT/Robot/intake",
+            "/NT/Robot/intake/hardware",
+            "/NT/Robot/feeder",
+            "/NT/Robot/pivot/hardware",
+            "/Robot/pivot/hardware",
+            "/Robot/drive/getModuleSetpoints/0",
+            "/Robot/drive/getModuleSetpoints/0/angle",
+            "/Robot/drive/getModulePositions/1",
+            "/Robot/drive/pose/translation",
+            "/Robot/drive/getModuleStates/0",
+            "/Robot/drive/getModuleStates/0/angle",
+            "/Robot/drive/rearLeft",
+            "/Robot/drive/rearLeft/setpoint",
+            "/Robot/drive/rearRight",
+            "/Robot/drive/rearRight/setpoint",
+            "/Robot/drive/rearLeft/setpoint/angle",
+            "/Robot/pivot/setpoint",
+            "/Robot/pivot/setpoint/q",
+            "/Robot/pivot/rotation",
+            "/Robot/pivot/rotation/q",
+            "/Robot/intake/hardware",
+            "/Robot",
+            "/Robot/feeder/feeder",
+            "/Robot/feedTarget/translation",
+            "/PathPlanner"
+          ]
+        },
+        "tabs": {
+          "selected": 3,
+          "tabs": [
+            {
+              "type": 0,
+              "path": "../docs/INDEX.md"
+            },
+            {
+              "type": 6,
+              "uuid": "5wca2v1885x7slhbiefk9dlxxvubnhcw",
+              "fields": [],
+              "listFields": [
+                [
+                  {
+                    "type": "Component (Robot)",
+                    "key": "NT:/Robot/pivot/transform",
+                    "sourceTypeIndex": 3,
+                    "sourceType": "Transform3d"
+                  },
+                  {
+                    "type": "Vision Target",
+                    "key": "NT:/Robot/vision/getSeenTags",
+                    "sourceTypeIndex": 2,
+                    "sourceType": "Pose3d[]"
+                  },
+                  {
+                    "type": "Green Ghost",
+                    "key": "NT:/Robot/drive/estimated poses",
+                    "sourceTypeIndex": 2,
+                    "sourceType": "Pose3d[]"
+                  }
+                ],
+                [
+                  {
+                    "type": "Robot",
+                    "key": "NT:/Robot/drive/pose",
+                    "sourceTypeIndex": 1,
+                    "sourceType": "Pose2d"
+                  }
+                ]
+              ],
+              "options": {
+                "field": "2024 Field",
+                "alliance": "blue",
+                "robot": "Taiwanese Fried Chicken",
+                "unitDistance": "meters",
+                "unitRotation": "radians"
+              },
+              "configHidden": false,
+              "visualizer": {
+                "cameraIndex": -1,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  -0.31412956078469356,
+                  3.070757421178093,
+                  3.2070148776953165
+                ],
+                "cameraTarget": [
+                  -0.26392729137161647,
+                  3.0239805815071685,
+                  3.1541888277473307
+                ]
+              },
+              "title": "3D Field"
+            },
+            {
+              "type": 10,
+              "uuid": "k4z5p0v5125jozq1j19zjtd3cjh40pbl",
+              "fields": [
+                {
+                  "key": "NT:/Robot/pivot/positionVisualizer",
+                  "sourceTypeIndex": 0,
+                  "sourceType": "Mechanism2d"
+                },
+                {
+                  "key": "NT:/Robot/pivot/setpointVisualizer",
+                  "sourceTypeIndex": 0,
+                  "sourceType": "Mechanism2d"
+                },
+                null
+              ],
+              "listFields": [],
+              "options": {},
+              "configHidden": false,
+              "visualizer": null,
+              "title": "Mechanism"
+            },
+            {
+              "type": 1,
+              "legendHeight": 0.3,
+              "legends": {
+                "left": {
+                  "lockedRange": null,
+                  "unitConversion": {
+                    "type": null,
+                    "factor": 1
+                  },
+                  "fields": []
+                },
+                "discrete": {
+                  "fields": []
+                },
+                "right": {
+                  "lockedRange": null,
+                  "unitConversion": {
+                    "type": null,
+                    "factor": 1
+                  },
+                  "fields": []
+                }
+              },
+              "title": "Line Graph"
+            },
+            {
+              "type": 9,
+              "uuid": "5cj4y4dkdzadjbbetvyqw7tiq1jcvsku",
+              "fields": [
+                {
+                  "key": "NT:/Robot/drive/getModuleSetpoints",
+                  "sourceTypeIndex": 1,
+                  "sourceType": "SwerveModuleState[]"
+                },
+                {
+                  "key": "NT:/Robot/drive/getModuleStates",
+                  "sourceTypeIndex": 1,
+                  "sourceType": "SwerveModuleState[]"
+                },
+                {
+                  "key": "NT:/Robot/drive/pose/rotation",
+                  "sourceTypeIndex": 1,
+                  "sourceType": "Rotation2d"
+                }
+              ],
+              "listFields": [],
+              "options": {
+                "maxSpeed": 4.5,
+                "rotationUnits": "radians",
+                "arrangement": "0,1,2,3",
+                "sizeLeftRight": 0.65,
+                "sizeFrontBack": 0.65,
+                "forwardDirection": "up"
+              },
+              "configHidden": false,
+              "visualizer": null,
+              "title": "Swerve"
+            },
+            {
+              "type": 5,
+              "uuid": "di03cjeb5ua4jh8nk7br6qg3ol5gt7l2",
+              "fields": [],
+              "listFields": [
+                [
+                  {
+                    "type": "Robot",
+                    "key": "NT:/Robot/drive/pose",
+                    "sourceTypeIndex": 1,
+                    "sourceType": "Pose2d"
+                  },
+                  {
+                    "type": "Trajectory",
+                    "key": "NT:/PathPlanner/activePath",
+                    "sourceTypeIndex": 0,
+                    "sourceType": 5
+                  },
+                  {
+                    "type": "Ghost",
+                    "key": "NT:/PathPlanner/targetPose",
+                    "sourceTypeIndex": 0,
+                    "sourceType": 5
+                  }
+                ]
+              ],
+              "options": {
+                "game": "2024 Field",
+                "unitDistance": "meters",
+                "unitRotation": "radians",
+                "origin": "right",
+                "size": 0.75,
+                "allianceBumpers": "auto",
+                "allianceOrigin": "blue",
+                "orientation": "blue left, red right"
+              },
+              "configHidden": false,
+              "visualizer": null,
+              "title": "Odometry"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [],
+  "version": "3.2.1"
+}

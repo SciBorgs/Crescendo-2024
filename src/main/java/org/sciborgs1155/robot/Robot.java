@@ -150,6 +150,7 @@ public class Robot extends CommandRobot implements Logged {
       addPeriodic(() -> vision.simulationPeriodic(drive.pose()), PERIOD.in(Seconds));
     }
 
+    // visualizer stuff may need to be returned to sim-only based on performance
     NoteVisualizer.setSuppliers(
         drive::pose,
         shooting::shooterPose,
