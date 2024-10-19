@@ -141,6 +141,10 @@ public class Constants {
       return alliance() == Alliance.Blue ? BLUE_AMP : RED_AMP;
     }
 
+    public static Translation2d feedTarget() {
+      return amp().plus(new Translation2d(Inches.of(0), Inches.of(-24)));
+    }
+
     /** Returns whether the provided position is within the boundaries of the field. */
     public static boolean inField(Pose3d pose) {
       return (pose.getX() > 0
