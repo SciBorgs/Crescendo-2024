@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.photonvision.PhotonCamera;
+import org.sciborgs1155.robot.Ports;
 
 /**
  * FaultLogger allows for faults to be logged and displayed.
@@ -189,7 +190,12 @@ public final class FaultLogger {
         () -> {
           for (FaultID fault : FaultID.values()) {
             if (spark.getFault(fault)) {
-              report(SparkUtils.name(spark), fault.name(), FaultType.ERROR);
+              report(
+                  String.format(
+                      "%s ID %s",
+                      Ports.idToName.get(spark.getDeviceId()), String.valueOf(spark.getDeviceId())),
+                  fault.name(),
+                  FaultType.ERROR);
             }
           }
         });
@@ -280,8 +286,14 @@ public final class FaultLogger {
    * @return If the spark is working without errors.
    */
   public static boolean check(CANSparkBase spark, REVLibError error) {
+
     if (error != REVLibError.kOk) {
-      report(SparkUtils.name(spark), error.name(), FaultType.ERROR);
+      report(
+          String.format(
+              "%s ID %s",
+              Ports.idToName.get(spark.getDeviceId()), String.valueOf(spark.getDeviceId())),
+          error.name(),
+          FaultType.ERROR);
       return false;
     }
     return true;
