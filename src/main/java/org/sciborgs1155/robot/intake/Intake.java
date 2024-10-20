@@ -101,6 +101,7 @@ public class Intake extends SubsystemBase implements Logged, AutoCloseable {
   @Override
   public void periodic() {
     log("command", Optional.ofNullable(getCurrentCommand()).map(Command::getName).orElse("none"));
+    log("seen note?", hardware.seenNote());
   }
 
   @Override

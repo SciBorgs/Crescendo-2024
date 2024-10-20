@@ -122,6 +122,13 @@
     }
   },
   "NetworkTables": {
+    "retained": {
+      "Robot": {
+        "autos": {
+          "open": true
+        }
+      }
+    },
     "transitory": {
       "Faults": {
         "Active Faults": {
@@ -167,6 +174,9 @@
           "turning": {
             "open": true
           }
+        },
+        "intake": {
+          "open": true
         },
         "open": true,
         "pivot": {

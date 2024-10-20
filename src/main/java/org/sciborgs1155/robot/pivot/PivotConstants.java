@@ -2,12 +2,9 @@ package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.*;
 
-import org.sciborgs1155.lib.Tuning;
-
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Distance;

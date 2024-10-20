@@ -46,7 +46,7 @@ public class Feeder extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Command slowForward() {
-    return runFeeder(POWER / 2).withName("slow forward");
+    return runFeeder(POWER / 1.6).withName("slow forward");
   }
 
   public Command backward() {

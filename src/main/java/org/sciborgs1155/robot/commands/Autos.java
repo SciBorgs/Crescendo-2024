@@ -89,6 +89,17 @@ public class Autos {
                     () -> 0,
                     () -> 0,
                     () -> Shooting.yawFromNoteVelocity(shooting.calculateNoteVelocity()))));
+    // .finallyDo(
+    //     () -> {
+    //       if (!pivot.atGoal()
+    //           && Math.abs(pivot.position() - pivot.goal().getAngle()) < Math.toRadians(2)) {
+    //         shooting.shoot(
+    //             () ->
+    //                 Shooting.rotationalVelocityFromNoteVelocity(
+    //                     shooting.calculateNoteVelocity()),
+    //             () -> true);
+    //       }
+    //     }));
     NamedCommands.registerCommand(
         "shoot-subwoofer", shooting.shoot(IDLE_VELOCITY).withTimeout(2.2));
     NamedCommands.registerCommand(
