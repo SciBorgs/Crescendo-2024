@@ -54,7 +54,7 @@ public class Shooting implements Logged {
    * The conversion between shooter tangential velocity and note launch velocity. Perhaps. This may
    * also account for other errors with our model.
    */
-  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.42);
+  public static final DoubleEntry siggysConstant = Tuning.entry("/Robot/Siggy's Constant", 4.15);
 
   public static final DoubleEntry ethansConstant = Tuning.entry("/Robot/Ethan's Constant", 3.2);
 

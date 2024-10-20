@@ -2,9 +2,12 @@ package org.sciborgs1155.robot.pivot;
 
 import static edu.wpi.first.units.Units.*;
 
+import org.sciborgs1155.lib.Tuning;
+
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Distance;
@@ -32,7 +35,7 @@ public class PivotConstants {
   public static final Measure<Mult<Mult<Distance, Distance>, Mass>> MOI =
       (Meters).mult(Meters).mult(Kilograms).of(0.17845);
 
-  public static final Measure<Angle> POSITION_TOLERANCE = Degrees.of(0.8);
+  public static final Measure<Angle> POSITION_TOLERANCE = Degrees.of(0.4);
 
   public static final Measure<Mass> MASS = Kilograms.of(1);
   public static final Measure<Distance> LENGTH = Inches.of(16);
@@ -44,10 +47,11 @@ public class PivotConstants {
   public static final Measure<Angle> STARTING_ANGLE = Degrees.of(63.3);
 
   public static final Measure<Angle> MIN_ANGLE = Degrees.of(-45.7);
+
   public static final Measure<Angle> MAX_ANGLE = STARTING_ANGLE.minus(Degrees.of(1.2));
 
   public static final Measure<Angle> PRESET_SUBWOOFER_ANGLE = STARTING_ANGLE;
-  public static final Measure<Angle> AMP_ANGLE = Radians.of(-0.645);
+  public static final Measure<Angle> AMP_ANGLE = Radians.of(-0.59);
   public static final Measure<Angle> PRESET_PODIUM_ANGLE = Radians.of(0.5);
 
   public static final Measure<Angle> PRESET_CLIMBING_ANGLE = Radians.of(-0.195);
@@ -57,9 +61,9 @@ public class PivotConstants {
 
   public static final Measure<Angle> UNDERFEED_ANGLE = Radians.of(-0.027);
   public static final Measure<Angle> OVERFEED_ANGLE = Radians.of(0.619);
-  public static final double kP = 8.0;
+  public static final double kP = 12.0;
   public static final double kI = 0.0;
-  public static final double kD = 0.5;
+  public static final double kD = 0.1;
 
   public static final double kS = 0.14296;
   public static final double kV = 1.7305;

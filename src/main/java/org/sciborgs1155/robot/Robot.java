@@ -232,7 +232,7 @@ public class Robot extends CommandRobot implements Logged {
     // intake (right trigger / top left bump)
     operator
         .leftTrigger()
-        .whileTrue(intake.intake().deadlineWith(feeder.slowForward()))
+        .whileTrue(intake.intake().deadlineWith(feeder.forward()))
         .whileTrue(led.rainbow());
 
     // operator feed (left trigger) underfeeding

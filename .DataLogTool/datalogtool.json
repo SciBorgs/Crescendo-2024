@@ -1,6 +1,7 @@
 {
   "download": {
-    "localDir": "C:\\Users\\robotics\\Documents\\Crescendo-2024\\logs",
+    "deleteAfter": false,
+    "localDir": "C:\\Users\\admin.CT48-11\\Desktop\\Code\\23-24 Crescendo\\Crescendo-2024\\logs",
     "serverTeam": "10.11.55.2"
   }
 }

@@ -23,7 +23,7 @@ public class ShooterConstants {
   public static final Measure<Velocity<Angle>> VELOCITY_TOLERANCE = RadiansPerSecond.of(5);
 
   public static final Measure<Velocity<Angle>> IDLE_VELOCITY = RadiansPerSecond.of(300);
-  public static final Measure<Velocity<Angle>> AMP_VELOCITY = RadiansPerSecond.of(150);
+  public static final Measure<Velocity<Angle>> AMP_VELOCITY = RadiansPerSecond.of(90);
 
   public static final Measure<Velocity<Angle>> DEFAULT_VELOCITY = RadiansPerSecond.of(550);
   public static final Measure<Velocity<Distance>> DEFAULT_NOTE_VELOCITY =

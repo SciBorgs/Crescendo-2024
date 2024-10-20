@@ -142,7 +142,7 @@ public class Constants {
     }
 
     public static Translation2d feedTarget() {
-      return amp().plus(new Translation2d(Inches.of(0), Inches.of(-24)));
+      return amp().plus(new Translation2d(Inches.of(0), Inches.of(-100)));
     }
 
     /** Returns whether the provided position is within the boundaries of the field. */
